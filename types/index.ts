@@ -1,10 +1,7 @@
 export type ChargePointId = string;
 export type SiteId = string;
 
-export type ChargePointLifecycle =
-  | "OFFLINE"
-  | "CONNECTED"
-  | "SYNCED";
+export type ChargePointLifecycle = "OFFLINE" | "CONNECTED" | "SYNCED";
 
 export type ChargePointStatus =
   | "Available"
@@ -18,8 +15,8 @@ export type ChargePointStatus =
   | "Faulted";
 
 export interface ChargePointMeta {
-  vendor: string;
-  model: string;
+  chargePointVendor: string;
+  chargePointModel: string;
   serialNumber?: string;
   firmwareVersion?: string;
 }
