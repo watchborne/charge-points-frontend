@@ -6,15 +6,10 @@ import {
   Battery,
   CheckCircle,
   Loader,
-  RefreshCw,
   XCircle,
 } from "lucide-react";
 
-type HeaderProps = {
-  onRefreshClicked: () => void;
-};
-
-export const Header = ({ onRefreshClicked }: HeaderProps) => {
+export const Header = () => {
   const { status } = useWebSocket("ws://localhost:3000/ws");
 
   const webSocketConnectionStatus = useMemo(() => {
@@ -51,13 +46,6 @@ export const Header = ({ onRefreshClicked }: HeaderProps) => {
               <p>Connection status:</p>
               {webSocketConnectionStatus}
             </div>
-            <button
-              onClick={onRefreshClicked}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Refresh
-            </button>
           </div>
         </div>
       </div>

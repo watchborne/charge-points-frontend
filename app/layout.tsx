@@ -1,22 +1,25 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Supervision Bornes de Recharge',
-  description: 'Dashboard de supervision pour bornes de recharge électrique',
-}
+  title: "Charge points monitor",
+  description: "Monitoring dashboard for EV charge points",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="fr">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <WebSocketDataProvider>{children}</WebSocketDataProvider>
+      </body>
     </html>
-  )
+  );
 }
