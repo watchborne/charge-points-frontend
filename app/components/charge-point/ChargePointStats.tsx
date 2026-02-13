@@ -1,4 +1,4 @@
-import { ChargePoint } from "@/types";
+import { ChargePoint } from "@/types/charge-point";
 import { StatCard } from "../common/StatCard";
 import { Battery, PlugZap, RefreshCw, X } from "lucide-react";
 

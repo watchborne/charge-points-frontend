@@ -1,4 +1,4 @@
-import { ChargePoint } from "@/types";
+import { ChargePoint } from "@/types/charge-point";
 import { ChargePointCard } from "./ChargePointCard";
 import { Tag } from "../common/Tag";
 

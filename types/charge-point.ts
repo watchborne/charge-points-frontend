@@ -1,7 +1,7 @@
 export type ChargePointId = string;
 export type SiteId = string;
 
-export type ChargePointLifecycle = "OFFLINE" | "CONNECTED" | "SYNCED";
+export type ChargePointConnectionStatus = "OFFLINE" | "CONNECTED" | "SYNCED";
 
 export type ChargePointStatus =
   | "Available"
@@ -24,7 +24,7 @@ export interface ChargePointMeta {
 export interface ChargePoint {
   id: ChargePointId;
   siteId: SiteId;
-  lifecycle: ChargePointLifecycle;
+  lifecycle: ChargePointConnectionStatus;
   status: ChargePointStatus;
   lastSeen?: string; // ISO date string
   meta?: ChargePointMeta;

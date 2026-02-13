@@ -1,8 +1,11 @@
-import { ChargePointStatus, ChargePointLifecycle } from "@/types";
+import {
+  ChargePointStatus,
+  ChargePointConnectionStatus,
+} from "@/types/charge-point";
 
 interface StatusBadgeProps {
   status: ChargePointStatus;
-  lifecycle: ChargePointLifecycle;
+  lifecycle: ChargePointConnectionStatus;
 }
 
 export const StatusBadge = ({ status, lifecycle }: StatusBadgeProps) => {

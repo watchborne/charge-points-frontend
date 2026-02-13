@@ -1,4 +1,4 @@
-import { ChargePoint } from "@/types";
+import { ChargePoint } from "@/types/charge-point";
 import { StatusBadge } from "./StatusBadge";
 import { Battery, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
