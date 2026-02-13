@@ -28,6 +28,7 @@ export interface ChargePoint {
     status: ChargePointConnectionStatus;
     lastSeen?: string;
   };
+  status?: ChargePointStatus;
   meta?: ChargePointMeta;
 }
 
