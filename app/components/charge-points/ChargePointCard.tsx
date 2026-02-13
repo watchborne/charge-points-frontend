@@ -27,17 +27,23 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
 
       {chargePoint.meta && (
         <div className="space-y-1 mb-3">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Model: </span>
-            {chargePoint.meta.chargePointVendor}{" "}
-            {chargePoint.meta.chargePointModel}
-          </p>
-          {chargePoint.meta.firmwareVersion && (
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Firmware: </span>
-              {chargePoint.meta.firmwareVersion}
-            </p>
-          )}
+          {[
+            {
+              label: "Model",
+              data:
+                chargePoint.meta.chargePointVendor &&
+                chargePoint.meta.chargePointModel
+                  ? `${chargePoint.meta.chargePointVendor} ${chargePoint.meta.chargePointModel}`
+                  : undefined,
+            },
+            { label: "Firmware", data: chargePoint.meta.firmwareVersion },
+          ].map(({ label, data }) => (
+            <ChargePointDetail
+              key={`cp-details-${label}`}
+              label={label}
+              detail={data}
+            />
+          ))}
         </div>
       )}
 
@@ -48,3 +54,22 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
     </div>
   );
 }
+
+const ChargePointDetail = ({
+  label,
+  detail,
+}: {
+  label: string;
+  detail?: string;
+}) => {
+  if (!detail) return null;
+
+  return (
+    <div className="flex items-center gap-1 text-sm">
+      <label className="text-gray-900 font-medium" htmlFor={label}>
+        {label}:{" "}
+      </label>
+      <p className="text-gray-500 font-medium">{detail}</p>
+    </div>
+  );
+};
