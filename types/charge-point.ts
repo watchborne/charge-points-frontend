@@ -24,9 +24,10 @@ export interface ChargePointMeta {
 export interface ChargePoint {
   id: ChargePointId;
   siteId: SiteId;
-  lifecycle: ChargePointConnectionStatus;
-  status: ChargePointStatus;
-  lastSeen?: string; // ISO date string
+  connection: {
+    status: ChargePointConnectionStatus;
+    lastSeen?: string;
+  };
   meta?: ChargePointMeta;
 }
 

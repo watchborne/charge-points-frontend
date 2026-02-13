@@ -9,9 +9,12 @@ export const ChargePointStats = ({
 }) => {
   const stats = {
     total: chargePoints.length,
-    connected: chargePoints.filter((cp) => cp.lifecycle === "CONNECTED").length,
-    synced: chargePoints.filter((cp) => cp.lifecycle === "SYNCED").length,
-    offline: chargePoints.filter((cp) => cp.lifecycle === "OFFLINE").length,
+    connected: chargePoints.filter((cp) => cp.connection.status === "CONNECTED")
+      .length,
+    synced: chargePoints.filter((cp) => cp.connection.status === "SYNCED")
+      .length,
+    offline: chargePoints.filter((cp) => cp.connection.status === "OFFLINE")
+      .length,
     // available: chargePoints.filter(
     //   (cp) => cp.status === "Available" && cp.lifecycle === "SYNCED",
     // ).length,
