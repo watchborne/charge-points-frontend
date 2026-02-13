@@ -37,7 +37,7 @@ export function useWebSocket(url: string): UseWebSocketReturn {
 
       socket.onmessage = (event) => {
         console.log("received message: ", event.data);
-        setLastMessage(event);
+        setLastMessage(event.data);
       };
 
       socket.onclose = () => {
