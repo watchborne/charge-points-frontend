@@ -1,10 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { ChargePoint } from '@/types';
-import { api } from '@/lib/api';
-import { ChargePointCard } from '@/components/ChargePointCard';
-import { Battery, RefreshCw, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { ChargePoint } from "@/types";
+import { api } from "@/lib/api";
+import { ChargePointCard } from "@/components/ChargePointCard";
+import {
+  Battery,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle,
+  Loader,
+} from "lucide-react";
+import { useWebSocket } from "./hooks/useWebSocket";
 
 export default function DashboardPage() {
   const [chargePoints, setChargePoints] = useState<ChargePoint[]>([]);
@@ -20,7 +27,9 @@ export default function DashboardPage() {
       setChargePoints(data);
       setLastUpdate(new Date());
     } catch (err) {
-      setError('Impossible de charger les bornes. Vérifiez que le backend tourne sur http://localhost:3000');
+      setError(
+        "Impossible de charger les bornes. Vérifiez que le backend tourne sur http://localhost:3000",
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -44,11 +53,20 @@ export default function DashboardPage() {
   // Calculer les stats
   const stats = {
     total: chargePoints.length,
-    online: chargePoints.filter(cp => cp.lifecycle === 'SYNCED').length,
-    available: chargePoints.filter(cp => cp.status === 'Available' && cp.lifecycle === 'SYNCED').length,
-    charging: chargePoints.filter(cp => cp.status === 'Charging').length,
-    faulted: chargePoints.filter(cp => cp.status === 'Faulted' || cp.lifecycle === 'OFFLINE').length,
+    online: chargePoints.filter((cp) => cp.lifecycle === "SYNCED").length,
+    available: chargePoints.filter(
+      (cp) => cp.status === "Available" && cp.lifecycle === "SYNCED",
+    ).length,
+    charging: chargePoints.filter((cp) => cp.status === "Charging").length,
+    faulted: chargePoints.filter(
+      (cp) => cp.status === "Faulted" || cp.lifecycle === "OFFLINE",
+    ).length,
   };
+
+  // WS
+  const { socket, status, lastMessage } = useWebSocket(
+    "ws://localhost:3000/ws",
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,7 +76,9 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Battery className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Supervision Bornes de Recharge</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Supervision Bornes de Recharge
+              </h1>
             </div>
             <button
               onClick={loadChargePoints}
@@ -70,12 +90,16 @@ export default function DashboardPage() {
           </div>
           {lastUpdate && (
             <p className="text-sm text-gray-500 mt-2">
-              Dernière mise à jour : {lastUpdate.toLocaleTimeString('fr-FR')}
-              <span className="ml-2 text-xs">(rafraîchissement automatique toutes les 5s)</span>
+              Dernière mise à jour : {lastUpdate.toLocaleTimeString("fr-FR")}
+              <span className="ml-2 text-xs">
+                (rafraîchissement automatique toutes les 5s)
+              </span>
             </p>
           )}
         </div>
       </header>
+
+      <pre>{JSON.stringify({ socket, status, lastMessage }, null, 2)}</pre>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error State */}
@@ -86,7 +110,10 @@ export default function DashboardPage() {
               <p className="font-medium">{error}</p>
             </div>
             <p className="text-sm text-red-600 mt-2">
-              Lancez le backend avec : <code className="bg-red-100 px-2 py-1 rounded">cd backend && npm run dev</code>
+              Lancez le backend avec :{" "}
+              <code className="bg-red-100 px-2 py-1 rounded">
+                cd backend && npm run dev
+              </code>
             </p>
           </div>
         )}
@@ -135,22 +162,33 @@ export default function DashboardPage() {
 
             {/* Charge Points Grid */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Bornes ({chargePoints.length})</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                Bornes ({chargePoints.length})
+              </h2>
               {chargePoints.length === 0 ? (
                 <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
                   <Battery className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 font-medium">Aucune borne détectée</p>
+                  <p className="text-gray-600 font-medium">
+                    Aucune borne détectée
+                  </p>
                   <p className="text-sm text-gray-500 mt-2">
-                    Les bornes apparaîtront ici une fois connectées au serveur OCPP
+                    Les bornes apparaîtront ici une fois connectées au serveur
+                    OCPP
                   </p>
                   <p className="text-sm text-gray-500 mt-4">
-                    💡 Lancez le simulateur : <code className="bg-gray-100 px-2 py-1 rounded">cd simulator && npm run simulate</code>
+                    💡 Lancez le simulateur :{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">
+                      cd simulator && npm run simulate
+                    </code>
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {chargePoints.map((chargePoint) => (
-                    <ChargePointCard key={chargePoint.id} chargePoint={chargePoint} />
+                    <ChargePointCard
+                      key={chargePoint.id}
+                      chargePoint={chargePoint}
+                    />
                   ))}
                 </div>
               )}
