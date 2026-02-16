@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
-import { ChargePoint, ChargePointConnectionStatus } from "@/types/charge-point";
+import { ChargePoint } from "@/types/charge-point";
 import { useWebSocketContext } from "./useWebSocketContext";
-import { OcppAction } from "@/types/ocpp";
 
 export interface UseChargePointsReturn {
   chargePoints: ChargePoint[];
@@ -10,14 +9,6 @@ export interface UseChargePointsReturn {
   error: string | null;
   refetch: () => Promise<void>;
 }
-
-type WebSocketMessage = {
-  chargePointId: string;
-  payload: {
-    chargePoint?: ChargePoint;
-    event: ChargePointConnectionStatus | OcppAction;
-  };
-};
 
 export function useChargePoints(): UseChargePointsReturn {
   const [chargePoints, setChargePoints] = useState<ChargePoint[]>([]);
@@ -43,12 +34,10 @@ export function useChargePoints(): UseChargePointsReturn {
   }, []);
 
   useEffect(() => {
-    if (lastMessage?.type === "OCPP") {
-      try {
-        loadChargePoints();
-      } catch (err) {
-        console.error("Failed to handle WebSocket message:", err);
-      }
+    try {
+      loadChargePoints();
+    } catch (err) {
+      console.error("Failed to handle WebSocket message:", err);
     }
   }, [lastMessage, loadChargePoints]);
 

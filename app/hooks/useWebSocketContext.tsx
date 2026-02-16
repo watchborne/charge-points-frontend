@@ -7,10 +7,11 @@ import {
   createContext,
   useContext,
 } from "react";
-import { useWebSocket, WebSocketStatus } from "./useWebSocket";
+import { useWebSocket } from "./useWebSocket";
+import { WebSocketStatus } from "../ws/ws-manager";
 
 export interface WebSocketMessage {
-  type: string;
+  type: "CLIENT_CONNECTION";
   data: any;
   timestamp: number;
 }
