@@ -35,7 +35,9 @@ export function useChargePoints(): UseChargePointsReturn {
 
   useEffect(() => {
     try {
-      loadChargePoints();
+      if (lastMessage?.type === "CHARGE_POINT_MONITORING") {
+        loadChargePoints();
+      }
     } catch (err) {
       console.error("Failed to handle WebSocket message:", err);
     }

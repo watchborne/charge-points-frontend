@@ -11,7 +11,7 @@ import { useWebSocket } from "./useWebSocket";
 import { WebSocketStatus } from "../ws/ws-manager";
 
 export interface WebSocketMessage {
-  type: "CLIENT_CONNECTION";
+  type: "CLIENT_CONNECTION" | "CHARGE_POINT_MONITORING";
   data: any;
   timestamp: number;
 }
@@ -76,7 +76,6 @@ export function useWebSocketData(
   };
 }
 
-// Context Provider component
 export function WebSocketDataProvider({
   children,
   url = "ws://localhost:3000/ws",
@@ -95,7 +94,6 @@ export function WebSocketDataProvider({
   );
 }
 
-// Hook to use WebSocket data from context
 export function useWebSocketContext(): WebSocketDataContextType {
   const context = useContext(WebSocketDataContext);
   if (!context) {
