@@ -31,9 +31,3 @@ export interface ChargePoint {
   status?: ChargePointStatus;
   meta?: ChargePointMeta;
 }
-
-export interface Site {
-  id: SiteId;
-  name: string;
-  chargePoints: ChargePointId[];
-}
