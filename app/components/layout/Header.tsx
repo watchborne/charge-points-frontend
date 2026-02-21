@@ -1,6 +1,6 @@
 import { useMemo } from "react";
+import Link from "next/link";
 import classNames from "classnames";
-import { useWebSocket } from "@/app/hooks/useWebSocket";
 import {
   AlertCircle,
   Battery,
@@ -8,6 +8,8 @@ import {
   Loader,
   XCircle,
 } from "lucide-react";
+
+import { useWebSocket } from "@/app/hooks/useWebSocket";
 
 export const Header = () => {
   const { status } = useWebSocket("ws://localhost:3000/ws");
@@ -34,14 +36,17 @@ export const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center gap-3">
             <Battery className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">
               Charge points monitor
             </h1>
+          </Link>
+          <div className="ml-8 flex items-center gap-3">
+            <Link href="./sites">Sites</Link>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 ml-auto">
             <div className="flex items-center gap-2">
               <p>Connection status:</p>
               {webSocketConnectionStatus}
