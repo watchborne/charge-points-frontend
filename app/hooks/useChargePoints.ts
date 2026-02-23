@@ -21,7 +21,7 @@ export function useChargePoints(): UseChargePointsReturn {
     try {
       setError(null);
       setLoading(true);
-      const data = await api.getChargePoints();
+      const data = await api.ChargePoints.getChargePoints();
       setChargePoints(data);
     } catch (err) {
       setError(

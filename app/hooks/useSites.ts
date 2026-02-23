@@ -18,7 +18,7 @@ export function useSites(): UseSitesReturn {
     try {
       setError(null);
       setLoading(true);
-      const data = await api.getSites();
+      const data = await api.Sites.getSites();
       setSites(data);
     } catch (err) {
       setError(
