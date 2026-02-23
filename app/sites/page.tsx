@@ -5,9 +5,60 @@ import { useSites } from "../hooks/useSites";
 import { Header } from "../components/layout/Header";
 import { ErrorCallout } from "../components/common/ErrorCallout";
 import { Loader } from "../components/common/Loader";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Site } from "@/types/site";
+import { Plus, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+
+import { SiteTable } from "./components/SiteTable";
+import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
+import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
 
 export default function SitesPage() {
   const { sites, loading, error } = useSites();
+  const [search, setSearch] = useState("");
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Site | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Site | null>(null);
+
+  const [filteredSites, setFilteredSites] = useState<Site[]>([]);
+  useEffect(() => {
+    if (!loading && !error) {
+      setFilteredSites(sites);
+    }
+
+    if (search.length > 2) {
+      setFilteredSites(
+        sites.filter((s) =>
+          s.name.toLowerCase().includes(search.toLowerCase()),
+        ),
+      );
+    }
+  }, [sites, search]);
+
+  function handleCreate(values: SiteFormValues) {
+    const newSite: Site = {
+      id: crypto.randomUUID(),
+      ...values,
+      chargePoints: [],
+    };
+
+    console.log(newSite);
+  }
+
+  function handleEdit(values: SiteFormValues) {
+    if (!editTarget) return;
+    console.log(values);
+    setEditTarget(null);
+  }
+
+  function handleDelete() {
+    if (!deleteTarget) return;
+    // setLocalSites((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,7 +69,52 @@ export default function SitesPage() {
 
         {loading && <Loader label="Loading sites..." />}
 
-        {!loading && !error && <pre>{JSON.stringify(sites, null, 2)}</pre>}
+        {!loading && !error && (
+          <div className="flex flex-col gap-4 content-stretch">
+            <div className="flex items-center gap-3 w-full">
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add a site
+              </Button>
+
+              <div className="relative max-w-sm ml-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search a site by name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+
+            <SiteTable
+              sites={filteredSites}
+              onEditClicked={(site) => setEditTarget(site)}
+              onDeleteClicked={(site) => setDeleteTarget(site)}
+            />
+
+            <SiteFormDialog
+              open={createOpen}
+              onOpenChange={setCreateOpen}
+              onSubmit={handleCreate}
+              mode="create"
+            />
+            <SiteFormDialog
+              open={!!editTarget}
+              onOpenChange={(open) => !open && setEditTarget(null)}
+              initialValues={editTarget ?? undefined}
+              onSubmit={handleEdit}
+              mode="edit"
+            />
+            <SiteDeletionDialog
+              open={!!deleteTarget}
+              onOpenChange={(open) => !open && setDeleteTarget(null)}
+              deleteTarget={deleteTarget}
+              onDeleteClicked={handleDelete}
+            />
+          </div>
+        )}
       </main>
     </div>
   );
