@@ -22,6 +22,26 @@ export const siteApis = {
       throw error;
     }
   },
+  getSite: async function (siteId: Site["id"]): Promise<Site | undefined> {
+    try {
+      const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = (await response.json()) as Site | undefined;
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch site ${siteId}`, error);
+      throw error;
+    }
+  },
   createSite: async function ({ body }: { body: Site }): Promise<Site> {
     try {
       const response = await fetch(`${API_URL}/api/sites`, {
