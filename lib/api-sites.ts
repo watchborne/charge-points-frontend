@@ -18,7 +18,7 @@ export const siteApis = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Failed to fetch sites:", error);
+      console.error(`Failed to fetch sites`, error);
       throw error;
     }
   },
@@ -39,7 +39,7 @@ export const siteApis = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Failed to fetch sites:", error);
+      console.error("Failed to create site", error, body);
       throw error;
     }
   },
@@ -63,7 +63,7 @@ export const siteApis = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Failed to fetch sites:", error);
+      console.error(`Failed to update site ${siteId}`, error, patch);
       throw error;
     }
   },
@@ -83,7 +83,7 @@ export const siteApis = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Failed to fetch sites:", error);
+      console.error(`Failed to delete site ${siteId}`, error, { siteId });
       throw error;
     }
   },
