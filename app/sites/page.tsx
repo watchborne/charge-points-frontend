@@ -14,9 +14,10 @@ import { Input } from "@/components/ui/input";
 import { SiteTable } from "./components/SiteTable";
 import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
+import { api } from "@/lib/api";
 
 export default function SitesPage() {
-  const { sites, loading, error } = useSites();
+  const { sites, loading, error, refetch: refetchSites } = useSites();
   const [search, setSearch] = useState("");
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -38,15 +39,10 @@ export default function SitesPage() {
     }
   }, [sites, search]);
 
-  function handleCreate(values: SiteFormValues) {
-    const newSite: Site = {
-      id: crypto.randomUUID(),
-      ...values,
-      chargePoints: [],
-    };
-
-    console.log(newSite);
-  }
+  const handleCreate = async (values: SiteFormValues) => {
+    await api.Sites.createSite(values);
+    await refetchSites();
+  };
 
   function handleEdit(values: SiteFormValues) {
     if (!editTarget) return;
@@ -54,11 +50,14 @@ export default function SitesPage() {
     setEditTarget(null);
   }
 
-  function handleDelete() {
+  const handleDelete = async () => {
     if (!deleteTarget) return;
-    // setLocalSites((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+
+    await api.Sites.deleteSite(deleteTarget.id);
+    await refetchSites();
+
     setDeleteTarget(null);
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
