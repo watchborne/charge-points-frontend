@@ -1,6 +1,12 @@
 import { Site } from "@/types/site";
 import { API_URL } from "./api";
 
+type CreateSiteBody = Omit<Site, "id">;
+
+type PatchSiteBody = {
+  id: string;
+} & Partial<CreateSiteBody>;
+
 export const siteApis = {
   getSites: async function (): Promise<Site[]> {
     try {
@@ -42,7 +48,7 @@ export const siteApis = {
       throw error;
     }
   },
-  createSite: async function ({ body }: { body: Site }): Promise<Site> {
+  createSite: async function (body: CreateSiteBody): Promise<Site> {
     try {
       const response = await fetch(`${API_URL}/api/sites`, {
         method: "POST",
@@ -65,7 +71,7 @@ export const siteApis = {
   },
   updateSite: async function (
     siteId: Site["id"],
-    patch: Partial<Site>,
+    patch: PatchSiteBody,
   ): Promise<Site> {
     try {
       const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
@@ -91,17 +97,11 @@ export const siteApis = {
     try {
       const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
       console.error(`Failed to delete site ${siteId}`, error, { siteId });
       throw error;
