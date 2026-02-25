@@ -45,6 +45,7 @@ export const Header = () => {
           </Link>
           <div className="ml-8 flex items-center gap-3">
             <Link href="./sites">Sites</Link>
+            <Link href="./charge-points">Charge points</Link>
           </div>
           <div className="flex items-center gap-4 ml-auto">
             <div className="flex items-center gap-2">
