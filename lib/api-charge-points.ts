@@ -1,6 +1,12 @@
 import { ChargePoint } from "@/types/charge-point";
 import { API_URL } from "./api";
 
+type CreateChargePointBody = Pick<ChargePoint, "id" | "siteId" | "meta">;
+
+type PatchChargePointBody = {
+  id: string;
+} & Partial<CreateChargePointBody>;
+
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePoint[]> {
     try {
@@ -47,11 +53,9 @@ export const chargePointApis = {
       throw error;
     }
   },
-  createChargePoint: async function ({
-    body,
-  }: {
-    body: ChargePoint;
-  }): Promise<ChargePoint> {
+  createChargePoint: async function (
+    body: CreateChargePointBody,
+  ): Promise<ChargePoint> {
     try {
       const response = await fetch(`${API_URL}/api/charge-points`, {
         method: "POST",
@@ -74,7 +78,7 @@ export const chargePointApis = {
   },
   updateChargePoint: async function (
     chargePointId: ChargePoint["id"],
-    patch: Partial<ChargePoint>,
+    patch: PatchChargePointBody,
   ): Promise<ChargePoint> {
     try {
       const response = await fetch(
