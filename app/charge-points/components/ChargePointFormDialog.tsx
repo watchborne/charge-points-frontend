@@ -125,7 +125,11 @@ export const ChargePointFormDialog = ({
                 <FormItem>
                   <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: CP-001" {...field} />
+                    <Input
+                      placeholder="Ex: CP-001"
+                      disabled={mode === "edit"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

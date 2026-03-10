@@ -91,9 +91,19 @@ export default function ChargePointsPage() {
     await refetchChargePoints();
   };
 
-  const handleEdit = (values: ChargePointFormValues) => {
+  const handleEdit = async (values: ChargePointFormValues) => {
     if (!editTarget) return;
-    console.log(values);
+    await api.ChargePoints.updateChargePoint(editTarget.id, {
+      id: editTarget.id,
+      siteId: values.siteId,
+      meta: {
+        chargePointVendor: values.chargePointVendor ?? "",
+        chargePointModel: values.chargePointModel ?? "",
+        serialNumber: values.serialNumber,
+        firmwareVersion: values.firmwareVersion,
+      },
+    });
+    await refetchChargePoints();
     setEditTarget(null);
   };
 
@@ -236,7 +246,19 @@ export default function ChargePointsPage() {
             <ChargePointFormDialog
               open={!!editTarget}
               onOpenChange={(open) => !open && setEditTarget(null)}
-              initialValues={editTarget ?? undefined}
+              initialValues={
+                editTarget
+                  ? {
+                      name: editTarget.id,
+                      siteId: editTarget.siteId,
+                      chargePointVendor:
+                        editTarget.meta?.chargePointVendor ?? "",
+                      chargePointModel: editTarget.meta?.chargePointModel ?? "",
+                      serialNumber: editTarget.meta?.serialNumber ?? "",
+                      firmwareVersion: editTarget.meta?.firmwareVersion ?? "",
+                    }
+                  : undefined
+              }
               onSubmit={handleEdit}
               mode="edit"
               sites={sites}
