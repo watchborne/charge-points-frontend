@@ -1,12 +1,16 @@
 import { ChargePoint } from "@/types/charge-point";
 import { ChargePointCard } from "./ChargePointCard";
 import { Tag } from "../common/Tag";
+import { useSites } from "@/app/hooks/useSites";
 
 export const ChargePointsGrid = ({
   chargePoints,
 }: {
   chargePoints: ChargePoint[];
 }) => {
+  const { sites } = useSites();
+  const sitesById = new Map(sites.map((site) => [site.id, site]));
+
   const chargePointsBySite = chargePoints.reduce(
     (acc, chargePoint) => {
       const siteId = chargePoint.siteId;
@@ -29,7 +33,7 @@ export const ChargePointsGrid = ({
         >
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold">Site:</h3>
-            <Tag>{siteId}</Tag>
+            <Tag>{sitesById.get(siteId)?.name ?? "Unknown site"}</Tag>
           </div>
           {chargePoints.map((chargePoint) => (
             <ChargePointCard key={chargePoint.id} chargePoint={chargePoint} />
