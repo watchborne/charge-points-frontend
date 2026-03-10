@@ -47,10 +47,14 @@ type ChargePointFormDialogProps = {
 const chargePointSchema = z.object({
   name: z.string().min(1, "Name is required"),
   siteId: z.string().min(1, "Site is required"),
-  chargePointVendor: z.string().optional(),
-  chargePointModel: z.string().optional(),
-  serialNumber: z.string().optional(),
-  firmwareVersion: z.string().optional(),
+  meta: z
+    .object({
+      chargePointVendor: z.string().optional(),
+      chargePointModel: z.string().optional(),
+      serialNumber: z.string().optional(),
+      firmwareVersion: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type ChargePointFormValues = z.infer<typeof chargePointSchema>;
@@ -71,10 +75,12 @@ export const ChargePointFormDialog = ({
     defaultValues: {
       name: "",
       siteId: defaultSiteId ?? "",
-      chargePointVendor: "",
-      chargePointModel: "",
-      serialNumber: "",
-      firmwareVersion: "",
+      meta: {
+        chargePointVendor: "",
+        chargePointModel: "",
+        serialNumber: "",
+        firmwareVersion: "",
+      },
     },
   });
 
@@ -83,10 +89,12 @@ export const ChargePointFormDialog = ({
       form.reset({
         name: initialValues?.name ?? "",
         siteId: initialValues?.siteId ?? defaultSiteId ?? "",
-        chargePointVendor: initialValues?.chargePointVendor ?? "",
-        chargePointModel: initialValues?.chargePointModel ?? "",
-        serialNumber: initialValues?.serialNumber ?? "",
-        firmwareVersion: initialValues?.firmwareVersion ?? "",
+        meta: {
+          chargePointVendor: initialValues?.meta?.chargePointVendor ?? "",
+          chargePointModel: initialValues?.meta?.chargePointModel ?? "",
+          serialNumber: initialValues?.meta?.serialNumber ?? "",
+          firmwareVersion: initialValues?.meta?.firmwareVersion ?? "",
+        },
       });
       setMetaOpen(false);
     }
@@ -123,7 +131,7 @@ export const ChargePointFormDialog = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nom</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ex: CP-001"
@@ -179,7 +187,7 @@ export const ChargePointFormDialog = ({
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
-                    name="chargePointVendor"
+                    name="meta.chargePointVendor"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Vendor</FormLabel>
@@ -195,7 +203,7 @@ export const ChargePointFormDialog = ({
                   />
                   <FormField
                     control={form.control}
-                    name="chargePointModel"
+                    name="meta.chargePointModel"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Model</FormLabel>
@@ -208,7 +216,7 @@ export const ChargePointFormDialog = ({
                   />
                   <FormField
                     control={form.control}
-                    name="serialNumber"
+                    name="meta.serialNumber"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Serial number</FormLabel>
@@ -221,7 +229,7 @@ export const ChargePointFormDialog = ({
                   />
                   <FormField
                     control={form.control}
-                    name="firmwareVersion"
+                    name="meta.firmwareVersion"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Firmware</FormLabel>

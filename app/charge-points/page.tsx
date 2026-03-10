@@ -87,7 +87,18 @@ export default function ChargePointsPage() {
   const [activeTab, setActiveTab] = useState<string>();
 
   const handleCreate = async (values: ChargePointFormValues) => {
-    await api.ChargePoints.createChargePoint({ id: values.name, ...values });
+    await api.ChargePoints.createChargePoint({
+      id: values.name,
+      ...values,
+      meta: values.meta
+        ? {
+            chargePointModel: values.meta.chargePointModel ?? "",
+            chargePointVendor: values.meta.chargePointVendor ?? "",
+            serialNumber: values.meta.serialNumber ?? "",
+            firmwareVersion: values.meta.firmwareVersion ?? "",
+          }
+        : undefined,
+    });
     await refetchChargePoints();
   };
 
@@ -97,10 +108,10 @@ export default function ChargePointsPage() {
       id: editTarget.id,
       siteId: values.siteId,
       meta: {
-        chargePointVendor: values.chargePointVendor ?? "",
-        chargePointModel: values.chargePointModel ?? "",
-        serialNumber: values.serialNumber,
-        firmwareVersion: values.firmwareVersion,
+        chargePointVendor: values.meta?.chargePointVendor ?? "",
+        chargePointModel: values.meta?.chargePointModel ?? "",
+        serialNumber: values.meta?.serialNumber,
+        firmwareVersion: values.meta?.firmwareVersion,
       },
     });
     await refetchChargePoints();
@@ -251,11 +262,14 @@ export default function ChargePointsPage() {
                   ? {
                       name: editTarget.id,
                       siteId: editTarget.siteId,
-                      chargePointVendor:
-                        editTarget.meta?.chargePointVendor ?? "",
-                      chargePointModel: editTarget.meta?.chargePointModel ?? "",
-                      serialNumber: editTarget.meta?.serialNumber ?? "",
-                      firmwareVersion: editTarget.meta?.firmwareVersion ?? "",
+                      meta: {
+                        chargePointVendor:
+                          editTarget.meta?.chargePointVendor ?? "",
+                        chargePointModel:
+                          editTarget.meta?.chargePointModel ?? "",
+                        serialNumber: editTarget.meta?.serialNumber ?? "",
+                        firmwareVersion: editTarget.meta?.firmwareVersion ?? "",
+                      },
                     }
                   : undefined
               }
