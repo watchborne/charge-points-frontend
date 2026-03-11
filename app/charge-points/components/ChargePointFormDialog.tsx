@@ -47,6 +47,7 @@ type ChargePointFormDialogProps = {
 const chargePointSchema = z.object({
   name: z.string().min(1, "Name is required"),
   siteId: z.string().min(1, "Site is required"),
+  isActive: z.boolean(),
   meta: z
     .object({
       chargePointVendor: z.string().optional(),
@@ -75,6 +76,7 @@ export const ChargePointFormDialog = ({
     defaultValues: {
       name: "",
       siteId: defaultSiteId ?? "",
+      isActive: true,
       meta: {
         chargePointVendor: "",
         chargePointModel: "",
@@ -89,6 +91,7 @@ export const ChargePointFormDialog = ({
       form.reset({
         name: initialValues?.name ?? "",
         siteId: initialValues?.siteId ?? defaultSiteId ?? "",
+        isActive: initialValues?.isActive ?? true,
         meta: {
           chargePointVendor: initialValues?.meta?.chargePointVendor ?? "",
           chargePointModel: initialValues?.meta?.chargePointModel ?? "",

@@ -1,7 +1,10 @@
 import { ChargePoint } from "@/types/charge-point";
 import { API_URL } from "./api";
 
-type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta">;
+type CreateChargePointBody = Pick<
+  ChargePoint,
+  "name" | "siteId" | "meta" | "isActive"
+>;
 
 type PatchChargePointBody = Partial<CreateChargePointBody>;
 

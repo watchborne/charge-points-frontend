@@ -18,17 +18,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 type ChargePointTableProps = {
   items: ChargePoint[];
-  onEditClicked: (site: ChargePoint) => void;
-  onDeleteClicked: (site: ChargePoint) => void;
+  onEditClicked: (cp: ChargePoint) => void;
+  onDeleteClicked: (cp: ChargePoint) => void;
+  onToggleActive: (cp: ChargePoint) => void;
 };
 
 export const ChargePointTable = ({
   items,
   onEditClicked,
   onDeleteClicked,
+  onToggleActive,
 }: ChargePointTableProps) => {
   return (
     <Table>
@@ -39,12 +42,13 @@ export const ChargePointTable = ({
           <TableHead>Model</TableHead>
           <TableHead>Serial number</TableHead>
           <TableHead>Firmware</TableHead>
+          <TableHead>Active</TableHead>
           <TableHead className="w-[60px]" />
         </TableRow>
       </TableHeader>
       <TableBody>
         {items.map((cp) => (
-          <TableRow key={cp.uuid}>
+          <TableRow key={cp.uuid} className={!cp.isActive ? "opacity-50" : ""}>
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
               {cp.meta?.chargePointVendor || (
@@ -69,6 +73,13 @@ export const ChargePointTable = ({
               ) : (
                 <span className="text-slate-300">—</span>
               )}
+            </TableCell>
+            <TableCell>
+              <Switch
+                checked={cp.isActive}
+                onCheckedChange={() => onToggleActive(cp)}
+                aria-label={`Toggle ${cp.name} active state`}
+              />
             </TableCell>
             <TableCell>
               <DropdownMenu>

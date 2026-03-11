@@ -24,6 +24,7 @@ export interface ChargePointMeta {
 export interface ChargePoint {
   uuid: ChargePointId;
   name: string;
+  isActive: boolean;
   siteId: SiteId;
   connection: {
     status: ChargePointConnectionStatus;

@@ -90,6 +90,7 @@ export default function ChargePointsPage() {
     await api.ChargePoints.createChargePoint({
       name: values.name,
       siteId: values.siteId,
+      isActive: values.isActive,
       meta: values.meta
         ? {
             chargePointVendor: values.meta.chargePointVendor ?? "",
@@ -118,6 +119,13 @@ export default function ChargePointsPage() {
     });
     await refetchChargePoints();
     setEditTarget(null);
+  };
+
+  const handleToggleActive = async (cp: ChargePoint) => {
+    await api.ChargePoints.updateChargePoint(cp.uuid, {
+      isActive: !cp.isActive,
+    });
+    await refetchChargePoints();
   };
 
   const handleDelete = async () => {
@@ -223,6 +231,7 @@ export default function ChargePointsPage() {
                       )}
                       onEditClicked={(cp) => setEditTarget(cp)}
                       onDeleteClicked={(cp) => setDeleteTarget(cp)}
+                      onToggleActive={handleToggleActive}
                     />
                   </div>
                 </TabsContent>
@@ -244,6 +253,7 @@ export default function ChargePointsPage() {
                   items={ungroupedChargePoints}
                   onEditClicked={(cp) => setEditTarget(cp)}
                   onDeleteClicked={(cp) => setDeleteTarget(cp)}
+                  onToggleActive={handleToggleActive}
                 />
               </div>
             )}

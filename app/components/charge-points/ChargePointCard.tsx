@@ -16,6 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ChargePoint } from "@/types/charge-point";
 import { StatusBadge } from "./StatusBadge";
 import { ReactNode } from "react";
+import classNames from "classnames";
 
 interface ChargePointCardProps {
   chargePoint: ChargePoint;
@@ -29,11 +30,21 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
       locale: enGB,
     });
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div
+      className={classNames(
+        "bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow",
+        !chargePoint.isActive && "opacity-50 grayscale",
+      )}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <Battery className="h-5 w-5 text-gray-600" />
           <h3 className="font-semibold text-lg">{chargePoint.name}</h3>
+          {!chargePoint.isActive && (
+            <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+              Inactive
+            </span>
+          )}
         </div>
         <StatusBadge status={chargePoint.connection.status} />
       </div>
