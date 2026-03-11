@@ -115,18 +115,12 @@ export const chargePointApis = {
         `${API_URL}/api/charge-points/${chargePointId}`,
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
         },
       );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
       console.error(`Failed to delete charge point ${chargePointId}`, error);
       throw error;
