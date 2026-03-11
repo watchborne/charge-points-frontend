@@ -54,7 +54,7 @@ export default function ChargePointsPage() {
       setFilteredChargePoints(
         chargePoints.filter(
           (cp) =>
-            cp.id.toLowerCase().includes(search.toLowerCase()) ||
+            cp.name.toLowerCase().includes(search.toLowerCase()) ||
             cp.meta?.chargePointVendor
               ?.toLowerCase()
               .includes(search.toLowerCase()) ||
@@ -88,14 +88,14 @@ export default function ChargePointsPage() {
 
   const handleCreate = async (values: ChargePointFormValues) => {
     await api.ChargePoints.createChargePoint({
-      id: values.name,
-      ...values,
+      name: values.name,
+      siteId: values.siteId,
       meta: values.meta
         ? {
-            chargePointModel: values.meta.chargePointModel ?? "",
             chargePointVendor: values.meta.chargePointVendor ?? "",
-            serialNumber: values.meta.serialNumber ?? "",
-            firmwareVersion: values.meta.firmwareVersion ?? "",
+            chargePointModel: values.meta.chargePointModel ?? "",
+            serialNumber: values.meta.serialNumber,
+            firmwareVersion: values.meta.firmwareVersion,
           }
         : undefined,
     });
@@ -104,15 +104,17 @@ export default function ChargePointsPage() {
 
   const handleEdit = async (values: ChargePointFormValues) => {
     if (!editTarget) return;
-    await api.ChargePoints.updateChargePoint(editTarget.id, {
-      id: editTarget.id,
+    await api.ChargePoints.updateChargePoint(editTarget.uuid, {
+      name: values.name,
       siteId: values.siteId,
-      meta: {
-        chargePointVendor: values.meta?.chargePointVendor ?? "",
-        chargePointModel: values.meta?.chargePointModel ?? "",
-        serialNumber: values.meta?.serialNumber,
-        firmwareVersion: values.meta?.firmwareVersion,
-      },
+      meta: values.meta
+        ? {
+            chargePointVendor: values.meta.chargePointVendor ?? "",
+            chargePointModel: values.meta.chargePointModel ?? "",
+            serialNumber: values.meta.serialNumber,
+            firmwareVersion: values.meta.firmwareVersion,
+          }
+        : undefined,
     });
     await refetchChargePoints();
     setEditTarget(null);
@@ -121,7 +123,7 @@ export default function ChargePointsPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
-    await api.ChargePoints.deleteChargePoint(deleteTarget.id);
+    await api.ChargePoints.deleteChargePoint(deleteTarget.uuid);
     await refetchChargePoints();
 
     setDeleteTarget(null);
@@ -260,7 +262,7 @@ export default function ChargePointsPage() {
               initialValues={
                 editTarget
                   ? {
-                      name: editTarget.id,
+                      name: editTarget.name,
                       siteId: editTarget.siteId,
                       meta: {
                         chargePointVendor:

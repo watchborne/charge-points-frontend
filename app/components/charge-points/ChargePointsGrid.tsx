@@ -18,7 +18,7 @@ export const ChargePointsGrid = ({
         acc[siteId] = [];
       }
       acc[siteId].push(chargePoint);
-      acc[siteId].sort((a, b) => a.id.localeCompare(b.id));
+      acc[siteId].sort((a, b) => a.name.localeCompare(b.name));
       return acc;
     },
     {} as Record<string, ChargePoint[]>,
@@ -36,7 +36,7 @@ export const ChargePointsGrid = ({
             <Tag>{sitesById.get(siteId)?.name ?? "Unknown site"}</Tag>
           </div>
           {chargePoints.map((chargePoint) => (
-            <ChargePointCard key={chargePoint.id} chargePoint={chargePoint} />
+            <ChargePointCard key={chargePoint.uuid} chargePoint={chargePoint} />
           ))}
         </div>
       ))}

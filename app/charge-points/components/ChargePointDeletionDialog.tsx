@@ -24,7 +24,7 @@ export const ChargePointDeletionDialog = ({
     <AlertDialog open={!!deleteTarget}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete « {deleteTarget?.id} » ?</AlertDialogTitle>
+          <AlertDialogTitle>Delete « {deleteTarget?.name} » ?</AlertDialogTitle>
           <AlertDialogDescription>
             Destroy action: this site will be unrecoverable.
           </AlertDialogDescription>

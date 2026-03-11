@@ -44,8 +44,8 @@ export const ChargePointTable = ({
       </TableHeader>
       <TableBody>
         {items.map((cp) => (
-          <TableRow key={cp.id}>
-            <TableCell className="font-medium">{cp.id}</TableCell>
+          <TableRow key={cp.uuid}>
+            <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
               {cp.meta?.chargePointVendor || (
                 <span className="text-slate-300">—</span>

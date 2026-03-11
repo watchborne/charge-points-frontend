@@ -33,7 +33,7 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <Battery className="h-5 w-5 text-gray-600" />
-          <h3 className="font-semibold text-lg">{chargePoint.id}</h3>
+          <h3 className="font-semibold text-lg">{chargePoint.name}</h3>
         </div>
         <StatusBadge status={chargePoint.connection.status} />
       </div>
