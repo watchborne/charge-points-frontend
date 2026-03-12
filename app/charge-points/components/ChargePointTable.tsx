@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
 
 type ChargePointTableProps = {
   items: ChargePoint[];
@@ -27,6 +28,7 @@ export const ChargePointTable = ({
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Status</TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Vendor</TableHead>
           <TableHead>Model</TableHead>
@@ -49,6 +51,9 @@ export const ChargePointTable = ({
             ].join(" ")}
             onClick={() => onRowClicked(cp)}
           >
+            <TableCell className="text-muted-foreground text-sm">
+              <StatusBadge status={cp.connection.status} />
+            </TableCell>
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
               {cp.meta?.chargePointVendor || (
