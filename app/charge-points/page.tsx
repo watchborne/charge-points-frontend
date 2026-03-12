@@ -21,6 +21,7 @@ import { Header } from "../components/layout/Header";
 import { ErrorCallout } from "../components/common/ErrorCallout";
 import { Loader } from "../components/common/Loader";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
+import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
 
 export default function ChargePointsPage() {
   const {
@@ -45,6 +46,7 @@ export default function ChargePointsPage() {
   const [createDefaultSiteId, setCreateDefaultSiteId] = useState<
     string | undefined
   >();
+  const [detailTarget, setDetailTarget] = useState<ChargePoint | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePoint | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePoint | null>(null);
   const [activeTab, setActiveTab] = useState<string>();
@@ -251,8 +253,7 @@ export default function ChargePointsPage() {
                         (cp) => cp.siteId === site.id,
                       )}
                       highlightedUuid={highlightedUuid}
-                      onEditClicked={(cp) => setEditTarget(cp)}
-                      onDeleteClicked={(cp) => setDeleteTarget(cp)}
+                      onRowClicked={(cp) => setDetailTarget(cp)}
                       onToggleActive={handleToggleActive}
                     />
                   </div>
@@ -274,8 +275,7 @@ export default function ChargePointsPage() {
                 <ChargePointTable
                   items={ungroupedChargePoints}
                   highlightedUuid={highlightedUuid}
-                  onEditClicked={(cp) => setEditTarget(cp)}
-                  onDeleteClicked={(cp) => setDeleteTarget(cp)}
+                  onRowClicked={(cp) => setDetailTarget(cp)}
                   onToggleActive={handleToggleActive}
                 />
               </div>
@@ -311,6 +311,12 @@ export default function ChargePointsPage() {
               onSubmit={handleEdit}
               mode="edit"
               sites={sites}
+            />
+            <ChargePointDetailDialog
+              chargePoint={detailTarget}
+              onOpenChange={(open) => !open && setDetailTarget(null)}
+              onEditClicked={(cp) => setEditTarget(cp)}
+              onDeleteClicked={(cp) => setDeleteTarget(cp)}
             />
             <ChargePointDeletionDialog
               open={!!deleteTarget}

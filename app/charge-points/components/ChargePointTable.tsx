@@ -1,5 +1,3 @@
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-
 import { ChargePoint } from "@/types/charge-point";
 import {
   Table,
@@ -10,29 +8,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
 type ChargePointTableProps = {
   items: ChargePoint[];
   highlightedUuid?: string;
-  onEditClicked: (cp: ChargePoint) => void;
-  onDeleteClicked: (cp: ChargePoint) => void;
+  onRowClicked: (cp: ChargePoint) => void;
   onToggleActive: (cp: ChargePoint) => void;
 };
 
 export const ChargePointTable = ({
   items,
   highlightedUuid,
-  onEditClicked,
-  onDeleteClicked,
+  onRowClicked,
   onToggleActive,
 }: ChargePointTableProps) => {
   return (
@@ -45,20 +33,21 @@ export const ChargePointTable = ({
           <TableHead>Serial number</TableHead>
           <TableHead>Firmware</TableHead>
           <TableHead>Active</TableHead>
-          <TableHead className="w-[60px]" />
         </TableRow>
       </TableHeader>
       <TableBody>
         {items.map((cp) => (
           <TableRow
             key={cp.uuid}
-            className={
+            className={[
+              "cursor-pointer",
               cp.uuid === highlightedUuid
                 ? "bg-blue-50 ring-1 ring-inset ring-blue-200"
                 : !cp.isActive
                   ? "opacity-50"
-                  : ""
-            }
+                  : "",
+            ].join(" ")}
+            onClick={() => onRowClicked(cp)}
           >
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
@@ -85,36 +74,12 @@ export const ChargePointTable = ({
                 <span className="text-slate-300">—</span>
               )}
             </TableCell>
-            <TableCell>
+            <TableCell onClick={(e) => e.stopPropagation()}>
               <Switch
                 checked={cp.isActive}
                 onCheckedChange={() => onToggleActive(cp)}
                 aria-label={`Toggle ${cp.name} active state`}
               />
-            </TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Actions</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onEditClicked(cp)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={() => onDeleteClicked(cp)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </TableCell>
           </TableRow>
         ))}
