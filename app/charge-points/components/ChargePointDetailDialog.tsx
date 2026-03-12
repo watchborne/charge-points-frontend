@@ -25,10 +25,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChargePoint } from "@/types/charge-point";
+import { Site } from "@/types/site";
 import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
+import { Tag } from "@/app/components/common/Tag";
 
 type ChargePointDetailDialogProps = {
   chargePoint: ChargePoint | null;
+  site: Site | undefined;
   onOpenChange: (open: boolean) => void;
   onEditClicked: (cp: ChargePoint) => void;
   onDeleteClicked: (cp: ChargePoint) => void;
@@ -36,6 +39,7 @@ type ChargePointDetailDialogProps = {
 
 export const ChargePointDetailDialog = ({
   chargePoint,
+  site,
   onOpenChange,
   onEditClicked,
   onDeleteClicked,
@@ -96,9 +100,9 @@ export const ChargePointDetailDialog = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Site ID</span>
-            <span className="text-sm font-mono text-muted-foreground">
-              {chargePoint.siteId}
+            <span className="text-sm text-muted-foreground">Site</span>
+            <span className="text-sm font-medium">
+              {site ? <Tag>{site.name}</Tag> : "Unknown site"}
             </span>
           </div>
 

@@ -314,6 +314,7 @@ export default function ChargePointsPage() {
             />
             <ChargePointDetailDialog
               chargePoint={detailTarget}
+              site={sites.find((s) => s.id === detailTarget?.siteId)}
               onOpenChange={(open) => !open && setDetailTarget(null)}
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
