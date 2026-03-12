@@ -21,6 +21,12 @@ export interface ChargePointMeta {
   firmwareVersion?: string;
 }
 
+export interface ChargePointLog {
+  timestamp: Date;
+  action: string;
+  payload: Record<string, unknown>;
+}
+
 export interface ChargePoint {
   uuid: ChargePointId;
   name: string;

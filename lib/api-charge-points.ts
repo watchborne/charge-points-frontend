@@ -1,4 +1,4 @@
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePoint, ChargePointLog } from "@/types/charge-point";
 import { API_URL } from "./api";
 
 type CreateChargePointBody = Pick<
@@ -104,6 +104,33 @@ export const chargePointApis = {
         `Failed to update charge point ${chargePointId}`,
         error,
         patch,
+      );
+      throw error;
+    }
+  },
+  getChargePointLogs: async function (
+    chargePointId: ChargePoint["uuid"],
+  ): Promise<ChargePointLog[]> {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/charge-points/${chargePointId}/logs`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(
+        `Failed to fetch logs for charge point ${chargePointId}`,
+        error,
       );
       throw error;
     }

@@ -12,8 +12,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -24,9 +25,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePoint, ChargePointLog } from "@/types/charge-point";
 import { Site } from "@/types/site";
 import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
+import { api } from "@/lib/api";
 import { Tag } from "@/app/components/common/Tag";
 
 type ChargePointDetailDialogProps = {
@@ -44,6 +46,21 @@ export const ChargePointDetailDialog = ({
   onEditClicked,
   onDeleteClicked,
 }: ChargePointDetailDialogProps) => {
+  const [logs, setLogs] = useState<ChargePointLog[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!chargePoint) {
+      setLogs([]);
+      return;
+    }
+    setLogsLoading(true);
+    api.ChargePoints.getChargePointLogs(chargePoint.uuid)
+      .then(setLogs)
+      .catch(() => setLogs([]))
+      .finally(() => setLogsLoading(false));
+  }, [chargePoint?.uuid]);
+
   if (!chargePoint) return null;
 
   const lastSeenText =
@@ -55,7 +72,7 @@ export const ChargePointDetailDialog = ({
 
   return (
     <Dialog open={!!chargePoint} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Battery className="h-5 w-5 text-blue-600" />
@@ -68,7 +85,7 @@ export const ChargePointDetailDialog = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="overflow-y-auto flex-1 space-y-4 py-2 pr-1">
           {/* Status row */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
@@ -147,9 +164,44 @@ export const ChargePointDetailDialog = ({
               )}
             </div>
           )}
+
+          {/* Logs section */}
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Logs</h4>
+            {logsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-4 justify-center">
+                <Loader className="h-4 w-4 animate-spin" />
+                Loading logs…
+              </div>
+            ) : logs.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No logs available.
+              </p>
+            ) : (
+              <div className="border rounded-md divide-y max-h-52 overflow-y-auto">
+                {logs.map((log, i) => (
+                  <div key={i} className="px-3 py-2 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant="secondary" className="font-mono text-xs">
+                        {log.action}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss")}
+                      </span>
+                    </div>
+                    {Object.keys(log.payload).length > 0 && (
+                      <pre className="text-xs text-muted-foreground bg-muted rounded px-2 py-1 overflow-x-auto">
+                        {JSON.stringify(log.payload, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:justify-between">
+        <DialogFooter className="gap-2 sm:justify-between pt-2 border-t">
           <Button
             variant="destructive"
             size="sm"
