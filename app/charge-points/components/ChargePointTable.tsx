@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 
 type ChargePointTableProps = {
   items: ChargePoint[];
+  highlightedUuid?: string;
   onEditClicked: (cp: ChargePoint) => void;
   onDeleteClicked: (cp: ChargePoint) => void;
   onToggleActive: (cp: ChargePoint) => void;
@@ -29,6 +30,7 @@ type ChargePointTableProps = {
 
 export const ChargePointTable = ({
   items,
+  highlightedUuid,
   onEditClicked,
   onDeleteClicked,
   onToggleActive,
@@ -48,7 +50,16 @@ export const ChargePointTable = ({
       </TableHeader>
       <TableBody>
         {items.map((cp) => (
-          <TableRow key={cp.uuid} className={!cp.isActive ? "opacity-50" : ""}>
+          <TableRow
+            key={cp.uuid}
+            className={
+              cp.uuid === highlightedUuid
+                ? "bg-blue-50 ring-1 ring-inset ring-blue-200"
+                : !cp.isActive
+                  ? "opacity-50"
+                  : ""
+            }
+          >
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
               {cp.meta?.chargePointVendor || (

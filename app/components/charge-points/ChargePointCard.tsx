@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+import Link from "next/link";
+
 import { ChargePoint } from "@/types/charge-point";
 import { StatusBadge } from "./StatusBadge";
 import { ReactNode } from "react";
@@ -30,9 +32,10 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
       locale: enGB,
     });
   return (
-    <div
+    <Link
+      href={`/charge-points?uuid=${chargePoint.uuid}`}
       className={classNames(
-        "bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow",
+        "block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer",
         !chargePoint.isActive && "opacity-50 grayscale",
       )}
     >
@@ -94,7 +97,7 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
         <Clock className="h-4 w-4" />
         <span>{lastSeenText ? `Last seen ${lastSeenText}` : "Never seen"}</span>
       </div>
-    </div>
+    </Link>
   );
 }
 

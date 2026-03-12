@@ -1,6 +1,9 @@
 "use client";
 
 import { Plus, Search, Server, Zap } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
 import {
   ChargePointFormDialog,
   ChargePointFormValues,
@@ -8,7 +11,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ChargePointTable } from "./components/ChargePointTable";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 import { ChargePoint } from "@/types/charge-point";
 import { useSites } from "../hooks/useSites";
 import { useChargePoints } from "../hooks/useChargePoints";
@@ -35,16 +37,22 @@ export default function ChargePointsPage() {
   } = useChargePoints();
   const [search, setSearch] = useState("");
 
+  const searchParams = useSearchParams();
+  const highlightedUuid = searchParams.get("uuid") ?? undefined;
+  const didAutoSwitch = useRef(false);
+
   const [createOpen, setCreateOpen] = useState(false);
   const [createDefaultSiteId, setCreateDefaultSiteId] = useState<
     string | undefined
   >();
   const [editTarget, setEditTarget] = useState<ChargePoint | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePoint | null>(null);
+  const [activeTab, setActiveTab] = useState<string>();
 
   const [filteredChargePoints, setFilteredChargePoints] = useState<
     ChargePoint[]
   >([]);
+
   useEffect(() => {
     if (!loadingChargePoints && !errorChargePoints) {
       setFilteredChargePoints(chargePoints);
@@ -68,10 +76,25 @@ export default function ChargePointsPage() {
   }, [chargePoints, search]);
 
   useEffect(() => {
-    if (!loadingSites && !errorSites) {
+    if (!loadingSites && !errorSites && sites.length > 0 && !highlightedUuid) {
       setActiveTab(sites[0].id);
     }
   }, [sites]);
+
+  useEffect(() => {
+    if (
+      highlightedUuid &&
+      !loadingChargePoints &&
+      !loadingSites &&
+      !didAutoSwitch.current
+    ) {
+      const target = chargePoints.find((cp) => cp.uuid === highlightedUuid);
+      if (target) {
+        setActiveTab(target.siteId);
+        didAutoSwitch.current = true;
+      }
+    }
+  }, [highlightedUuid, chargePoints, loadingChargePoints, loadingSites]);
 
   const groupedChargePoints = sites
     .map((site) => ({
@@ -83,8 +106,6 @@ export default function ChargePointsPage() {
   const ungroupedChargePoints = filteredChargePoints.filter(
     (cp) => !sites.find((s) => s.id === cp.siteId),
   );
-
-  const [activeTab, setActiveTab] = useState<string>();
 
   const handleCreate = async (values: ChargePointFormValues) => {
     await api.ChargePoints.createChargePoint({
@@ -229,6 +250,7 @@ export default function ChargePointsPage() {
                       items={filteredChargePoints.filter(
                         (cp) => cp.siteId === site.id,
                       )}
+                      highlightedUuid={highlightedUuid}
                       onEditClicked={(cp) => setEditTarget(cp)}
                       onDeleteClicked={(cp) => setDeleteTarget(cp)}
                       onToggleActive={handleToggleActive}
@@ -251,6 +273,7 @@ export default function ChargePointsPage() {
                 </div>
                 <ChargePointTable
                   items={ungroupedChargePoints}
+                  highlightedUuid={highlightedUuid}
                   onEditClicked={(cp) => setEditTarget(cp)}
                   onDeleteClicked={(cp) => setDeleteTarget(cp)}
                   onToggleActive={handleToggleActive}
