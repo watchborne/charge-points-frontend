@@ -24,12 +24,7 @@ import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialo
 import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
 
 export default function ChargePointsPage() {
-  const {
-    sites,
-    loading: loadingSites,
-    error: errorSites,
-    refetch: refetchSites,
-  } = useSites();
+  const { sites, loading: loadingSites, error: errorSites } = useSites();
   const {
     chargePoints,
     loading: loadingChargePoints,
