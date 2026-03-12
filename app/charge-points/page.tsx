@@ -89,6 +89,7 @@ export default function ChargePointsPage() {
       if (target) {
         setActiveTab(target.siteId);
         didAutoSwitch.current = true;
+        setDetailTarget(target);
       }
     }
   }, [highlightedUuid, chargePoints, loadingChargePoints, loadingSites]);
