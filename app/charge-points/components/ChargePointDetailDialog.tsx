@@ -72,7 +72,10 @@ export const ChargePointDetailDialog = ({
 
   return (
     <Dialog open={!!chargePoint} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px] max-h-[90vh] flex flex-col">
+      <DialogContent
+        className="sm:max-w-[560px] max-h-[90vh] flex flex-col"
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Battery className="h-5 w-5 text-blue-600" />
