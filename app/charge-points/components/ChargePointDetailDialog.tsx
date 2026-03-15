@@ -113,9 +113,19 @@ export const ChargePointDetailDialog = ({
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Last seen</span>
-            <span className="text-sm font-medium flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-              {lastSeenText ?? "Never"}
+            <span className="text-sm font-medium flex flex-col content-stretch justify-end items-end">
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                {lastSeenText ?? "Never"}
+              </span>
+              {chargePoint.connection.lastSeen && (
+                <span className="text-[10px] text-muted-foreground">
+                  {format(
+                    new Date(chargePoint.connection.lastSeen),
+                    "dd/MM/yyyy HH:mm:ss",
+                  )}
+                </span>
+              )}
             </span>
           </div>
 
