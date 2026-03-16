@@ -54,16 +54,16 @@ export const ChargePointDetailDialog = ({
 }: ChargePointDetailDialogProps) => {
   const [logs, setLogs] = useState<ChargePointLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [expandedLogs, setExpandedLogs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!chargePoint) {
       setLogs([]);
-      setExpandedIndex(null);
+      setExpandedLogs(new Set());
       return;
     }
     setLogsLoading(true);
-    setExpandedIndex(null);
+    setExpandedLogs(new Set());
     api.ChargePoints.getChargePointLogs(chargePoint.uuid)
       .then(setLogs)
       .catch(() => setLogs([]))
@@ -79,9 +79,16 @@ export const ChargePointDetailDialog = ({
       locale: enGB,
     });
 
-  // controlled single-expanded index
-  const toggleLog = (i: number) => {
-    setExpandedIndex((prev) => (prev === i ? null : i));
+  const toggleLog = (logUuid: string) => {
+    setExpandedLogs((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(logUuid)) {
+        newSet.delete(logUuid);
+      } else {
+        newSet.add(logUuid);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -234,21 +241,20 @@ export const ChargePointDetailDialog = ({
 
                   return (
                     <Collapsible
-                      key={i}
-                      open={expandedIndex === i}
-                      onOpenChange={(open) => setExpandedIndex(open ? i : null)}
+                      key={log.uuid}
+                      open={expandedLogs.has(log.uuid)}
                     >
                       <div className="px-3 py-2">
                         <CollapsibleTrigger asChild>
                           <button
                             type="button"
                             className="w-full flex items-center justify-between gap-2 hover:bg-muted/50 transition-colors text-left"
-                            onClick={() => toggleLog(i)}
+                            onClick={() => toggleLog(log.uuid)}
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <ChevronDown
                                 className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform ${
-                                  expandedIndex === i ? "rotate-180" : ""
+                                  expandedLogs.has(log.uuid) ? "rotate-180" : ""
                                 }`}
                               />
                               <Badge

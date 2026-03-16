@@ -1,4 +1,5 @@
 export type ChargePointId = string;
+export type ChargePointLogId = string;
 export type SiteId = string;
 
 export type ChargePointConnectionStatus = "OFFLINE" | "CONNECTED" | "SYNCED";
@@ -22,6 +23,7 @@ export interface ChargePointMeta {
 }
 
 export interface ChargePointLog {
+  uuid: ChargePointLogId;
   timestamp: Date;
   action: string;
   payload: Record<string, unknown>;
