@@ -1,6 +1,7 @@
 import {
   Battery,
   CheckCircle,
+  ChevronDown,
   CircleEllipsis,
   Clock,
   Loader,
@@ -15,6 +16,11 @@ import {
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { useEffect, useState } from "react";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 
 import {
   Dialog,
@@ -48,13 +54,16 @@ export const ChargePointDetailDialog = ({
 }: ChargePointDetailDialogProps) => {
   const [logs, setLogs] = useState<ChargePointLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!chargePoint) {
       setLogs([]);
+      setExpandedIndex(null);
       return;
     }
     setLogsLoading(true);
+    setExpandedIndex(null);
     api.ChargePoints.getChargePointLogs(chargePoint.uuid)
       .then(setLogs)
       .catch(() => setLogs([]))
@@ -69,6 +78,11 @@ export const ChargePointDetailDialog = ({
       addSuffix: true,
       locale: enGB,
     });
+
+  // controlled single-expanded index
+  const toggleLog = (i: number) => {
+    setExpandedIndex((prev) => (prev === i ? null : i));
+  };
 
   return (
     <Dialog open={!!chargePoint} onOpenChange={onOpenChange}>
@@ -113,7 +127,7 @@ export const ChargePointDetailDialog = ({
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Last seen</span>
-            <span className="text-sm font-medium flex flex-col content-stretch justify-end items-end">
+            <span className="text-sm font-medium flex flex-col items-end">
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                 {lastSeenText ?? "Never"}
@@ -191,24 +205,79 @@ export const ChargePointDetailDialog = ({
                 No logs available.
               </p>
             ) : (
-              <div className="border rounded-md divide-y max-h-52 overflow-y-auto">
-                {logs.map((log, i) => (
-                  <div key={i} className="px-3 py-2 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <Badge variant="secondary" className="font-mono text-xs">
-                        {log.action}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground tabular-nums">
-                        {format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss")}
-                      </span>
-                    </div>
-                    {Object.keys(log.payload).length > 0 && (
-                      <pre className="text-xs text-muted-foreground bg-muted rounded px-2 py-1 overflow-x-auto">
-                        {JSON.stringify(log.payload, null, 2)}
-                      </pre>
-                    )}
-                  </div>
-                ))}
+              <div className="border rounded-md divide-y max-h-64 overflow-y-auto">
+                {logs.map((log, i) => {
+                  const hasPayload = Object.keys(log.payload).length > 0;
+                  if (!hasPayload) {
+                    return (
+                      <div key={i} className="px-3 py-2">
+                        <div className="w-full flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-3.5" />
+                            <Badge
+                              variant="secondary"
+                              className="font-mono text-xs shrink-0"
+                            >
+                              {log.action}
+                            </Badge>
+                          </div>
+                          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                            {format(
+                              new Date(log.timestamp),
+                              "dd/MM/yyyy HH:mm:ss",
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Collapsible
+                      key={i}
+                      open={expandedIndex === i}
+                      onOpenChange={(open) => setExpandedIndex(open ? i : null)}
+                    >
+                      <div className="px-3 py-2">
+                        <CollapsibleTrigger asChild>
+                          <button
+                            type="button"
+                            className="w-full flex items-center justify-between gap-2 hover:bg-muted/50 transition-colors text-left"
+                            onClick={() => toggleLog(i)}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <ChevronDown
+                                className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform ${
+                                  expandedIndex === i ? "rotate-180" : ""
+                                }`}
+                              />
+                              <Badge
+                                variant="secondary"
+                                className="font-mono text-xs shrink-0"
+                              >
+                                {log.action}
+                              </Badge>
+                            </div>
+                            <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                              {format(
+                                new Date(log.timestamp),
+                                "dd/MM/yyyy HH:mm:ss",
+                              )}
+                            </span>
+                          </button>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent>
+                          <div className="pt-2">
+                            <pre className="text-xs text-muted-foreground bg-muted px-4 py-2 overflow-x-auto border-t">
+                              {JSON.stringify(log.payload, null, 2)}
+                            </pre>
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  );
+                })}
               </div>
             )}
           </div>
