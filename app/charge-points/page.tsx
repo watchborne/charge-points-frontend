@@ -2,7 +2,7 @@
 
 import { Plus, Search, Server, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   ChargePointFormDialog,
@@ -33,6 +33,7 @@ export default function ChargePointsPage() {
   } = useChargePoints();
   const [search, setSearch] = useState("");
 
+  const router = useRouter();
   const searchParams = useSearchParams();
   const highlightedUuid = searchParams.get("uuid") ?? undefined;
   const didAutoSwitch = useRef(false);
@@ -165,6 +166,18 @@ export default function ChargePointsPage() {
     return filteredChargePoints.filter((cp) => cp.siteId === id).length;
   };
 
+  const updateDetailTarget = (cp: ChargePoint | null) => {
+    setDetailTarget(cp);
+    const params = new URLSearchParams(searchParams.toString());
+    if (cp) {
+      params.set("uuid", cp.uuid);
+      router.push(`/charge-points?uuid=${cp.uuid}`);
+    } else {
+      params.delete("uuid");
+      router.push(`/charge-points`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -249,7 +262,7 @@ export default function ChargePointsPage() {
                         (cp) => cp.siteId === site.id,
                       )}
                       highlightedUuid={highlightedUuid}
-                      onRowClicked={(cp) => setDetailTarget(cp)}
+                      onRowClicked={updateDetailTarget}
                       onToggleActive={handleToggleActive}
                     />
                   </div>
@@ -311,7 +324,7 @@ export default function ChargePointsPage() {
             <ChargePointDetailDialog
               chargePoint={detailTarget}
               site={sites.find((s) => s.id === detailTarget?.siteId)}
-              onOpenChange={(open) => !open && setDetailTarget(null)}
+              onOpenChange={(open) => !open && updateDetailTarget(null)}
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
             />
