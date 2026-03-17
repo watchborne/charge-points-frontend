@@ -52,6 +52,13 @@ export default function ChargePointsPage() {
   >([]);
 
   useEffect(() => {
+    if (detailTarget) {
+      const updated = chargePoints.find((cp) => cp.uuid === detailTarget.uuid);
+      if (updated) setDetailTarget(updated);
+    }
+  }, [chargePoints]);
+
+  useEffect(() => {
     if (!loadingChargePoints && !errorChargePoints) {
       setFilteredChargePoints(chargePoints);
     }
