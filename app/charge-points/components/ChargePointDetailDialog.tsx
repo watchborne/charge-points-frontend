@@ -261,7 +261,14 @@ export const ChargePointDetailDialog = ({
                                 variant="secondary"
                                 className="font-mono text-xs shrink-0"
                               >
-                                {log.action}
+                                <div className="flex items-center gap-2">
+                                  {log.action}
+                                  {"status" in log.payload && (
+                                    <span className="italic font-medium">
+                                      ({String(log.payload.status)})
+                                    </span>
+                                  )}
+                                </div>
                               </Badge>
                             </div>
                             <span className="text-xs text-muted-foreground tabular-nums shrink-0">
