@@ -2,7 +2,11 @@ export type ChargePointId = string;
 export type ChargePointLogId = string;
 export type SiteId = string;
 
-export type ChargePointConnectionStatus = "OFFLINE" | "CONNECTED" | "SYNCED";
+export type ChargePointConnectionStatus =
+  | "OFFLINE"
+  | "CONNECTED"
+  | "SYNCED"
+  | "ERROR";
 
 export type ChargePointStatus =
   | "Available"
@@ -37,6 +41,7 @@ export interface ChargePoint {
   connection: {
     status: ChargePointConnectionStatus;
     lastSeen?: string;
+    errorMessage?: string;
   };
   status?: ChargePointStatus;
   meta?: ChargePointMeta;

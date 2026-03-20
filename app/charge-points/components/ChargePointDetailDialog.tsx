@@ -215,80 +215,92 @@ export const ChargePointDetailDialog = ({
               <div className="border rounded-md divide-y max-h-64 overflow-y-auto">
                 {logs.map((log, i) => {
                   const hasPayload = Object.keys(log.payload).length > 0;
-                  if (!hasPayload) {
+                  if (
+                    hasPayload ||
+                    (chargePoint.connection.status === "ERROR" &&
+                      log.action === "ERROR")
+                  ) {
                     return (
-                      <div key={i} className="px-3 py-2">
-                        <div className="w-full flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="w-3.5" />
-                            <Badge
-                              variant="secondary"
-                              className="font-mono text-xs shrink-0"
+                      <Collapsible
+                        key={log.uuid}
+                        open={expandedLogs.has(log.uuid)}
+                      >
+                        <div className="px-3 py-2">
+                          <CollapsibleTrigger asChild>
+                            <button
+                              type="button"
+                              className="w-full flex items-center justify-between gap-2 hover:bg-muted/50 transition-colors text-left"
+                              onClick={() => toggleLog(log.uuid)}
                             >
-                              {log.action}
-                            </Badge>
-                          </div>
-                          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                            {format(
-                              new Date(log.timestamp),
-                              "dd/MM/yyyy HH:mm:ss",
-                            )}
-                          </span>
+                              <div className="flex items-center gap-2 min-w-0">
+                                <ChevronDown
+                                  className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform ${
+                                    expandedLogs.has(log.uuid)
+                                      ? "rotate-180"
+                                      : ""
+                                  }`}
+                                />
+                                <Badge
+                                  variant="secondary"
+                                  className="font-mono text-xs shrink-0"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    {log.action}
+                                    {"status" in log.payload && (
+                                      <span className="italic font-medium">
+                                        ({String(log.payload.status)})
+                                      </span>
+                                    )}
+                                  </div>
+                                </Badge>
+                              </div>
+                              <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                                {format(
+                                  new Date(log.timestamp),
+                                  "dd/MM/yyyy HH:mm:ss",
+                                )}
+                              </span>
+                            </button>
+                          </CollapsibleTrigger>
+
+                          <CollapsibleContent>
+                            <div className="pt-2">
+                              <pre className="text-xs text-muted-foreground bg-muted px-4 py-2 overflow-x-auto border-t">
+                                {hasPayload ? (
+                                  JSON.stringify(log.payload, null, 2)
+                                ) : (
+                                  <div className="text-xs text-muted-foreground">
+                                    {chargePoint.connection.errorMessage}
+                                  </div>
+                                )}
+                              </pre>
+                            </div>
+                          </CollapsibleContent>
                         </div>
-                      </div>
+                      </Collapsible>
                     );
                   }
 
                   return (
-                    <Collapsible
-                      key={log.uuid}
-                      open={expandedLogs.has(log.uuid)}
-                    >
-                      <div className="px-3 py-2">
-                        <CollapsibleTrigger asChild>
-                          <button
-                            type="button"
-                            className="w-full flex items-center justify-between gap-2 hover:bg-muted/50 transition-colors text-left"
-                            onClick={() => toggleLog(log.uuid)}
+                    <div key={i} className="px-3 py-2">
+                      <div className="w-full flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-3.5" />
+                          <Badge
+                            variant="secondary"
+                            className="font-mono text-xs shrink-0"
                           >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <ChevronDown
-                                className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform ${
-                                  expandedLogs.has(log.uuid) ? "rotate-180" : ""
-                                }`}
-                              />
-                              <Badge
-                                variant="secondary"
-                                className="font-mono text-xs shrink-0"
-                              >
-                                <div className="flex items-center gap-2">
-                                  {log.action}
-                                  {"status" in log.payload && (
-                                    <span className="italic font-medium">
-                                      ({String(log.payload.status)})
-                                    </span>
-                                  )}
-                                </div>
-                              </Badge>
-                            </div>
-                            <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                              {format(
-                                new Date(log.timestamp),
-                                "dd/MM/yyyy HH:mm:ss",
-                              )}
-                            </span>
-                          </button>
-                        </CollapsibleTrigger>
-
-                        <CollapsibleContent>
-                          <div className="pt-2">
-                            <pre className="text-xs text-muted-foreground bg-muted px-4 py-2 overflow-x-auto border-t">
-                              {JSON.stringify(log.payload, null, 2)}
-                            </pre>
-                          </div>
-                        </CollapsibleContent>
+                            {log.action}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                          {format(
+                            new Date(log.timestamp),
+                            "dd/MM/yyyy HH:mm:ss",
+                          )}
+                        </span>
                       </div>
-                    </Collapsible>
+                    </div>
                   );
                 })}
               </div>
