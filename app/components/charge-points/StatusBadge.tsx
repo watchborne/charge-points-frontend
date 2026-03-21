@@ -14,7 +14,7 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
         status === "CONNECTED" && "bg-yellow-500",
         status === "SYNCED" && "bg-green-500",
         status === "OFFLINE" &&
-          "bg-white border border-2 border-slate-500 text-slate-500",
+          "bg-white border border-2 border-slate-600 text-slate-600",
         status === "ERROR" && "bg-red-500",
       )}
     >
