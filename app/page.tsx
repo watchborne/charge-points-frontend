@@ -3,7 +3,7 @@
 import { useChargePoints } from "./hooks/useChargePoints";
 
 import { Header } from "./components/layout/Header";
-import { ErrorCallout } from "./components/common/ErrorCallout";
+import { Callout } from "./components/common/Callout";
 import { Loader } from "./components/common/Loader";
 import { ChargePointStats } from "./components/charge-points/ChargePointStats";
 import { EmptyStateChargePoints } from "./components/charge-points/EmptyStateChargePoints";
@@ -17,7 +17,7 @@ export default function DashboardPage() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && <ErrorCallout error={error} />}
+        {error && <Callout error={error} />}
 
         {loading && <Loader label="Loading charge points..." />}
 

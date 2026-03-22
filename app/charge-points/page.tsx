@@ -18,7 +18,7 @@ import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "../components/layout/Header";
-import { ErrorCallout } from "../components/common/ErrorCallout";
+import { Callout } from "../components/common/Callout";
 import { Loader } from "../components/common/Loader";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
@@ -190,7 +190,7 @@ export default function ChargePointsPage() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {errorChargePoints && <ErrorCallout error={errorChargePoints} />}
+        {errorChargePoints && <Callout error={errorChargePoints} />}
 
         {loadingChargePoints && <Loader label="Loading charge points..." />}
 
