@@ -36,6 +36,7 @@ import { Site } from "@/types/site";
 import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
 import { api } from "@/lib/api";
 import { Tag } from "@/app/components/common/Tag";
+import { Callout } from "@/app/components/common/Callout";
 
 type ChargePointDetailDialogProps = {
   chargePoint: ChargePoint | null;
@@ -117,6 +118,12 @@ export const ChargePointDetailDialog = ({
             </span>
             <StatusBadge status={chargePoint.connection.status} />
           </div>
+          {chargePoint.connection.statusMessage && (
+            <Callout
+              error={chargePoint.connection.statusMessage}
+              variant="warning"
+            />
+          )}
 
           {chargePoint.status && (
             <div className="flex items-center justify-between">
@@ -217,7 +224,7 @@ export const ChargePointDetailDialog = ({
                   const hasPayload = Object.keys(log.payload).length > 0;
                   if (
                     hasPayload ||
-                    (chargePoint.connection.status === "ERROR" &&
+                    (chargePoint.connection.status === "WARNING" &&
                       log.action === "ERROR")
                   ) {
                     return (
@@ -270,7 +277,7 @@ export const ChargePointDetailDialog = ({
                                   JSON.stringify(log.payload, null, 2)
                                 ) : (
                                   <div className="text-xs text-muted-foreground">
-                                    {chargePoint.connection.errorMessage}
+                                    {chargePoint.connection.statusMessage}
                                   </div>
                                 )}
                               </pre>

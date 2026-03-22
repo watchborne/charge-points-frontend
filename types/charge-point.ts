@@ -6,7 +6,7 @@ export type ChargePointConnectionStatus =
   | "OFFLINE"
   | "CONNECTED"
   | "SYNCED"
-  | "ERROR";
+  | "WARNING";
 
 export type ChargePointStatus =
   | "Available"
@@ -41,7 +41,7 @@ export interface ChargePoint {
   connection: {
     status: ChargePointConnectionStatus;
     lastSeen?: string;
-    errorMessage?: string;
+    statusMessage?: string;
   };
   status?: ChargePointStatus;
   meta?: ChargePointMeta;

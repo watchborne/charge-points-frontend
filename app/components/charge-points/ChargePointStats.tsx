@@ -11,18 +11,16 @@ export const ChargePointStats = ({
 }) => {
   const stats = {
     total: chargePoints.length,
-    offline: chargePoints.filter((cp) => cp.connection.status === "OFFLINE")
-      .length,
-    errorOrFaulted: chargePoints.filter(
-      (cp) => cp.connection.status === "ERROR" || cp.status === "Faulted",
-    ).length,
     available: chargePoints.filter(
       (cp) => cp.status === "Available" && cp.connection.status === "SYNCED",
     ).length,
-    charging: chargePoints.filter((cp) => cp.status === "Charging").length,
-    faulted: chargePoints.filter(
-      (cp) => cp.status === "Faulted" || cp.connection.status === "OFFLINE",
+    offline: chargePoints.filter((cp) => cp.connection.status === "OFFLINE")
+      .length,
+    notStable: chargePoints.filter(
+      (cp) => cp.connection.status === "WARNING" || cp.status === "Faulted",
     ).length,
+    synced: chargePoints.filter((cp) => cp.connection.status === "SYNCED")
+      .length,
   };
 
   return (
@@ -45,17 +43,17 @@ export const ChargePointStats = ({
           subtitle={`${stats.total > 0 ? Math.round((stats.offline / stats.total) * 100) : 0}%`}
         />
         <StatCard
-          title="Offline / Error / Faulted"
-          value={stats.errorOrFaulted}
+          title="Not stable"
+          value={stats.notStable}
           icon={<X className="h-5 w-5 text-red-600" />}
-          subtitle={`${stats.total > 0 ? Math.round((stats.errorOrFaulted / stats.total) * 100) : 0}%`}
+          subtitle={`${stats.total > 0 ? Math.round((stats.notStable / stats.total) * 100) : 0}%`}
         />
       </div>
       <div className="h-full md:col-span-1 [&>div]:h-full">
         <StatCard
           title="Synced"
-          value={stats.charging}
-          icon={<Cloud className="h-5 w-5 text-blue-600" />}
+          value={stats.synced}
+          icon={<Cloud className="h-6 w-6 text-green-600" />}
         >
           <div className="flex flex-col content-stretch gap-2 text-sm mt-2">
             {(
