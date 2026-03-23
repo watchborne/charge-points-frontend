@@ -1,7 +1,10 @@
+import classNames from "classnames";
+
+import { useSites } from "@/app/hooks/useSites";
+
 import { ChargePoint } from "@/types/charge-point";
 import { ChargePointCard } from "./ChargePointCard";
 import { Tag } from "../common/Tag";
-import { useSites } from "@/app/hooks/useSites";
 
 export const ChargePointsGrid = ({
   chargePoints,
@@ -29,7 +32,12 @@ export const ChargePointsGrid = ({
       {Object.entries(chargePointsBySite).map(([siteId, chargePoints]) => (
         <div
           key={siteId}
-          className="bg-gray-100 rounded-lg p-4 flex flex-col gap-2"
+          className={classNames(
+            "rounded-lg p-4 flex flex-col gap-2",
+            siteId.toLowerCase() === "unknown"
+              ? "bg-orange-300"
+              : "bg-gray-300",
+          )}
         >
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold">Site:</h3>
