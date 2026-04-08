@@ -28,11 +28,14 @@ jobs:
           script: |
             const { execSync } = require('child_process');
 
+            // Limit diff size to stay within model context limits while preserving meaningful content
+            const MAX_DIFF_LENGTH = 12000;
+
             const base = 'origin/${{ github.base_ref }}';
             const commits = execSync(`git log ${base}..HEAD --oneline --no-merges`).toString().trim();
             const diffStat = execSync(`git diff ${base}..HEAD --stat`).toString().trim();
             let diff = execSync(`git diff ${base}..HEAD`).toString();
-            if (diff.length > 8000) diff = diff.substring(0, 8000) + '\n... (truncated)';
+            if (diff.length > MAX_DIFF_LENGTH) diff = diff.substring(0, MAX_DIFF_LENGTH) + '\n... (truncated)';
 
             const systemPrompt = `You are an experienced frontend software engineer.
 
@@ -83,7 +86,7 @@ Describe breaking changes if any are introduced.`;
                   { role: 'system', content: systemPrompt },
                   { role: 'user', content: userMessage },
                 ],
-                max_tokens: 1024,
+                max_tokens: 2048,
                 temperature: 0.3,
               }),
             });
@@ -95,6 +98,10 @@ Describe breaking changes if any are introduced.`;
             }
 
             const data = await response.json();
+            if (!data.choices || data.choices.length === 0) {
+              core.setFailed('GitHub Models API returned no choices');
+              return;
+            }
             const description = data.choices[0].message.content.trim();
 
             await github.rest.pulls.update({
