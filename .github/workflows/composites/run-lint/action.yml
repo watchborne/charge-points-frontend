@@ -1,0 +1,22 @@
+name: "Run lint"
+description: "Run eslint"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: runs-on/action@v2
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version-file: "package.json"
+
+    - name: Install dependencies
+      uses: ./.github/workflows/composites/install-dependencies
+
+    - name: Get Node version
+      id: node-version
+      uses: ./.github/workflows/composites/get-node-version
+
+    - name: Run lint
+      run: npm run lint
+      shell: bash
