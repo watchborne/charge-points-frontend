@@ -1,0 +1,41 @@
+name: "Run unit tests"
+description: "Run unit tests"
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+  statuses: write
+  packages: read
+
+env:
+  CI: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: runs-on/action@v2
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version-file: "package.json"
+
+    - name: Install dependencies
+      uses: ./.github/workflows/composites/install-dependencies
+
+    - name: Get Node version
+      id: node-version
+      uses: ./.github/workflows/composites/get-node-version
+
+    - name: Run tests
+      run: npm run test:ci
+      shell: bash
+
+    - name: Generate test report
+      uses: dorny/test-reporter@v1
+      with:
+        name: "Unit tests"
+        path: "junit-reports/*.xml"
+        reporter: jest-junit
+        list-suites: "failed"
+        list-tests: "failed"

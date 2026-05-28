@@ -1,0 +1,22 @@
+name: "Run build"
+description: "Build the application"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: runs-on/action@v2
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version-file: "package.json"
+
+    - name: Install dependencies
+      uses: ./.github/workflows/composites/install-dependencies
+
+    - name: Get Node version
+      id: node-version
+      uses: ./.github/workflows/composites/get-node-version
+
+    - name: Run build
+      run: npm run build
+      shell: bash

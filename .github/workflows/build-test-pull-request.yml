@@ -1,0 +1,53 @@
+name: Build, Lint and Tests for Pull Requests
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+permissions:
+  checks: write
+  contents: read
+  packages: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run lint
+        uses: ./.github/workflows/composites/run-lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run typecheck
+        uses: ./.github/workflows/composites/run-typecheck
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - typecheck
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run build
+        uses: ./.github/workflows/composites/run-build
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run unit tests
+        uses: ./.github/workflows/composites/run-tests/unit

@@ -1,0 +1,15 @@
+name: "Get Node version"
+description: "Get the node version"
+
+outputs:
+  version:
+    description: "The current node version"
+    value: ${{ steps.node-version.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Node version
+      id: node-version
+      run: echo "version=$(node -v)" >> $GITHUB_OUTPUT
+      shell: bash
