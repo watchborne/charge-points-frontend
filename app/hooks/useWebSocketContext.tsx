@@ -12,7 +12,7 @@ import { WebSocketStatus } from "../ws/ws-manager";
 
 export interface WebSocketMessage {
   type: "CLIENT_CONNECTION" | "CHARGE_POINT_MONITORING";
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
 }
 
