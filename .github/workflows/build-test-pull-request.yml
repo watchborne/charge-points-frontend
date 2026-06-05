@@ -51,3 +51,5 @@ jobs:
 
       - name: Run unit tests
         uses: ./.github/workflows/composites/run-tests/unit
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
