@@ -1,15 +1,10 @@
 name: "Run unit tests"
 description: "Run unit tests"
 
-permissions:
-  checks: write
-  contents: read
-  pull-requests: write
-  statuses: write
-  packages: read
-
-env:
-  CI: true
+inputs:
+  GITHUB_TOKEN:
+    description: "GitHub token for reporting test results on PR"
+    required: true
 
 runs:
   using: "composite"
@@ -39,3 +34,9 @@ runs:
         reporter: jest-junit
         list-suites: "failed"
         list-tests: "failed"
+
+    - name: Report results on PR
+      uses: ollieb89/test-results-reporter@v1.1.0
+      with:
+        test-results: "junit-reports/*.xml"
+        token: ${{ inputs.GITHUB_TOKEN }}
