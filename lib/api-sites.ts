@@ -1,4 +1,4 @@
-import { Site } from "@/types/site";
+import { Site } from "@ev-charge-point-monitor/charge-point-types";
 import { API_URL } from "./api";
 
 type CreateSiteBody = Omit<Site, "id">;

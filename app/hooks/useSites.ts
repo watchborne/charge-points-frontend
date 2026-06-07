@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
-import { Site } from "@/types/site";
+import { Site } from "@ev-charge-point-monitor/charge-point-types";
 
 export interface UseSitesReturn {
   sites: Site[];
