@@ -1,3 +1,5 @@
+import type { CHARGE_POINT_STATUSES } from "@ev-charge-point-monitor/charge-point-types";
+
 export type ChargePointId = string;
 export type ChargePointLogId = string;
 export type SiteId = string;
@@ -8,16 +10,7 @@ export type ChargePointConnectionStatus =
   | "SYNCED"
   | "WARNING";
 
-export type ChargePointStatus =
-  | "Available"
-  | "Preparing"
-  | "Charging"
-  | "SuspendedEV"
-  | "SuspendedEVSE"
-  | "Finishing"
-  | "Reserved"
-  | "Unavailable"
-  | "Faulted";
+export type ChargePointStatus = (typeof CHARGE_POINT_STATUSES)[number];
 
 export interface ChargePointMeta {
   chargePointVendor: string;

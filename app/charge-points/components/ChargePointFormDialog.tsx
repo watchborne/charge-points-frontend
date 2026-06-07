@@ -24,7 +24,7 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Site } from "@/types/site";
+import { Site } from "@ev-charge-point-monitor/charge-point-types";
 
 import { SiteCombobox } from "./SiteCombobox";
 import { Button } from "@/components/ui/button";
