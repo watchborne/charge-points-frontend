@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Site } from "@ev-charge-point-monitor/charge-point-types";
+import { Site } from "@watchborne/charge-points-types";
 
 type SiteComboboxProps = {
   value: string;

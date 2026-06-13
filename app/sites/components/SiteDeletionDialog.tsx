@@ -8,7 +8,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { Site } from "@ev-charge-point-monitor/charge-point-types";
+import { Site } from "@watchborne/charge-points-types";
 
 export const SiteDeletionDialog = ({
   deleteTarget,

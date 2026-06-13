@@ -32,7 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChargePoint, ChargePointLog } from "@/types/charge-point";
-import { Site } from "@ev-charge-point-monitor/charge-point-types";
+import { Site } from "@watchborne/charge-points-types";
 import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
 import { api } from "@/lib/api";
 import { Tag } from "@/app/components/common/Tag";
