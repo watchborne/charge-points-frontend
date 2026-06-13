@@ -1,4 +1,4 @@
-import type { CHARGE_POINT_STATUSES } from "@ev-charge-point-monitor/charge-point-types";
+import type { CHARGE_POINT_STATUSES } from "@watchborne/charge-points-types";
 
 export type ChargePointId = string;
 export type ChargePointLogId = string;
