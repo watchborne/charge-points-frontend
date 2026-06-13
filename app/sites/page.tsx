@@ -7,7 +7,7 @@ import { Callout } from "../components/common/Callout";
 import { Loader } from "../components/common/Loader";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Site } from "@ev-charge-point-monitor/charge-point-types";
+import { Site } from "@watchborne/charge-points-types";
 import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 

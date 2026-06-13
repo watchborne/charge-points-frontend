@@ -16,4 +16,4 @@ updates:
     groups:
       internal-types:
         patterns:
-          - "@ev-charge-point-monitor/ocpp-supervisor-types"
+          - "@watchborne/charge-points-types"

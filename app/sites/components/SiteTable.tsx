@@ -14,7 +14,7 @@ import {
   TableCell,
   Table,
 } from "@/components/ui/table";
-import { Site } from "@ev-charge-point-monitor/charge-point-types";
+import { Site } from "@watchborne/charge-points-types";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 type SiteTableProps = {
