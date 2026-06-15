@@ -10,7 +10,7 @@ Next.js dashboard to fetch real-time data on charge points realm.
 npm install
 ```
 
-## ▶️ Démarrage
+## ▶️ Run locally
 
 ```bash
 npm run dev
