@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="700" viewBox="0 0 800 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <style>
+      .navy {
+        stroke: #031B4E;
+        fill: none;
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .blue-fill {
+        fill: #1E88E5;
+      }
+
+      .blue-stroke {
+        stroke: #1E88E5;
+        stroke-width: 8;
+        stroke-linecap: round;
+      }
+
+      .navy-fill {
+        fill: #031B4E;
+      }
+    </style>
+  </defs>
+
+  <!-- Cloud -->
+  <path class="navy"
+        d="
+          M250 210
+          C250 165 285 130 330 130
+          C340 80 385 50 435 50
+          C500 50 550 100 550 165
+          C610 165 650 205 650 255
+          C650 295 630 320 620 330
+
+          M250 210
+          C205 210 170 245 170 290
+          C170 315 180 330 190 340
+        "/>
+
+  <!-- Center node -->
+  <circle cx="410" cy="235" r="32" class="blue-fill"/>
+
+  <!-- Dotted connections -->
+  <line x1="410" y1="275" x2="410" y2="455"
+        class="blue-stroke"
+        stroke-dasharray="1 28"/>
+
+  <line x1="355" y1="275" x2="185" y2="455"
+        class="blue-stroke"
+        stroke-dasharray="1 28"/>
+
+  <line x1="465" y1="275" x2="635" y2="455"
+        class="blue-stroke"
+        stroke-dasharray="1 28"/>
+
+  <!-- LEFT CHARGER -->
+  <g transform="translate(130,430)">
+    <rect x="0" y="0" width="90" height="180" rx="10"
+          class="navy"/>
+
+    <rect x="18" y="20" width="45" height="16"
+          rx="5" class="navy-fill"/>
+
+    <path d="M45 80 L25 120 L43 120 L28 160 L65 105 L48 105 Z"
+          fill="#1E88E5"/>
+
+    <path d="M90 65 C120 85 120 140 90 145"
+          class="navy"/>
+
+    <rect x="-15" y="180" width="120" height="18"
+          rx="4" class="navy-fill"/>
+  </g>
+
+  <!-- CENTER CHARGER -->
+  <g transform="translate(350,400)">
+    <rect x="0" y="0" width="95" height="250"
+          rx="48" class="navy"/>
+
+    <rect x="20" y="55" width="55" height="105"
+          rx="10" class="navy-fill"/>
+
+    <path d="M48 70 L30 110 L47 110 L35 145 L65 98 L50 98 Z"
+          fill="#1E88E5"/>
+
+    <path d="M95 85 C130 110 130 185 95 190"
+          class="navy"/>
+
+    <rect x="-10" y="250" width="115" height="18"
+          rx="4" class="navy-fill"/>
+  </g>
+
+  <!-- RIGHT CHARGER -->
+  <g transform="translate(560,445) scale(0.90)">
+    <rect x="0" y="0" width="95" height="155"
+          rx="12" class="navy"/>
+
+    <rect x="20" y="18" width="45" height="35"
+          rx="5" class="navy-fill"/>
+
+    <path d="M48 80 L32 112 L47 112 L37 140 L62 100 L50 100 Z"
+          fill="#1E88E5"/>
+
+    <circle cx="48" cy="125" r="12"
+            class="navy-fill"/>
+
+    <path d="M95 40 C125 65 125 135 95 140"
+          class="navy"/>
+
+    <rect x="30" y="155" width="35" height="35"
+          class="navy-fill"/>
+
+    <rect x="-5" y="190" width="105" height="15"
+          rx="4" class="navy-fill"/>
+  </g>
+
+</svg>

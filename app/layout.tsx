@@ -6,6 +6,9 @@ import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/favicon.svg",
+  },
   title: "Charge points monitor",
   description: "Monitoring dashboard for EV charge points",
 };
