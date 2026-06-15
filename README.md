@@ -6,17 +6,24 @@ Next.js dashboard to fetch real-time data on charge points realm.
 
 ## 🚀 Installation
 
-```bash
-npm install
-```
+1. Ask and set NPM_TOKEN env var:
 
-## ▶️ Run locally
+   ```bash
+   export NPM_TOKEN=<token>
+   ```
 
-```bash
-npm run dev
-```
+2. Install dependencies:
 
-Browse **http://localhost:3001**
+   ```bash
+   npm install
+   ```
+
+3. Run the app:
+   ```bash
+   npm run dev
+   ```
+
+- Browse **http://localhost:3001**
 
 ## ⚙️ Configuration
 
