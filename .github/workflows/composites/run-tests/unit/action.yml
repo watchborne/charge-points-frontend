@@ -2,6 +2,9 @@ name: "Run unit tests"
 description: "Run unit tests"
 
 inputs:
+  npm-token:
+    description: "NPM token for private packages"
+    required: true
   GITHUB_TOKEN:
     description: "GitHub token for reporting test results on PR"
     required: true
@@ -17,6 +20,8 @@ runs:
 
     - name: Install dependencies
       uses: ./.github/workflows/composites/install-dependencies
+      with:
+        npm-token: ${{ inputs.npm-token }}
 
     - name: Get Node version
       id: node-version
