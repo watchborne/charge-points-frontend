@@ -22,6 +22,8 @@ jobs:
 
       - name: Run lint
         uses: ./.github/workflows/composites/run-lint
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
   typecheck:
     runs-on: ubuntu-latest
@@ -30,6 +32,8 @@ jobs:
 
       - name: Run typecheck
         uses: ./.github/workflows/composites/run-typecheck
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
   build:
     runs-on: ubuntu-latest
@@ -41,6 +45,8 @@ jobs:
 
       - name: Run build
         uses: ./.github/workflows/composites/run-build
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -52,4 +58,5 @@ jobs:
       - name: Run unit tests
         uses: ./.github/workflows/composites/run-tests/unit
         with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

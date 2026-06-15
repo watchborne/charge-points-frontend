@@ -1,6 +1,11 @@
 name: "Run lint"
 description: "Run eslint"
 
+inputs:
+  npm-token:
+    description: "NPM token for private packages"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -12,6 +17,8 @@ runs:
 
     - name: Install dependencies
       uses: ./.github/workflows/composites/install-dependencies
+      with:
+        NPM_TOKEN: ${{ inputs.npm-token }}
 
     - name: Get Node version
       id: node-version

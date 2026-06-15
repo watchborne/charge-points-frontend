@@ -1,6 +1,11 @@
 name: "Run typecheck"
 description: "Run TS type checker"
 
+inputs:
+  npm-token:
+    description: "NPM token for private packages"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -12,6 +17,8 @@ runs:
 
     - name: Install dependencies
       uses: ./.github/workflows/composites/install-dependencies
+      with:
+        NPM_TOKEN: ${{ inputs.npm-token }}
 
     - name: Run typecheck
       run: npm run typecheck
