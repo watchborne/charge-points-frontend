@@ -2,15 +2,12 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import classNames from "classnames";
-import {
-  AlertCircle,
-  Battery,
-  CheckCircle,
-  Loader,
-  XCircle,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, Loader, XCircle } from "lucide-react";
 
 import { useWebSocket } from "@/app/hooks/useWebSocket";
+
+import svgLogo from "@/public/favicon.svg";
+import Image from "next/image";
 
 export const Header = () => {
   const { status } = useWebSocket("ws://localhost:3000/ws");
@@ -40,10 +37,8 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-3">
-            <Battery className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">
-              Charge points monitor
-            </h1>
+            <Image src={svgLogo} alt="Watchborne logo" width="56" />
+            <h1 className="text-2xl font-bold text-gray-900">Watchborne</h1>
           </Link>
           <div className="ml-8 flex items-center gap-3">
             <Link
