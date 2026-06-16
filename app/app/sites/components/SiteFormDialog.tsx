@@ -67,7 +67,7 @@ export const SiteFormDialog = ({
         lastVisit: initialValues?.lastVisit,
       });
     }
-  }, [open]);
+  }, [open, initialValues, form]);
 
   const handleSubmit = (values: SiteFormValues) => {
     onSubmit(values);

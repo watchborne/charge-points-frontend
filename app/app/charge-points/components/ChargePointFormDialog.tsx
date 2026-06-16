@@ -101,7 +101,7 @@ export const ChargePointFormDialog = ({
       });
       setMetaOpen(false);
     }
-  }, [open]);
+  }, [open, form, initialValues, defaultSiteId]);
 
   const handleSubmit = (values: ChargePointFormValues) => {
     onSubmit(values);

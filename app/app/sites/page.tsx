@@ -37,7 +37,7 @@ export default function SitesPage() {
         ),
       );
     }
-  }, [sites, search]);
+  }, [sites, search, error, loading]);
 
   const handleCreate = async (values: SiteFormValues) => {
     await api.Sites.createSite(values);

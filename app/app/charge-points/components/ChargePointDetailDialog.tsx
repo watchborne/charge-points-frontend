@@ -69,7 +69,7 @@ export const ChargePointDetailDialog = ({
       .then(setLogs)
       .catch(() => setLogs([]))
       .finally(() => setLogsLoading(false));
-  }, [chargePoint?.uuid]);
+  }, [chargePoint]);
 
   if (!chargePoint) return null;
 

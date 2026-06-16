@@ -56,7 +56,7 @@ export default function ChargePointsPage() {
       const updated = chargePoints.find((cp) => cp.uuid === detailTarget.uuid);
       if (updated) setDetailTarget(updated);
     }
-  }, [chargePoints]);
+  }, [chargePoints, detailTarget]);
 
   useEffect(() => {
     if (!loadingChargePoints && !errorChargePoints) {
@@ -78,13 +78,13 @@ export default function ChargePointsPage() {
         ),
       );
     }
-  }, [chargePoints, search]);
+  }, [chargePoints, search, loadingChargePoints, errorChargePoints]);
 
   useEffect(() => {
     if (!loadingSites && !errorSites && sites.length > 0 && !highlightedUuid) {
       setActiveTab(sites[0].id);
     }
-  }, [sites]);
+  }, [sites, loadingSites, errorSites, highlightedUuid]);
 
   useEffect(() => {
     if (
