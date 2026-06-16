@@ -1,10 +1,10 @@
 import classNames from "classnames";
 
-import { useSites } from "@/app/hooks/useSites";
-
 import { ChargePoint } from "@/types/charge-point";
 import { ChargePointCard } from "./ChargePointCard";
 import { Tag } from "../common/Tag";
+
+import { useSites } from "../../hooks/useSites";
 
 export const ChargePointsGrid = ({
   chargePoints,
