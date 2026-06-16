@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
-import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,8 +8,8 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
-  title: "Watchborne - App",
-  description: "Monitoring dashboard for EV charge points",
+  title: "Watchborne - Login",
+  description: "Log in to Watchborne app",
 };
 
 export default function RootLayout({
@@ -20,9 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={inter.className}>
-        <WebSocketDataProvider>{children}</WebSocketDataProvider>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
