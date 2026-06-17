@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
+import { StatusBadge } from "../../components/charge-points/StatusBadge";
 
 type ChargePointTableProps = {
   items: ChargePoint[];

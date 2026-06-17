@@ -33,10 +33,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChargePoint, ChargePointLog } from "@/types/charge-point";
 import { Site } from "@watchborne/charge-points-types";
-import { StatusBadge } from "@/app/components/charge-points/StatusBadge";
+import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { api } from "@/lib/api";
-import { Tag } from "@/app/components/common/Tag";
-import { Callout } from "@/app/components/common/Callout";
+import { Tag } from "../../components/common/Tag";
+import { Callout } from "../../components/common/Callout";
 
 type ChargePointDetailDialogProps = {
   chargePoint: ChargePoint | null;
@@ -69,7 +69,7 @@ export const ChargePointDetailDialog = ({
       .then(setLogs)
       .catch(() => setLogs([]))
       .finally(() => setLogsLoading(false));
-  }, [chargePoint?.uuid]);
+  }, [chargePoint]);
 
   if (!chargePoint) return null;
 

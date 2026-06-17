@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import classNames from "classnames";
 import { AlertCircle, CheckCircle, Loader, XCircle } from "lucide-react";
 
-import { useWebSocket } from "@/app/hooks/useWebSocket";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 import svgLogo from "@/public/favicon.svg";
 import Image from "next/image";
