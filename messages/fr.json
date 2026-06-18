@@ -1,4 +1,5 @@
 {
+  "appName": "Watchborne",
   "common": {
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
@@ -8,5 +9,13 @@
     "delete": "Supprimer",
     "edit": "Modifier",
     "close": "Fermer"
+  },
+  "misc": {
+    "chargePoint": "borne de recharge",
+    "chargePoint_plural": "bornes de recharge",
+    "site": "site",
+    "site_plural": "sites",
+    "siteWithCount": "1 site",
+    "siteWithCount_plural": "{{count}} sites",
   }
 }
