@@ -11,10 +11,10 @@
     "close": "Fermer"
   },
   "misc": {
-    "chargePoint": "borne de recharge",
-    "chargePoint_plural": "bornes de recharge",
-    "site": "site",
-    "site_plural": "sites",
+    "chargePoint": "Borne de recharge",
+    "chargePoint_plural": "Bornes de recharge",
+    "site": "Site",
+    "site_plural": "Sites",
     "siteWithCount": "1 site",
     "siteWithCount_plural": "{{count}} sites",
   }
