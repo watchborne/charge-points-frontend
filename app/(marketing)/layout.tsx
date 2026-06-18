@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
 
-import { Footer } from "react-day-picker";
 import { Navbar } from "./layout/Navbar";
+import { Footer } from "./layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -10,12 +10,60 @@
     "edit": "Modifier",
     "close": "Fermer"
   },
+  "layout": {
+    "footer": {
+      "copyright": "© {year} Watchborne. Tous droits réservés.",
+      "description": "Watchborne aide les installateurs IRVE à superviser leurs bornes de recharge sur plusieurs sites en temps réel.",
+      "sections": {
+        "product": {
+          "title": "Produit",
+          "links": {
+            "features": "Fonctionnalités",
+            "pricing": "Tarifs"
+          }
+        },
+        "company": {
+          "title": "Entreprise",
+          "links": {
+            "about": "À propos",
+            "contact": "Contact"
+          }
+        },
+        "legal": {
+          "title": "Légal",
+          "links": {
+            "privacy": "Politique de confidentialité",
+            "terms": "Conditions d'utilisation"
+          }
+        }
+      },
+      "tagline": "Supervision en temps réel des infrastructures de recharge.",
+      "warning": {
+        "description": "Nous travaillons étroitement avec des early adopters pour construire une plateforme de surveillance simple et fiable pour une infrastructure de recharge de véhicule électrique",
+        "title": "Actuellement en alpha",
+        "pricing": "Les fonctionnalités et les tarifs peuvent évoluer avant la sortie officielle."
+      }
+    },
+    "navbar": {
+      "brand": "Watchborne",
+      "alphaBadge": "ALPHA",
+      "navigation": {
+        "home": "Accueil",
+        "pricing": "Tarifs",
+        "contact": "Contact"
+      },
+      "actions": {
+        "login": "Connexion",
+        "requestAlphaAccess": "Tester en avant-première"
+      }
+    }
+  },
   "misc": {
     "chargePoint": "Borne de recharge",
     "chargePoint_plural": "Bornes de recharge",
     "site": "Site",
     "site_plural": "Sites",
     "siteWithCount": "1 site",
-    "siteWithCount_plural": "{{count}} sites"
+    "siteWithCount_plural": "{count} sites"
   }
 }

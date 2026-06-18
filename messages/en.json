@@ -10,12 +10,60 @@
     "edit": "Edit",
     "close": "Close"
   },
+  "layout": {
+    "footer": {
+      "copyright": "© {year} Watchborne. All rights reserved.",
+      "description": "Watchborne helps EV charging installers monitor charging stations across multiple sites in real time.",
+      "sections": {
+        "product": {
+          "title": "Product",
+          "links": {
+            "pricing": "Pricing",
+            "contact": "Contact"
+          }
+        },
+        "company": {
+          "title": "Company",
+          "links": {
+            "about": "About",
+            "contact": "Contact"
+          }
+        },
+        "legal": {
+          "title": "Legal",
+          "links": {
+            "privacy": "Privacy Policy",
+            "terms": "Terms of Service"
+          }
+        }
+      },
+      "tagline": "Real-time supervision for EV charging infrastructure.",
+      "warning": {
+        "description": "We're working closely with early adopters to build a simple and reliable monitoring platform for EV charging infrastructure.",
+        "title": "Currently in Alpha",
+        "pricing": "Features and pricing may evolve before the official release."
+      }
+    },
+    "navbar": {
+      "brand": "Watchborne",
+      "alphaBadge": "ALPHA",
+      "navigation": {
+        "home": "Home",
+        "pricing": "Pricing",
+        "contact": "Contact"
+      },
+      "actions": {
+        "login": "Login",
+        "requestAlphaAccess": "Request Alpha Access"
+      }
+    }
+  },
   "misc": {
     "chargePoint": "Charge point",
     "chargePoint_plural": "Charge points",
     "site": "Site",
     "site_plural": "Sites",
     "siteWithCount": "1 site",
-    "siteWithCount_plural": "{{count}} sites"
+    "siteWithCount_plural": "{count} sites"
   }
 }
