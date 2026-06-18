@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 
 export default function MarketingHomePage() {
-  const t = useTranslations();
+  const t = useTranslations("");
 
   return (
     <div className="min-h-screen bg-gray-50">
