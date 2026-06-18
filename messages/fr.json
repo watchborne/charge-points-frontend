@@ -16,6 +16,6 @@
     "site": "Site",
     "site_plural": "Sites",
     "siteWithCount": "1 site",
-    "siteWithCount_plural": "{{count}} sites",
+    "siteWithCount_plural": "{{count}} sites"
   }
 }
