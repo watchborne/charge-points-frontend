@@ -65,5 +65,182 @@
     "site_plural": "Sites",
     "siteWithCount": "1 site",
     "siteWithCount_plural": "{count} sites"
+  },
+  "homePage": {
+    "hero": {
+      "badge": "Plateforme de supervision OCPP 2.0.1",
+      "title": "Connaissez l'état réel de vos bornes de recharge.",
+      "subtitle": "Watchborne aide les installateurs IRVE à superviser leurs bornes de recharge sur plusieurs sites en temps réel.",
+      "cta": {
+        "primary": "Essai gratuit",
+        "secondary": "Demander une démo"
+      }
+    },
+    "features": {
+      "realtime": {
+        "title": "Supervision en temps réel",
+        "description": "Surveillez l'état des chargeurs instantanément avec des mises à jour en direct et une visibilité opérationnelle claire."
+      },
+      "multisite": {
+        "title": "Surveillance multi-sites",
+        "description": "Organisez les bornes de recharge sur plusieurs clients et emplacements."
+      },
+      "ocpp": {
+        "title": "Natif OCPP",
+        "description": "Construit autour des workflows OCPP et des opérations d'infrastructure de recharge."
+      },
+      "offline": {
+        "title": "Détection des déconnexions",
+        "description": "Identifiez rapidement les bornes déconnectées avant vos clients."
+      },
+      "fleet": {
+        "title": "Vue d'ensemble du parc",
+        "description": "Obtenez une vue unique de chaque borne déployée sur le terrain."
+      },
+      "reliable": {
+        "title": "Surveillance fiable",
+        "description": "Conçu pour les installateurs qui ont besoin d'une visibilité opérationnelle fiable."
+      }
+    },
+    "roadmap": {
+      "badge": "Feuille de route",
+      "title": "Ce qui arrive ensuite",
+      "items": [
+        "Système d'alertes",
+        "Analyses historiques",
+        "Contrôle d'accès basé sur les rôles",
+        "Vue d'ensemble de la santé du site"
+      ]
+    },
+    "featuresSection": {
+      "title": "Conçu pour les installateurs IRVE",
+      "subtitle": "Concentrez-vous sur l'exploitation de votre infrastructure, pas sur la recherche du statut des chargeurs."
+    },
+    "mvpFeatures": {
+      "title": "Inclus aujourd'hui",
+      "subtitle": "Tout ce qui est nécessaire pour superviser un parc de bornes de recharge.",
+      "items": [
+        "Gestion des bornes de recharge",
+        "Suivi de l'état de connexion",
+        "Tableau de bord en temps réel",
+        "Historique des événements",
+        "Détection des déconnexions",
+        "Organisation multi-sites"
+      ]
+    },
+    "cta": {
+      "title": "Arrêtez de deviner.",
+      "subtitle": "Connaissez l'état de chaque chargeur en temps réel.",
+      "button": "Essai gratuit"
+    },
+    "dashboard": {
+      "sites": "Sites",
+      "fleetOverview": "Vue d'ensemble du parc",
+      "live": "En direct",
+      "status": {
+        "available": "Disponible",
+        "charging": "En charge",
+        "faulted": "En panne",
+        "offline": "Hors ligne",
+        "online": "En ligne"
+      }
+    }
+  },
+  "contactPage": {
+    "hero": {
+      "title": "Discutons ensemble.",
+      "subtitle": "Besoin d'aide pour superviser votre infrastructure de recharge ?"
+    },
+    "form": {
+      "company": "Entreprise",
+      "name": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "chargePoints": "Nombre de bornes de recharge",
+      "message": "Parlez-nous de votre infrastructure...",
+      "submit": "Envoyer le message"
+    },
+    "contact": {
+      "email": {
+        "title": "Email",
+        "value": "contact@watchborne.com"
+      },
+      "demo": {
+        "title": "Démo",
+        "description": "Planifiez une démonstration personnalisée."
+      },
+      "support": {
+        "title": "Support",
+        "description": "Réponse sous un jour ouvrable."
+      }
+    }
+  },
+  "pricingPage": {
+    "badge": "Tarification Alpha",
+    "alphaNotice": {
+      "title": "Tarification en cours de validation",
+      "description": "Watchborne est actuellement en phase Alpha. Les tarifs et les offres sont en cours de validation avec nos premiers utilisateurs et peuvent évoluer avant la sortie publique.",
+      "launchAdvantage": "Les participants à l'Alpha bénéficieront de conditions préférentielles au lancement."
+    },
+    "hero": {
+      "title": "Une tarification pensée pour les exploitants d'infrastructures de recharge.",
+      "subtitle": "Les offres sont organisées autour du nombre de sites que vous gérez."
+    },
+    "plans": {
+      "small": {
+        "name": "Small",
+        "description": "Pour les petites installations.",
+        "sites": "Jusqu'à 5 sites"
+      },
+      "medium": {
+        "name": "Medium",
+        "description": "Pour les réseaux de recharge en croissance.",
+        "sites": "Jusqu'à 20 sites"
+      },
+      "large": {
+        "name": "Large",
+        "description": "Pour les déploiements à grande échelle.",
+        "sites": "Sites illimités"
+      }
+    },
+    "included": {
+      "title": "Inclus dans chaque offre",
+      "items": {
+        "realtime": "Supervision en temps réel",
+        "offlineDetection": "Détection des déconnexions",
+        "multisite": "Organisation multi-sites",
+        "eventHistory": "Historique des événements",
+        "alphaAccess": "Accès Alpha"
+      }
+    },
+    "futurePricing": {
+      "title": "Hypothèse tarifaire actuelle",
+      "description": "Le modèle actuellement étudié repose sur le nombre de sites supervisés.",
+      "sites": "Abonnement basé sur le nombre de sites",
+      "includedChargePoints": "10 bornes incluses par site",
+      "extraChargePoint": "Bornes supplémentaires : 2 €/mois par borne"
+    },
+    "cta": {
+      "title": "Intéressé par le programme Alpha ?",
+      "subtitle": "Échangeons à propos de votre infrastructure et de vos besoins de supervision.",
+      "button": "Demander un accès Alpha"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": {
+        "pricing": {
+          "question": "Cette tarification est-elle définitive ?",
+          "answer": "Non. Les tarifs sont actuellement indicatifs et peuvent évoluer avant la sortie officielle."
+        },
+        "billing": {
+          "question": "La facturation sera-t-elle basée sur les sites ou les bornes ?",
+          "answer": "Nous évaluons actuellement un modèle basé sur les sites avec un nombre de bornes incluses."
+        },
+        "alpha": {
+          "question": "Les utilisateurs Alpha bénéficieront-ils d'avantages particuliers ?",
+          "answer": "Oui. Les premiers utilisateurs bénéficieront de conditions préférentielles lors du lancement."
+        }
+      }
+    }
   }
 }

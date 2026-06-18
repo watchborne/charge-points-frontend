@@ -65,5 +65,183 @@
     "site_plural": "Sites",
     "siteWithCount": "1 site",
     "siteWithCount_plural": "{count} sites"
+  },
+  "homePage": {
+    "hero": {
+      "badge": "OCPP 2.0.1 Monitoring Platform",
+      "title": "Know the real status of your EV charge points.",
+      "subtitle": "Watchborne helps EV charging installers monitor charging stations across multiple sites in real time.",
+      "cta": {
+        "primary": "Start Free Trial",
+        "secondary": "Book a Demo"
+      }
+    },
+    "features": {
+      "realtime": {
+        "title": "Real-time supervision",
+        "description": "Monitor charger status instantly with live updates and clear operational visibility."
+      },
+      "multisite": {
+        "title": "Multi-site monitoring",
+        "description": "Organize charging stations across multiple customers and locations."
+      },
+      "ocpp": {
+        "title": "OCPP-native",
+        "description": "Built around OCPP workflows and charging infrastructure operations."
+      },
+      "offline": {
+        "title": "Offline detection",
+        "description": "Quickly identify disconnected stations before your customers do."
+      },
+      "fleet": {
+        "title": "Fleet overview",
+        "description": "Get a single view of every station deployed in the field."
+      },
+      "reliable": {
+        "title": "Reliable monitoring",
+        "description": "Designed for installers who need trustworthy operational visibility."
+      }
+    },
+    "roadmap": {
+      "badge": "Roadmap",
+      "title": "What's coming next",
+      "items": [
+        "Alerting",
+        "Historical analytics",
+        "Role-based access control",
+        "Site health overview"
+      ]
+    },
+    "featuresSection": {
+      "title": "Built for EV charging installers",
+      "subtitle": "Focus on operating your infrastructure, not chasing charger status."
+    },
+    "mvpFeatures": {
+      "title": "Included today",
+      "subtitle": "Everything required to supervise a fleet of charging stations.",
+      "items": [
+        "Charge Point Management",
+        "Connection State Tracking",
+        "Real-Time Dashboard",
+        "Event History",
+        "Offline Detection",
+        "Multi-Site Organization"
+      ]
+    },
+    "cta": {
+      "title": "Stop guessing.",
+      "subtitle": "Know the status of every charger in real time.",
+      "button": "Start Free Trial"
+    },
+    "dashboard": {
+      "sites": "Sites",
+      "fleetOverview": "Fleet Overview",
+      "live": "Live",
+      "status": {
+        "available": "Available",
+        "charging": "Charging",
+        "faulted": "Faulted",
+        "offline": "Offline",
+        "online": "Online"
+      }
+    }
+  },
+  "contactPage": {
+    "hero": {
+      "title": "Let us talk.",
+      "subtitle": "Need help supervising your charging infrastructure?"
+    },
+    "form": {
+      "company": "Company",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "chargePoints": "Number of charge points",
+      "message": "Tell us about your infrastructure...",
+      "submit": "Send Message"
+    },
+    "contact": {
+      "email": {
+        "title": "Email",
+        "value": "contact@watchborne.com"
+      },
+      "demo": {
+        "title": "Demo",
+        "description": "Schedule a personalized demonstration."
+      },
+      "support": {
+        "title": "Support",
+        "description": "Response within one business day."
+      }
+    }
+  },
+  "pricingPage": {
+    "badge": "Alpha Pricing",
+    "alphaNotice": {
+      "title": "Pricing under validation",
+      "description": "Watchborne is currently in alpha. Pricing and packaging are being validated with early adopters and may evolve before the public release.",
+      "launchAdvantage": "Early adopters will benefit from preferential launch conditions."
+    },
+    "hero": {
+      "title": "Simple pricing designed for charging infrastructure operators.",
+      "subtitle": "Plans are organized around the number of sites you manage."
+    },
+    "plans": {
+      "small": {
+        "name": "Small",
+        "description": "For small charging deployments.",
+        "sites": "Up to 5 sites"
+      },
+      "medium": {
+        "name": "Medium",
+        "description": "For growing charging networks.",
+        "sites": "Up to 20 sites"
+      },
+      "large": {
+        "name": "Large",
+        "description": "For large-scale operations.",
+        "sites": "Unlimited sites"
+      }
+    },
+    "included": {
+      "title": "Included in every plan",
+      "items": {
+        "realtime": "Real-time supervision",
+        "offlineDetection": "Offline detection",
+        "multisite": "Multi-site organization",
+        "eventHistory": "Event history",
+        "alphaAccess": "Alpha access"
+      }
+    },
+    "futurePricing": {
+      "title": "Current pricing hypothesis",
+      "description": "The model currently being evaluated is based on the number of managed sites.",
+
+      "sites": "Site-based subscription",
+      "includedChargePoints": "10 charge points included per site",
+      "extraChargePoint": "Additional charge points: €2/month per charger"
+    },
+    "cta": {
+      "title": "Interested in joining the alpha?",
+      "subtitle": "Let's discuss your infrastructure and supervision needs.",
+      "button": "Request Alpha Access"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": {
+        "pricing": {
+          "question": "Is this pricing final?",
+          "answer": "No. Pricing is currently indicative and may evolve before the official release."
+        },
+        "billing": {
+          "question": "Will pricing be based on sites or charge points?",
+          "answer": "We are currently validating a site-based model with an included number of charge points."
+        },
+        "alpha": {
+          "question": "Will alpha users receive special conditions?",
+          "answer": "Yes. Early adopters will benefit from preferential launch conditions."
+        }
+      }
+    }
   }
 }

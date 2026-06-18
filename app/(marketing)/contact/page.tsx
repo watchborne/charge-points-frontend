@@ -1,35 +1,38 @@
 import { Mail, Building2, Phone } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function ContactPage() {
+  const t = useTranslations("");
+
   return (
     <main className="container mx-auto px-6 py-24">
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-5xl font-bold">Let us talk.</h1>
+        <h1 className="text-5xl font-bold">{t("contactPage.hero.title")}</h1>
 
         <p className="mt-4 text-lg text-muted-foreground">
-          Need help supervising your charging infrastructure?
+          {t("contactPage.hero.subtitle")}
         </p>
       </div>
 
       <div className="mx-auto mt-16 grid max-w-6xl gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="space-y-6 p-8">
-            <Input placeholder="Company" />
+            <Input placeholder={t("contactPage.form.company")} />
 
-            <Input placeholder="Name" />
+            <Input placeholder={t("contactPage.form.name")} />
 
-            <Input type="email" placeholder="Email" />
+            <Input type="email" placeholder={t("contactPage.form.email")} />
 
-            <Input placeholder="Phone" />
+            <Input placeholder={t("contactPage.form.phone")} />
 
-            <Input placeholder="Number of charge points" />
+            <Input placeholder={t("contactPage.form.chargePoints")} />
 
-            <Input placeholder="Tell us about your infrastructure..." />
+            <Input placeholder={t("contactPage.form.message")} />
 
-            <Button className="w-full">Send Message</Button>
+            <Button className="w-full">{t("contactPage.form.submit")}</Button>
           </div>
         </div>
 
@@ -39,10 +42,12 @@ export default function ContactPage() {
               <Mail className="h-5 w-5" />
 
               <div>
-                <h3 className="font-semibold">Email</h3>
+                <h3 className="font-semibold">
+                  {t("contactPage.contact.email.title")}
+                </h3>
 
                 <p className="text-sm text-muted-foreground">
-                  contact@watchborne.com
+                  {t("contactPage.contact.email.value")}
                 </p>
               </div>
             </div>
@@ -53,10 +58,12 @@ export default function ContactPage() {
               <Building2 className="h-5 w-5" />
 
               <div>
-                <h3 className="font-semibold">Demo</h3>
+                <h3 className="font-semibold">
+                  {t("contactPage.contact.demo.title")}
+                </h3>
 
                 <p className="text-sm text-muted-foreground">
-                  Schedule a personalized demonstration.
+                  {t("contactPage.contact.demo.description")}
                 </p>
               </div>
             </div>
@@ -67,10 +74,12 @@ export default function ContactPage() {
               <Phone className="h-5 w-5" />
 
               <div>
-                <h3 className="font-semibold">Support</h3>
+                <h3 className="font-semibold">
+                  {t("contactPage.contact.support.title")}
+                </h3>
 
                 <p className="text-sm text-muted-foreground">
-                  Response within one business day.
+                  {t("contactPage.contact.support.description")}
                 </p>
               </div>
             </div>
