@@ -13,8 +13,8 @@
   "misc": {
     "chargePoint": "Charge point",
     "chargePoint_plural": "Charge points",
-    "site": "site",
-    "site_plural": "sites",
+    "site": "Site",
+    "site_plural": "Sites",
     "siteWithCount": "1 site",
     "siteWithCount_plural": "{{count}} sites",
   }
