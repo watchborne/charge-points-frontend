@@ -34,6 +34,7 @@
     "globals": "^17.6.0",
     "lucide-react": "^0.263.1",
     "next": "^14.2.0",
+    "next-intl": "^4.13.0",
     "react": "^18.3.1",
     "react-day-picker": "^9.13.2",
     "react-dom": "^18.3.1",
