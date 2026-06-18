@@ -1,4 +1,5 @@
 {
+  "appName": "Watchborne",
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
@@ -8,5 +9,13 @@
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close"
+  },
+  "misc": {
+    "chargePoint": "Charge point",
+    "chargePoint_plural": "Charge points",
+    "site": "site",
+    "site_plural": "sites",
+    "siteWithCount": "1 site",
+    "siteWithCount_plural": "{{count}} sites",
   }
 }
