@@ -175,6 +175,31 @@
       }
     }
   },
+  "loginPage": {
+    "alphaBadge": "ALPHA",
+    "title": "Bon retour.",
+    "subtitle": "Accédez à votre espace de supervision des bornes de recharge.",
+    "form": {
+      "email": "Adresse email",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?"
+    },
+    "noAccount": {
+      "text": "Pas encore accès ?",
+      "link": "Demander un accès Alpha"
+    },
+    "branding": {
+      "tagline": "Supervisez vos bornes de recharge en temps réel.",
+      "features": [
+        "Supervision OCPP 2.0.1 en temps réel",
+        "Tableau de bord multi-sites",
+        "Détection des déconnexions instantanée"
+      ]
+    }
+  },
   "pricingPage": {
     "badge": "Tarification Alpha",
     "alphaNotice": {
