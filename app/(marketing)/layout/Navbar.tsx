@@ -31,7 +31,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" asChild>
-            <Link href="https://app.watchborne.com">
+            <Link href="http://localhost:3001/login">
               {t("layout.navbar.actions.login")}
             </Link>
           </Button>
