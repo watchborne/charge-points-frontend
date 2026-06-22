@@ -1,6 +1,6 @@
 import { ChargePoint, ChargePointLog } from "@/types/charge-point";
 import { API_URL } from "./api";
-import { get, post, patch as httpPatch, del } from "./http-client";
+import { httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<
   ChargePoint,
@@ -12,7 +12,9 @@ type PatchChargePointBody = Partial<CreateChargePointBody>;
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePoint[]> {
     try {
-      return await get<ChargePoint[]>(`${API_URL}/api/charge-points`);
+      return await httpClient.get<ChargePoint[]>(
+        `${API_URL}/api/charge-points`,
+      );
     } catch (error) {
       console.error("Failed to fetch charge points", error);
       throw error;
@@ -22,7 +24,7 @@ export const chargePointApis = {
     ChargePointId: ChargePoint["uuid"],
   ): Promise<ChargePoint | undefined> {
     try {
-      return await get<ChargePoint | undefined>(
+      return await httpClient.get<ChargePoint | undefined>(
         `${API_URL}/api/charge-points/${ChargePointId}`,
       );
     } catch (error) {
@@ -34,7 +36,10 @@ export const chargePointApis = {
     body: CreateChargePointBody,
   ): Promise<ChargePoint> {
     try {
-      return await post<ChargePoint>(`${API_URL}/api/charge-points`, body);
+      return await httpClient.post<ChargePoint>(
+        `${API_URL}/api/charge-points`,
+        body,
+      );
     } catch (error) {
       console.error("Failed to create charge point", error, body);
       throw error;
@@ -45,7 +50,7 @@ export const chargePointApis = {
     patchBody: PatchChargePointBody,
   ): Promise<ChargePoint> {
     try {
-      return await httpPatch<ChargePoint>(
+      return await httpClient.patch<ChargePoint>(
         `${API_URL}/api/charge-points/${chargePointId}`,
         patchBody,
       );
@@ -62,7 +67,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["uuid"],
   ): Promise<ChargePointLog[]> {
     try {
-      return await get<ChargePointLog[]>(
+      return await httpClient.get<ChargePointLog[]>(
         `${API_URL}/api/charge-points/${chargePointId}/logs`,
       );
     } catch (error) {
@@ -77,7 +82,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["uuid"],
   ): Promise<void> {
     try {
-      await del(`${API_URL}/api/charge-points/${chargePointId}`);
+      await httpClient.delete(`${API_URL}/api/charge-points/${chargePointId}`);
     } catch (error) {
       console.error(`Failed to delete charge point ${chargePointId}`, error);
       throw error;

@@ -2,10 +2,10 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
-export async function httpClient<T>(
+const makeRequest = async <T>(
   url: string,
   options?: RequestInit,
-): Promise<T> {
+): Promise<T> => {
   const response = await fetch(url, options);
 
   if (!response.ok) {
@@ -13,28 +13,35 @@ export async function httpClient<T>(
   }
 
   return response.json() as Promise<T>;
-}
+};
 
-export function get<T>(url: string): Promise<T> {
-  return httpClient<T>(url, { method: "GET", headers: JSON_HEADERS });
-}
+const get = <T>(url: string): Promise<T> => {
+  return makeRequest<T>(url, { method: "GET", headers: JSON_HEADERS });
+};
 
-export function post<T>(url: string, body: unknown): Promise<T> {
-  return httpClient<T>(url, {
+const post = <T>(url: string, body: unknown): Promise<T> => {
+  return makeRequest<T>(url, {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify(body),
   });
-}
+};
 
-export function patch<T>(url: string, body: unknown): Promise<T> {
-  return httpClient<T>(url, {
+const patch = <T>(url: string, body: unknown): Promise<T> => {
+  return makeRequest<T>(url, {
     method: "PATCH",
     headers: JSON_HEADERS,
     body: JSON.stringify(body),
   });
-}
+};
 
-export function del(url: string): Promise<void> {
-  return httpClient<void>(url, { method: "DELETE" });
-}
+const del = (url: string): Promise<void> => {
+  return makeRequest<void>(url, { method: "DELETE" });
+};
+
+export const httpClient = {
+  get,
+  post,
+  patch,
+  delete: del,
+};
