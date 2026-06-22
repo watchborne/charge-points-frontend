@@ -30,3 +30,13 @@ Next.js dashboard to fetch real-time data on charge points realm.
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
+
+## 📦 Deployment
+
+### Deployment preview
+
+Commenting `/deploy` on PR
+
+### Production deployyment
+
+Adding label `deploy` to the PR
