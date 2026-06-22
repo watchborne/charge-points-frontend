@@ -1,11 +1,1 @@
-export type OcppAction =
-  | "BootNotification"
-  | "Heartbeat"
-  | "StatusNotification"
-  | "MeterValues"
-  | "RemoteStartTransaction"
-  | "RemoteStopTransaction"
-  | "UnlockConnector"
-  | "DataTransfer"
-  | "FirmwareStatusNotification"
-  | "DiagnosticsStatusNotification";
+export type { OcppAction, OcppNotification } from "@watchborne/charge-points-types";

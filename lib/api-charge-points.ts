@@ -1,4 +1,4 @@
-import { ChargePoint, ChargePointLog } from "@/types/charge-point";
+import type { ChargePoint, ChargePointLog } from "@watchborne/charge-points-types";
 import { API_URL } from "./api";
 import { httpClient } from "./http-client";
 
