@@ -7,10 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "npx tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ci": "npx vitest run --reporter=junit --outputFile=junit-reports/test-results.xml"
+    "test:ci": "npx vitest run --reporter=junit --outputFile=junit-reports/test-results.xml",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write"
   },
   "dependencies": {
     "@faker-js/faker": "^10.4.0",
@@ -52,8 +58,11 @@
     "autoprefixer": "^10.4.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.8",
     "postcss": "^8.4.0",
+    "prettier": "^3.8.4",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.4.0",
     "vite-tsconfig-paths": "^6.1.1",
