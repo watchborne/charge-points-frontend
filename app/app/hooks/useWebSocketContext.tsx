@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, createContext, useContext } from "react";
 import { useWebSocket } from "./useWebSocket";
 import { WebSocketStatus } from "../ws/ws-manager";
+import { WS_URL } from "@/lib/constants";
 
 export interface WebSocketMessage {
   type: "CLIENT_CONNECTION" | "CHARGE_POINT_MONITORING";
@@ -27,7 +28,7 @@ export interface UseWebSocketDataOptions {
 }
 
 export function useWebSocketData(options: UseWebSocketDataOptions = {}): WebSocketDataContextType {
-  const { url = "ws://localhost:3000/ws", enabled = true } = options;
+  const { url = WS_URL, enabled = true } = options;
 
   const [messages, setMessages] = useState<WebSocketMessage[]>([]);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
@@ -68,7 +69,7 @@ export function useWebSocketData(options: UseWebSocketDataOptions = {}): WebSock
 
 export function WebSocketDataProvider({
   children,
-  url = "ws://localhost:3000/ws",
+  url = WS_URL,
   enabled = true,
 }: {
   children: React.ReactNode;
