@@ -1,10 +1,6 @@
 name: Build, Lint and Tests for Pull Requests
 
 on:
-  push:
-    branches:
-      - main
-
   pull_request:
 
 permissions:
