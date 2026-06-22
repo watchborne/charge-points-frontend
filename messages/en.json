@@ -175,6 +175,31 @@
       }
     }
   },
+  "loginPage": {
+    "alphaBadge": "ALPHA",
+    "title": "Welcome back.",
+    "subtitle": "Access your EV charge point monitoring dashboard.",
+    "form": {
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot your password?"
+    },
+    "noAccount": {
+      "text": "Don't have access yet?",
+      "link": "Request Alpha Access"
+    },
+    "branding": {
+      "tagline": "Monitor your EV charge points in real time.",
+      "features": [
+        "Real-time OCPP 2.0.1 supervision",
+        "Multi-site dashboard",
+        "Instant offline detection"
+      ]
+    }
+  },
   "pricingPage": {
     "badge": "Alpha Pricing",
     "alphaNotice": {
@@ -190,17 +215,23 @@
       "small": {
         "name": "Small",
         "description": "For small charging deployments.",
-        "sites": "Up to 5 sites"
+        "sites": "Up to 5 sites",
+        "price": "€19.90",
+        "period": "/month"
       },
       "medium": {
         "name": "Medium",
         "description": "For growing charging networks.",
-        "sites": "Up to 20 sites"
+        "sites": "Up to 20 sites",
+        "price": "€29.90",
+        "period": "/month"
       },
       "large": {
         "name": "Large",
         "description": "For large-scale operations.",
-        "sites": "Unlimited sites"
+        "sites": "Unlimited sites",
+        "price": "€49.90",
+        "period": "/month"
       }
     },
     "included": {

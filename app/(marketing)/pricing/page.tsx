@@ -13,12 +13,16 @@ export default function PricingPage() {
       name: t("pricingPage.plans.small.name"),
       description: t("pricingPage.plans.small.description"),
       sites: t("pricingPage.plans.small.sites"),
+      price: t("pricingPage.plans.small.price"),
+      period: t("pricingPage.plans.small.period"),
     },
     {
       id: "medium",
       name: t("pricingPage.plans.medium.name"),
       description: t("pricingPage.plans.medium.description"),
       sites: t("pricingPage.plans.medium.sites"),
+      price: t("pricingPage.plans.medium.price"),
+      period: t("pricingPage.plans.medium.period"),
       highlighted: true,
     },
     {
@@ -26,6 +30,8 @@ export default function PricingPage() {
       name: t("pricingPage.plans.large.name"),
       description: t("pricingPage.plans.large.description"),
       sites: t("pricingPage.plans.large.sites"),
+      price: t("pricingPage.plans.large.price"),
+      period: t("pricingPage.plans.large.period"),
     },
   ];
 
@@ -91,9 +97,16 @@ export default function PricingPage() {
               {plan.description}
             </p>
 
-            <div className="mt-8">
-              <p className="text-lg font-semibold">{plan.sites}</p>
+            <div className="mt-8 flex items-end gap-1">
+              <span className="text-4xl font-bold tracking-tight">
+                {plan.price}
+              </span>
+              <span className="mb-1 text-sm text-muted-foreground">
+                {plan.period}
+              </span>
             </div>
+
+            <p className="mt-3 text-sm text-muted-foreground">{plan.sites}</p>
           </div>
         ))}
       </div>

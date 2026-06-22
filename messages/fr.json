@@ -215,17 +215,23 @@
       "small": {
         "name": "Small",
         "description": "Pour les petites installations.",
-        "sites": "Jusqu'à 5 sites"
+        "sites": "Jusqu'à 5 sites",
+        "price": "19,90 €",
+        "period": "/mois"
       },
       "medium": {
         "name": "Medium",
         "description": "Pour les réseaux de recharge en croissance.",
-        "sites": "Jusqu'à 20 sites"
+        "sites": "Jusqu'à 20 sites",
+        "price": "29,90 €",
+        "period": "/mois"
       },
       "large": {
         "name": "Large",
         "description": "Pour les déploiements à grande échelle.",
-        "sites": "Sites illimités"
+        "sites": "Sites illimités",
+        "price": "49,90 €",
+        "period": "/mois"
       }
     },
     "included": {
