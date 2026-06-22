@@ -28,11 +28,7 @@ import { Site } from "@watchborne/charge-points-types";
 
 import { SiteCombobox } from "./SiteCombobox";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type ChargePointFormDialogProps = {
   open: boolean;
@@ -124,10 +120,7 @@ export const ChargePointFormDialog = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4 py-2"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
             {/* Nom */}
             <FormField
               control={form.control}
@@ -136,11 +129,7 @@ export const ChargePointFormDialog = ({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: CP-001"
-                      disabled={mode === "edit"}
-                      {...field}
-                    />
+                    <Input placeholder="Ex: CP-001" disabled={mode === "edit"} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,11 +144,7 @@ export const ChargePointFormDialog = ({
                 <FormItem>
                   <FormLabel>Site</FormLabel>
                   <FormControl>
-                    <SiteCombobox
-                      value={field.value}
-                      onChange={field.onChange}
-                      sites={sites}
-                    />
+                    <SiteCombobox value={field.value} onChange={field.onChange} sites={sites} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -195,10 +180,7 @@ export const ChargePointFormDialog = ({
                       <FormItem>
                         <FormLabel>Vendor</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Ex: Schneider Electric"
-                            {...field}
-                          />
+                          <Input placeholder="Ex: Schneider Electric" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -248,16 +230,10 @@ export const ChargePointFormDialog = ({
             </Collapsible>
 
             <DialogFooter className="pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {mode === "create" ? "Create" : "Save"}
-              </Button>
+              <Button type="submit">{mode === "create" ? "Create" : "Save"}</Button>
             </DialogFooter>
           </form>
         </Form>

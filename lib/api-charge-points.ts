@@ -2,19 +2,14 @@ import { ChargePoint, ChargePointLog } from "@/types/charge-point";
 import { API_URL } from "./api";
 import { httpClient } from "./http-client";
 
-type CreateChargePointBody = Pick<
-  ChargePoint,
-  "name" | "siteId" | "meta" | "isActive"
->;
+type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive">;
 
 type PatchChargePointBody = Partial<CreateChargePointBody>;
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePoint[]> {
     try {
-      return await httpClient.get<ChargePoint[]>(
-        `${API_URL}/api/charge-points`,
-      );
+      return await httpClient.get<ChargePoint[]>(`${API_URL}/api/charge-points`);
     } catch (error) {
       console.error("Failed to fetch charge points", error);
       throw error;
@@ -32,14 +27,9 @@ export const chargePointApis = {
       throw error;
     }
   },
-  createChargePoint: async function (
-    body: CreateChargePointBody,
-  ): Promise<ChargePoint> {
+  createChargePoint: async function (body: CreateChargePointBody): Promise<ChargePoint> {
     try {
-      return await httpClient.post<ChargePoint>(
-        `${API_URL}/api/charge-points`,
-        body,
-      );
+      return await httpClient.post<ChargePoint>(`${API_URL}/api/charge-points`, body);
     } catch (error) {
       console.error("Failed to create charge point", error, body);
       throw error;
@@ -55,11 +45,7 @@ export const chargePointApis = {
         patchBody,
       );
     } catch (error) {
-      console.error(
-        `Failed to update charge point ${chargePointId}`,
-        error,
-        patchBody,
-      );
+      console.error(`Failed to update charge point ${chargePointId}`, error, patchBody);
       throw error;
     }
   },
@@ -71,16 +57,11 @@ export const chargePointApis = {
         `${API_URL}/api/charge-points/${chargePointId}/logs`,
       );
     } catch (error) {
-      console.error(
-        `Failed to fetch logs for charge point ${chargePointId}`,
-        error,
-      );
+      console.error(`Failed to fetch logs for charge point ${chargePointId}`, error);
       throw error;
     }
   },
-  deleteChargePoint: async function (
-    chargePointId: ChargePoint["uuid"],
-  ): Promise<void> {
+  deleteChargePoint: async function (chargePointId: ChargePoint["uuid"]): Promise<void> {
     try {
       await httpClient.delete(`${API_URL}/api/charge-points/${chargePointId}`);
     } catch (error) {

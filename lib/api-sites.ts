@@ -19,9 +19,7 @@ export const siteApis = {
   },
   getSite: async function (siteId: Site["id"]): Promise<Site | undefined> {
     try {
-      return await httpClient.get<Site | undefined>(
-        `${API_URL}/api/sites/${siteId}`,
-      );
+      return await httpClient.get<Site | undefined>(`${API_URL}/api/sites/${siteId}`);
     } catch (error) {
       console.error(`Failed to fetch site ${siteId}`, error);
       throw error;
@@ -35,15 +33,9 @@ export const siteApis = {
       throw error;
     }
   },
-  updateSite: async function (
-    siteId: Site["id"],
-    patchBody: PatchSiteBody,
-  ): Promise<Site> {
+  updateSite: async function (siteId: Site["id"], patchBody: PatchSiteBody): Promise<Site> {
     try {
-      return await httpClient.patch<Site>(
-        `${API_URL}/api/sites/${siteId}`,
-        patchBody,
-      );
+      return await httpClient.patch<Site>(`${API_URL}/api/sites/${siteId}`, patchBody);
     } catch (error) {
       console.error(`Failed to update site ${siteId}`, error, patchBody);
       throw error;

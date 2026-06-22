@@ -1,4 +1,4 @@
-@import './design-system/tokens.css';
+@import "./design-system/tokens.css";
 
 @tailwind base;
 @tailwind components;
@@ -12,17 +12,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-code, .mono {
+code,
+.mono {
   font-family: var(--font-mono);
 }
-
-
 
 @layer base {
   :root {

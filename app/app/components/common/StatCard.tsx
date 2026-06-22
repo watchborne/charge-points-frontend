@@ -7,13 +7,7 @@ type StatCardProps = {
   subtitle?: string;
 } & PropsWithChildren;
 
-export const StatCard = ({
-  title,
-  value,
-  icon,
-  subtitle,
-  children,
-}: StatCardProps) => {
+export const StatCard = ({ title, value, icon, subtitle, children }: StatCardProps) => {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col content-stretch">
       <div className="flex items-center justify-between mb-2">

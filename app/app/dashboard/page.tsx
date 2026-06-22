@@ -27,9 +27,7 @@ export default function DashboardPage() {
             <ChargePointStats chargePoints={chargePoints} />
 
             <div>
-              <h2 className="text-xl font-semibold mb-4">
-                Charge points ({chargePoints.length})
-              </h2>
+              <h2 className="text-xl font-semibold mb-4">Charge points ({chargePoints.length})</h2>
               {chargePoints.length === 0 ? (
                 <EmptyStateChargePoints />
               ) : (

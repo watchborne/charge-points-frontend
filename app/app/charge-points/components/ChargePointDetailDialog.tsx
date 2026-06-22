@@ -16,11 +16,7 @@ import {
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { useEffect, useState } from "react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 import {
   Dialog,
@@ -113,28 +109,19 @@ export const ChargePointDetailDialog = ({
         <div className="overflow-y-auto flex-1 space-y-4 py-2 pr-1">
           {/* Status row */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              Connection status
-            </span>
+            <span className="text-sm text-muted-foreground">Connection status</span>
             <StatusBadge status={chargePoint.connection.status} />
           </div>
           {chargePoint.connection.statusMessage && (
-            <Callout
-              error={chargePoint.connection.statusMessage}
-              variant="warning"
-            />
+            <Callout error={chargePoint.connection.statusMessage} variant="warning" />
           )}
 
           {chargePoint.status && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Charge status
-              </span>
+              <span className="text-sm text-muted-foreground">Charge status</span>
               <div className="flex items-center gap-1.5">
                 {getChargePointStatusIcon(chargePoint.status)}
-                <span className="text-sm font-medium">
-                  {chargePoint.status}
-                </span>
+                <span className="text-sm font-medium">{chargePoint.status}</span>
               </div>
             </div>
           )}
@@ -148,10 +135,7 @@ export const ChargePointDetailDialog = ({
               </span>
               {chargePoint.connection.lastSeen && (
                 <span className="text-[10px] text-muted-foreground">
-                  {format(
-                    new Date(chargePoint.connection.lastSeen),
-                    "dd/MM/yyyy HH:mm:ss",
-                  )}
+                  {format(new Date(chargePoint.connection.lastSeen), "dd/MM/yyyy HH:mm:ss")}
                 </span>
               )}
             </span>
@@ -170,34 +154,24 @@ export const ChargePointDetailDialog = ({
               {chargePoint.meta.chargePointVendor && (
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">Vendor</span>
-                  <span className="text-sm font-medium">
-                    {chargePoint.meta.chargePointVendor}
-                  </span>
+                  <span className="text-sm font-medium">{chargePoint.meta.chargePointVendor}</span>
                 </div>
               )}
               {chargePoint.meta.chargePointModel && (
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">Model</span>
-                  <span className="text-sm font-medium">
-                    {chargePoint.meta.chargePointModel}
-                  </span>
+                  <span className="text-sm font-medium">{chargePoint.meta.chargePointModel}</span>
                 </div>
               )}
               {chargePoint.meta.serialNumber && (
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">
-                    Serial number
-                  </span>
-                  <span className="text-sm font-mono">
-                    {chargePoint.meta.serialNumber}
-                  </span>
+                  <span className="text-sm text-muted-foreground">Serial number</span>
+                  <span className="text-sm font-mono">{chargePoint.meta.serialNumber}</span>
                 </div>
               )}
               {chargePoint.meta.firmwareVersion && (
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">
-                    Firmware
-                  </span>
+                  <span className="text-sm text-muted-foreground">Firmware</span>
                   <Badge variant="outline" className="font-mono text-xs">
                     v{chargePoint.meta.firmwareVersion}
                   </Badge>
@@ -215,23 +189,17 @@ export const ChargePointDetailDialog = ({
                 Loading logs…
               </div>
             ) : logs.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No logs available.
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-4">No logs available.</p>
             ) : (
               <div className="border rounded-md divide-y max-h-64 overflow-y-auto">
                 {logs.map((log, i) => {
                   const hasPayload = Object.keys(log.payload).length > 0;
                   if (
                     hasPayload ||
-                    (chargePoint.connection.status === "WARNING" &&
-                      log.action === "ERROR")
+                    (chargePoint.connection.status === "WARNING" && log.action === "ERROR")
                   ) {
                     return (
-                      <Collapsible
-                        key={log.uuid}
-                        open={expandedLogs.has(log.uuid)}
-                      >
+                      <Collapsible key={log.uuid} open={expandedLogs.has(log.uuid)}>
                         <div className="px-3 py-2">
                           <CollapsibleTrigger asChild>
                             <button
@@ -242,15 +210,10 @@ export const ChargePointDetailDialog = ({
                               <div className="flex items-center gap-2 min-w-0">
                                 <ChevronDown
                                   className={`h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform ${
-                                    expandedLogs.has(log.uuid)
-                                      ? "rotate-180"
-                                      : ""
+                                    expandedLogs.has(log.uuid) ? "rotate-180" : ""
                                   }`}
                                 />
-                                <Badge
-                                  variant="secondary"
-                                  className="font-mono text-xs shrink-0"
-                                >
+                                <Badge variant="secondary" className="font-mono text-xs shrink-0">
                                   <div className="flex items-center gap-2">
                                     {log.action}
                                     {"status" in log.payload && (
@@ -262,10 +225,7 @@ export const ChargePointDetailDialog = ({
                                 </Badge>
                               </div>
                               <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                                {format(
-                                  new Date(log.timestamp),
-                                  "dd/MM/yyyy HH:mm:ss",
-                                )}
+                                {format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss")}
                               </span>
                             </button>
                           </CollapsibleTrigger>
@@ -293,18 +253,12 @@ export const ChargePointDetailDialog = ({
                       <div className="w-full flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="w-3.5" />
-                          <Badge
-                            variant="secondary"
-                            className="font-mono text-xs shrink-0"
-                          >
+                          <Badge variant="secondary" className="font-mono text-xs shrink-0">
                             {log.action}
                           </Badge>
                         </div>
                         <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                          {format(
-                            new Date(log.timestamp),
-                            "dd/MM/yyyy HH:mm:ss",
-                          )}
+                          {format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss")}
                         </span>
                       </div>
                     </div>

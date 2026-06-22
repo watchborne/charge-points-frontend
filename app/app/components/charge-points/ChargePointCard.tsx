@@ -57,38 +57,29 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
           {[
             {
               label: "Model",
-              data: chargePoint.meta.chargePointVendor &&
-                chargePoint.meta.chargePointModel && (
-                  <p className="text-gray-500 font-medium">
-                    {`${chargePoint.meta.chargePointVendor} ${chargePoint.meta.chargePointModel}`}
-                  </p>
-                ),
+              data: chargePoint.meta.chargePointVendor && chargePoint.meta.chargePointModel && (
+                <p className="text-gray-500 font-medium">
+                  {`${chargePoint.meta.chargePointVendor} ${chargePoint.meta.chargePointModel}`}
+                </p>
+              ),
             },
             {
               label: "Firmware",
               data: chargePoint.meta.firmwareVersion && (
-                <p className="text-gray-500 font-medium">
-                  {chargePoint.meta.firmwareVersion}
-                </p>
+                <p className="text-gray-500 font-medium">{chargePoint.meta.firmwareVersion}</p>
               ),
             },
             {
               label: "Status",
               data: chargePoint.status && (
                 <div className="flex items-center gap-2">
-                  <p className="text-gray-500 font-medium">
-                    {chargePoint.status}
-                  </p>
+                  <p className="text-gray-500 font-medium">{chargePoint.status}</p>
                   {getChargePointStatusIcon(chargePoint.status)}
                 </div>
               ),
             },
           ].map(({ label, data }) => (
-            <ChargePointDetail
-              key={`cp-details-${label}`}
-              label={label}
-              detail={data}
-            />
+            <ChargePointDetail key={`cp-details-${label}`} label={label} detail={data} />
           ))}
         </div>
       )}
@@ -101,13 +92,7 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
   );
 }
 
-const ChargePointDetail = ({
-  label,
-  detail,
-}: {
-  label: string;
-  detail?: ReactNode;
-}) => {
+const ChargePointDetail = ({ label, detail }: { label: string; detail?: ReactNode }) => {
   if (!detail) return null;
 
   return (

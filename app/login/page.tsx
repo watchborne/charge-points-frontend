@@ -25,9 +25,7 @@ export default function LoginPage() {
         <div>
           <PlugZap className="h-10 w-10 mb-8 opacity-70" />
 
-          <p className="text-3xl font-bold leading-snug">
-            {t("branding.tagline")}
-          </p>
+          <p className="text-3xl font-bold leading-snug">{t("branding.tagline")}</p>
 
           <ul className="mt-8 space-y-3">
             {features.map((feature) => (
@@ -60,13 +58,9 @@ export default function LoginPage() {
               {t("alphaBadge")}
             </Badge>
 
-            <h1 className="text-2xl font-bold tracking-tight">
-              {t("title")}
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
 
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("subtitle")}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
 
           <LoginForm

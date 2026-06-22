@@ -24,9 +24,7 @@ export const Header = () => {
       case "DISCONNECTED":
         return <XCircle className={classNames(sizing, "text-red-600")} />;
       case "ERROR":
-        return (
-          <AlertCircle className={classNames(sizing, "text-yellow-600")} />
-        );
+        return <AlertCircle className={classNames(sizing, "text-yellow-600")} />;
       default:
         return null;
     }

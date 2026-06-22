@@ -90,10 +90,7 @@ export const SiteFormDialog = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4 py-2"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
             <FormField
               control={form.control}
               name="name"
@@ -162,16 +159,10 @@ export const SiteFormDialog = ({
             </div>
 
             <DialogFooter className="pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {mode === "create" ? "Create site" : "Save"}
-              </Button>
+              <Button type="submit">{mode === "create" ? "Create site" : "Save"}</Button>
             </DialogFooter>
           </form>
         </Form>

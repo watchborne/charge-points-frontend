@@ -157,9 +157,7 @@ export default function HomePage() {
                           <div className="font-medium">{cp.id}</div>
 
                           <div className="flex items-center gap-2">
-                            <div
-                              className={`h-2.5 w-2.5 rounded-full ${cp.color}`}
-                            />
+                            <div className={`h-2.5 w-2.5 rounded-full ${cp.color}`} />
                             <span className="text-sm">{cp.status}</span>
                           </div>
                         </div>
@@ -182,9 +180,7 @@ export default function HomePage() {
             {t("homePage.featuresSection.title")}
           </h2>
 
-          <p className="mt-4 text-muted-foreground">
-            {t("homePage.featuresSection.subtitle")}
-          </p>
+          <p className="mt-4 text-muted-foreground">{t("homePage.featuresSection.subtitle")}</p>
         </div>
 
         <div className="mx-auto mt-16 grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -198,9 +194,7 @@ export default function HomePage() {
 
                   <h3 className="mb-2 font-semibold">{feature.title}</h3>
 
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
                 </div>
               </div>
             );
@@ -213,13 +207,9 @@ export default function HomePage() {
       {/* MVP FEATURES */}
       <section className="container mx-auto px-6 py-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold">
-            {t("homePage.mvpFeatures.title")}
-          </h2>
+          <h2 className="text-4xl font-bold">{t("homePage.mvpFeatures.title")}</h2>
 
-          <p className="mt-4 text-muted-foreground">
-            {t("homePage.mvpFeatures.subtitle")}
-          </p>
+          <p className="mt-4 text-muted-foreground">{t("homePage.mvpFeatures.subtitle")}</p>
         </div>
 
         <div className="mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-2">
@@ -259,9 +249,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-4xl font-bold">{t("homePage.cta.title")}</h2>
 
-            <p className="mt-4 text-lg opacity-90">
-              {t("homePage.cta.subtitle")}
-            </p>
+            <p className="mt-4 text-lg opacity-90">{t("homePage.cta.subtitle")}</p>
 
             <Button size="lg" variant="secondary" className="mt-8">
               {t("homePage.cta.button")}

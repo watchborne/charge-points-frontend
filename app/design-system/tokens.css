@@ -1,64 +1,64 @@
 /* Watchborne Design System — v0.1 */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 :root {
   /* ---- Volt Ink (marque / corporate) ---- */
-  --ink-900: #0E1B33;
+  --ink-900: #0e1b33;
   --ink-800: #162746;
-  --ink-700: #1E3358;
-  --ink-600: #2C4978;
-  --ink-400: #5B7AAE;
-  --ink-200: #AFC2DD;
-  --ink-100: #D8E2F0;
-  --ink-50:  #F1F5FB;
+  --ink-700: #1e3358;
+  --ink-600: #2c4978;
+  --ink-400: #5b7aae;
+  --ink-200: #afc2dd;
+  --ink-100: #d8e2f0;
+  --ink-50: #f1f5fb;
 
   /* ---- Charge Amber (accent / charge active) ---- */
-  --charge-700: #9A5B0E;
-  --charge-600: #C67A14;
-  --charge-500: #E2941F;
-  --charge-400: #F2A93B;
-  --charge-200: #FAD79B;
-  --charge-100: #FCE9C7;
-  --charge-50:  #FDF4E4;
+  --charge-700: #9a5b0e;
+  --charge-600: #c67a14;
+  --charge-500: #e2941f;
+  --charge-400: #f2a93b;
+  --charge-200: #fad79b;
+  --charge-100: #fce9c7;
+  --charge-50: #fdf4e4;
 
   /* ---- États borne ---- */
-  --st-available-700: #1E6B45;
-  --st-available-500: #2E9460;
-  --st-available-100: #DCF0E5;
+  --st-available-700: #1e6b45;
+  --st-available-500: #2e9460;
+  --st-available-100: #dcf0e5;
 
-  --st-charging-700: #9A5B0E;
-  --st-charging-500: #E2941F;
-  --st-charging-100: #FCE9C7;
+  --st-charging-700: #9a5b0e;
+  --st-charging-500: #e2941f;
+  --st-charging-100: #fce9c7;
 
-  --st-error-700: #A12D2D;
-  --st-error-500: #D34545;
-  --st-error-100: #FBE2E2;
+  --st-error-700: #a12d2d;
+  --st-error-500: #d34545;
+  --st-error-100: #fbe2e2;
 
-  --st-offline-700: #5B5F6A;
-  --st-offline-500: #8B909C;
-  --st-offline-100: #E7E8EB;
+  --st-offline-700: #5b5f6a;
+  --st-offline-500: #8b909c;
+  --st-offline-100: #e7e8eb;
 
-  --st-maint-700: #5B3E96;
-  --st-maint-500: #7E5BC4;
-  --st-maint-100: #EAE2F8;
+  --st-maint-700: #5b3e96;
+  --st-maint-500: #7e5bc4;
+  --st-maint-100: #eae2f8;
 
   /* ---- Neutres UI ---- */
-  --bg-page:    #F4F6F9;
-  --bg-surface: #FFFFFF;
-  --bg-sunken:  #EBEFF5;
+  --bg-page: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-sunken: #ebeff5;
 
-  --text-primary:   #101826;
-  --text-secondary: #5A6479;
-  --text-tertiary:  #8D95A6;
+  --text-primary: #101826;
+  --text-secondary: #5a6479;
+  --text-tertiary: #8d95a6;
 
-  --border-subtle:  #E3E7EE;
-  --border-default: #D2D8E3;
+  --border-subtle: #e3e7ee;
+  --border-default: #d2d8e3;
 
   /* ---- Typographie ---- */
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body:    'Inter', sans-serif;
-  --font-mono:    'IBM Plex Mono', monospace;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
 
   /* ---- Radius ---- */
   --r-sm: 6px;
@@ -69,11 +69,11 @@
   --shadow-card: 0 1px 2px rgba(16, 24, 38, 0.04), 0 1px 8px rgba(16, 24, 38, 0.04);
 
   /* ---- Espacement (base-4) ---- */
-  --space-xs:   4px;
-  --space-sm:   8px;
-  --space-md:   12px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
   --space-base: 16px;
-  --space-lg:   24px;
-  --space-xl:   32px;
-  --space-2xl:  48px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
 }

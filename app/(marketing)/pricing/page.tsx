@@ -63,22 +63,14 @@ export default function PricingPage() {
       <div className="mx-auto max-w-3xl text-center">
         <Badge>{t("pricingPage.badge")}</Badge>
 
-        <h1 className="mt-6 text-5xl font-bold">
-          {t("pricingPage.hero.title")}
-        </h1>
+        <h1 className="mt-6 text-5xl font-bold">{t("pricingPage.hero.title")}</h1>
 
-        <p className="mt-4 text-lg text-muted-foreground">
-          {t("pricingPage.hero.subtitle")}
-        </p>
+        <p className="mt-4 text-lg text-muted-foreground">{t("pricingPage.hero.subtitle")}</p>
       </div>
 
       <div className="mx-auto mt-12 max-w-4xl rounded-lg border bg-orange-50 p-6">
-        <h3 className="mb-2 font-semibold text-orange-900">
-          {t("pricingPage.alphaNotice.title")}
-        </h3>
-        <p className="text-sm text-orange-800">
-          {t("pricingPage.alphaNotice.description")}
-        </p>
+        <h3 className="mb-2 font-semibold text-orange-900">{t("pricingPage.alphaNotice.title")}</h3>
+        <p className="text-sm text-orange-800">{t("pricingPage.alphaNotice.description")}</p>
       </div>
 
       <div className="mx-auto mt-16 grid max-w-6xl gap-6 lg:grid-cols-3">
@@ -93,17 +85,11 @@ export default function PricingPage() {
           >
             <h2 className="text-2xl font-bold">{plan.name}</h2>
 
-            <p className="mt-2 text-sm text-muted-foreground">
-              {plan.description}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
 
             <div className="mt-8 flex items-end gap-1">
-              <span className="text-4xl font-bold tracking-tight">
-                {plan.price}
-              </span>
-              <span className="mb-1 text-sm text-muted-foreground">
-                {plan.period}
-              </span>
+              <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
+              <span className="mb-1 text-sm text-muted-foreground">{plan.period}</span>
             </div>
 
             <p className="mt-3 text-sm text-muted-foreground">{plan.sites}</p>
@@ -112,9 +98,7 @@ export default function PricingPage() {
       </div>
 
       <section className="mx-auto mt-16 max-w-4xl">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          {t("pricingPage.included.title")}
-        </h2>
+        <h2 className="mb-8 text-center text-2xl font-bold">{t("pricingPage.included.title")}</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
           {includedFeatures.map((feature) => (
@@ -158,9 +142,7 @@ export default function PricingPage() {
       <section className="mx-auto mt-24 max-w-4xl text-center">
         <h2 className="text-3xl font-bold">{t("pricingPage.cta.title")}</h2>
 
-        <p className="mt-4 text-lg text-muted-foreground">
-          {t("pricingPage.cta.subtitle")}
-        </p>
+        <p className="mt-4 text-lg text-muted-foreground">{t("pricingPage.cta.subtitle")}</p>
 
         <Button className="mt-8" size="lg">
           {t("pricingPage.cta.button")}
@@ -168,9 +150,7 @@ export default function PricingPage() {
       </section>
 
       <section className="mx-auto mt-24 max-w-4xl">
-        <h2 className="mb-10 text-center text-3xl font-bold">
-          {t("pricingPage.faq.title")}
-        </h2>
+        <h2 className="mb-10 text-center text-3xl font-bold">{t("pricingPage.faq.title")}</h2>
 
         <div className="space-y-8">
           {faqItems.map((item, index) => (

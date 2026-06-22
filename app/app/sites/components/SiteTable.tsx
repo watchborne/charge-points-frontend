@@ -23,11 +23,7 @@ type SiteTableProps = {
   onDeleteClicked: (site: Site) => void;
 };
 
-export const SiteTable = ({
-  sites,
-  onEditClicked,
-  onDeleteClicked,
-}: SiteTableProps) => {
+export const SiteTable = ({ sites, onEditClicked, onDeleteClicked }: SiteTableProps) => {
   return (
     <div className="rounded-lg border">
       <Table>
@@ -43,10 +39,7 @@ export const SiteTable = ({
         <TableBody>
           {sites.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={5}
-                className="text-center text-muted-foreground py-12"
-              >
+              <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
                 No matches found.
               </TableCell>
             </TableRow>

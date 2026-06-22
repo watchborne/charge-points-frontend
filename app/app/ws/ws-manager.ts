@@ -1,8 +1,4 @@
-export type WebSocketStatus =
-  | "CONNECTING"
-  | "CONNECTED"
-  | "DISCONNECTED"
-  | "ERROR";
+export type WebSocketStatus = "CONNECTING" | "CONNECTED" | "DISCONNECTED" | "ERROR";
 
 type Listener = (state: {
   status: WebSocketStatus;
@@ -130,8 +126,7 @@ class WebSocketManager {
 
   sendMessage(message: string | object) {
     if (this.socket?.readyState === WebSocket.OPEN) {
-      const payload =
-        typeof message === "string" ? message : JSON.stringify(message);
+      const payload = typeof message === "string" ? message : JSON.stringify(message);
       this.socket.send(payload);
     } else {
       console.warn("WebSocket not connected. Cannot send:", message);
