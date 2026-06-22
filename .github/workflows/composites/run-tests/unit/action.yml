@@ -1,6 +1,9 @@
 name: "Run unit tests"
 description: "Run unit tests"
 
+env:
+  ENABLE_TEST_RESULT_PR_COMMENT: false
+
 inputs:
   npm-token:
     description: "NPM token for private packages"
@@ -41,6 +44,7 @@ runs:
         list-tests: "failed"
 
     - name: Report results on PR
+      if: ${{ env.ENABLE_TEST_RESULT_PR_COMMENT == 'true' }}
       uses: ollieb89/test-results-reporter@v1.1.0
       with:
         test-results: "junit-reports/*.xml"
