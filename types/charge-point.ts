@@ -1,37 +1,10 @@
-import type { CHARGE_POINT_STATUSES } from "@watchborne/charge-points-types";
-
-export type ChargePointId = string;
-export type ChargePointLogId = string;
-export type SiteId = string;
-
-export type ChargePointConnectionStatus = "OFFLINE" | "CONNECTED" | "SYNCED" | "WARNING";
-
-export type ChargePointStatus = (typeof CHARGE_POINT_STATUSES)[number];
-
-export interface ChargePointMeta {
-  chargePointVendor: string;
-  chargePointModel: string;
-  serialNumber?: string;
-  firmwareVersion?: string;
-}
-
-export interface ChargePointLog {
-  uuid: ChargePointLogId;
-  timestamp: Date;
-  action: string;
-  payload: Record<string, unknown>;
-}
-
-export interface ChargePoint {
-  uuid: ChargePointId;
-  name: string;
-  isActive: boolean;
-  siteId: SiteId;
-  connection: {
-    status: ChargePointConnectionStatus;
-    lastSeen?: string;
-    statusMessage?: string;
-  };
-  status?: ChargePointStatus;
-  meta?: ChargePointMeta;
-}
+export type {
+  ChargePointId,
+  ChargePointLogId,
+  SiteId,
+  ChargePointConnectionStatus,
+  ChargePointStatus,
+  ChargePointMeta,
+  ChargePointLog,
+  ChargePoint,
+} from "@watchborne/charge-points-types";

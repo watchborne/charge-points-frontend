@@ -102,14 +102,12 @@ export default function ChargePointsPage() {
       name: values.name,
       siteId: values.siteId,
       isActive: values.isActive,
-      meta: values.meta
-        ? {
-            chargePointVendor: values.meta.chargePointVendor ?? "",
-            chargePointModel: values.meta.chargePointModel ?? "",
-            serialNumber: values.meta.serialNumber,
-            firmwareVersion: values.meta.firmwareVersion,
-          }
-        : undefined,
+      meta: {
+        chargePointVendor: values.meta?.chargePointVendor ?? "",
+        chargePointModel: values.meta?.chargePointModel ?? "",
+        serialNumber: values.meta?.serialNumber ?? "",
+        firmwareVersion: values.meta?.firmwareVersion ?? "",
+      },
     });
     await refetchChargePoints();
   };
@@ -119,14 +117,12 @@ export default function ChargePointsPage() {
     await api.ChargePoints.updateChargePoint(editTarget.uuid, {
       name: values.name,
       siteId: values.siteId,
-      meta: values.meta
-        ? {
-            chargePointVendor: values.meta.chargePointVendor ?? "",
-            chargePointModel: values.meta.chargePointModel ?? "",
-            serialNumber: values.meta.serialNumber,
-            firmwareVersion: values.meta.firmwareVersion,
-          }
-        : undefined,
+      meta: {
+        chargePointVendor: values.meta?.chargePointVendor ?? "",
+        chargePointModel: values.meta?.chargePointModel ?? "",
+        serialNumber: values.meta?.serialNumber ?? "",
+        firmwareVersion: values.meta?.firmwareVersion ?? "",
+      },
     });
     await refetchChargePoints();
     setEditTarget(null);
