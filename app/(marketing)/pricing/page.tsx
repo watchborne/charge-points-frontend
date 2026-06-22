@@ -88,12 +88,8 @@ export default function PricingPage() {
             <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
 
             <div className="mt-8 flex items-end gap-1">
-              <span className="text-4xl font-bold tracking-tight">
-                {plan.price}
-              </span>
-              <span className="mb-1 text-sm text-muted-foreground">
-                {plan.period}
-              </span>
+              <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
+              <span className="mb-1 text-sm text-muted-foreground">{plan.period}</span>
             </div>
 
             <p className="mt-3 text-sm text-muted-foreground">{plan.sites}</p>
