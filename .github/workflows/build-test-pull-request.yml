@@ -1,4 +1,4 @@
-name: Build, Lint and Tests for Pull Requests
+name: Build, Lint, Format and Tests for Pull Requests
 
 on:
   push:
@@ -15,13 +15,13 @@ permissions:
   statuses: write
 
 jobs:
-  lint:
+  lint-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
-      - name: Run lint
-        uses: ./.github/workflows/composites/run-lint
+      - name: Run lint and format
+        uses: ./.github/workflows/composites/run-lint-format
         with:
           npm-token: ${{ secrets.NPM_TOKEN }}
 
@@ -38,7 +38,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs:
-      - lint
+      - lint-format
       - typecheck
     steps:
       - uses: actions/checkout@v6
