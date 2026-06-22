@@ -56,19 +56,13 @@ export const ChargePointTable = ({
             </TableCell>
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.chargePointVendor || (
-                <span className="text-slate-300">—</span>
-              )}
+              {cp.meta?.chargePointVendor || <span className="text-slate-300">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.chargePointModel || (
-                <span className="text-slate-300">—</span>
-              )}
+              {cp.meta?.chargePointModel || <span className="text-slate-300">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm font-mono text-xs">
-              {cp.meta?.serialNumber || (
-                <span className="text-slate-300">—</span>
-              )}
+              {cp.meta?.serialNumber || <span className="text-slate-300">—</span>}
             </TableCell>
             <TableCell>
               {cp.meta?.firmwareVersion ? (

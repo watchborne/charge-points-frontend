@@ -171,9 +171,7 @@ describe("useChargePoints", () => {
     rerender();
 
     await waitFor(() => {
-      expect(mockGetChargePoints.mock.calls.length).toBeGreaterThan(
-        initialCallCount,
-      );
+      expect(mockGetChargePoints.mock.calls.length).toBeGreaterThan(initialCallCount);
     });
   });
 });

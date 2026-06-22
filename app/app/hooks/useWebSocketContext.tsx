@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-  useCallback,
-  createContext,
-  useContext,
-} from "react";
+import { useEffect, useState, useCallback, createContext, useContext } from "react";
 import { useWebSocket } from "./useWebSocket";
 import { WebSocketStatus } from "../ws/ws-manager";
 
@@ -25,18 +19,14 @@ export interface WebSocketDataContextType {
   clearMessages: () => void;
 }
 
-const WebSocketDataContext = createContext<WebSocketDataContextType | null>(
-  null,
-);
+const WebSocketDataContext = createContext<WebSocketDataContextType | null>(null);
 
 export interface UseWebSocketDataOptions {
   url?: string;
   enabled?: boolean;
 }
 
-export function useWebSocketData(
-  options: UseWebSocketDataOptions = {},
-): WebSocketDataContextType {
+export function useWebSocketData(options: UseWebSocketDataOptions = {}): WebSocketDataContextType {
   const { url = "ws://localhost:3000/ws", enabled = true } = options;
 
   const [messages, setMessages] = useState<WebSocketMessage[]>([]);
@@ -88,18 +78,14 @@ export function WebSocketDataProvider({
   const webSocketData = useWebSocketData({ url, enabled });
 
   return (
-    <WebSocketDataContext.Provider value={webSocketData}>
-      {children}
-    </WebSocketDataContext.Provider>
+    <WebSocketDataContext.Provider value={webSocketData}>{children}</WebSocketDataContext.Provider>
   );
 }
 
 export function useWebSocketContext(): WebSocketDataContextType {
   const context = useContext(WebSocketDataContext);
   if (!context) {
-    throw new Error(
-      "useWebSocketContext must be used within a WebSocketDataProvider",
-    );
+    throw new Error("useWebSocketContext must be used within a WebSocketDataProvider");
   }
   return context;
 }

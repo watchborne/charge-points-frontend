@@ -12,9 +12,7 @@ export default function ContactPage() {
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-5xl font-bold">{t("contactPage.hero.title")}</h1>
 
-        <p className="mt-4 text-lg text-muted-foreground">
-          {t("contactPage.hero.subtitle")}
-        </p>
+        <p className="mt-4 text-lg text-muted-foreground">{t("contactPage.hero.subtitle")}</p>
       </div>
 
       <div className="mx-auto mt-16 grid max-w-6xl gap-10 lg:grid-cols-3">
@@ -42,9 +40,7 @@ export default function ContactPage() {
               <Mail className="h-5 w-5" />
 
               <div>
-                <h3 className="font-semibold">
-                  {t("contactPage.contact.email.title")}
-                </h3>
+                <h3 className="font-semibold">{t("contactPage.contact.email.title")}</h3>
 
                 <p className="text-sm text-muted-foreground">
                   {t("contactPage.contact.email.value")}
@@ -58,9 +54,7 @@ export default function ContactPage() {
               <Building2 className="h-5 w-5" />
 
               <div>
-                <h3 className="font-semibold">
-                  {t("contactPage.contact.demo.title")}
-                </h3>
+                <h3 className="font-semibold">{t("contactPage.contact.demo.title")}</h3>
 
                 <p className="text-sm text-muted-foreground">
                   {t("contactPage.contact.demo.description")}
@@ -74,9 +68,7 @@ export default function ContactPage() {
               <Phone className="h-5 w-5" />
 
               <div>
-                <h3 className="font-semibold">
-                  {t("contactPage.contact.support.title")}
-                </h3>
+                <h3 className="font-semibold">{t("contactPage.contact.support.title")}</h3>
 
                 <p className="text-sm text-muted-foreground">
                   {t("contactPage.contact.support.description")}

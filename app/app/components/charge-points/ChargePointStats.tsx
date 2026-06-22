@@ -1,21 +1,10 @@
 import { ReactNode } from "react";
-import {
-  Battery,
-  CheckCircle,
-  Cloud,
-  PlugZap,
-  RefreshCw,
-  X,
-} from "lucide-react";
+import { Battery, CheckCircle, Cloud, PlugZap, RefreshCw, X } from "lucide-react";
 
 import { ChargePoint, ChargePointStatus } from "@/types/charge-point";
 import { StatCard } from "../common/StatCard";
 
-export const ChargePointStats = ({
-  chargePoints,
-}: {
-  chargePoints: ChargePoint[];
-}) => {
+export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[] }) => {
   const connectedDevices = chargePoints.filter(({ connection }) =>
     ["SYNCED", "CONNECTED"].includes(connection.status),
   );
@@ -25,14 +14,10 @@ export const ChargePointStats = ({
   const notStableDevices = chargePoints.filter(
     (cp) => cp.connection.status === "WARNING" || cp.status === "Faulted",
   );
-  const syncedDevices = chargePoints.filter(
-    (cp) => cp.connection.status === "SYNCED",
-  );
+  const syncedDevices = chargePoints.filter((cp) => cp.connection.status === "SYNCED");
 
   const makePercentage = (count: number) =>
-    chargePoints.length > 0
-      ? `${Math.round((count / chargePoints.length) * 100)}%`
-      : "0%";
+    chargePoints.length > 0 ? `${Math.round((count / chargePoints.length) * 100)}%` : "0%";
 
   const makeStat = (count: number) => ({
     value: count,
@@ -92,26 +77,18 @@ export const ChargePointStats = ({
               ] as ChargePointStatus[]
             ).map((status) => {
               const countForStatus = chargePoints.filter(
-                (cp) =>
-                  cp.status === status && cp.connection.status === "SYNCED",
+                (cp) => cp.status === status && cp.connection.status === "SYNCED",
               ).length;
 
               return (
-                <div
-                  key={status.toLowerCase()}
-                  className="flex items-center gap-2 justify-between"
-                >
+                <div key={status.toLowerCase()} className="flex items-center gap-2 justify-between">
                   <div className="flex items-center gap-2">
                     {getStatusIcon(status)}
                     <p className="text-md italic">{status}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="ml-auto text-sm font-bold text-gray-900">
-                      {countForStatus}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ({makePercentage(countForStatus)})
-                    </p>
+                    <p className="ml-auto text-sm font-bold text-gray-900">{countForStatus}</p>
+                    <p className="text-sm text-gray-500">({makePercentage(countForStatus)})</p>
                   </div>
                 </div>
               );

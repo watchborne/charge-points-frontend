@@ -1,8 +1,4 @@
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@radix-ui/react-popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 import { format } from "date-fns";
 import classNames from "classnames";
 import { enGB } from "date-fns/locale";
@@ -33,9 +29,7 @@ export const Datepicker = ({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-          {value
-            ? format(value, "dd MMMM yyyy", { locale: enGB })
-            : placeholder}
+          {value ? format(value, "dd MMMM yyyy", { locale: enGB }) : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

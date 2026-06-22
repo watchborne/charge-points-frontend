@@ -14,17 +14,11 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          <Link
-            href="/pricing"
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
+          <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground">
             {t("layout.navbar.navigation.pricing")}
           </Link>
 
-          <Link
-            href="/contact"
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
+          <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
             {t("layout.navbar.navigation.contact")}
           </Link>
         </nav>

@@ -2,10 +2,7 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
-const makeRequest = async <T>(
-  url: string,
-  options?: RequestInit,
-): Promise<T> => {
+const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> => {
   const response = await fetch(url, options);
 
   if (!response.ok) {

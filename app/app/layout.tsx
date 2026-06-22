@@ -13,11 +13,7 @@ export const metadata: Metadata = {
   description: "Monitoring dashboard for EV charge points",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
       <body className={inter.className}>

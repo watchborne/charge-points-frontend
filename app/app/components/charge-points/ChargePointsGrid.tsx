@@ -6,11 +6,7 @@ import { Tag } from "../common/Tag";
 
 import { useSites } from "../../hooks/useSites";
 
-export const ChargePointsGrid = ({
-  chargePoints,
-}: {
-  chargePoints: ChargePoint[];
-}) => {
+export const ChargePointsGrid = ({ chargePoints }: { chargePoints: ChargePoint[] }) => {
   const { sites } = useSites();
   const sitesById = new Map(sites.map((site) => [site.id, site]));
 
@@ -34,9 +30,7 @@ export const ChargePointsGrid = ({
           key={siteId}
           className={classNames(
             "rounded-lg p-4 flex flex-col gap-2",
-            siteId.toLowerCase() === "unknown"
-              ? "bg-orange-300"
-              : "bg-gray-300",
+            siteId.toLowerCase() === "unknown" ? "bg-orange-300" : "bg-gray-300",
           )}
         >
           <div className="flex items-center gap-2">

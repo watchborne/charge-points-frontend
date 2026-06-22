@@ -4,11 +4,7 @@ export type ChargePointId = string;
 export type ChargePointLogId = string;
 export type SiteId = string;
 
-export type ChargePointConnectionStatus =
-  | "OFFLINE"
-  | "CONNECTED"
-  | "SYNCED"
-  | "WARNING";
+export type ChargePointConnectionStatus = "OFFLINE" | "CONNECTED" | "SYNCED" | "WARNING";
 
 export type ChargePointStatus = (typeof CHARGE_POINT_STATUSES)[number];
 

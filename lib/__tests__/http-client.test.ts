@@ -12,9 +12,7 @@ afterEach(() => {
 });
 
 function okResponse(body: unknown) {
-  return Promise.resolve(
-    new Response(JSON.stringify(body), { status: 200 }),
-  );
+  return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
 }
 
 function errorResponse(status: number) {

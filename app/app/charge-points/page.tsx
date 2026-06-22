@@ -4,10 +4,7 @@ import { Plus, Search, Server, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import {
-  ChargePointFormDialog,
-  ChargePointFormValues,
-} from "./components/ChargePointFormDialog";
+import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChargePointTable } from "./components/ChargePointTable";
 import { Button } from "@/components/ui/button";
@@ -39,17 +36,13 @@ export default function ChargePointsPage() {
   const didAutoSwitch = useRef(false);
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [createDefaultSiteId, setCreateDefaultSiteId] = useState<
-    string | undefined
-  >();
+  const [createDefaultSiteId, setCreateDefaultSiteId] = useState<string | undefined>();
   const [detailTarget, setDetailTarget] = useState<ChargePoint | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePoint | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePoint | null>(null);
   const [activeTab, setActiveTab] = useState<string>();
 
-  const [filteredChargePoints, setFilteredChargePoints] = useState<
-    ChargePoint[]
-  >([]);
+  const [filteredChargePoints, setFilteredChargePoints] = useState<ChargePoint[]>([]);
 
   useEffect(() => {
     if (detailTarget) {
@@ -68,12 +61,8 @@ export default function ChargePointsPage() {
         chargePoints.filter(
           (cp) =>
             cp.name.toLowerCase().includes(search.toLowerCase()) ||
-            cp.meta?.chargePointVendor
-              ?.toLowerCase()
-              .includes(search.toLowerCase()) ||
-            cp.meta?.chargePointModel
-              ?.toLowerCase()
-              .includes(search.toLowerCase()) ||
+            cp.meta?.chargePointVendor?.toLowerCase().includes(search.toLowerCase()) ||
+            cp.meta?.chargePointModel?.toLowerCase().includes(search.toLowerCase()) ||
             cp.meta?.serialNumber?.toLowerCase().includes(search.toLowerCase()),
         ),
       );
@@ -87,12 +76,7 @@ export default function ChargePointsPage() {
   }, [sites, loadingSites, errorSites, highlightedUuid]);
 
   useEffect(() => {
-    if (
-      highlightedUuid &&
-      !loadingChargePoints &&
-      !loadingSites &&
-      !didAutoSwitch.current
-    ) {
+    if (highlightedUuid && !loadingChargePoints && !loadingSites && !didAutoSwitch.current) {
       const target = chargePoints.find((cp) => cp.uuid === highlightedUuid);
       if (target) {
         setActiveTab(target.siteId);
@@ -223,22 +207,17 @@ export default function ChargePointsPage() {
               {sites.length > 1 ? "s" : ""}
             </p>
 
-            {groupedChargePoints.length === 0 &&
-              ungroupedChargePoints.length === 0 && (
-                <div className="rounded-lg border py-16 text-center text-muted-foreground">
-                  No charge point found.
-                </div>
-              )}
+            {groupedChargePoints.length === 0 && ungroupedChargePoints.length === 0 && (
+              <div className="rounded-lg border py-16 text-center text-muted-foreground">
+                No charge point found.
+              </div>
+            )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <div className="flex items-center justify-between">
                 <TabsList>
                   {sites.map((site) => (
-                    <TabsTrigger
-                      key={site.id}
-                      value={site.id}
-                      className="gap-2"
-                    >
+                    <TabsTrigger key={site.id} value={site.id} className="gap-2">
                       {site.name}
                       <Badge variant="secondary" className="h-5 px-1.5 text-xs">
                         {getCountForSite(site.id)}
@@ -265,9 +244,7 @@ export default function ChargePointsPage() {
                       <span className="text-sm font-medium">{site.name}</span>
                     </div>
                     <ChargePointTable
-                      items={filteredChargePoints.filter(
-                        (cp) => cp.siteId === site.id,
-                      )}
+                      items={filteredChargePoints.filter((cp) => cp.siteId === site.id)}
                       highlightedUuid={highlightedUuid}
                       onRowClicked={updateDetailTarget}
                       onToggleActive={handleToggleActive}
@@ -281,12 +258,8 @@ export default function ChargePointsPage() {
               <div className="border rounded-lg overflow-hidden">
                 <div className="px-4 py-3 bg-muted/40 border-b flex items-center gap-2">
                   <Server className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Unknown site
-                  </span>
-                  <Badge variant="secondary">
-                    {ungroupedChargePoints.length}
-                  </Badge>
+                  <span className="text-sm font-medium text-muted-foreground">Unknown site</span>
+                  <Badge variant="secondary">{ungroupedChargePoints.length}</Badge>
                 </div>
                 <ChargePointTable
                   items={ungroupedChargePoints}
@@ -314,10 +287,8 @@ export default function ChargePointsPage() {
                       name: editTarget.name,
                       siteId: editTarget.siteId,
                       meta: {
-                        chargePointVendor:
-                          editTarget.meta?.chargePointVendor ?? "",
-                        chargePointModel:
-                          editTarget.meta?.chargePointModel ?? "",
+                        chargePointVendor: editTarget.meta?.chargePointVendor ?? "",
+                        chargePointModel: editTarget.meta?.chargePointModel ?? "",
                         serialNumber: editTarget.meta?.serialNumber ?? "",
                         firmwareVersion: editTarget.meta?.firmwareVersion ?? "",
                       },

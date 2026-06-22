@@ -31,11 +31,7 @@ export default function SitesPage() {
     }
 
     if (search.length > 2) {
-      setFilteredSites(
-        sites.filter((s) =>
-          s.name.toLowerCase().includes(search.toLowerCase()),
-        ),
-      );
+      setFilteredSites(sites.filter((s) => s.name.toLowerCase().includes(search.toLowerCase())));
     }
   }, [sites, search, error, loading]);
 
