@@ -1,5 +1,5 @@
-name: "Run lint"
-description: "Run eslint"
+name: "Run lint and format"
+description: "Run eslint and prettier"
 
 inputs:
   npm-token:
@@ -26,4 +26,8 @@ runs:
 
     - name: Run lint
       run: npm run lint
+      shell: bash
+
+    - name: Check formatting
+      run: npm run format:check
       shell: bash
