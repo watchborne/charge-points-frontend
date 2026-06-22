@@ -1,5 +1,6 @@
 import { Site } from "@watchborne/charge-points-types";
 import { API_URL } from "./api";
+import { get, post, patch as httpPatch, del } from "./http-client";
 
 type CreateSiteBody = Omit<Site, "id">;
 
@@ -10,19 +11,7 @@ type PatchSiteBody = {
 export const siteApis = {
   getSites: async function (): Promise<Site[]> {
     try {
-      const response = await fetch(`${API_URL}/api/sites`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      return await get<Site[]>(`${API_URL}/api/sites`);
     } catch (error) {
       console.error(`Failed to fetch sites`, error);
       throw error;
@@ -30,19 +19,7 @@ export const siteApis = {
   },
   getSite: async function (siteId: Site["id"]): Promise<Site | undefined> {
     try {
-      const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = (await response.json()) as Site | undefined;
-      return data;
+      return await get<Site | undefined>(`${API_URL}/api/sites/${siteId}`);
     } catch (error) {
       console.error(`Failed to fetch site ${siteId}`, error);
       throw error;
@@ -50,20 +27,7 @@ export const siteApis = {
   },
   createSite: async function (body: CreateSiteBody): Promise<Site> {
     try {
-      const response = await fetch(`${API_URL}/api/sites`, {
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      return await post<Site>(`${API_URL}/api/sites`, body);
     } catch (error) {
       console.error("Failed to create site", error, body);
       throw error;
@@ -71,37 +35,18 @@ export const siteApis = {
   },
   updateSite: async function (
     siteId: Site["id"],
-    patch: PatchSiteBody,
+    patchBody: PatchSiteBody,
   ): Promise<Site> {
     try {
-      const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
-        method: "PATCH",
-        body: JSON.stringify(patch),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      return await httpPatch<Site>(`${API_URL}/api/sites/${siteId}`, patchBody);
     } catch (error) {
-      console.error(`Failed to update site ${siteId}`, error, patch);
+      console.error(`Failed to update site ${siteId}`, error, patchBody);
       throw error;
     }
   },
   deleteSite: async function (siteId: Site["id"]): Promise<void> {
     try {
-      const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      await del(`${API_URL}/api/sites/${siteId}`);
     } catch (error) {
       console.error(`Failed to delete site ${siteId}`, error, { siteId });
       throw error;
