@@ -19,7 +19,7 @@ vi.mock("../app/hooks/useWebSocketContext", () => ({
   useWebSocketContext: vi.fn(() => ({
     lastMessage: null,
     messages: [],
-    status: "CLOSED",
+    status: "DISCONNECTED",
     sendMessage: vi.fn(),
     reconnect: vi.fn(),
     clearMessages: vi.fn(),
@@ -28,6 +28,7 @@ vi.mock("../app/hooks/useWebSocketContext", () => ({
 
 import { api } from "../../lib/api";
 import { useWebSocketContext } from "../app/hooks/useWebSocketContext";
+import { ChargePoint } from "@watchborne/charge-points-types";
 
 const mockGetChargePoints = vi.mocked(api.ChargePoints.getChargePoints);
 const mockUseWebSocketContext = vi.mocked(useWebSocketContext);
@@ -38,15 +39,19 @@ const mockChargePoints = [
     name: "Borne A",
     isActive: true,
     siteId: "site-1",
-    connection: { status: "CONNECTED" as const },
-  },
+    connection: { status: "CONNECTED", lastSeen: new Date() },
+    status: "Available",
+    meta: {},
+  } satisfies ChargePoint,
   {
     uuid: "cp-2",
     name: "Borne B",
     isActive: false,
     siteId: "site-1",
-    connection: { status: "OFFLINE" as const },
-  },
+    connection: { status: "OFFLINE", lastSeen: null },
+    status: null,
+    meta: {},
+  } satisfies ChargePoint,
 ];
 
 describe("useChargePoints", () => {
@@ -55,7 +60,7 @@ describe("useChargePoints", () => {
     mockUseWebSocketContext.mockReturnValue({
       lastMessage: null,
       messages: [],
-      status: "CLOSED",
+      status: "DISCONNECTED",
       sendMessage: vi.fn(),
       reconnect: vi.fn(),
       clearMessages: vi.fn(),
@@ -130,8 +135,10 @@ describe("useChargePoints", () => {
         name: "Borne C",
         isActive: true,
         siteId: "site-2",
-        connection: { status: "SYNCED" as const },
-      },
+        connection: { status: "SYNCED", lastSeen: new Date() },
+        status: "Available",
+        meta: {},
+      } satisfies ChargePoint,
     ];
     mockGetChargePoints.mockResolvedValue(newChargePoints);
 
@@ -143,7 +150,7 @@ describe("useChargePoints", () => {
     expect(result.current.chargePoints).toEqual(newChargePoints);
   });
 
-  it("recharge les données lors d'un message WebSocket CHARGE_POINT_MONITORING", async () => {
+  it("met à jour un charge point en place lors d'un message WebSocket CHARGE_POINT_MONITORING", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
     const { result, rerender } = renderHook(() => useChargePoints());
@@ -154,12 +161,20 @@ describe("useChargePoints", () => {
 
     const initialCallCount = mockGetChargePoints.mock.calls.length;
 
-    // Simuler un message WebSocket CHARGE_POINT_MONITORING
+    const updatedChargePoint = {
+      uuid: "cp-1",
+      name: "Borne A Updated",
+      isActive: true,
+      siteId: "site-1",
+      connection: { status: "OFFLINE" as const },
+    };
+
+    // Simuler un message WebSocket CHARGE_POINT_MONITORING avec payload
     mockUseWebSocketContext.mockReturnValue({
       lastMessage: {
         type: "CHARGE_POINT_MONITORING",
-        data: {},
-        timestamp: Date.now(),
+        payload: { chargePoint: updatedChargePoint },
+        timestamp: Date.now().toString(),
       },
       messages: [],
       status: "CONNECTED",
@@ -171,7 +186,10 @@ describe("useChargePoints", () => {
     rerender();
 
     await waitFor(() => {
-      expect(mockGetChargePoints.mock.calls.length).toBeGreaterThan(initialCallCount);
+      expect(result.current.chargePoints[0]).toEqual(updatedChargePoint);
     });
+
+    // Mise à jour locale uniquement, pas de nouvel appel API
+    expect(mockGetChargePoints.mock.calls.length).toBe(initialCallCount);
   });
 });
