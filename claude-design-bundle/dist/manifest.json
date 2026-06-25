@@ -1,0 +1,209 @@
+[
+  {
+    "path": "foundations/colors.html",
+    "name": "Colors",
+    "group": "Foundations",
+    "viewport": {
+      "width": 760,
+      "height": 620
+    }
+  },
+  {
+    "path": "foundations/typography.html",
+    "name": "Typography",
+    "group": "Foundations",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "foundations/spacing.html",
+    "name": "Spacing · Radius · Shadow",
+    "group": "Foundations",
+    "viewport": {
+      "width": 560,
+      "height": 560
+    }
+  },
+  {
+    "path": "components/button.html",
+    "name": "Button",
+    "subtitle": "6 variants · 4 sizes",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/badge.html",
+    "name": "Badge",
+    "subtitle": "4 variants",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/status-badge.html",
+    "name": "StatusBadge",
+    "subtitle": "Charge-point connection states",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/input.html",
+    "name": "Input",
+    "subtitle": "Text field · with label · disabled",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/switch.html",
+    "name": "Switch",
+    "subtitle": "On / off",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/label.html",
+    "name": "Label",
+    "subtitle": "Form label",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/tabs.html",
+    "name": "Tabs",
+    "subtitle": "Segmented navigation",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/select.html",
+    "name": "Select",
+    "subtitle": "Dropdown trigger + open menu",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/dropdown-menu.html",
+    "name": "Dropdown Menu",
+    "subtitle": "Action menu",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/dialog.html",
+    "name": "Dialog",
+    "subtitle": "Modal surface",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/alert-dialog.html",
+    "name": "Alert Dialog",
+    "subtitle": "Destructive confirmation",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/popover.html",
+    "name": "Popover",
+    "subtitle": "Floating panel",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/command.html",
+    "name": "Command",
+    "subtitle": "Command palette / combobox",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/table.html",
+    "name": "Table",
+    "subtitle": "Data table",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/collapsible.html",
+    "name": "Collapsible",
+    "subtitle": "Expandable section",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/calendar.html",
+    "name": "Calendar",
+    "subtitle": "Date grid (react-day-picker)",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/datepicker.html",
+    "name": "Date Picker",
+    "subtitle": "Trigger button",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  },
+  {
+    "path": "components/form.html",
+    "name": "Form",
+    "subtitle": "react-hook-form + zod field layout",
+    "group": "Components",
+    "viewport": {
+      "width": 640,
+      "height": 420
+    }
+  }
+]
