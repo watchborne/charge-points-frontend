@@ -5,12 +5,13 @@ import classNames from "classnames";
 import { AlertCircle, CheckCircle, Loader, XCircle } from "lucide-react";
 
 import { useWebSocket } from "../../hooks/useWebSocket";
+import { WS_URL } from "@/lib/constants";
 
 import svgLogo from "@/public/favicon.svg";
 import Image from "next/image";
 
 export const Header = () => {
-  const { status } = useWebSocket("ws://localhost:3000/ws");
+  const { status } = useWebSocket(WS_URL);
   const pathname = usePathname();
 
   const webSocketConnectionStatus = useMemo(() => {
