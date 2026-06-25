@@ -13,8 +13,11 @@ class WebSocketManager {
 
   private listeners = new Set<Listener>();
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+  private disconnectGraceTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private refCount = 0;
+  private reconnectAttempt = 0;
+  private shouldAutoReconnect = false;
 
   constructor(private url: string) {}
 
@@ -25,8 +28,6 @@ class WebSocketManager {
       socket: this.socket,
     };
   }
-
-  private disconnectGraceTimeout: ReturnType<typeof setTimeout> | null = null;
 
   subscribe(listener: Listener) {
     this.listeners.add(listener);
@@ -39,7 +40,10 @@ class WebSocketManager {
 
     listener(this.getState());
 
-    if (this.refCount === 1) this.connect();
+    if (this.refCount === 1) {
+      this.shouldAutoReconnect = true;
+      this.connect();
+    }
 
     return () => {
       this.listeners.delete(listener);
@@ -47,10 +51,11 @@ class WebSocketManager {
 
       if (this.refCount <= 0) {
         this.refCount = 0;
-
-        // Grâce pour survivre au double-unmount dev
         this.disconnectGraceTimeout = setTimeout(() => {
-          if (this.refCount === 0) this.disconnect();
+          if (this.refCount === 0) {
+            this.shouldAutoReconnect = false;
+            this.disconnect();
+          }
         }, 300);
       }
     };
@@ -65,6 +70,11 @@ class WebSocketManager {
     if (this.socket?.readyState === WebSocket.OPEN) return;
     if (this.socket?.readyState === WebSocket.CONNECTING) return;
 
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
     this.status = "CONNECTING";
     this.emit();
 
@@ -73,6 +83,7 @@ class WebSocketManager {
       this.socket = ws;
 
       ws.onopen = () => {
+        this.reconnectAttempt = 0;
         this.status = "CONNECTED";
         this.emit();
       };
@@ -86,24 +97,36 @@ class WebSocketManager {
         this.status = "DISCONNECTED";
         this.socket = null;
         this.emit();
+        if (this.shouldAutoReconnect && this.refCount > 0) {
+          this.scheduleReconnect();
+        }
       };
 
       ws.onerror = (err) => {
         console.error("WebSocket error:", err);
         this.status = "ERROR";
-
-        this.socket = null;
         this.emit();
+        // onclose fires after onerror — reconnect is handled there
       };
     } catch (e) {
       console.error("Failed to create WebSocket connection:", e);
       this.status = "ERROR";
       this.socket = null;
       this.emit();
+      if (this.shouldAutoReconnect && this.refCount > 0) {
+        this.scheduleReconnect();
+      }
     }
   }
 
+  private scheduleReconnect() {
+    const delay = Math.min(1_000 * 2 ** this.reconnectAttempt, 30_000);
+    this.reconnectAttempt++;
+    this.reconnectTimeout = setTimeout(() => this.connect(), delay);
+  }
+
   disconnect() {
+    this.shouldAutoReconnect = false;
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
@@ -119,8 +142,11 @@ class WebSocketManager {
     this.emit();
   }
 
-  reconnect(delayMs = 1000) {
+  reconnect(delayMs = 1_000) {
+    this.shouldAutoReconnect = false;
     this.disconnect();
+    this.shouldAutoReconnect = true;
+    this.reconnectAttempt = 0;
     this.reconnectTimeout = setTimeout(() => this.connect(), delayMs);
   }
 
