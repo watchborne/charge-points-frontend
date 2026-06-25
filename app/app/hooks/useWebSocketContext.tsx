@@ -6,9 +6,15 @@ import { WebSocketStatus } from "../ws/ws-manager";
 import { WS_URL } from "@/lib/constants";
 
 export interface WebSocketMessage {
-  type: "CLIENT_CONNECTION" | "CHARGE_POINT_MONITORING";
-  data: Record<string, unknown>;
-  timestamp: number;
+  type:
+    | "CONNECTION_ACK"
+    | "HEARTBEAT"
+    | "CONNECTION_ERROR"
+    | "PONG"
+    | "SUBSCRIPTION_ACK"
+    | "CHARGE_POINT_MONITORING";
+  payload: Record<string, unknown>;
+  timestamp: string;
 }
 
 export interface WebSocketDataContextType {
@@ -44,7 +50,7 @@ export function useWebSocketData(options: UseWebSocketDataOptions = {}): WebSock
     if (rawMessage && enabled) {
       try {
         const wsMessage = JSON.parse(rawMessage.data);
-        setMessages((prev) => [...prev.slice(-49), wsMessage]); // Keep last 50 messages
+        setMessages((prev) => [...prev.slice(-49), wsMessage]);
         setLastMessage(wsMessage);
       } catch (err) {
         console.error("Failed to parse WebSocket message:", err);

@@ -34,14 +34,17 @@ export function useChargePoints(): UseChargePointsReturn {
   }, []);
 
   useEffect(() => {
-    try {
-      if (lastMessage?.type === "CHARGE_POINT_MONITORING") {
-        loadChargePoints();
-      }
-    } catch (err) {
-      console.error("Failed to handle WebSocket message:", err);
-    }
-  }, [lastMessage, loadChargePoints]);
+    if (lastMessage?.type !== "CHARGE_POINT_MONITORING") return;
+    const incoming = lastMessage.payload?.chargePoint as ChargePoint | undefined;
+    if (!incoming) return;
+    setChargePoints((prev) => {
+      const idx = prev.findIndex((cp) => cp.uuid === incoming.uuid);
+      if (idx === -1) return [...prev, incoming];
+      const next = [...prev];
+      next[idx] = incoming;
+      return next;
+    });
+  }, [lastMessage]);
 
   useEffect(() => {
     loadChargePoints();
