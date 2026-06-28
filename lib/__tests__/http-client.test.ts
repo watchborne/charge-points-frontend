@@ -107,13 +107,14 @@ describe("httpClient.patch", () => {
 });
 
 describe("httpClient.delete", () => {
-  it("calls fetch with DELETE method", async () => {
+  it("calls fetch with DELETE method and JSON headers", async () => {
     mockFetch.mockReturnValue(okResponse(null));
 
     await httpClient.delete("/api/items/1");
 
     expect(mockFetch).toHaveBeenCalledWith("/api/items/1", {
       method: "DELETE",
+      headers: { "Content-Type": "application/json" },
     });
   });
 
