@@ -23,7 +23,7 @@ Map each argument to a `$CONTEXT_SECTION_HEADER` line:
 
 ## Step 3 — Generate the PR title
 
-Write a concise title in conventional commit format summarizing the main changes.
+Use the `generate-pr-title` skill to create a concise title in conventional commit format summarizing the main changes.
 
 Allowed prefixes include: `feat`, `fix`, `docs`, `refactor`, `perf`, `chore`.
 A functional description tag should follow the prefix, surrounded by parentheses.
