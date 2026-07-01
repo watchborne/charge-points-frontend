@@ -107,6 +107,7 @@
       "title": "Ce qui arrive ensuite",
       "items": [
         "Système d'alertes",
+        "Historique des événements",
         "Analyses historiques",
         "Contrôle d'accès basé sur les rôles",
         "Vue d'ensemble de la santé du site"
@@ -123,7 +124,6 @@
         "Gestion des bornes de recharge",
         "Suivi de l'état de connexion",
         "Tableau de bord en temps réel",
-        "Historique des événements",
         "Détection des déconnexions",
         "Organisation multi-sites"
       ]
@@ -240,7 +240,6 @@
         "realtime": "Supervision en temps réel",
         "offlineDetection": "Détection des déconnexions",
         "multisite": "Organisation multi-sites",
-        "eventHistory": "Historique des événements",
         "alphaAccess": "Accès Alpha"
       }
     },

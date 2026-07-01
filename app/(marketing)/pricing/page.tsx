@@ -39,7 +39,6 @@ export default function PricingPage() {
     t("pricingPage.included.items.realtime"),
     t("pricingPage.included.items.offlineDetection"),
     t("pricingPage.included.items.multisite"),
-    t("pricingPage.included.items.eventHistory"),
     t("pricingPage.included.items.alphaAccess"),
   ];
 
