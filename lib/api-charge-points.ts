@@ -1,4 +1,4 @@
-import type { ChargePoint, ChargePointLog } from "@watchborne/charge-points-types";
+import type { ChargePoint } from "@watchborne/charge-points-types";
 import { httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive">;
@@ -40,16 +40,6 @@ export const chargePointApis = {
       return await httpClient.patch<ChargePoint>(`/api/charge-points/${chargePointId}`, patchBody);
     } catch (error) {
       console.error(`Failed to update charge point ${chargePointId}`, error, patchBody);
-      throw error;
-    }
-  },
-  getChargePointLogs: async function (
-    chargePointId: ChargePoint["uuid"],
-  ): Promise<ChargePointLog[]> {
-    try {
-      return await httpClient.get<ChargePointLog[]>(`/api/charge-points/${chargePointId}/logs`);
-    } catch (error) {
-      console.error(`Failed to fetch logs for charge point ${chargePointId}`, error);
       throw error;
     }
   },

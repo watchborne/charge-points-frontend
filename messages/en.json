@@ -107,6 +107,7 @@
       "title": "What's coming next",
       "items": [
         "Alerting",
+        "Event History",
         "Historical analytics",
         "Role-based access control",
         "Site health overview"
@@ -123,7 +124,6 @@
         "Charge Point Management",
         "Connection State Tracking",
         "Real-Time Dashboard",
-        "Event History",
         "Offline Detection",
         "Multi-Site Organization"
       ]
@@ -240,7 +240,6 @@
         "realtime": "Real-time supervision",
         "offlineDetection": "Offline detection",
         "multisite": "Multi-site organization",
-        "eventHistory": "Event history",
         "alphaAccess": "Alpha access"
       }
     },
