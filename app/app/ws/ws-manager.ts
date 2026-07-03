@@ -1,3 +1,5 @@
+import { WS_TOKEN_URL } from "@/lib/constants";
+
 export type WebSocketStatus = "CONNECTING" | "CONNECTED" | "DISCONNECTED" | "ERROR";
 
 type Listener = (state: {
@@ -18,6 +20,7 @@ class WebSocketManager {
   private refCount = 0;
   private reconnectAttempt = 0;
   private shouldAutoReconnect = false;
+  private connecting = false;
 
   constructor(private url: string) {}
 
@@ -42,7 +45,7 @@ class WebSocketManager {
 
     if (this.refCount === 1) {
       this.shouldAutoReconnect = true;
-      this.connect();
+      void this.connect();
     }
 
     return () => {
@@ -66,9 +69,25 @@ class WebSocketManager {
     for (const l of this.listeners) l(snapshot);
   }
 
-  connect() {
+  private async fetchToken(): Promise<string | null> {
+    try {
+      const res = await fetch(WS_TOKEN_URL, { method: "GET" });
+      if (!res.ok) return null;
+      const data = (await res.json()) as { token?: unknown };
+      return typeof data.token === "string" ? data.token : null;
+    } catch (e) {
+      console.error("Failed to fetch WebSocket token:", e);
+      return null;
+    }
+  }
+
+  async connect() {
+    if (!this.url) return;
     if (this.socket?.readyState === WebSocket.OPEN) return;
     if (this.socket?.readyState === WebSocket.CONNECTING) return;
+    if (this.connecting) return;
+
+    this.connecting = true;
 
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
@@ -78,9 +97,29 @@ class WebSocketManager {
     this.status = "CONNECTING";
     this.emit();
 
+    const token = await this.fetchToken();
+
+    // We may have been told to disconnect (e.g. all consumers unmounted) while
+    // the token request was in flight — bail out instead of opening a socket.
+    if (!this.shouldAutoReconnect || this.refCount === 0) {
+      this.connecting = false;
+      return;
+    }
+
+    if (!token) {
+      this.connecting = false;
+      this.status = "ERROR";
+      this.emit();
+      if (this.shouldAutoReconnect && this.refCount > 0) {
+        this.scheduleReconnect();
+      }
+      return;
+    }
+
     try {
-      const ws = new WebSocket(this.url);
+      const ws = new WebSocket(`${this.url}?token=${encodeURIComponent(token)}`);
       this.socket = ws;
+      this.connecting = false;
 
       ws.onopen = () => {
         this.reconnectAttempt = 0;
@@ -110,6 +149,7 @@ class WebSocketManager {
       };
     } catch (e) {
       console.error("Failed to create WebSocket connection:", e);
+      this.connecting = false;
       this.status = "ERROR";
       this.socket = null;
       this.emit();
@@ -122,7 +162,7 @@ class WebSocketManager {
   private scheduleReconnect() {
     const delay = Math.min(1_000 * 2 ** this.reconnectAttempt, 30_000);
     this.reconnectAttempt++;
-    this.reconnectTimeout = setTimeout(() => this.connect(), delay);
+    this.reconnectTimeout = setTimeout(() => void this.connect(), delay);
   }
 
   disconnect() {
@@ -147,7 +187,7 @@ class WebSocketManager {
     this.disconnect();
     this.shouldAutoReconnect = true;
     this.reconnectAttempt = 0;
-    this.reconnectTimeout = setTimeout(() => this.connect(), delayMs);
+    this.reconnectTimeout = setTimeout(() => void this.connect(), delayMs);
   }
 
   sendMessage(message: string | object) {
