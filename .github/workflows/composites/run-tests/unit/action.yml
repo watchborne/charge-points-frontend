@@ -8,9 +8,9 @@ inputs:
   npm-token:
     description: "NPM token for private packages"
     required: true
-  GITHUB_TOKEN:
-    description: "GitHub token for reporting test results on PR"
-    required: true
+  # GITHUB_TOKEN:
+  #   description: "GitHub token for reporting test results on PR"
+  #   required: true
 
 runs:
   using: "composite"
@@ -34,18 +34,18 @@ runs:
       run: npm run test:ci
       shell: bash
 
-    - name: Generate test report
-      uses: dorny/test-reporter@v1
-      with:
-        name: "Unit tests"
-        path: "junit-reports/*.xml"
-        reporter: jest-junit
-        list-suites: "failed"
-        list-tests: "failed"
+    # - name: Generate test report
+    #   uses: dorny/test-reporter@v1
+    #   with:
+    #     name: "Unit tests"
+    #     path: "junit-reports/*.xml"
+    #     reporter: jest-junit
+    #     list-suites: "failed"
+    #     list-tests: "failed"
 
-    - name: Report results on PR
-      if: ${{ env.ENABLE_TEST_RESULT_PR_COMMENT == 'true' }}
-      uses: ollieb89/test-results-reporter@v1.1.0
-      with:
-        test-results: "junit-reports/*.xml"
-        token: ${{ inputs.GITHUB_TOKEN }}
+    # - name: Report results on PR
+    #   if: ${{ env.ENABLE_TEST_RESULT_PR_COMMENT == 'true' }}
+    #   uses: ollieb89/test-results-reporter@v1.1.0
+    #   with:
+    #     test-results: "junit-reports/*.xml"
+    #     token: ${{ inputs.GITHUB_TOKEN }}

@@ -12,7 +12,7 @@
     "typecheck": "npx tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ci": "npx vitest run --reporter=junit --outputFile=junit-reports/test-results.xml",
+    "test:ci": "vitest run",
     "prepare": "husky"
   },
   "lint-staged": {
