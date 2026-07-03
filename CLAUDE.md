@@ -25,7 +25,7 @@ app/
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
   api/                  # Next route handlers that PROXY to the backend
   login/                # login page
-  proxy.ts              # host-based rewrite (app.* -> /app)
+middleware.ts           # Supabase session refresh + auth guard for /app and /api
 components/ui/          # shadcn/ui primitives (generated; edit via components.json)
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
