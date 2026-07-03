@@ -1,0 +1,144 @@
+name: Deploy Preview to Netlify
+
+# Netlify's automatic Deploy Previews should be turned OFF in the Netlify UI so
+# that previews are only ever built through this workflow. A preview is built and
+# deployed only when it is actually useful:
+#   1. A trusted member comments "/deploy" on the pull request, or
+#   2. The pull request is marked "ready for review" (leaves draft state).
+on:
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# One preview per PR at a time: a newer trigger cancels an in-flight build so
+# intermediate commits don't pile up redundant deploys.
+concurrency:
+  group: netlify-preview-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # Guard the whole job so nothing runs (and no build minutes are spent) unless
+    # one of the two intended triggers fires from a trusted author.
+    if: >-
+      (
+        github.event_name == 'pull_request' &&
+        github.event.action == 'ready_for_review'
+      ) ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        startsWith(github.event.comment.body, '/deploy') &&
+        contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve pull request
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const number = context.eventName === 'issue_comment'
+              ? context.payload.issue.number
+              : context.payload.pull_request.number;
+
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: number,
+            });
+
+            if (pr.state !== 'open') {
+              core.setFailed(`PR #${number} is not open (state: ${pr.state}).`);
+              return;
+            }
+
+            core.setOutput('number', String(number));
+            core.setOutput('sha', pr.head.sha);
+
+      - name: Acknowledge /deploy comment
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket',
+            });
+
+      - uses: actions/checkout@v6
+        with:
+          # Build the PR head commit, not the merge ref, so the preview reflects
+          # exactly what is on the branch.
+          ref: ${{ steps.pr.outputs.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: "package.json"
+
+      - name: Install dependencies
+        uses: ./.github/workflows/composites/install-dependencies
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build and deploy to Netlify
+        id: netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          # Needed by .npmrc when the Netlify build installs private @watchborne packages.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          npx --yes netlify-cli@17 deploy \
+            --build \
+            --context deploy-preview \
+            --alias "deploy-preview-${{ steps.pr.outputs.number }}" \
+            --message "PR #${{ steps.pr.outputs.number }} @ ${{ steps.pr.outputs.sha }}" \
+            --json | tee deploy.json
+          echo "url=$(jq -r '.deploy_url' deploy.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL
+        if: always() && steps.pr.outputs.number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- netlify-deploy-preview -->';
+            const success = '${{ steps.netlify.outcome }}' === 'success';
+            const url = '${{ steps.netlify.outputs.url }}';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const body = success
+              ? `${marker}\n🚀 **Netlify preview deployed**\n\n| | |\n|---|---|\n| Preview | ${url} |\n| Commit | \`${{ steps.pr.outputs.sha }}\` |\n\n_Triggered via \`/deploy\` or "ready for review". Re-run anytime by commenting \`/deploy\`._`
+              : `${marker}\n❌ **Netlify preview failed** — see the [workflow run](${runUrl}).`;
+
+            const prNumber = Number('${{ steps.pr.outputs.number }}');
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
