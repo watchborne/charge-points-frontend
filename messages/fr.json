@@ -182,10 +182,12 @@
     "form": {
       "email": "Adresse email",
       "emailPlaceholder": "vous@exemple.com",
-      "password": "Mot de passe",
-      "passwordPlaceholder": "••••••••",
-      "submit": "Se connecter",
-      "forgotPassword": "Mot de passe oublié ?"
+      "submit": "Envoyer le lien de connexion"
+    },
+    "magicLink": {
+      "sentTitle": "Vérifiez votre boîte mail",
+      "sentDescription": "Un lien de connexion a été envoyé à l'adresse suivante. Cliquez dessus pour accéder à votre espace.",
+      "error": "Impossible d'envoyer le lien de connexion. Veuillez réessayer."
     },
     "noAccount": {
       "text": "Pas encore accès ?",

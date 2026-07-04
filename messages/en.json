@@ -182,10 +182,12 @@
     "form": {
       "email": "Email address",
       "emailPlaceholder": "you@example.com",
-      "password": "Password",
-      "passwordPlaceholder": "••••••••",
-      "submit": "Sign in",
-      "forgotPassword": "Forgot your password?"
+      "submit": "Send magic link"
+    },
+    "magicLink": {
+      "sentTitle": "Check your inbox",
+      "sentDescription": "A sign-in link has been sent to the address below. Click it to access your dashboard.",
+      "error": "Couldn't send the sign-in link. Please try again."
     },
     "noAccount": {
       "text": "Don't have access yet?",
