@@ -102,10 +102,15 @@ typecheck, build, and unit tests — keep them green. A Husky pre-commit hook ru
 NEXT_PUBLIC_API_URL=http://localhost:3000   # backend base URL
 NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws    # dashboard WebSocket
 API_SECRET_KEY=<shared secret>               # SERVER-SIDE ONLY (x-api-key)
+NEXT_PUBLIC_SUPABASE_URL=<project url>       # Supabase Auth (public)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>     # Supabase Auth (public)
 ```
 
 `NEXT_PUBLIC_*` values are exposed to the browser; anything secret (like
-`API_SECRET_KEY`) must stay unprefixed. See `.env.example`.
+`API_SECRET_KEY`) must stay unprefixed. The Supabase anon key is public by
+design (Row Level Security governs access), so it is `NEXT_PUBLIC_`. Both
+Supabase values are centralized in `lib/constants.ts` and consumed only through
+`lib/supabase/{client,server,middleware}.ts`. See `.env.example`.
 
 ## Conventions
 
