@@ -22,6 +22,10 @@ function request(path: string) {
   return new NextRequest(`http://localhost:3001${path}`);
 }
 
+function requestFromHost(host: string, path: string) {
+  return new NextRequest(`http://localhost:3001${path}`, { headers: { host } });
+}
+
 beforeEach(() => {
   vi.resetModules();
   createServerClient.mockClear();
@@ -90,5 +94,63 @@ describe("middleware auth guard", () => {
     const res = await middleware(request("/login"));
 
     expect(res.headers.get("location")).toBeNull();
+  });
+});
+
+describe("app-host rewrite", () => {
+  it("rewrites a bare path on an app.* host into /app/*", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
+
+    expect(new URL(res.headers.get("x-middleware-rewrite")!).pathname).toBe("/app/dashboard");
+  });
+
+  it("guards the rewritten path as an /app route (redirects to /login without a session)", async () => {
+    setUser(null);
+    const { middleware } = await import("../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3001/login");
+  });
+
+  it("does not double-prefix a path that already starts with /app", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/app/dashboard"));
+
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+  });
+
+  it("does not rewrite /api on an app.* host (API routes live outside app/app/)", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/api/charge-points"));
+
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    expect(res.status).not.toBe(401);
+  });
+
+  it("does not rewrite /login on an app.* host", async () => {
+    setUser(null);
+    const { middleware } = await import("../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/login"));
+
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+  });
+
+  it("does not rewrite paths on a non-app host", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.com", "/dashboard"));
+
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
 });
