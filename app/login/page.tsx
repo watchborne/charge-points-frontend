@@ -67,10 +67,10 @@ export default function LoginPage() {
             labels={{
               email: t("form.email"),
               emailPlaceholder: t("form.emailPlaceholder"),
-              password: t("form.password"),
-              passwordPlaceholder: t("form.passwordPlaceholder"),
               submit: t("form.submit"),
-              forgotPassword: t("form.forgotPassword"),
+              sentTitle: t("magicLink.sentTitle"),
+              sentDescription: t("magicLink.sentDescription"),
+              error: t("magicLink.error"),
             }}
           />
 
