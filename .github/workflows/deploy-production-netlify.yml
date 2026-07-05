@@ -1,0 +1,66 @@
+name: Deploy Frontend to Production (manual)
+
+# Manual, on-demand production deploy to Netlify. Netlify's automatic production
+# deploys on push should stay OFF so that going live is always a deliberate,
+# auditable action taken from this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or SHA to deploy"
+        required: false
+        default: "main"
+
+permissions:
+  contents: read
+
+# Only one production deploy at a time; never cancel one mid-flight.
+concurrency:
+  group: netlify-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: "package.json"
+
+      - name: Install dependencies
+        uses: ./.github/workflows/composites/install-dependencies
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build and deploy to Netlify
+        id: netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          # Needed by .npmrc when the Netlify build installs private @watchborne packages.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          npx --yes netlify-cli@17 deploy \
+            --build \
+            --prod \
+            --message "Manual production deploy @ ${{ inputs.ref }} (${{ github.sha }})" \
+            --json | tee deploy.json
+          echo "url=$(jq -r '.deploy_url' deploy.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Netlify production deploy"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Ref | \`${{ inputs.ref }}\` |"
+            echo "| URL | ${{ steps.netlify.outputs.url }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
