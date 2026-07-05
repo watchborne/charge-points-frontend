@@ -54,6 +54,7 @@
       },
       "actions": {
         "login": "Connexion",
+        "logout": "Déconnexion",
         "requestAlphaAccess": "Tester en avant-première"
       }
     }

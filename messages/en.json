@@ -54,6 +54,7 @@
       },
       "actions": {
         "login": "Login",
+        "logout": "Logout",
         "requestAlphaAccess": "Request Alpha Access"
       }
     }

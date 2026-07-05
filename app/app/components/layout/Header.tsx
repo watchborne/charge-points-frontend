@@ -1,11 +1,15 @@
-import { useMemo } from "react";
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import classNames from "classnames";
-import { AlertCircle, CheckCircle, Loader, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader, LogOut, XCircle } from "lucide-react";
 
 import { useWebSocket } from "../../hooks/useWebSocket";
 import { WS_URL } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 
 import svgLogo from "@/public/favicon.svg";
 import Image from "next/image";
@@ -13,6 +17,16 @@ import Image from "next/image";
 export const Header = () => {
   const { status } = useWebSocket(WS_URL);
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace("/login");
+    router.refresh();
+  }
 
   const webSocketConnectionStatus = useMemo(() => {
     const sizing = "h-6 w-6";
@@ -68,6 +82,16 @@ export const Header = () => {
               <p>Connection status:</p>
               {webSocketConnectionStatus}
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </div>
       </div>
