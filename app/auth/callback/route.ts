@@ -4,12 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 
 /**
  * Magic-link redirect target: the email template (emails/templates/magic-link.html)
- * links directly here with `token_hash` and `type=magiclink`, bypassing Supabase's
- * hosted /auth/v1/verify redirect. Verifying the token hash sets the Supabase auth
- * cookies via the server client's cookie adapter, then sends the user into the
- * dashboard.
+ * links to Supabase's hosted `{{ .ConfirmationURL }}` (/auth/v1/verify), which
+ * verifies the OTP and redirects here with a PKCE `code`. Exchanging it for a
+ * session sets the Supabase auth cookies via the server client's cookie adapter,
+ * then sends the user into the dashboard.
  *
- * Any failure (missing params, expired/already-used link) falls back to /login;
+ * Any failure (missing code, expired/already-used link) falls back to /login;
  * there's no session to guard against at that point, so the middleware would
  * bounce an unauthenticated /app/dashboard visit there anyway.
  */

@@ -246,7 +246,7 @@
                   <tr>
                     <td align="center" style="padding: 8px 0 36px">
                       <a
-                        href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=magiclink"
+                        href="{{ .ConfirmationURL }}"
                         style="
                           display: inline-block;
                           background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
@@ -317,9 +317,9 @@
                       >
                         Button not working? Copy and paste this link into your browser:<br />
                         <a
-                          href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=magiclink"
+                          href="{{ .ConfirmationURL }}"
                           style="color: #1e88e5; word-break: break-all; text-decoration: none"
-                          >{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=magiclink</a
+                          >{{ .ConfirmationURL }}</a
                         >
                       </p>
                     </td>
