@@ -17,12 +17,29 @@ const { replace, refresh } = vi.hoisted(() => ({
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/dashboard",
+  usePathname: () => "/app/dashboard",
   useRouter: () => ({ replace, refresh }),
 }));
 
 vi.mock("../../hooks/useWebSocket", () => ({
   useWebSocket: () => ({ status: "CONNECTED" }),
+}));
+
+vi.mock("next/image", () => ({
+  default: ({ alt }: { alt: string }) => <img alt={alt} />,
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      appName: "Watchborne",
+      "layout.navbar.app.links.sites": "Sites",
+      "layout.navbar.app.links.chargePoints": "Charge Points",
+      "layout.navbar.app.connectionStatus": "Connection Status",
+      "layout.navbar.actions.logout": "Logout",
+    };
+    return translations[key] || key;
+  },
 }));
 
 import { Header } from "../Header";
@@ -38,6 +55,17 @@ afterEach(() => {
 });
 
 describe("Header", () => {
+  it("renders the header with navigation links and logout button", async () => {
+    render(<Header />);
+
+    // Wait for component to fully render
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: /sites/i })).toBeTruthy();
+      expect(screen.getByRole("link", { name: /charge points/i })).toBeTruthy();
+      expect(screen.getByRole("button", { name: /logout/i })).toBeTruthy();
+    });
+  });
+
   it("signs the user out and redirects to /login when logout is clicked", async () => {
     render(<Header />);
 
@@ -46,5 +74,13 @@ describe("Header", () => {
     await waitFor(() => expect(signOut).toHaveBeenCalled());
     expect(replace).toHaveBeenCalledWith("/login");
     expect(refresh).toHaveBeenCalled();
+  });
+
+  it("displays WebSocket connection status", async () => {
+    render(<Header />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/connection status/i)).toBeTruthy();
+    });
   });
 });

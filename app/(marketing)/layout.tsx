@@ -4,6 +4,7 @@ import "../globals.css";
 
 import { Navbar } from "./layout/Navbar";
 import { Footer } from "./layout/Footer";
+import { NextIntlClientProvider } from "next-intl";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,11 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className={inter.className}>
-        <Navbar />
-
-        {children}
-
-        <Footer />
+        <NextIntlClientProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
