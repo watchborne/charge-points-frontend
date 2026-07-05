@@ -39,7 +39,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
-      <div className="container mx-auto flex h-16 items-center justify-between px-6">
+      <div className="container mx-auto flex h-16 items-center px-6 gap-6">
         <Link href="/" className="text-lg font-semibold tracking-tight">
           {t("appName")}
         </Link>
@@ -54,7 +54,7 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           {!isLoading && user ? (
             <Button
               variant="outline"
