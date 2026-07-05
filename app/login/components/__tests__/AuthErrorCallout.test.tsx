@@ -10,7 +10,8 @@ vi.mock("next/navigation", () => ({ useSearchParams }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
-      otpExpired: "This sign-in link has expired or was already used. Please request a new one below.",
+      otpExpired:
+        "This sign-in link has expired or was already used. Please request a new one below.",
       generic: "Sign-in failed. Please try again.",
     };
     return translations[key] ?? key;
