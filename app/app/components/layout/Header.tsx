@@ -1,18 +1,34 @@
-import { useMemo } from "react";
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import classNames from "classnames";
-import { AlertCircle, CheckCircle, Loader, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader, LogOut, XCircle } from "lucide-react";
 
 import { useWebSocket } from "../../hooks/useWebSocket";
 import { WS_URL } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 
 import svgLogo from "@/public/favicon.svg";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 export const Header = () => {
+  const t = useTranslations("");
   const { status } = useWebSocket(WS_URL);
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace("/login");
+    router.refresh();
+  }
 
   const webSocketConnectionStatus = useMemo(() => {
     const sizing = "h-6 w-6";
@@ -37,7 +53,7 @@ export const Header = () => {
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-3">
             <Image src={svgLogo} alt="Watchborne logo" width="56" />
-            <h1 className="text-2xl font-bold text-gray-900">Watchborne</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t("appName")}</h1>
           </Link>
           <div className="ml-8 flex items-center gap-3">
             <Link
@@ -49,7 +65,7 @@ export const Header = () => {
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
               )}
             >
-              Sites
+              {t("layout.navbar.app.links.sites")}
             </Link>
             <Link
               href="/charge-points"
@@ -60,14 +76,24 @@ export const Header = () => {
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
               )}
             >
-              Charge points
+              {t("layout.navbar.app.links.chargePoints")}
             </Link>
           </div>
           <div className="flex items-center gap-4 ml-auto">
             <div className="flex items-center gap-2">
-              <p>Connection status:</p>
+              <p>{t("layout.navbar.app.connectionStatus")}:</p>
               {webSocketConnectionStatus}
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <LogOut className="h-4 w-4" />
+              {t("layout.navbar.actions.logout")}
+            </Button>
           </div>
         </div>
       </div>

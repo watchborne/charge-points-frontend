@@ -54,7 +54,15 @@
       },
       "actions": {
         "login": "Connexion",
+        "logout": "Déconnexion",
         "requestAlphaAccess": "Tester en avant-première"
+      },
+      "app": {
+        "links": {
+          "chargePoints": "Bornes de recharge",
+          "sites": "Sites"
+        },
+        "connectionStatus": "Statut de connexion"
       }
     }
   },

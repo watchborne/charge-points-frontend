@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
+import { NextIntlClientProvider } from "next-intl";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className={inter.className}>
-        <WebSocketDataProvider>{children}</WebSocketDataProvider>
+        <WebSocketDataProvider>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        </WebSocketDataProvider>
       </body>
     </html>
   );
