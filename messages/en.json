@@ -56,6 +56,13 @@
         "login": "Login",
         "logout": "Logout",
         "requestAlphaAccess": "Request Alpha Access"
+      },
+      "app": {
+        "links": {
+          "chargePoints": "Charge Points",
+          "sites": "Sites"
+        },
+        "connectionStatus": "Connection Status"
       }
     }
   },
