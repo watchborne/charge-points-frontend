@@ -195,7 +195,8 @@
     "magicLink": {
       "sentTitle": "Check your inbox",
       "sentDescription": "A sign-in link has been sent to the address below. Click it to access your dashboard.",
-      "error": "Couldn't send the sign-in link. Please try again."
+      "error": "Couldn't send the sign-in link. Please try again.",
+      "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
     },
     "noAccount": {
       "text": "Don't have access yet?",

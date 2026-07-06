@@ -195,7 +195,8 @@
     "magicLink": {
       "sentTitle": "Vérifiez votre boîte mail",
       "sentDescription": "Un lien de connexion a été envoyé à l'adresse suivante. Cliquez dessus pour accéder à votre espace.",
-      "error": "Impossible d'envoyer le lien de connexion. Veuillez réessayer."
+      "error": "Impossible d'envoyer le lien de connexion. Veuillez réessayer.",
+      "unknownUser": "Aucun compte n'est associé à cette adresse email. Demandez un accès Alpha pour en créer un."
     },
     "noAccount": {
       "text": "Pas encore accès ?",

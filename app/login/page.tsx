@@ -71,6 +71,7 @@ export default function LoginPage() {
               sentTitle: t("magicLink.sentTitle"),
               sentDescription: t("magicLink.sentDescription"),
               error: t("magicLink.error"),
+              unknownUser: t("magicLink.unknownUser"),
             }}
           />
 
