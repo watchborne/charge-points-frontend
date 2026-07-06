@@ -20,6 +20,7 @@ const labels = {
   sentTitle: "Check your inbox",
   sentDescription: "A sign-in link has been sent to the address below.",
   error: "Couldn't send the sign-in link. Please try again.",
+  unknownUser: "No account is associated with this email address.",
 };
 
 beforeEach(() => {
@@ -44,13 +45,16 @@ describe("LoginForm", () => {
 
     expect(signInWithOtp).toHaveBeenCalledWith({
       email: "user@example.com",
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     expect(screen.getByText("user@example.com")).toBeTruthy();
   });
 
   it("shows the translated error and stays on the form when signInWithOtp fails", async () => {
-    signInWithOtp.mockResolvedValue({ error: { message: "boom" } });
+    signInWithOtp.mockResolvedValue({ error: { message: "boom", code: "unexpected_failure" } });
     render(<LoginForm labels={labels} />);
 
     fireEvent.change(screen.getByLabelText(labels.email), {
@@ -59,6 +63,22 @@ describe("LoginForm", () => {
     fireEvent.click(screen.getByRole("button", { name: labels.submit }));
 
     await waitFor(() => expect(screen.getByText(labels.error)).toBeTruthy());
+    expect(screen.queryByText(labels.sentTitle)).toBeNull();
+  });
+
+  it("shows the unknown-user message when the email doesn't belong to an existing account", async () => {
+    signInWithOtp.mockResolvedValue({
+      error: { message: "Signups not allowed for otp", code: "otp_disabled" },
+    });
+    render(<LoginForm labels={labels} />);
+
+    fireEvent.change(screen.getByLabelText(labels.email), {
+      target: { value: "unknown@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+
+    await waitFor(() => expect(screen.getByText(labels.unknownUser)).toBeTruthy());
+    expect(screen.queryByText(labels.error)).toBeNull();
     expect(screen.queryByText(labels.sentTitle)).toBeNull();
   });
 
