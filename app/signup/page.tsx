@@ -1,8 +1,9 @@
+import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { PlugZap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+
 import { SignupForm } from "./components/SignupForm";
 
 export default function SignupPage() {
