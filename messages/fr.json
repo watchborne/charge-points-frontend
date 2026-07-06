@@ -55,7 +55,8 @@
       "actions": {
         "login": "Connexion",
         "logout": "Déconnexion",
-        "requestAlphaAccess": "Tester en avant-première"
+        "requestAlphaAccess": "Tester en avant-première",
+        "menu": "Menu"
       },
       "app": {
         "links": {
