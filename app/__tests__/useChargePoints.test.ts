@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { ChargePoint } from "@watchborne/charge-points-types";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { createChargePoint } from "./fixtures/charge-point";
 import { api } from "../../lib/api";
 import { useChargePoints } from "../app/hooks/useChargePoints";
 import { useWebSocketContext } from "../app/hooks/useWebSocketContext";
@@ -34,24 +34,22 @@ const mockGetChargePoints = vi.mocked(api.ChargePoints.getChargePoints);
 const mockUseWebSocketContext = vi.mocked(useWebSocketContext);
 
 const mockChargePoints = [
-  {
+  createChargePoint({
     uuid: "cp-1",
     name: "Borne A",
     isActive: true,
     siteId: "site-1",
     connection: { status: "CONNECTED", lastSeen: new Date() },
     status: "Available",
-    meta: {},
-  } satisfies ChargePoint,
-  {
+  }),
+  createChargePoint({
     uuid: "cp-2",
     name: "Borne B",
     isActive: false,
     siteId: "site-1",
     connection: { status: "OFFLINE", lastSeen: null },
     status: null,
-    meta: {},
-  } satisfies ChargePoint,
+  }),
 ];
 
 describe("useChargePoints", () => {
@@ -130,15 +128,14 @@ describe("useChargePoints", () => {
     expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
 
     const newChargePoints = [
-      {
+      createChargePoint({
         uuid: "cp-3",
         name: "Borne C",
         isActive: true,
         siteId: "site-2",
         connection: { status: "SYNCED", lastSeen: new Date() },
         status: "Available",
-        meta: {},
-      } satisfies ChargePoint,
+      }),
     ];
     mockGetChargePoints.mockResolvedValue(newChargePoints);
 

@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock only the external @supabase/ssr (a bare specifier — reliably intercepted).
 // The real lib/supabase/middleware + root middleware run against it, so the guard
@@ -41,7 +41,7 @@ afterEach(() => {
 describe("middleware auth guard", () => {
   it("returns 401 for /api/* without a session", async () => {
     setUser(null);
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/api/charge-points"));
 
@@ -50,7 +50,7 @@ describe("middleware auth guard", () => {
 
   it("lets /api/* through with a session", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/api/charge-points"));
 
@@ -60,7 +60,7 @@ describe("middleware auth guard", () => {
 
   it("redirects /app/* to /login without a session", async () => {
     setUser(null);
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/app/dashboard"));
 
@@ -70,7 +70,7 @@ describe("middleware auth guard", () => {
 
   it("lets /app/* through with a session", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/app/dashboard"));
 
@@ -79,7 +79,7 @@ describe("middleware auth guard", () => {
 
   it("redirects /login to the dashboard when already authenticated", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/login"));
 
@@ -89,7 +89,7 @@ describe("middleware auth guard", () => {
 
   it("lets /login through without a session", async () => {
     setUser(null);
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/login"));
 
@@ -100,7 +100,7 @@ describe("middleware auth guard", () => {
 describe("app-host rewrite", () => {
   it("rewrites a bare path on an app.* host into /app/*", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
 
@@ -109,7 +109,7 @@ describe("app-host rewrite", () => {
 
   it("guards the rewritten path as an /app route (redirects to /login without a session)", async () => {
     setUser(null);
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
 
@@ -119,7 +119,7 @@ describe("app-host rewrite", () => {
 
   it("does not double-prefix a path that already starts with /app", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("app.watch-borne.com", "/app/dashboard"));
 
@@ -128,7 +128,7 @@ describe("app-host rewrite", () => {
 
   it("does not rewrite /api on an app.* host (API routes live outside app/app/)", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("app.watch-borne.com", "/api/charge-points"));
 
@@ -138,7 +138,7 @@ describe("app-host rewrite", () => {
 
   it("does not rewrite /login on an app.* host", async () => {
     setUser(null);
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("app.watch-borne.com", "/login"));
 
@@ -147,7 +147,7 @@ describe("app-host rewrite", () => {
 
   it("does not rewrite paths on a non-app host", async () => {
     setUser({ id: "user-1" });
-    const { middleware } = await import("../middleware");
+    const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("watch-borne.com", "/dashboard"));
 
