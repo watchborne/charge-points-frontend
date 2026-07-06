@@ -62,7 +62,9 @@ export default function PricingPage() {
       <div className="mx-auto max-w-3xl text-center">
         <Badge>{t("pricingPage.badge")}</Badge>
 
-        <h1 className="mt-6 text-5xl font-bold">{t("pricingPage.hero.title")}</h1>
+        <h1 className="mt-6 break-words text-3xl font-bold sm:text-4xl md:text-5xl">
+          {t("pricingPage.hero.title")}
+        </h1>
 
         <p className="mt-4 text-lg text-muted-foreground">{t("pricingPage.hero.subtitle")}</p>
       </div>
