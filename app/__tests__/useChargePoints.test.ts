@@ -1,8 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { createChargePoint } from "@/__tests__/factories";
-
+import { createChargePoint } from "./fixtures/charge-point";
 import { api } from "../../lib/api";
 import { useChargePoints } from "../app/hooks/useChargePoints";
 import { useWebSocketContext } from "../app/hooks/useWebSocketContext";

@@ -1,8 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { createSite } from "@/__tests__/factories";
-
+import { createSite } from "./fixtures/site";
 import { api } from "../../lib/api";
 import { useSites } from "../app/hooks/useSites";
 
