@@ -235,11 +235,11 @@
     },
     "branding": {
       "tagline": "Monitor your EV charge points in real time.",
-      "features": [
-        "Real-time OCPP 2.0.1 supervision",
-        "Multi-site dashboard",
-        "Instant offline detection"
-      ]
+      "features": {
+        "ocpp": "Real-time OCPP 2.0.1 supervision",
+        "multisite": "Multi-site dashboard",
+        "offline": "Instant offline detection"
+      }
     }
   },
   "pricingPage": {

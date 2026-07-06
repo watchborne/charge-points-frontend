@@ -235,11 +235,11 @@
     },
     "branding": {
       "tagline": "Supervisez vos bornes de recharge en temps réel.",
-      "features": [
-        "Supervision OCPP 2.0.1 en temps réel",
-        "Tableau de bord multi-sites",
-        "Détection des déconnexions instantanée"
-      ]
+      "features": {
+        "ocpp": "Supervision OCPP 2.0.1 en temps réel",
+        "multisite": "Tableau de bord multi-sites",
+        "offline": "Détection des déconnexions instantanée"
+      }
     }
   },
   "pricingPage": {

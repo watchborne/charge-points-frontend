@@ -6,10 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { SignupForm } from "./components/SignupForm";
 
 export default function SignupPage() {
-  const t = useTranslations("signupPage");
-  const tRoot = useTranslations("");
+  const t = useTranslations("");
 
-  const features = t.raw("branding.features") as string[];
+  const features = Object.entries(t.raw("signupPage.branding.features") as Record<string, string>);
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-2">
@@ -19,17 +18,17 @@ export default function SignupPage() {
           href="/"
           className="text-lg font-semibold tracking-tight hover:opacity-80 transition-opacity"
         >
-          {tRoot("appName")}
+          {t("appName")}
         </Link>
 
         <div>
           <PlugZap className="h-10 w-10 mb-8 opacity-70" />
 
-          <p className="text-3xl font-bold leading-snug">{t("branding.tagline")}</p>
+          <p className="text-3xl font-bold leading-snug">{t("signupPage.branding.tagline")}</p>
 
           <ul className="mt-8 space-y-3">
-            {features.map((feature) => (
-              <li key={feature} className="flex items-center gap-3 text-sm opacity-80">
+            {features.map(([key, feature]) => (
+              <li key={key} className="flex items-center gap-3 text-sm opacity-80">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground shrink-0" />
                 {feature}
               </li>
@@ -38,7 +37,7 @@ export default function SignupPage() {
         </div>
 
         <p className="text-xs opacity-40">
-          © {new Date().getFullYear()} {tRoot("appName")}
+          © {new Date().getFullYear()} {t("appName")}
         </p>
       </div>
 
@@ -50,37 +49,37 @@ export default function SignupPage() {
             href="/"
             className="inline-block text-lg font-semibold tracking-tight mb-8 lg:hidden"
           >
-            {tRoot("appName")}
+            {t("appName")}
           </Link>
 
           <div className="mb-8">
             <Badge variant="secondary" className="mb-4">
-              {t("alphaBadge")}
+              {t("signupPage.alphaBadge")}
             </Badge>
 
-            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t("signupPage.title")}</h1>
 
-            <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("signupPage.subtitle")}</p>
           </div>
 
           <SignupForm
             labels={{
-              email: t("form.email"),
-              emailPlaceholder: t("form.emailPlaceholder"),
-              submit: t("form.submit"),
-              sentTitle: t("confirmation.sentTitle"),
-              sentDescription: t("confirmation.sentDescription"),
-              error: t("confirmation.error"),
+              email: t("signupPage.form.email"),
+              emailPlaceholder: t("signupPage.form.emailPlaceholder"),
+              submit: t("signupPage.form.submit"),
+              sentTitle: t("signupPage.confirmation.sentTitle"),
+              sentDescription: t("signupPage.confirmation.sentDescription"),
+              error: t("signupPage.confirmation.error"),
             }}
           />
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {t("hasAccount.text")}{" "}
+            {t("signupPage.hasAccount.text")}{" "}
             <Link
               href="/login"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              {t("hasAccount.link")}
+              {t("signupPage.hasAccount.link")}
             </Link>
           </p>
         </div>
