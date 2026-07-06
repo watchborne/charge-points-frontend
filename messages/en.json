@@ -198,6 +198,10 @@
       "error": "Couldn't send the sign-in link. Please try again.",
       "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
     },
+    "authError": {
+      "otpExpired": "This sign-in link has expired or was already used. Please request a new one below.",
+      "generic": "Sign-in failed. Please try again."
+    },
     "noAccount": {
       "text": "Don't have access yet?",
       "link": "Request Alpha Access"

@@ -4,6 +4,7 @@ import { PlugZap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { LoginForm } from "./components/LoginForm";
+import { AuthErrorCallout } from "./components/AuthErrorCallout";
 
 export default function LoginPage() {
   const t = useTranslations("loginPage");
@@ -62,6 +63,8 @@ export default function LoginPage() {
 
             <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
+
+          <AuthErrorCallout />
 
           <LoginForm
             labels={{

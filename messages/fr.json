@@ -198,6 +198,10 @@
       "error": "Impossible d'envoyer le lien de connexion. Veuillez réessayer.",
       "unknownUser": "Aucun compte n'est associé à cette adresse email. Demandez un accès Alpha pour en créer un."
     },
+    "authError": {
+      "otpExpired": "Ce lien de connexion a expiré ou a déjà été utilisé. Merci d'en demander un nouveau ci-dessous.",
+      "generic": "La connexion a échoué. Merci de réessayer."
+    },
     "noAccount": {
       "text": "Pas encore accès ?",
       "link": "Demander un accès Alpha"
