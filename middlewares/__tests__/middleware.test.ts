@@ -154,3 +154,44 @@ describe("app-host rewrite", () => {
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
 });
+
+describe("locale-by-host", () => {
+  it("SHOULD set NEXT_LOCALE to fr WHEN the host is watch-borne.fr", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.fr", "/"));
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
+  });
+
+  it("SHOULD set NEXT_LOCALE to en WHEN the host is watch-borne.com", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.com", "/"));
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+  });
+
+  it("SHOULD set NEXT_LOCALE to en WHEN the host is the app.*.com subdomain", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+  });
+
+  it("SHOULD not override an existing NEXT_LOCALE cookie", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const req = requestFromHost("watch-borne.com", "/");
+    req.cookies.set("NEXT_LOCALE", "fr");
+
+    const res = await middleware(req);
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBeUndefined();
+  });
+});
