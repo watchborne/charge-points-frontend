@@ -1,5 +1,5 @@
-import { AlertCircle } from "lucide-react";
 import classNames from "classnames";
+import { AlertCircle } from "lucide-react";
 
 type Props = {
   error: string;

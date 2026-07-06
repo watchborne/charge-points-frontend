@@ -1,24 +1,25 @@
 "use client";
 
 import { Plus, Search, Server, Zap } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
-import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { Badge } from "@/components/ui/badge";
-import { ChargePointTable } from "./components/ChargePointTable";
 import { Button } from "@/components/ui/button";
-import { ChargePoint } from "@/types/charge-point";
-import { useSites } from "../hooks/useSites";
-import { useChargePoints } from "../hooks/useChargePoints";
-import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Header } from "../components/layout/Header";
-import { Callout } from "../components/common/Callout";
-import { Loader } from "../components/common/Loader";
+import { api } from "@/lib/api";
+import { ChargePoint } from "@/types/charge-point";
+
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
+import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
+import { ChargePointTable } from "./components/ChargePointTable";
+import { Callout } from "../components/common/Callout";
+import { Loader } from "../components/common/Loader";
+import { Header } from "../components/layout/Header";
+import { useChargePoints } from "../hooks/useChargePoints";
+import { useSites } from "../hooks/useSites";
 
 export default function ChargePointsPage() {
   const { sites, loading: loadingSites, error: errorSites } = useSites();

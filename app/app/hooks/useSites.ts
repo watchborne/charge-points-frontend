@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
-import { api } from "@/lib/api";
 import { Site } from "@watchborne/charge-points-types";
+import { useEffect, useState, useCallback } from "react";
+
+import { api } from "@/lib/api";
 
 export interface UseSitesReturn {
   sites: Site[];

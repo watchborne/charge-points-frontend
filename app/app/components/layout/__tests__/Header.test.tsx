@@ -1,5 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { Header } from "../Header";
 
 const { createBrowserClient, signOut } = vi.hoisted(() => {
   const signOut = vi.fn();
@@ -26,23 +28,24 @@ vi.mock("../../hooks/useWebSocket", () => ({
 }));
 
 vi.mock("next/image", () => ({
+  // eslint-disable-next-line @next/next/no-img-element
   default: ({ alt }: { alt: string }) => <img alt={alt} />,
 }));
 
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const translations: Record<string, string> = {
-      appName: "Watchborne",
-      "layout.navbar.app.links.sites": "Sites",
-      "layout.navbar.app.links.chargePoints": "Charge Points",
-      "layout.navbar.app.connectionStatus": "Connection Status",
-      "layout.navbar.actions.logout": "Logout",
-    };
-    return translations[key] || key;
-  },
-}));
+vi.mock("next-intl", () => {
+  const translations: Record<string, string> = {
+    appName: "Watchborne",
+    "layout.navbar.app.links.sites": "Sites",
+    "layout.navbar.app.links.chargePoints": "Charge Points",
+    "layout.navbar.app.connectionStatus": "Connection Status",
+    "layout.navbar.actions.logout": "Logout",
+  };
+  return {
+    useTranslations: () => (key: string) => translations[key] || key,
+  };
+});
 
-import { Header } from "../Header";
+const renderComponent = () => render(<Header />);
 
 beforeEach(() => {
   signOut.mockReset().mockResolvedValue({ error: null });
@@ -56,18 +59,15 @@ afterEach(() => {
 
 describe("Header", () => {
   it("renders the header with navigation links and logout button", async () => {
-    render(<Header />);
+    renderComponent();
 
-    // Wait for component to fully render
-    await waitFor(() => {
-      expect(screen.getByRole("link", { name: /sites/i })).toBeTruthy();
-      expect(screen.getByRole("link", { name: /charge points/i })).toBeTruthy();
-      expect(screen.getByRole("button", { name: /logout/i })).toBeTruthy();
-    });
+    expect(screen.getByRole("link", { name: /sites/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /charge points/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /logout/i })).toBeTruthy();
   });
 
   it("signs the user out and redirects to /login when logout is clicked", async () => {
-    render(<Header />);
+    renderComponent();
 
     fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
@@ -77,10 +77,8 @@ describe("Header", () => {
   });
 
   it("displays WebSocket connection status", async () => {
-    render(<Header />);
+    renderComponent();
 
-    await waitFor(() => {
-      expect(screen.getByText(/connection status/i)).toBeTruthy();
-    });
+    expect(screen.getByText(/connection status/i)).toBeTruthy();
   });
 });

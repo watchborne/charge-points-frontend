@@ -1,4 +1,5 @@
-import { ChargePoint } from "@/types/charge-point";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -7,8 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { ChargePoint } from "@/types/charge-point";
+
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 
 type ChargePointTableProps = {
