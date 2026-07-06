@@ -56,7 +56,8 @@
         "login": "Connexion",
         "logout": "Déconnexion",
         "requestAlphaAccess": "Tester en avant-première",
-        "menu": "Menu"
+        "menu": "Menu",
+        "dashboard": "Accéder au dashboard"
       },
       "app": {
         "links": {

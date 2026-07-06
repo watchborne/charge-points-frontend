@@ -26,11 +26,12 @@ app/
   api/                  # Next route handlers that PROXY to the backend
   login/                # login page (magic-link sign-in)
   auth/callback/        # Supabase magic-link code-exchange handler
-middleware.ts           # Supabase session refresh, app.* subdomain rewrite,
-                        # and auth guard for /app and /api
+middleware.ts           # Supabase session refresh, locale-by-host cookie,
+                        # app.* subdomain rewrite, and auth guard for /app and /api
 components/ui/          # shadcn/ui primitives (generated; edit via components.json)
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
+i18n/locale.ts          # Locale type, defaultLocale, localeForHost (edge-safe)
 i18n/request.ts         # next-intl config (locale from NEXT_LOCALE cookie)
 messages/{fr,en}.json   # translations
 ```
@@ -98,8 +99,11 @@ the tokens in `app/design-system/tokens.css`.
 
 All user-facing strings go through `next-intl`. Default locale is **`fr`**;
 supported locales are `fr` and `en`, selected via the `NEXT_LOCALE` cookie
-(`i18n/request.ts`). Add keys to **both** `messages/fr.json` and
-`messages/en.json`.
+(`i18n/request.ts`). If a request has no `NEXT_LOCALE` cookie yet, `middleware.ts`
+sets one from the host's TLD (`localeForHost`: `.fr` -> fr, `.com` -> en, else the
+default) so `watch-borne.fr` and `watch-borne.com` load the right language on a
+visitor's first request; an existing cookie is never overridden. Add keys to
+**both** `messages/fr.json` and `messages/en.json`.
 
 ## Commands
 

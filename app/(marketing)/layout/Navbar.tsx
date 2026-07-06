@@ -61,16 +61,21 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 ml-auto md:flex">
           {!isLoading && user ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              {t("layout.navbar.actions.logout")}
-            </Button>
+            <>
+              <Button variant="info" size="sm" asChild>
+                <Link href="/app/dashboard">{t("layout.navbar.actions.dashboard")}</Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                {t("layout.navbar.actions.logout")}
+              </Button>
+            </>
           ) : !isLoading ? (
             <>
               <Button variant="ghost" asChild>
@@ -118,19 +123,26 @@ export function Navbar() {
 
           <div className="mt-4 flex flex-col gap-2">
             {!isLoading && user ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  closeMobileMenu();
-                  handleLogout();
-                }}
-                disabled={isLoggingOut}
-                className="w-full justify-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                {t("layout.navbar.actions.logout")}
-              </Button>
+              <>
+                <Button variant="info" size="sm" asChild className="w-full justify-center">
+                  <Link href="/app/dashboard" onClick={closeMobileMenu}>
+                    {t("layout.navbar.actions.dashboard")}
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    closeMobileMenu();
+                    handleLogout();
+                  }}
+                  disabled={isLoggingOut}
+                  className="w-full justify-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  {t("layout.navbar.actions.logout")}
+                </Button>
+              </>
             ) : !isLoading ? (
               <>
                 <Button variant="ghost" asChild className="w-full justify-center">
