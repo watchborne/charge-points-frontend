@@ -1,6 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
-import type { Site } from "@watchborne/charge-points-types";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { createSite } from "@/__tests__/factories";
 
 import { api } from "../../lib/api";
 import { useSites } from "../app/hooks/useSites";
@@ -18,21 +19,9 @@ vi.mock("../../lib/api", () => ({
 
 const mockGetSites = vi.mocked(api.Sites.getSites);
 
-const mockSites: Site[] = [
-  {
-    id: "site-1",
-    name: "Site Paris",
-    customer: "customer-1",
-    installDate: new Date(),
-    lastVisit: new Date(),
-  },
-  {
-    id: "site-2",
-    name: "Site Lyon",
-    customer: "customer-2",
-    installDate: new Date(),
-    lastVisit: new Date(),
-  },
+const mockSites = [
+  createSite({ id: "site-1", name: "Site Paris", customer: "customer-1" }),
+  createSite({ id: "site-2", name: "Site Lyon", customer: "customer-2" }),
 ];
 
 describe("useSites", () => {
@@ -103,15 +92,7 @@ describe("useSites", () => {
 
     const callCountAfterMount = mockGetSites.mock.calls.length;
 
-    const newSites: Site[] = [
-      {
-        id: "site-3",
-        name: "Site Marseille",
-        customer: "customer-3",
-        installDate: new Date(),
-        lastVisit: new Date(),
-      },
-    ];
+    const newSites = [createSite({ id: "site-3", name: "Site Marseille", customer: "customer-3" })];
     mockGetSites.mockResolvedValue(newSites);
 
     await act(async () => {
