@@ -55,7 +55,8 @@
       "actions": {
         "login": "Login",
         "logout": "Logout",
-        "requestAlphaAccess": "Request Alpha Access"
+        "requestAlphaAccess": "Request Alpha Access",
+        "dashboard": "Go to dashboard"
       },
       "app": {
         "links": {

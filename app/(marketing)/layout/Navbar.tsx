@@ -56,16 +56,21 @@ export function Navbar() {
 
         <div className="flex items-center gap-3 ml-auto">
           {!isLoading && user ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              {t("layout.navbar.actions.logout")}
-            </Button>
+            <>
+              <Button variant="info" size="sm" asChild>
+                <Link href="/app/dashboard">{t("layout.navbar.actions.dashboard")}</Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                {t("layout.navbar.actions.logout")}
+              </Button>
+            </>
           ) : !isLoading ? (
             <>
               <Button variant="ghost" asChild>
