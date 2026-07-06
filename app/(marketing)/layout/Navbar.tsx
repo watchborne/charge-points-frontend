@@ -72,7 +72,9 @@ export function Navbar() {
                 <Link href="/login">{t("layout.navbar.actions.login")}</Link>
               </Button>
 
-              <Button>{t("layout.navbar.actions.requestAlphaAccess")}</Button>
+              <Button asChild>
+                <Link href="/signup">{t("layout.navbar.actions.requestAlphaAccess")}</Link>
+              </Button>
             </>
           ) : null}
         </div>

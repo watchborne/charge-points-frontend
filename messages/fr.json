@@ -204,7 +204,7 @@
     },
     "noAccount": {
       "text": "Pas encore accès ?",
-      "link": "Demander un accès Alpha"
+      "link": "S'inscrire à l'Alpha"
     },
     "branding": {
       "tagline": "Supervisez vos bornes de recharge en temps réel.",
@@ -213,6 +213,33 @@
         "Tableau de bord multi-sites",
         "Détection des déconnexions instantanée"
       ]
+    }
+  },
+  "signupPage": {
+    "alphaBadge": "ALPHA",
+    "title": "Rejoignez l'Alpha.",
+    "subtitle": "Inscrivez-vous pour accéder à votre espace de supervision des bornes de recharge.",
+    "form": {
+      "email": "Adresse email",
+      "emailPlaceholder": "vous@exemple.com",
+      "submit": "S'inscrire"
+    },
+    "confirmation": {
+      "sentTitle": "Vérifiez votre boîte mail",
+      "sentDescription": "Un email de confirmation a été envoyé à l'adresse suivante. Cliquez sur le lien pour activer votre accès Alpha.",
+      "error": "Impossible de créer votre compte. Veuillez réessayer."
+    },
+    "hasAccount": {
+      "text": "Vous avez déjà un accès ?",
+      "link": "Se connecter"
+    },
+    "branding": {
+      "tagline": "Supervisez vos bornes de recharge en temps réel.",
+      "features": {
+        "ocpp": "Supervision OCPP 2.0.1 en temps réel",
+        "multisite": "Tableau de bord multi-sites",
+        "offline": "Détection des déconnexions instantanée"
+      }
     }
   },
   "pricingPage": {

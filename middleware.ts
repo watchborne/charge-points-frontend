@@ -11,7 +11,7 @@ const APP_HOSTS = ["app.watch-borne.com", "app.watchborne.netlify.app"];
 // Routes that must stay reachable unprefixed even on an APP_HOSTS request: API routes,
 // the login page, and the auth callback all live outside app/app/, so prefixing them
 // with /app would 404.
-const APP_REWRITE_EXCLUDED_PREFIXES = ["/app", "/api", "/login", "/auth"];
+const APP_REWRITE_EXCLUDED_PREFIXES = ["/app", "/api", "/login", "/signup", "/auth"];
 
 function rewriteToAppTree(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
@@ -38,7 +38,7 @@ function rewriteToAppTree(request: NextRequest) {
  * - `/api/*` — requires a session; unauthenticated callers get 401. These routes
  *   proxy to the backend with the shared API key (`lib/proxy-request.ts`), so they
  *   must never be reachable without a user session.
- * - `/login` — authenticated users are bounced to the dashboard.
+ * - `/login` and `/signup` — authenticated users are bounced to the dashboard.
  *
  * Any response we return in place of `supabaseResponse` must carry the refreshed
  * session cookies, otherwise a token rotated during `getUser()` is lost.
@@ -75,7 +75,7 @@ export async function middleware(request: NextRequest) {
     return redirectTo("/login");
   }
 
-  if (pathname === "/login" && user) {
+  if ((pathname === "/login" || pathname === "/signup") && user) {
     return redirectTo("/app/dashboard");
   }
 

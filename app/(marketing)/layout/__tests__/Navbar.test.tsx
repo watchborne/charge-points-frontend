@@ -70,7 +70,7 @@ describe("Navbar", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: /login/i })).toBeTruthy();
-      expect(screen.getByRole("button", { name: /request alpha access/i })).toBeTruthy();
+      expect(screen.getByRole("link", { name: /request alpha access/i })).toBeTruthy();
       expect(screen.queryByRole("button", { name: /logout/i })).toBeNull();
     });
   });
@@ -88,7 +88,7 @@ describe("Navbar", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /logout/i })).toBeTruthy();
       expect(screen.queryByRole("link", { name: /login/i })).toBeNull();
-      expect(screen.queryByRole("button", { name: /request alpha access/i })).toBeNull();
+      expect(screen.queryByRole("link", { name: /request alpha access/i })).toBeNull();
     });
   });
 
