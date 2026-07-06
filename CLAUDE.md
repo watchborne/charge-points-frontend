@@ -112,10 +112,37 @@ design (Row Level Security governs access), so it is `NEXT_PUBLIC_`. Both
 Supabase values are centralized in `lib/constants.ts` and consumed only through
 `lib/supabase/{client,server,middleware}.ts`. See `.env.example`.
 
-## Conventions
+## Coding conventions
 
-- TypeScript strict; path alias `@/*` maps to the repo root.
+### Generic
+
 - Import domain types from `@watchborne/charge-points-types` (re-exported via
   `types/`), never redefine `ChargePoint` / `Site` shapes locally.
+
+### React
+
+- Prefer arrow function component, like:
+
+```typescript
+export const MyComponent = () => {
+  // ...
+};
+```
+
+### Tests
+
 - Tests live in `__tests__/` folders (vitest + Testing Library) and are excluded
   from the tsconfig build.
+- Prefer readable syntax with it SHOULD ... WHEN ..., like:
+
+```typescript
+describe("...", () => {
+  it("SHOULD ... WHEN ...", () => {
+    // ...
+  });
+});
+```
+
+### Typescript
+
+- TypeScript strict; path alias `@/*` maps to the repo root.
