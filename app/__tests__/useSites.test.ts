@@ -1,8 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
+import type { Site } from "@watchborne/charge-points-types";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { api } from "../../lib/api";
 import { useSites } from "../app/hooks/useSites";
 
-// Mock the api module
 vi.mock("../../lib/api", () => ({
   api: {
     ChargePoints: {
@@ -14,20 +16,22 @@ vi.mock("../../lib/api", () => ({
   },
 }));
 
-import { api } from "../../lib/api";
-
 const mockGetSites = vi.mocked(api.Sites.getSites);
 
-const mockSites = [
+const mockSites: Site[] = [
   {
     id: "site-1",
     name: "Site Paris",
-    address: "1 rue de la Paix, Paris",
+    customer: "customer-1",
+    installDate: new Date(),
+    lastVisit: new Date(),
   },
   {
     id: "site-2",
     name: "Site Lyon",
-    address: "10 place Bellecour, Lyon",
+    customer: "customer-2",
+    installDate: new Date(),
+    lastVisit: new Date(),
   },
 ];
 
@@ -99,11 +103,13 @@ describe("useSites", () => {
 
     const callCountAfterMount = mockGetSites.mock.calls.length;
 
-    const newSites = [
+    const newSites: Site[] = [
       {
         id: "site-3",
         name: "Site Marseille",
-        address: "5 avenue du Prado, Marseille",
+        customer: "customer-3",
+        installDate: new Date(),
+        lastVisit: new Date(),
       },
     ];
     mockGetSites.mockResolvedValue(newSites);

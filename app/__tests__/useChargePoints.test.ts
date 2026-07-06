@@ -1,6 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
+import { ChargePoint } from "@watchborne/charge-points-types";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { api } from "../../lib/api";
 import { useChargePoints } from "../app/hooks/useChargePoints";
+import { useWebSocketContext } from "../app/hooks/useWebSocketContext";
 
 // Mock the api module
 vi.mock("../../lib/api", () => ({
@@ -25,10 +29,6 @@ vi.mock("../app/hooks/useWebSocketContext", () => ({
     clearMessages: vi.fn(),
   })),
 }));
-
-import { api } from "../../lib/api";
-import { useWebSocketContext } from "../app/hooks/useWebSocketContext";
-import { ChargePoint } from "@watchborne/charge-points-types";
 
 const mockGetChargePoints = vi.mocked(api.ChargePoints.getChargePoints);
 const mockUseWebSocketContext = vi.mocked(useWebSocketContext);

@@ -1,4 +1,5 @@
 import { Site } from "@watchborne/charge-points-types";
+
 import { httpClient } from "./http-client";
 
 type CreateSiteBody = Omit<Site, "id">;

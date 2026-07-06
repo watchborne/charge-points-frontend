@@ -1,4 +1,5 @@
 import type { ChargePoint } from "@watchborne/charge-points-types";
+
 import { httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive">;

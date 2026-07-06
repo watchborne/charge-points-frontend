@@ -1,12 +1,15 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Site } from "@watchborne/charge-points-types";
+import classNames from "classnames";
+import { Zap, ChevronDown, Server } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { Zap, ChevronDown, Server } from "lucide-react";
-import classNames from "classnames";
-import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -24,11 +27,8 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Site } from "@watchborne/charge-points-types";
 
 import { SiteCombobox } from "./SiteCombobox";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type ChargePointFormDialogProps = {
   open: boolean;

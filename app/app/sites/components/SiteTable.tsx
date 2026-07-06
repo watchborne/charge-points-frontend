@@ -1,3 +1,6 @@
+import { Site } from "@watchborne/charge-points-types";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,8 +17,6 @@ import {
   TableCell,
   Table,
 } from "@/components/ui/table";
-import { Site } from "@watchborne/charge-points-types";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 type SiteTableProps = {
   sites: Site[];

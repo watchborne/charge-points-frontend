@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowRight,
   Activity,
@@ -8,10 +7,11 @@ import {
   Clock3,
   MapPin,
 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   const t = useTranslations("");

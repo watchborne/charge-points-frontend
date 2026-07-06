@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { httpClient } from "../http-client";
 
 const mockFetch = vi.fn();
