@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +13,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Site } from "@watchborne/charge-points-types";
 
 type SiteComboboxProps = {
   value: string;

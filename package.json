@@ -7,13 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "npx tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ci": "vitest run",
-    "prepare": "husky"
+    "prepare": "husky",
+    "all-checks": "bash scripts/all-checks.sh"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write"

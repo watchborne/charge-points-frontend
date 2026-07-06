@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback, createContext, useContext } from "react";
+
+import { WS_URL } from "@/lib/constants";
+
 import { useWebSocket } from "./useWebSocket";
 import { WebSocketStatus } from "../ws/ws-manager";
-import { WS_URL } from "@/lib/constants";
 
 export interface WebSocketMessage {
   type:

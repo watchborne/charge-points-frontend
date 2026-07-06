@@ -1,3 +1,6 @@
+import { Site } from "@watchborne/charge-points-types";
+import { formatDistanceToNow, format } from "date-fns";
+import { enGB } from "date-fns/locale";
 import {
   Battery,
   CheckCircle,
@@ -12,9 +15,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
-import { enGB } from "date-fns/locale";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,13 +25,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ChargePoint } from "@/types/charge-point";
-import { Site } from "@watchborne/charge-points-types";
+
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
-import { Tag } from "../../components/common/Tag";
 import { Callout } from "../../components/common/Callout";
+import { Tag } from "../../components/common/Tag";
 
 type ChargePointDetailDialogProps = {
   chargePoint: ChargePoint | null;

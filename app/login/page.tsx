@@ -1,10 +1,11 @@
+import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { PlugZap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { LoginForm } from "./components/LoginForm";
+
 import { AuthErrorCallout } from "./components/AuthErrorCallout";
+import { LoginForm } from "./components/LoginForm";
 
 export default function LoginPage() {
   const t = useTranslations("loginPage");

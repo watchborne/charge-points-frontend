@@ -1,3 +1,5 @@
+import classNames from "classnames";
+import { formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import {
   Battery,
@@ -11,14 +13,12 @@ import {
   Ticket,
   X,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-
 import Link from "next/link";
+import { ReactNode } from "react";
 
 import { ChargePoint } from "@/types/charge-point";
+
 import { StatusBadge } from "./StatusBadge";
-import { ReactNode } from "react";
-import classNames from "classnames";
 
 interface ChargePointCardProps {
   chargePoint: ChargePoint;

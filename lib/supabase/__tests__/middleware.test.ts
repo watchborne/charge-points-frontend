@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { createServerClient } = vi.hoisted(() => ({
   createServerClient: vi.fn(() => ({ auth: { getUser: vi.fn() } })),

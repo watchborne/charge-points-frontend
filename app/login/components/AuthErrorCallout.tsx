@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense } from "react";
+import { AlertTriangle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertTriangle } from "lucide-react";
+import { Suspense } from "react";
 
 function AuthErrorCalloutContent() {
   const t = useTranslations("loginPage.authError");

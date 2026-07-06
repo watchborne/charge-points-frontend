@@ -1,7 +1,8 @@
-import { ReactNode } from "react";
 import { Battery, CheckCircle, Cloud, PlugZap, RefreshCw, X } from "lucide-react";
+import { ReactNode } from "react";
 
 import { ChargePoint, ChargePointStatus } from "@/types/charge-point";
+
 import { StatCard } from "../common/StatCard";
 
 export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[] }) => {

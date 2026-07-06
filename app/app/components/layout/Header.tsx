@@ -1,19 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import classNames from "classnames";
 import { AlertCircle, CheckCircle, Loader, LogOut, XCircle } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 
-import { useWebSocket } from "../../hooks/useWebSocket";
+import { Button } from "@/components/ui/button";
 import { WS_URL } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-
 import svgLogo from "@/public/favicon.svg";
-import Image from "next/image";
-import { useTranslations } from "next-intl";
+
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 export const Header = () => {
   const t = useTranslations("");

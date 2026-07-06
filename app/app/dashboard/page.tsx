@@ -1,13 +1,12 @@
 "use client";
 
-import { useChargePoints } from "../hooks/useChargePoints";
-
-import { Header } from "../components/layout/Header";
+import { ChargePointStats } from "../components/charge-points/ChargePointStats";
+import { ChargePointsGrid } from "../components/charge-points/ChargePointsGrid";
+import { EmptyStateChargePoints } from "../components/charge-points/EmptyStateChargePoints";
 import { Callout } from "../components/common/Callout";
 import { Loader } from "../components/common/Loader";
-import { ChargePointStats } from "../components/charge-points/ChargePointStats";
-import { EmptyStateChargePoints } from "../components/charge-points/EmptyStateChargePoints";
-import { ChargePointsGrid } from "../components/charge-points/ChargePointsGrid";
+import { Header } from "../components/layout/Header";
+import { useChargePoints } from "../hooks/useChargePoints";
 
 export default function DashboardPage() {
   const { chargePoints, loading, error } = useChargePoints();

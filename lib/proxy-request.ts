@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { API_URL } from "./constants";
 
 export async function proxyToBackend(

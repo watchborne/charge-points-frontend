@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { createServerClient, exchangeCodeForSession } = vi.hoisted(() => {
   const exchangeCodeForSession = vi.fn();
