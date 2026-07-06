@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { localeForHost } from "@/i18n/locale";
+import { isLocale, LOCALE_COOKIE_NAME, LOCALE_QUERY_PARAM, localeForHost } from "@/i18n/locale";
 import { createClient } from "@/lib/supabase/middleware";
 
-const LOCALE_COOKIE = "NEXT_LOCALE";
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 // Hosts that serve the authenticated dashboard at the bare path (e.g.
@@ -30,16 +29,34 @@ function rewriteToAppTree(request: NextRequest) {
 }
 
 /**
+ * Resolves the active locale for this request: an explicit `?lang=` query
+ * param always wins (so a shared link or the footer switcher can force a
+ * locale), then the persisted `NEXT_LOCALE` cookie, then a first-time
+ * visitor's host TLD (`localeForHost`: `.fr` -> fr, `.com` -> en, else the
+ * default locale).
+ */
+function resolveLocale(request: NextRequest) {
+  const queryLocale = request.nextUrl.searchParams.get(LOCALE_QUERY_PARAM);
+  if (isLocale(queryLocale)) return queryLocale;
+
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+  if (isLocale(cookieLocale)) return cookieLocale;
+
+  return localeForHost(request.headers.get("host") ?? "");
+}
+
+/**
  * Global middleware: refreshes the Supabase session on every matched request,
- * derives the locale from the request host, rewrites requests on the app.*
+ * resolves the locale for the request, rewrites requests on the app.*
  * subdomain into the /app route tree, and gates access to the authenticated
  * surface.
  *
- * - If the request has no `NEXT_LOCALE` cookie yet, one is set from the host's
- *   TLD (`localeForHost` in `i18n/locale.ts`: `.fr` -> fr, `.com` -> en, else
- *   the default locale) so first-time visitors get the right language. An
- *   existing cookie (e.g. set by a future manual language switcher) is never
- *   overridden.
+ * - The locale comes from `resolveLocale` (see above). It's set on the
+ *   request's cookies too (not just the response) so this request's RSC
+ *   render picks it up immediately via `i18n/request.ts` — a cookie on the
+ *   response alone only applies from the next request onward. The response
+ *   cookie is refreshed on every request so a `?lang=` switch (or a
+ *   first-visit host guess) persists.
  * - On an app.* host, a bare path like `/dashboard` is served from `/app/dashboard`
  *   (see `APP_HOSTS` / `rewriteToAppTree`). `/api`, `/login`, and `/auth` are never
  *   rewritten since they don't live under `app/app/`.
@@ -54,14 +71,12 @@ function rewriteToAppTree(request: NextRequest) {
  * session cookies, otherwise a token rotated during `getUser()` is lost.
  */
 export async function middleware(request: NextRequest) {
-  const hasLocaleCookie = request.cookies.has(LOCALE_COOKIE);
-  if (!hasLocaleCookie) {
-    // Set on the request too (not just the response) so the current request's
-    // RSC render picks it up immediately via `i18n/request.ts` — the cookie
-    // header on a downstream response alone would only apply from the next
-    // request onward.
-    request.cookies.set(LOCALE_COOKIE, localeForHost(request.headers.get("host") ?? ""));
-  }
+  const locale = resolveLocale(request);
+  // Set on the request too (not just the response) so the current request's
+  // RSC render picks it up immediately via `i18n/request.ts` — the cookie
+  // header on a downstream response alone would only apply from the next
+  // request onward.
+  request.cookies.set(LOCALE_COOKIE_NAME, locale);
 
   const { supabase, supabaseResponse } = createClient(request);
 
@@ -69,18 +84,15 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!hasLocaleCookie) {
-    supabaseResponse.cookies.set(LOCALE_COOKIE, localeForHost(request.headers.get("host") ?? ""), {
-      path: "/",
-      maxAge: LOCALE_COOKIE_MAX_AGE,
-    });
-  }
-
   const rewrittenUrl = rewriteToAppTree(request);
   const pathname = rewrittenUrl ? rewrittenUrl.pathname : request.nextUrl.pathname;
 
   const withSessionCookies = (response: NextResponse) => {
     supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+    response.cookies.set(LOCALE_COOKIE_NAME, locale, {
+      path: "/",
+      maxAge: LOCALE_COOKIE_MAX_AGE,
+    });
     return response;
   };
 
@@ -106,10 +118,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (rewrittenUrl) {
-    return withSessionCookies(NextResponse.rewrite(rewrittenUrl));
+    return withSessionCookies(NextResponse.rewrite(rewrittenUrl, { request }));
   }
 
-  return supabaseResponse;
+  return withSessionCookies(supabaseResponse);
 }
 
 export const config = {

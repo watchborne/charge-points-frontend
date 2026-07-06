@@ -38,6 +38,11 @@
         }
       },
       "tagline": "Supervision en temps réel des infrastructures de recharge.",
+      "language": {
+        "label": "Langue",
+        "fr": "Français",
+        "en": "English"
+      },
       "warning": {
         "description": "Nous travaillons étroitement avec des early adopters pour construire une plateforme de surveillance simple et fiable pour une infrastructure de recharge de véhicule électrique",
         "title": "Actuellement en alpha",

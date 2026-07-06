@@ -155,7 +155,16 @@ describe("app-host rewrite", () => {
   });
 });
 
-describe("locale-by-host", () => {
+describe("locale resolution", () => {
+  it("SHOULD default the NEXT_LOCALE cookie to fr WHEN there is no lang param or cookie", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(request("/pricing"));
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
+  });
+
   it("SHOULD set NEXT_LOCALE to fr WHEN the host is watch-borne.fr", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
@@ -183,15 +192,48 @@ describe("locale-by-host", () => {
     expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
   });
 
-  it("SHOULD not override an existing NEXT_LOCALE cookie", async () => {
-    setUser({ id: "user-1" });
+  it("SHOULD set the NEXT_LOCALE cookie from the lang query param WHEN it is a supported locale", async () => {
+    setUser(null);
     const { middleware } = await import("../../middleware");
 
-    const req = requestFromHost("watch-borne.com", "/");
+    const res = await middleware(request("/pricing?lang=en"));
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+  });
+
+  it("SHOULD ignore an unsupported lang query param WHEN falling back to the cookie", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const req = request("/pricing?lang=de");
+    req.cookies.set("NEXT_LOCALE", "en");
+
+    const res = await middleware(req);
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+  });
+
+  it("SHOULD keep the existing NEXT_LOCALE cookie WHEN no lang query param is present", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const req = request("/pricing");
+    req.cookies.set("NEXT_LOCALE", "en");
+
+    const res = await middleware(req);
+
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+  });
+
+  it("SHOULD let a lang query param override an existing NEXT_LOCALE cookie", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const req = request("/pricing?lang=en");
     req.cookies.set("NEXT_LOCALE", "fr");
 
     const res = await middleware(req);
 
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBeUndefined();
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
   });
 });

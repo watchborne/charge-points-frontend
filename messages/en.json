@@ -38,6 +38,11 @@
         }
       },
       "tagline": "Real-time supervision for EV charging infrastructure.",
+      "language": {
+        "label": "Language",
+        "fr": "Français",
+        "en": "English"
+      },
       "warning": {
         "description": "We're working closely with early adopters to build a simple and reliable monitoring platform for EV charging infrastructure.",
         "title": "Currently in Alpha",
