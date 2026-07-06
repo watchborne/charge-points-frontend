@@ -3,11 +3,10 @@ import { useTranslations } from "next-intl";
 import { PlugZap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { LoginForm } from "./components/LoginForm";
-import { AuthErrorCallout } from "./components/AuthErrorCallout";
+import { SignupForm } from "./components/SignupForm";
 
-export default function LoginPage() {
-  const t = useTranslations("loginPage");
+export default function SignupPage() {
+  const t = useTranslations("signupPage");
   const tRoot = useTranslations("");
 
   const features = t.raw("branding.features") as string[];
@@ -64,27 +63,24 @@ export default function LoginPage() {
             <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
 
-          <AuthErrorCallout />
-
-          <LoginForm
+          <SignupForm
             labels={{
               email: t("form.email"),
               emailPlaceholder: t("form.emailPlaceholder"),
               submit: t("form.submit"),
-              sentTitle: t("magicLink.sentTitle"),
-              sentDescription: t("magicLink.sentDescription"),
-              error: t("magicLink.error"),
-              unknownUser: t("magicLink.unknownUser"),
+              sentTitle: t("confirmation.sentTitle"),
+              sentDescription: t("confirmation.sentDescription"),
+              error: t("confirmation.error"),
             }}
           />
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {t("noAccount.text")}{" "}
+            {t("hasAccount.text")}{" "}
             <Link
-              href="/signup"
+              href="/login"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              {t("noAccount.link")}
+              {t("hasAccount.link")}
             </Link>
           </p>
         </div>

@@ -204,7 +204,34 @@
     },
     "noAccount": {
       "text": "Don't have access yet?",
-      "link": "Request Alpha Access"
+      "link": "Sign up for the Alpha"
+    },
+    "branding": {
+      "tagline": "Monitor your EV charge points in real time.",
+      "features": [
+        "Real-time OCPP 2.0.1 supervision",
+        "Multi-site dashboard",
+        "Instant offline detection"
+      ]
+    }
+  },
+  "signupPage": {
+    "alphaBadge": "ALPHA",
+    "title": "Join the Alpha.",
+    "subtitle": "Sign up to access your EV charge point monitoring dashboard.",
+    "form": {
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Sign up"
+    },
+    "confirmation": {
+      "sentTitle": "Check your inbox",
+      "sentDescription": "A confirmation email has been sent to the address below. Click the link to activate your Alpha access.",
+      "error": "Couldn't create your account. Please try again."
+    },
+    "hasAccount": {
+      "text": "Already have access?",
+      "link": "Sign in"
     },
     "branding": {
       "tagline": "Monitor your EV charge points in real time.",
