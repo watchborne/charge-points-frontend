@@ -10,7 +10,9 @@ export default function ContactPage() {
   return (
     <main className="container mx-auto px-6 py-24">
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-5xl font-bold">{t("contactPage.hero.title")}</h1>
+        <h1 className="break-words text-3xl font-bold sm:text-4xl md:text-5xl">
+          {t("contactPage.hero.title")}
+        </h1>
 
         <p className="mt-4 text-lg text-muted-foreground">{t("contactPage.hero.subtitle")}</p>
       </div>

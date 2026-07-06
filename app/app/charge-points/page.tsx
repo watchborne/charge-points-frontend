@@ -211,21 +211,24 @@ export default function ChargePointsPage() {
             )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <div className="flex items-center justify-between">
-                <TabsList>
-                  {sites.map((site) => (
-                    <TabsTrigger key={site.id} value={site.id} className="gap-2">
-                      {site.name}
-                      <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                        {getCountForSite(site.id)}
-                      </Badge>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 overflow-x-auto">
+                  <TabsList>
+                    {sites.map((site) => (
+                      <TabsTrigger key={site.id} value={site.id} className="gap-2">
+                        {site.name}
+                        <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                          {getCountForSite(site.id)}
+                        </Badge>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
 
                 <Button
                   size="sm"
                   variant="outline"
+                  className="shrink-0"
                   onClick={() => activeTab && openCreateForSite(activeTab)}
                 >
                   <Plus className="h-3.5 w-3.5 mr-1.5" />
