@@ -56,6 +56,7 @@
         "login": "Login",
         "logout": "Logout",
         "requestAlphaAccess": "Request Alpha Access",
+        "menu": "Menu",
         "dashboard": "Go to dashboard"
       },
       "app": {

@@ -50,12 +50,17 @@ export const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <Link href="/" className="flex items-center gap-3">
-            <Image src={svgLogo} alt="Watchborne logo" width="56" />
-            <h1 className="text-2xl font-bold text-gray-900">{t("appName")}</h1>
+            <Image
+              src={svgLogo}
+              alt="Watchborne logo"
+              width="56"
+              className="h-10 w-10 sm:h-14 sm:w-14"
+            />
+            <h1 className="text-lg font-bold text-gray-900 sm:text-2xl">{t("appName")}</h1>
           </Link>
-          <div className="ml-8 flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <Link
               href="/app/sites"
               className={classNames(
@@ -79,9 +84,9 @@ export const Header = () => {
               {t("layout.navbar.app.links.chargePoints")}
             </Link>
           </div>
-          <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-4 sm:ml-auto">
             <div className="flex items-center gap-2">
-              <p>{t("layout.navbar.app.connectionStatus")}:</p>
+              <p className="hidden sm:block">{t("layout.navbar.app.connectionStatus")}:</p>
               {webSocketConnectionStatus}
             </div>
             <Button
@@ -92,7 +97,7 @@ export const Header = () => {
               className="gap-2 text-gray-600 hover:text-gray-900"
             >
               <LogOut className="h-4 w-4" />
-              {t("layout.navbar.actions.logout")}
+              <span className="hidden sm:inline">{t("layout.navbar.actions.logout")}</span>
             </Button>
           </div>
         </div>

@@ -26,6 +26,7 @@ vi.mock("next/navigation", () => ({
       "layout.navbar.actions.login": "Login",
       "layout.navbar.actions.logout": "Logout",
       "layout.navbar.actions.requestAlphaAccess": "Request Alpha Access",
+      "layout.navbar.actions.menu": "Menu",
     };
     return translations[key] || key;
   },
@@ -40,6 +41,7 @@ vi.mock("next-intl", () => ({
       "layout.navbar.actions.login": "Login",
       "layout.navbar.actions.logout": "Logout",
       "layout.navbar.actions.requestAlphaAccess": "Request Alpha Access",
+      "layout.navbar.actions.menu": "Menu",
     };
     return translations[key] || key;
   },
@@ -111,5 +113,48 @@ describe("Navbar", () => {
     await waitFor(() => expect(signOut).toHaveBeenCalled());
     expect(replace).toHaveBeenCalledWith("/login");
     expect(refresh).toHaveBeenCalled();
+  });
+
+  it("SHOULD reveal the mobile navigation panel WHEN the menu toggle is clicked", async () => {
+    createBrowserClient.mockReturnValueOnce({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+        signOut,
+      },
+    });
+
+    render(<Navbar />);
+
+    expect(screen.queryAllByRole("link", { name: /pricing/i })).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole("button", { name: /menu/i }));
+
+    await waitFor(() => {
+      expect(screen.getAllByRole("link", { name: /pricing/i })).toHaveLength(2);
+    });
+  });
+
+  it("SHOULD close the mobile navigation panel WHEN a nav link is clicked", async () => {
+    createBrowserClient.mockReturnValueOnce({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+        signOut,
+      },
+    });
+
+    render(<Navbar />);
+
+    fireEvent.click(screen.getByRole("button", { name: /menu/i }));
+
+    await waitFor(() => {
+      expect(screen.getAllByRole("link", { name: /pricing/i })).toHaveLength(2);
+    });
+
+    const mobileLinks = screen.getAllByRole("link", { name: /pricing/i });
+    fireEvent.click(mobileLinks[mobileLinks.length - 1]);
+
+    await waitFor(() => {
+      expect(screen.queryAllByRole("link", { name: /pricing/i })).toHaveLength(1);
+    });
   });
 });
