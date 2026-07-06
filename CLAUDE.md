@@ -24,8 +24,10 @@ app/
     hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
   api/                  # Next route handlers that PROXY to the backend
-  login/                # login page
-middleware.ts           # Supabase session refresh + auth guard for /app and /api
+  login/                # login page (magic-link sign-in)
+  auth/callback/        # Supabase magic-link code-exchange handler
+middleware.ts           # Supabase session refresh, app.* subdomain rewrite,
+                        # and auth guard for /app and /api
 components/ui/          # shadcn/ui primitives (generated; edit via components.json)
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
@@ -64,6 +66,26 @@ that owns the connection: reference counting, a disconnect grace period, and
 exponential-backoff auto-reconnect. Components consume it through the
 `useWebSocket(url)` hook — do not construct `new WebSocket` directly in
 components. Prefer `useWebSocketContext` for shared dashboard state.
+
+### Authentication (Supabase magic link)
+
+- Sign-in is passwordless: `/login` calls `supabase.auth.signInWithOtp` to email
+  a magic link; there is no password flow.
+- The link points at `app/auth/callback/route.ts`, which exchanges the auth
+  code for a session (`exchangeCodeForSession`) and redirects into
+  `/app/dashboard`. Do not use the old `verifyOtp`/token-hash approach — the
+  callback contract is code-exchange only.
+- `middleware.ts` runs on every request: it refreshes the Supabase session via
+  `lib/supabase/middleware.ts`, then gates `/app/*` and `/api/*` behind a valid
+  session (redirecting to `/login`, or returning 401 for `/api/*`). It also
+  rewrites `app.*` production hosts into the `/app` route tree — `/app`, `/api`,
+  `/login`, and `/auth` are excluded from that rewrite since they don't live
+  under `app/app/`.
+- `lib/supabase/{client,server,middleware}.ts` are the only places that should
+  construct a Supabase client — use the one matching your context (browser,
+  server component, middleware).
+- Log out via the header's logout button (`app/app/components/layout/Header.tsx`),
+  which calls `supabase.auth.signOut()` then redirects to `/login`.
 
 ### UI
 

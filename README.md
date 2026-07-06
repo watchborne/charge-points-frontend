@@ -18,7 +18,13 @@ Next.js dashboard to fetch real-time data on charge points realm.
    npm install
    ```
 
-3. Run the app:
+3. Copy the example env file and fill in your values (see Configuration below):
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Run the app:
    ```bash
    npm run dev
    ```
@@ -29,7 +35,28 @@ Next.js dashboard to fetch real-time data on charge points realm.
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws
+API_SECRET_KEY=<shared secret, must match the backend's APP_API_KEY>
+NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon key>
 ```
+
+## 🔐 Authentication
+
+The dashboard (`/app/*`) and its API proxy routes (`/api/*`) are gated behind a
+Supabase-backed session (`middleware.ts`); unauthenticated requests are
+redirected to `/login`.
+
+1. Create a Supabase project and grab the URL/anon key from
+   **Project Settings → API**; set them as `NEXT_PUBLIC_SUPABASE_URL` /
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+2. Enable email magic-link sign-in in the Supabase Auth settings.
+3. Add `http://localhost:3001/auth/callback` (and the equivalent production
+   URL) to the project's Auth **Redirect URLs**.
+4. Sign in from `/login` — Supabase emails a magic link that hits
+   `app/auth/callback/route.ts`, which exchanges the code for a session and
+   redirects into `/app/dashboard`. Use the header's logout button to end the
+   session.
 
 ## 🌐 Netlify deploy previews
 
@@ -49,3 +76,17 @@ only when:
   - `NETLIFY_AUTH_TOKEN` — a Netlify personal access token.
   - `NETLIFY_SITE_ID` — the site's API ID (Netlify → Site configuration → General).
   - `NPM_TOKEN` — already used by the other workflows, needed for private packages.
+
+## 🚀 Netlify production deploys
+
+Production deploys are **manual and on-demand**, not triggered by pushes to
+`main`. Run the
+[`deploy-production-netlify`](.github/workflows/deploy-production-netlify.yml)
+workflow via **Actions → Deploy Frontend to Production (manual) → Run workflow**,
+optionally overriding the `ref` to deploy (defaults to `main`).
+
+- In the Netlify UI, **disable automatic production deploys** so `main` pushes
+  don't also trigger a separate deploy outside this workflow.
+- Uses the same `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`, and `NPM_TOKEN`
+  secrets as the preview workflow, scoped to the `production` GitHub
+  environment.
