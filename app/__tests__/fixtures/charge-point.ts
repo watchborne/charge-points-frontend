@@ -8,9 +8,12 @@ export const createChargePoint = (overrides: Partial<ChargePoint> = {}): ChargeP
   siteId: faker.string.uuid(),
   connection: {
     status: faker.helpers.arrayElement(["CONNECTED", "SYNCED", "OFFLINE"]),
-    lastSeen: faker.date.recent(),
+    lastSeenAt: faker.date.recent(),
   },
   status: faker.helpers.arrayElement(["Available", "Charging", "Unavailable", "Faulted"]),
   meta: {},
+  createdAt: faker.date.past(),
+  updatedAt: faker.date.recent(),
+  deletedAt: null,
   ...overrides,
 });

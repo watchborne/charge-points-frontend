@@ -27,8 +27,8 @@ import { Input } from "@/components/ui/input";
 const siteFormSchema = z.object({
   name: z.string(),
   customer: z.string(),
-  installDate: z.date(),
-  lastVisit: z.date(),
+  installedAt: z.date(),
+  lastVisitedAt: z.date(),
 });
 
 export type SiteFormValues = z.infer<typeof siteFormSchema>;
@@ -53,8 +53,8 @@ export const SiteFormDialog = ({
     defaultValues: {
       name: initialValues?.name ?? "",
       customer: initialValues?.customer ?? "",
-      installDate: initialValues?.installDate,
-      lastVisit: initialValues?.lastVisit,
+      installedAt: initialValues?.installedAt,
+      lastVisitedAt: initialValues?.lastVisitedAt,
     },
   });
 
@@ -63,8 +63,8 @@ export const SiteFormDialog = ({
       form.reset({
         name: initialValues?.name ?? "",
         customer: initialValues?.customer ?? "",
-        installDate: initialValues?.installDate,
-        lastVisit: initialValues?.lastVisit,
+        installedAt: initialValues?.installedAt,
+        lastVisitedAt: initialValues?.lastVisitedAt,
       });
     }
   }, [open, initialValues, form]);
@@ -122,7 +122,7 @@ export const SiteFormDialog = ({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="installDate"
+                name="installedAt"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Install date</FormLabel>
@@ -140,7 +140,7 @@ export const SiteFormDialog = ({
 
               <FormField
                 control={form.control}
-                name="lastVisit"
+                name="lastVisitedAt"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last visit</FormLabel>

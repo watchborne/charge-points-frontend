@@ -6,7 +6,10 @@ export const createSite = (overrides: Partial<Site> = {}): Site => ({
   name: `Site ${faker.location.city()}`,
   customer: faker.company.name(),
   customerId: faker.string.uuid(),
-  installDate: faker.date.past(),
-  lastVisit: faker.date.recent(),
+  installedAt: faker.date.past(),
+  lastVisitedAt: faker.date.recent(),
+  createdAt: faker.date.past(),
+  updatedAt: faker.date.recent(),
+  deletedAt: null,
   ...overrides,
 });

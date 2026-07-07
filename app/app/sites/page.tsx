@@ -98,7 +98,11 @@ export default function SitesPage() {
             <SiteFormDialog
               open={!!editTarget}
               onOpenChange={(open) => !open && setEditTarget(null)}
-              initialValues={editTarget ?? undefined}
+              initialValues={
+                editTarget
+                  ? { ...editTarget, lastVisitedAt: editTarget.lastVisitedAt ?? undefined }
+                  : undefined
+              }
               onSubmit={handleEdit}
               mode="edit"
             />
