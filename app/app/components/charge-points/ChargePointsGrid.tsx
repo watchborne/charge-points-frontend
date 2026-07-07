@@ -38,7 +38,7 @@ export const ChargePointsGrid = ({ chargePoints }: { chargePoints: ChargePoint[]
             <Tag>{sitesById.get(siteId)?.name ?? "Unknown site"}</Tag>
           </div>
           {chargePoints.map((chargePoint) => (
-            <ChargePointCard key={chargePoint.uuid} chargePoint={chargePoint} />
+            <ChargePointCard key={chargePoint.id} chargePoint={chargePoint} />
           ))}
         </div>
       ))}

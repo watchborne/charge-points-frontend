@@ -14,14 +14,14 @@ import { StatusBadge } from "../../components/charge-points/StatusBadge";
 
 type ChargePointTableProps = {
   items: ChargePoint[];
-  highlightedUuid?: string;
+  highlightedId?: string;
   onRowClicked: (cp: ChargePoint) => void;
   onToggleActive: (cp: ChargePoint) => void;
 };
 
 export const ChargePointTable = ({
   items,
-  highlightedUuid,
+  highlightedId,
   onRowClicked,
   onToggleActive,
 }: ChargePointTableProps) => {
@@ -41,10 +41,10 @@ export const ChargePointTable = ({
       <TableBody>
         {items.map((cp) => (
           <TableRow
-            key={cp.uuid}
+            key={cp.id}
             className={[
               "cursor-pointer",
-              cp.uuid === highlightedUuid
+              cp.id === highlightedId
                 ? "bg-blue-50 ring-1 ring-inset ring-blue-200"
                 : !cp.isActive
                   ? "opacity-50"

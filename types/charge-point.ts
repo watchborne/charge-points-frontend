@@ -1,6 +1,4 @@
 export type {
-  ChargePointId,
-  SiteId,
   ChargePointConnectionStatus,
   ChargePointStatus,
   ChargePointMeta,

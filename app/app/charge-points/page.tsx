@@ -33,7 +33,7 @@ export default function ChargePointsPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const highlightedUuid = searchParams.get("uuid") ?? undefined;
+  const highlightedId = searchParams.get("id") ?? undefined;
   const didAutoSwitch = useRef(false);
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function ChargePointsPage() {
 
   useEffect(() => {
     if (detailTarget) {
-      const updated = chargePoints.find((cp) => cp.uuid === detailTarget.uuid);
+      const updated = chargePoints.find((cp) => cp.id === detailTarget.id);
       if (updated) setDetailTarget(updated);
     }
   }, [chargePoints, detailTarget]);
@@ -71,21 +71,21 @@ export default function ChargePointsPage() {
   }, [chargePoints, search, loadingChargePoints, errorChargePoints]);
 
   useEffect(() => {
-    if (!loadingSites && !errorSites && sites.length > 0 && !highlightedUuid) {
+    if (!loadingSites && !errorSites && sites.length > 0 && !highlightedId) {
       setActiveTab(sites[0].id);
     }
-  }, [sites, loadingSites, errorSites, highlightedUuid]);
+  }, [sites, loadingSites, errorSites, highlightedId]);
 
   useEffect(() => {
-    if (highlightedUuid && !loadingChargePoints && !loadingSites && !didAutoSwitch.current) {
-      const target = chargePoints.find((cp) => cp.uuid === highlightedUuid);
+    if (highlightedId && !loadingChargePoints && !loadingSites && !didAutoSwitch.current) {
+      const target = chargePoints.find((cp) => cp.id === highlightedId);
       if (target) {
         setActiveTab(target.siteId);
         didAutoSwitch.current = true;
         setDetailTarget(target);
       }
     }
-  }, [highlightedUuid, chargePoints, loadingChargePoints, loadingSites]);
+  }, [highlightedId, chargePoints, loadingChargePoints, loadingSites]);
 
   const groupedChargePoints = sites
     .map((site) => ({
@@ -115,7 +115,7 @@ export default function ChargePointsPage() {
 
   const handleEdit = async (values: ChargePointFormValues) => {
     if (!editTarget) return;
-    await api.ChargePoints.updateChargePoint(editTarget.uuid, {
+    await api.ChargePoints.updateChargePoint(editTarget.id, {
       name: values.name,
       siteId: values.siteId,
       meta: {
@@ -130,7 +130,7 @@ export default function ChargePointsPage() {
   };
 
   const handleToggleActive = async (cp: ChargePoint) => {
-    await api.ChargePoints.updateChargePoint(cp.uuid, {
+    await api.ChargePoints.updateChargePoint(cp.id, {
       isActive: !cp.isActive,
     });
     await refetchChargePoints();
@@ -139,7 +139,7 @@ export default function ChargePointsPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
-    await api.ChargePoints.deleteChargePoint(deleteTarget.uuid);
+    await api.ChargePoints.deleteChargePoint(deleteTarget.id);
     await refetchChargePoints();
 
     setDeleteTarget(null);
@@ -158,10 +158,10 @@ export default function ChargePointsPage() {
     setDetailTarget(cp);
     const params = new URLSearchParams(searchParams.toString());
     if (cp) {
-      params.set("uuid", cp.uuid);
-      router.push(`/charge-points?uuid=${cp.uuid}`);
+      params.set("id", cp.id);
+      router.push(`/charge-points?id=${cp.id}`);
     } else {
-      params.delete("uuid");
+      params.delete("id");
       router.push(`/charge-points`);
     }
   };
@@ -245,7 +245,7 @@ export default function ChargePointsPage() {
                     </div>
                     <ChargePointTable
                       items={filteredChargePoints.filter((cp) => cp.siteId === site.id)}
-                      highlightedUuid={highlightedUuid}
+                      highlightedId={highlightedId}
                       onRowClicked={updateDetailTarget}
                       onToggleActive={handleToggleActive}
                     />
@@ -263,7 +263,7 @@ export default function ChargePointsPage() {
                 </div>
                 <ChargePointTable
                   items={ungroupedChargePoints}
-                  highlightedUuid={highlightedUuid}
+                  highlightedId={highlightedId}
                   onRowClicked={(cp) => setDetailTarget(cp)}
                   onToggleActive={handleToggleActive}
                 />

@@ -40,7 +40,7 @@ export function useChargePoints(): UseChargePointsReturn {
     const incoming = lastMessage.payload?.chargePoint as ChargePoint | undefined;
     if (!incoming) return;
     setChargePoints((prev) => {
-      const idx = prev.findIndex((cp) => cp.uuid === incoming.uuid);
+      const idx = prev.findIndex((cp) => cp.id === incoming.id);
       if (idx === -1) return [...prev, incoming];
       const next = [...prev];
       next[idx] = incoming;

@@ -33,7 +33,7 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
     });
   return (
     <Link
-      href={`/charge-points?uuid=${chargePoint.uuid}`}
+      href={`/app/charge-points?id=${chargePoint.id}`}
       className={classNames(
         "block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer",
         !chargePoint.isActive && "opacity-50 grayscale",
