@@ -35,7 +35,7 @@ const mockUseWebSocketContext = vi.mocked(useWebSocketContext);
 
 const mockChargePoints = [
   createChargePoint({
-    uuid: "cp-1",
+    id: "cp-1",
     name: "Borne A",
     isActive: true,
     siteId: "site-1",
@@ -43,7 +43,7 @@ const mockChargePoints = [
     status: "Available",
   }),
   createChargePoint({
-    uuid: "cp-2",
+    id: "cp-2",
     name: "Borne B",
     isActive: false,
     siteId: "site-1",
@@ -129,7 +129,7 @@ describe("useChargePoints", () => {
 
     const newChargePoints = [
       createChargePoint({
-        uuid: "cp-3",
+        id: "cp-3",
         name: "Borne C",
         isActive: true,
         siteId: "site-2",
@@ -159,7 +159,7 @@ describe("useChargePoints", () => {
     const initialCallCount = mockGetChargePoints.mock.calls.length;
 
     const updatedChargePoint = {
-      uuid: "cp-1",
+      id: "cp-1",
       name: "Borne A Updated",
       isActive: true,
       siteId: "site-1",

@@ -16,7 +16,7 @@ export const chargePointApis = {
     }
   },
   getChargePoint: async function (
-    ChargePointId: ChargePoint["uuid"],
+    ChargePointId: ChargePoint["id"],
   ): Promise<ChargePoint | undefined> {
     try {
       return await httpClient.get<ChargePoint | undefined>(`/api/charge-points/${ChargePointId}`);
@@ -34,7 +34,7 @@ export const chargePointApis = {
     }
   },
   updateChargePoint: async function (
-    chargePointId: ChargePoint["uuid"],
+    chargePointId: ChargePoint["id"],
     patchBody: PatchChargePointBody,
   ): Promise<ChargePoint> {
     try {
@@ -44,7 +44,7 @@ export const chargePointApis = {
       throw error;
     }
   },
-  deleteChargePoint: async function (chargePointId: ChargePoint["uuid"]): Promise<void> {
+  deleteChargePoint: async function (chargePointId: ChargePoint["id"]): Promise<void> {
     try {
       await httpClient.delete(`/api/charge-points/${chargePointId}`);
     } catch (error) {
