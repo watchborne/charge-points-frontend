@@ -51,7 +51,7 @@ export const Header = () => {
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/app/" className="flex items-center gap-3">
             <Image
               src={svgLogo}
               alt="Watchborne logo"
