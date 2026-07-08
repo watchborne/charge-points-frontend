@@ -1,0 +1,49 @@
+name: Update Types Dependency
+
+on:
+  repository_dispatch:
+    types: [types-released]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          registry-url: https://npm.pkg.github.com
+          scope: "@watchborne"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update @watchborne/charge-points-types
+        run: |
+          npm install "@watchborne/charge-points-types@${{ github.event.client_payload.version }}"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(deps): bump @watchborne/charge-points-types to ${{ github.event.client_payload.version }}"
+          title: "chore(deps): bump @watchborne/charge-points-types to ${{ github.event.client_payload.version }}"
+          body: |
+            Automated dependency bump from types package release.
+
+            **Release:** [`${{ github.event.client_payload.version }}`](https://github.com/watchborne/charge-points-types/releases/tag/${{ github.event.client_payload.version }})
+
+            **Changes:**
+            - Updates `@watchborne/charge-points-types` to `${{ github.event.client_payload.version }}`
+
+            Please review the [types release notes](https://github.com/watchborne/charge-points-types/releases/tag/${{ github.event.client_payload.version }}) for any breaking changes.
+          branch: chore/bump-types-${{ github.event.client_payload.version }}
+          delete-branch: true
