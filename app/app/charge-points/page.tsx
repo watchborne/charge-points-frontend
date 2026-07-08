@@ -62,8 +62,8 @@ export default function ChargePointsPage() {
         chargePoints.filter(
           (cp) =>
             cp.name.toLowerCase().includes(search.toLowerCase()) ||
-            cp.meta?.chargePointVendor?.toLowerCase().includes(search.toLowerCase()) ||
-            cp.meta?.chargePointModel?.toLowerCase().includes(search.toLowerCase()) ||
+            cp.meta?.vendor?.toLowerCase().includes(search.toLowerCase()) ||
+            cp.meta?.model?.toLowerCase().includes(search.toLowerCase()) ||
             cp.meta?.serialNumber?.toLowerCase().includes(search.toLowerCase()),
         ),
       );
@@ -104,8 +104,8 @@ export default function ChargePointsPage() {
       siteId: values.siteId,
       isActive: values.isActive,
       meta: {
-        chargePointVendor: values.meta?.chargePointVendor ?? "",
-        chargePointModel: values.meta?.chargePointModel ?? "",
+        vendor: values.meta?.vendor ?? "",
+        model: values.meta?.model ?? "",
         serialNumber: values.meta?.serialNumber ?? "",
         firmwareVersion: values.meta?.firmwareVersion ?? "",
       },
@@ -119,8 +119,8 @@ export default function ChargePointsPage() {
       name: values.name,
       siteId: values.siteId,
       meta: {
-        chargePointVendor: values.meta?.chargePointVendor ?? "",
-        chargePointModel: values.meta?.chargePointModel ?? "",
+        vendor: values.meta?.vendor ?? "",
+        model: values.meta?.model ?? "",
         serialNumber: values.meta?.serialNumber ?? "",
         firmwareVersion: values.meta?.firmwareVersion ?? "",
       },
@@ -287,8 +287,8 @@ export default function ChargePointsPage() {
                       name: editTarget.name,
                       siteId: editTarget.siteId,
                       meta: {
-                        chargePointVendor: editTarget.meta?.chargePointVendor ?? "",
-                        chargePointModel: editTarget.meta?.chargePointModel ?? "",
+                        vendor: editTarget.meta?.vendor ?? "",
+                        model: editTarget.meta?.model ?? "",
                         serialNumber: editTarget.meta?.serialNumber ?? "",
                         firmwareVersion: editTarget.meta?.firmwareVersion ?? "",
                       },

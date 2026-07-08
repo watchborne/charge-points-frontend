@@ -46,8 +46,8 @@ const chargePointSchema = z.object({
   isActive: z.boolean(),
   meta: z
     .object({
-      chargePointVendor: z.string().optional(),
-      chargePointModel: z.string().optional(),
+      vendor: z.string().optional(),
+      model: z.string().optional(),
       serialNumber: z.string().optional(),
       firmwareVersion: z.string().optional(),
     })
@@ -74,8 +74,8 @@ export const ChargePointFormDialog = ({
       siteId: defaultSiteId ?? "",
       isActive: true,
       meta: {
-        chargePointVendor: "",
-        chargePointModel: "",
+        vendor: "",
+        model: "",
         serialNumber: "",
         firmwareVersion: "",
       },
@@ -89,8 +89,8 @@ export const ChargePointFormDialog = ({
         siteId: initialValues?.siteId ?? defaultSiteId ?? "",
         isActive: initialValues?.isActive ?? true,
         meta: {
-          chargePointVendor: initialValues?.meta?.chargePointVendor ?? "",
-          chargePointModel: initialValues?.meta?.chargePointModel ?? "",
+          vendor: initialValues?.meta?.vendor ?? "",
+          model: initialValues?.meta?.model ?? "",
           serialNumber: initialValues?.meta?.serialNumber ?? "",
           firmwareVersion: initialValues?.meta?.firmwareVersion ?? "",
         },
@@ -175,7 +175,7 @@ export const ChargePointFormDialog = ({
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
-                    name="meta.chargePointVendor"
+                    name="meta.vendor"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Vendor</FormLabel>
@@ -188,7 +188,7 @@ export const ChargePointFormDialog = ({
                   />
                   <FormField
                     control={form.control}
-                    name="meta.chargePointModel"
+                    name="meta.model"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Model</FormLabel>

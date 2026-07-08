@@ -39,7 +39,7 @@ const mockChargePoints = [
     name: "Borne A",
     isActive: true,
     siteId: "site-1",
-    connection: { status: "CONNECTED", lastSeen: new Date() },
+    connection: { status: "CONNECTED", lastSeenAt: new Date() },
     status: "Available",
   }),
   createChargePoint({
@@ -47,7 +47,7 @@ const mockChargePoints = [
     name: "Borne B",
     isActive: false,
     siteId: "site-1",
-    connection: { status: "OFFLINE", lastSeen: null },
+    connection: { status: "OFFLINE", lastSeenAt: null },
     status: null,
   }),
 ];
@@ -133,7 +133,7 @@ describe("useChargePoints", () => {
         name: "Borne C",
         isActive: true,
         siteId: "site-2",
-        connection: { status: "SYNCED", lastSeen: new Date() },
+        connection: { status: "SYNCED", lastSeenAt: new Date() },
         status: "Available",
       }),
     ];

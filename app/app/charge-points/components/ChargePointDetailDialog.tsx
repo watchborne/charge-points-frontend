@@ -49,8 +49,8 @@ export const ChargePointDetailDialog = ({
   if (!chargePoint) return null;
 
   const lastSeenText =
-    chargePoint.connection.lastSeen &&
-    formatDistanceToNow(new Date(chargePoint.connection.lastSeen), {
+    chargePoint.connection.lastSeenAt &&
+    formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
       addSuffix: true,
       locale: enGB,
     });
@@ -100,9 +100,9 @@ export const ChargePointDetailDialog = ({
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                 {lastSeenText ?? "Never"}
               </span>
-              {chargePoint.connection.lastSeen && (
+              {chargePoint.connection.lastSeenAt && (
                 <span className="text-[10px] text-muted-foreground">
-                  {format(new Date(chargePoint.connection.lastSeen), "dd/MM/yyyy HH:mm:ss")}
+                  {format(new Date(chargePoint.connection.lastSeenAt), "dd/MM/yyyy HH:mm:ss")}
                 </span>
               )}
             </span>
@@ -118,16 +118,16 @@ export const ChargePointDetailDialog = ({
           {/* Meta section */}
           {chargePoint.meta && (
             <div className="border rounded-md divide-y">
-              {chargePoint.meta.chargePointVendor && (
+              {chargePoint.meta.vendor && (
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">Vendor</span>
-                  <span className="text-sm font-medium">{chargePoint.meta.chargePointVendor}</span>
+                  <span className="text-sm font-medium">{chargePoint.meta.vendor}</span>
                 </div>
               )}
-              {chargePoint.meta.chargePointModel && (
+              {chargePoint.meta.model && (
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">Model</span>
-                  <span className="text-sm font-medium">{chargePoint.meta.chargePointModel}</span>
+                  <span className="text-sm font-medium">{chargePoint.meta.model}</span>
                 </div>
               )}
               {chargePoint.meta.serialNumber && (

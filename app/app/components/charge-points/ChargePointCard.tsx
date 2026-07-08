@@ -26,8 +26,8 @@ interface ChargePointCardProps {
 
 export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
   const lastSeenText =
-    chargePoint.connection.lastSeen &&
-    formatDistanceToNow(new Date(chargePoint.connection.lastSeen), {
+    chargePoint.connection.lastSeenAt &&
+    formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
       addSuffix: true,
       locale: enGB,
     });
@@ -57,9 +57,9 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
           {[
             {
               label: "Model",
-              data: chargePoint.meta.chargePointVendor && chargePoint.meta.chargePointModel && (
+              data: chargePoint.meta.vendor && chargePoint.meta.model && (
                 <p className="text-gray-500 font-medium">
-                  {`${chargePoint.meta.chargePointVendor} ${chargePoint.meta.chargePointModel}`}
+                  {`${chargePoint.meta.vendor} ${chargePoint.meta.model}`}
                 </p>
               ),
             },
