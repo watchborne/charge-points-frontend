@@ -1,4 +1,4 @@
-import { Site } from "@watchborne/charge-points-types";
+import { Site, SiteWithChargePoints } from "@watchborne/charge-points-types";
 
 import { httpClient } from "./http-client";
 
@@ -11,17 +11,17 @@ type PatchSiteBody = {
 } & Partial<CreateSiteBody>;
 
 export const siteApis = {
-  getSites: async function (): Promise<Site[]> {
+  getSites: async function (): Promise<SiteWithChargePoints[]> {
     try {
-      return await httpClient.get<Site[]>("/api/sites");
+      return await httpClient.get<SiteWithChargePoints[]>("/api/sites");
     } catch (error) {
       console.error(`Failed to fetch sites`, error);
       throw error;
     }
   },
-  getSite: async function (siteId: Site["id"]): Promise<Site | undefined> {
+  getSite: async function (siteId: Site["id"]): Promise<SiteWithChargePoints | undefined> {
     try {
-      return await httpClient.get<Site | undefined>(`/api/sites/${siteId}`);
+      return await httpClient.get<SiteWithChargePoints | undefined>(`/api/sites/${siteId}`);
     } catch (error) {
       console.error(`Failed to fetch site ${siteId}`, error);
       throw error;
