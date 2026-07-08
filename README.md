@@ -57,6 +57,9 @@ redirected to `/login`.
    `app/auth/callback/route.ts`, which exchanges the code for a session and
    redirects into `/app/dashboard`. Use the header's logout button to end the
    session.
+5. New users can request access from `/signup` (alpha signup page); like
+   `/login`, an already-authenticated visitor is redirected straight to
+   `/app/dashboard`.
 
 ## 🌐 Netlify deploy previews
 

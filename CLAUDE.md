@@ -25,9 +25,11 @@ app/
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
   api/                  # Next route handlers that PROXY to the backend
   login/                # login page (magic-link sign-in)
+  signup/               # alpha signup page
   auth/callback/        # Supabase magic-link code-exchange handler
-middleware.ts           # Supabase session refresh, locale-by-host cookie,
-                        # app.* subdomain rewrite, and auth guard for /app and /api
+middleware.ts           # Supabase session refresh, locale resolution
+                        # (?lang= > cookie > host), app.* subdomain rewrite,
+                        # and auth guard for /app, /api, /login, /signup
 components/ui/          # shadcn/ui primitives (generated; edit via components.json)
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
@@ -80,13 +82,15 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   `lib/supabase/middleware.ts`, then gates `/app/*` and `/api/*` behind a valid
   session (redirecting to `/login`, or returning 401 for `/api/*`). It also
   rewrites `app.*` production hosts into the `/app` route tree — `/app`, `/api`,
-  `/login`, and `/auth` are excluded from that rewrite since they don't live
-  under `app/app/`.
+  `/login`, `/signup`, and `/auth` are excluded from that rewrite since they
+  don't live under `app/app/`.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
   server component, middleware).
 - Log out via the header's logout button (`app/app/components/layout/Header.tsx`),
   which calls `supabase.auth.signOut()` then redirects to `/login`.
+- `app/signup/` is a public alpha-signup page alongside `/login`; like `/login`,
+  an already-authenticated visitor is redirected to `/app/dashboard`.
 
 ### UI
 
@@ -98,11 +102,13 @@ the tokens in `app/design-system/tokens.css`.
 ### i18n
 
 All user-facing strings go through `next-intl`. Default locale is **`fr`**;
-supported locales are `fr` and `en`, selected via the `NEXT_LOCALE` cookie
-(`i18n/request.ts`). If a request has no `NEXT_LOCALE` cookie yet, `middleware.ts`
-sets one from the host's TLD (`localeForHost`: `.fr` -> fr, `.com` -> en, else the
-default) so `watch-borne.fr` and `watch-borne.com` load the right language on a
-visitor's first request; an existing cookie is never overridden. Add keys to
+supported locales are `fr` and `en`. `middleware.ts`'s `resolveLocale` picks the
+active locale with this precedence: an explicit `?lang=` query param (the
+footer's `LocaleSwitcher` component and shared links use this to force a
+locale) > the persisted `NEXT_LOCALE` cookie > the host's TLD on a first-time
+visit (`localeForHost`: `.fr` -> fr, `.com` -> en, else the default), so
+`watch-borne.fr` and `watch-borne.com` load the right language by default. The
+resolved locale is written back to the cookie on every request. Add keys to
 **both** `messages/fr.json` and `messages/en.json`.
 
 ## Commands
