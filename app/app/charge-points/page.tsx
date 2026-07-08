@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
@@ -38,12 +38,12 @@ export default function ChargePointsPage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createDefaultSiteId, setCreateDefaultSiteId] = useState<string | undefined>();
-  const [detailTarget, setDetailTarget] = useState<ChargePoint | null>(null);
-  const [editTarget, setEditTarget] = useState<ChargePoint | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<ChargePoint | null>(null);
+  const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
+  const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
   const [activeTab, setActiveTab] = useState<string>();
 
-  const [filteredChargePoints, setFilteredChargePoints] = useState<ChargePoint[]>([]);
+  const [filteredChargePoints, setFilteredChargePoints] = useState<ChargePointWithConnectors[]>([]);
 
   useEffect(() => {
     if (detailTarget) {
@@ -129,7 +129,7 @@ export default function ChargePointsPage() {
     setEditTarget(null);
   };
 
-  const handleToggleActive = async (cp: ChargePoint) => {
+  const handleToggleActive = async (cp: ChargePointWithConnectors) => {
     await api.ChargePoints.updateChargePoint(cp.id, {
       isActive: !cp.isActive,
     });
@@ -154,7 +154,7 @@ export default function ChargePointsPage() {
     return filteredChargePoints.filter((cp) => cp.siteId === id).length;
   };
 
-  const updateDetailTarget = (cp: ChargePoint | null) => {
+  const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
     setDetailTarget(cp);
     const params = new URLSearchParams(searchParams.toString());
     if (cp) {

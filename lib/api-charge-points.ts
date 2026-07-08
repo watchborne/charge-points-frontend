@@ -1,4 +1,8 @@
-import type { ChargePoint, ChargePointWithSite } from "@watchborne/charge-points-types";
+import type {
+  ChargePoint,
+  ChargePointWithConnectors,
+  ChargePointWithSite,
+} from "@watchborne/charge-points-types";
 
 import { httpClient } from "./http-client";
 
@@ -7,9 +11,9 @@ type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isA
 type PatchChargePointBody = Partial<CreateChargePointBody>;
 
 export const chargePointApis = {
-  getChargePoints: async function (): Promise<ChargePoint[]> {
+  getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
     try {
-      return await httpClient.get<ChargePoint[]>("/api/charge-points");
+      return await httpClient.get<ChargePointWithConnectors[]>("/api/charge-points");
     } catch (error) {
       console.error("Failed to fetch charge points", error);
       throw error;
@@ -27,9 +31,11 @@ export const chargePointApis = {
       throw error;
     }
   },
-  createChargePoint: async function (body: CreateChargePointBody): Promise<ChargePoint> {
+  createChargePoint: async function (
+    body: CreateChargePointBody,
+  ): Promise<ChargePointWithConnectors> {
     try {
-      return await httpClient.post<ChargePoint>("/api/charge-points", body);
+      return await httpClient.post<ChargePointWithConnectors>("/api/charge-points", body);
     } catch (error) {
       console.error("Failed to create charge point", error, body);
       throw error;
@@ -38,9 +44,12 @@ export const chargePointApis = {
   updateChargePoint: async function (
     chargePointId: ChargePoint["id"],
     patchBody: PatchChargePointBody,
-  ): Promise<ChargePoint> {
+  ): Promise<ChargePointWithConnectors> {
     try {
-      return await httpClient.patch<ChargePoint>(`/api/charge-points/${chargePointId}`, patchBody);
+      return await httpClient.patch<ChargePointWithConnectors>(
+        `/api/charge-points/${chargePointId}`,
+        patchBody,
+      );
     } catch (error) {
       console.error(`Failed to update charge point ${chargePointId}`, error, patchBody);
       throw error;

@@ -1,19 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
 
 import { api } from "@/lib/api";
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { useWebSocketContext } from "./useWebSocketContext";
 
 export interface UseChargePointsReturn {
-  chargePoints: ChargePoint[];
+  chargePoints: ChargePointWithConnectors[];
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
 
 export function useChargePoints(): UseChargePointsReturn {
-  const [chargePoints, setChargePoints] = useState<ChargePoint[]>([]);
+  const [chargePoints, setChargePoints] = useState<ChargePointWithConnectors[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +37,7 @@ export function useChargePoints(): UseChargePointsReturn {
 
   useEffect(() => {
     if (lastMessage?.type !== "CHARGE_POINT_MONITORING") return;
-    const incoming = lastMessage.payload?.chargePoint as ChargePoint | undefined;
+    const incoming = lastMessage.payload?.chargePoint as ChargePointWithConnectors | undefined;
     if (!incoming) return;
     setChargePoints((prev) => {
       const idx = prev.findIndex((cp) => cp.id === incoming.id);

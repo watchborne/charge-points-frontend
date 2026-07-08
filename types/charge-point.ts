@@ -1,6 +1,8 @@
 export type {
   ChargePointConnectionStatus,
-  ChargePointStatus,
   ChargePointMeta,
   ChargePoint,
+  ChargePointWithConnectors,
+  Connector,
+  ConnectorStatus,
 } from "@watchborne/charge-points-types";

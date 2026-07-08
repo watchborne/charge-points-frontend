@@ -1,12 +1,16 @@
 import classNames from "classnames";
 
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointCard } from "./ChargePointCard";
 import { useSites } from "../../hooks/useSites";
 import { Tag } from "../common/Tag";
 
-export const ChargePointsGrid = ({ chargePoints }: { chargePoints: ChargePoint[] }) => {
+export const ChargePointsGrid = ({
+  chargePoints,
+}: {
+  chargePoints: ChargePointWithConnectors[];
+}) => {
   const { sites } = useSites();
   const sitesById = new Map(sites.map((site) => [site.id, site]));
 
@@ -20,7 +24,7 @@ export const ChargePointsGrid = ({ chargePoints }: { chargePoints: ChargePoint[]
       acc[siteId].sort((a, b) => a.name.localeCompare(b.name));
       return acc;
     },
-    {} as Record<string, ChargePoint[]>,
+    {} as Record<string, ChargePointWithConnectors[]>,
   );
 
   return (
