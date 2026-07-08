@@ -1,4 +1,4 @@
-import type { ChargePoint } from "@watchborne/charge-points-types";
+import type { ChargePoint, ChargePointWithSite } from "@watchborne/charge-points-types";
 
 import { httpClient } from "./http-client";
 
@@ -17,9 +17,11 @@ export const chargePointApis = {
   },
   getChargePoint: async function (
     ChargePointId: ChargePoint["id"],
-  ): Promise<ChargePoint | undefined> {
+  ): Promise<ChargePointWithSite | undefined> {
     try {
-      return await httpClient.get<ChargePoint | undefined>(`/api/charge-points/${ChargePointId}`);
+      return await httpClient.get<ChargePointWithSite | undefined>(
+        `/api/charge-points/${ChargePointId}`,
+      );
     } catch (error) {
       console.error(`Failed to fetch charge point ${ChargePointId}`, error);
       throw error;
