@@ -1,7 +1,9 @@
 import { faker } from "@faker-js/faker";
-import type { ChargePoint } from "@watchborne/charge-points-types";
+import type { ChargePointWithConnectors } from "@watchborne/charge-points-types";
 
-export const createChargePoint = (overrides: Partial<ChargePoint> = {}): ChargePoint => ({
+export const createChargePoint = (
+  overrides: Partial<ChargePointWithConnectors> = {},
+): ChargePointWithConnectors => ({
   id: faker.string.uuid(),
   name: `Borne ${faker.location.city()}`,
   isActive: faker.datatype.boolean(),
@@ -10,7 +12,8 @@ export const createChargePoint = (overrides: Partial<ChargePoint> = {}): ChargeP
     status: faker.helpers.arrayElement(["CONNECTED", "SYNCED", "OFFLINE"]),
     lastSeenAt: faker.date.recent(),
   },
-  status: faker.helpers.arrayElement(["Available", "Charging", "Unavailable", "Faulted"]),
+  ocppVersion: "1.6",
+  connectors: [],
   meta: {},
   createdAt: faker.date.past(),
   updatedAt: faker.date.recent(),

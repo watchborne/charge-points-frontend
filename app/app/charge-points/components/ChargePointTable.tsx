@@ -8,15 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 
 type ChargePointTableProps = {
-  items: ChargePoint[];
+  items: ChargePointWithConnectors[];
   highlightedId?: string;
-  onRowClicked: (cp: ChargePoint) => void;
-  onToggleActive: (cp: ChargePoint) => void;
+  onRowClicked: (cp: ChargePointWithConnectors) => void;
+  onToggleActive: (cp: ChargePointWithConnectors) => void;
 };
 
 export const ChargePointTable = ({

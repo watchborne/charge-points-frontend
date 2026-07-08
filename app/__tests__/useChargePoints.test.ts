@@ -40,7 +40,6 @@ const mockChargePoints = [
     isActive: true,
     siteId: "site-1",
     connection: { status: "CONNECTED", lastSeenAt: new Date() },
-    status: "Available",
   }),
   createChargePoint({
     id: "cp-2",
@@ -48,7 +47,6 @@ const mockChargePoints = [
     isActive: false,
     siteId: "site-1",
     connection: { status: "OFFLINE", lastSeenAt: null },
-    status: null,
   }),
 ];
 
@@ -134,7 +132,6 @@ describe("useChargePoints", () => {
         isActive: true,
         siteId: "site-2",
         connection: { status: "SYNCED", lastSeenAt: new Date() },
-        status: "Available",
       }),
     ];
     mockGetChargePoints.mockResolvedValue(newChargePoints);
