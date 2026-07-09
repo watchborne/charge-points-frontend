@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 import { api } from "@/lib/api";
 import { ChargePointWithConnectors } from "@/types/charge-point";
@@ -17,7 +17,8 @@ export function useChargePoints(): UseChargePointsReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { lastMessage } = useWebSocketContext();
+  const { lastMessage, status } = useWebSocketContext();
+  const hasConnectedRef = useRef(false);
 
   const loadChargePoints = useCallback(async () => {
     try {
@@ -51,6 +52,17 @@ export function useChargePoints(): UseChargePointsReturn {
   useEffect(() => {
     loadChargePoints();
   }, [loadChargePoints]);
+
+  // Le WebSocket ne rejoue pas les événements manqués pendant une coupure : on
+  // resynchronise via un refetch REST à chaque reconnexion (mais pas à la
+  // toute première connexion, déjà couverte par le fetch initial ci-dessus).
+  useEffect(() => {
+    if (status !== "CONNECTED") return;
+    if (hasConnectedRef.current) {
+      loadChargePoints();
+    }
+    hasConnectedRef.current = true;
+  }, [status, loadChargePoints]);
 
   return {
     chargePoints,
