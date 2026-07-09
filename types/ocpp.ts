@@ -1,1 +1,1 @@
-export type { OcppAction, OcppNotification } from "@watchborne/charge-points-types";
+export type { OcppAction } from "@watchborne/charge-points-types";

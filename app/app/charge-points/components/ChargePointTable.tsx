@@ -8,15 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 
 type ChargePointTableProps = {
-  items: ChargePoint[];
+  items: ChargePointWithConnectors[];
   highlightedId?: string;
-  onRowClicked: (cp: ChargePoint) => void;
-  onToggleActive: (cp: ChargePoint) => void;
+  onRowClicked: (cp: ChargePointWithConnectors) => void;
+  onToggleActive: (cp: ChargePointWithConnectors) => void;
 };
 
 export const ChargePointTable = ({
@@ -57,10 +57,10 @@ export const ChargePointTable = ({
             </TableCell>
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.chargePointVendor || <span className="text-slate-300">—</span>}
+              {cp.meta?.vendor || <span className="text-slate-300">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.chargePointModel || <span className="text-slate-300">—</span>}
+              {cp.meta?.model || <span className="text-slate-300">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm font-mono text-xs">
               {cp.meta?.serialNumber || <span className="text-slate-300">—</span>}

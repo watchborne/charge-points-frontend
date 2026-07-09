@@ -50,10 +50,12 @@ export const SiteTable = ({ sites, onEditClicked, onDeleteClicked }: SiteTablePr
                 <TableCell className="font-medium">{site.name}</TableCell>
                 <TableCell className="font-medium">{site.customer}</TableCell>
                 <TableCell className="text-muted-foreground text-sm">
-                  {new Date(site.installDate).toLocaleDateString("fr-FR")}
+                  {new Date(site.installedAt).toLocaleDateString("fr-FR")}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
-                  {new Date(site.lastVisit).toLocaleDateString("fr-FR")}
+                  {site.lastVisitedAt
+                    ? new Date(site.lastVisitedAt).toLocaleDateString("fr-FR")
+                    : "—"}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>

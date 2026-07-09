@@ -25,18 +25,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { Callout } from "../../components/common/Callout";
 import { Tag } from "../../components/common/Tag";
 
 type ChargePointDetailDialogProps = {
-  chargePoint: ChargePoint | null;
+  chargePoint: ChargePointWithConnectors | null;
   site: Site | undefined;
   onOpenChange: (open: boolean) => void;
-  onEditClicked: (cp: ChargePoint) => void;
-  onDeleteClicked: (cp: ChargePoint) => void;
+  onEditClicked: (cp: ChargePointWithConnectors) => void;
+  onDeleteClicked: (cp: ChargePointWithConnectors) => void;
 };
 
 export const ChargePointDetailDialog = ({
@@ -49,8 +49,8 @@ export const ChargePointDetailDialog = ({
   if (!chargePoint) return null;
 
   const lastSeenText =
-    chargePoint.connection.lastSeen &&
-    formatDistanceToNow(new Date(chargePoint.connection.lastSeen), {
+    chargePoint.connection.lastSeenAt &&
+    formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
       addSuffix: true,
       locale: enGB,
     });
@@ -83,13 +83,19 @@ export const ChargePointDetailDialog = ({
             <Callout error={chargePoint.connection.statusMessage} variant="warning" />
           )}
 
-          {chargePoint.status && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Charge status</span>
-              <div className="flex items-center gap-1.5">
-                {getChargePointStatusIcon(chargePoint.status)}
-                <span className="text-sm font-medium">{chargePoint.status}</span>
-              </div>
+          {chargePoint.connectors.length > 0 && (
+            <div className="border rounded-md divide-y">
+              {chargePoint.connectors.map((connector) => (
+                <div key={connector.id} className="flex items-center justify-between px-3 py-2">
+                  <span className="text-sm text-muted-foreground">
+                    Connector #{connector.connectorId}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {getConnectorStatusIcon(connector.status)}
+                    <span className="text-sm font-medium">{connector.status}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -100,9 +106,9 @@ export const ChargePointDetailDialog = ({
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                 {lastSeenText ?? "Never"}
               </span>
-              {chargePoint.connection.lastSeen && (
+              {chargePoint.connection.lastSeenAt && (
                 <span className="text-[10px] text-muted-foreground">
-                  {format(new Date(chargePoint.connection.lastSeen), "dd/MM/yyyy HH:mm:ss")}
+                  {format(new Date(chargePoint.connection.lastSeenAt), "dd/MM/yyyy HH:mm:ss")}
                 </span>
               )}
             </span>
@@ -118,16 +124,16 @@ export const ChargePointDetailDialog = ({
           {/* Meta section */}
           {chargePoint.meta && (
             <div className="border rounded-md divide-y">
-              {chargePoint.meta.chargePointVendor && (
+              {chargePoint.meta.vendor && (
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">Vendor</span>
-                  <span className="text-sm font-medium">{chargePoint.meta.chargePointVendor}</span>
+                  <span className="text-sm font-medium">{chargePoint.meta.vendor}</span>
                 </div>
               )}
-              {chargePoint.meta.chargePointModel && (
+              {chargePoint.meta.model && (
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">Model</span>
-                  <span className="text-sm font-medium">{chargePoint.meta.chargePointModel}</span>
+                  <span className="text-sm font-medium">{chargePoint.meta.model}</span>
                 </div>
               )}
               {chargePoint.meta.serialNumber && (
@@ -176,13 +182,14 @@ export const ChargePointDetailDialog = ({
   );
 };
 
-const getChargePointStatusIcon = (status: ChargePoint["status"]) => {
+const getConnectorStatusIcon = (status: ConnectorStatus) => {
   switch (status) {
     case "Available":
       return <CheckCircle size="16px" className="text-green-600" />;
     case "Preparing":
       return <CircleEllipsis size="16px" className="text-yellow-600" />;
     case "Charging":
+    case "Occupied":
       return <PlugZap size="16px" className="text-blue-600" />;
     case "SuspendedEV":
     case "SuspendedEVSE":

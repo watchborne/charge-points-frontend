@@ -1,11 +1,15 @@
 import { Battery, CheckCircle, Cloud, PlugZap, RefreshCw, X } from "lucide-react";
 import { ReactNode } from "react";
 
-import { ChargePoint, ChargePointStatus } from "@/types/charge-point";
+import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
 
 import { StatCard } from "../common/StatCard";
 
-export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[] }) => {
+export const ChargePointStats = ({
+  chargePoints,
+}: {
+  chargePoints: ChargePointWithConnectors[];
+}) => {
   const connectedDevices = chargePoints.filter(({ connection }) =>
     ["SYNCED", "CONNECTED"].includes(connection.status),
   );
@@ -13,7 +17,7 @@ export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[]
     ["OFFLINE"].includes(connection.status),
   );
   const notStableDevices = chargePoints.filter(
-    (cp) => cp.connection.status === "WARNING" || cp.status === "Faulted",
+    (cp) => cp.connection.status === "WARNING" || cp.connectors.some((c) => c.status === "Faulted"),
   );
   const syncedDevices = chargePoints.filter((cp) => cp.connection.status === "SYNCED");
 
@@ -32,6 +36,8 @@ export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[]
     notStable: makeStat(notStableDevices.length),
     synced: makeStat(syncedDevices.length),
   };
+
+  const syncedConnectors = syncedDevices.flatMap((cp) => cp.connectors);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -75,10 +81,11 @@ export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[]
                 "Finishing",
                 "Reserved",
                 "Unavailable",
-              ] as ChargePointStatus[]
+                "Occupied",
+              ] as ConnectorStatus[]
             ).map((status) => {
-              const countForStatus = chargePoints.filter(
-                (cp) => cp.status === status && cp.connection.status === "SYNCED",
+              const countForStatus = syncedConnectors.filter(
+                (connector) => connector.status === status,
               ).length;
 
               return (
@@ -101,7 +108,7 @@ export const ChargePointStats = ({ chargePoints }: { chargePoints: ChargePoint[]
   );
 };
 
-const getStatusIcon = (status: ChargePointStatus): ReactNode => {
+const getStatusIcon = (status: ConnectorStatus): ReactNode => {
   switch (status) {
     case "Available":
       return <CheckCircle className="h-5 w-5 text-green-600" />;
@@ -109,6 +116,7 @@ const getStatusIcon = (status: ChargePointStatus): ReactNode => {
     case "Finishing":
       return <RefreshCw className="h-5 w-5 text-yellow-600" />;
     case "Charging":
+    case "Occupied":
       return <Battery className="h-5 w-5 text-blue-600" />;
     case "SuspendedEV":
     case "SuspendedEVSE":

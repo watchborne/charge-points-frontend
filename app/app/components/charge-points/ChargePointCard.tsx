@@ -16,18 +16,18 @@ import {
 import Link from "next/link";
 import { ReactNode } from "react";
 
-import { ChargePoint } from "@/types/charge-point";
+import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
 
 import { StatusBadge } from "./StatusBadge";
 
 interface ChargePointCardProps {
-  chargePoint: ChargePoint;
+  chargePoint: ChargePointWithConnectors;
 }
 
 export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
   const lastSeenText =
-    chargePoint.connection.lastSeen &&
-    formatDistanceToNow(new Date(chargePoint.connection.lastSeen), {
+    chargePoint.connection.lastSeenAt &&
+    formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
       addSuffix: true,
       locale: enGB,
     });
@@ -57,9 +57,9 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
           {[
             {
               label: "Model",
-              data: chargePoint.meta.chargePointVendor && chargePoint.meta.chargePointModel && (
+              data: chargePoint.meta.vendor && chargePoint.meta.model && (
                 <p className="text-gray-500 font-medium">
-                  {`${chargePoint.meta.chargePointVendor} ${chargePoint.meta.chargePointModel}`}
+                  {`${chargePoint.meta.vendor} ${chargePoint.meta.model}`}
                 </p>
               ),
             },
@@ -70,11 +70,17 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
               ),
             },
             {
-              label: "Status",
-              data: chargePoint.status && (
-                <div className="flex items-center gap-2">
-                  <p className="text-gray-500 font-medium">{chargePoint.status}</p>
-                  {getChargePointStatusIcon(chargePoint.status)}
+              label: "Connectors",
+              data: chargePoint.connectors.length > 0 && (
+                <div className="flex flex-col gap-1">
+                  {chargePoint.connectors.map((connector) => (
+                    <div key={connector.id} className="flex items-center gap-2">
+                      <p className="text-gray-500 font-medium">
+                        #{connector.connectorId} {connector.status}
+                      </p>
+                      {getConnectorStatusIcon(connector.status)}
+                    </div>
+                  ))}
                 </div>
               ),
             },
@@ -105,7 +111,7 @@ const ChargePointDetail = ({ label, detail }: { label: string; detail?: ReactNod
   );
 };
 
-const getChargePointStatusIcon = (status: ChargePoint["status"]) => {
+const getConnectorStatusIcon = (status: ConnectorStatus) => {
   switch (status) {
     case "Available":
       return <CheckCircle size="18px" className="text-green-800" />;
@@ -117,6 +123,8 @@ const getChargePointStatusIcon = (status: ChargePoint["status"]) => {
       return <Pause size="18px" className="text-yellow-800" />;
     case "SuspendedEVSE":
       return <Pause size="18px" className="text-yellow-800" />;
+    case "Occupied":
+      return <PlugZap size="18px" className="text-blue-600" />;
     case "Finishing":
       return <Loader size="18px" className="text-blue-600" />;
     case "Reserved":
