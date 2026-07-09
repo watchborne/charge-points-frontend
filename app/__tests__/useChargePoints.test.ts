@@ -186,4 +186,49 @@ describe("useChargePoints", () => {
     // Mise à jour locale uniquement, pas de nouvel appel API
     expect(mockGetChargePoints.mock.calls.length).toBe(initialCallCount);
   });
+
+  it("refetch les charge points quand le WebSocket se reconnecte après une coupure", async () => {
+    mockGetChargePoints.mockResolvedValue(mockChargePoints);
+    mockUseWebSocketContext.mockReturnValue({
+      lastMessage: null,
+      messages: [],
+      status: "CONNECTED",
+      sendMessage: vi.fn(),
+      reconnect: vi.fn(),
+      clearMessages: vi.fn(),
+    });
+
+    const { rerender } = renderHook(() => useChargePoints());
+
+    await waitFor(() => {
+      expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
+    });
+
+    // Une simple coupure ne doit pas déclencher de refetch
+    mockUseWebSocketContext.mockReturnValue({
+      lastMessage: null,
+      messages: [],
+      status: "DISCONNECTED",
+      sendMessage: vi.fn(),
+      reconnect: vi.fn(),
+      clearMessages: vi.fn(),
+    });
+    rerender();
+    expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
+
+    // La reconnexion doit resynchroniser les données via un refetch REST
+    mockUseWebSocketContext.mockReturnValue({
+      lastMessage: null,
+      messages: [],
+      status: "CONNECTED",
+      sendMessage: vi.fn(),
+      reconnect: vi.fn(),
+      clearMessages: vi.fn(),
+    });
+    rerender();
+
+    await waitFor(() => {
+      expect(mockGetChargePoints).toHaveBeenCalledTimes(2);
+    });
+  });
 });
