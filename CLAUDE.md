@@ -118,7 +118,7 @@ export NPM_TOKEN=<token>   # required to install @watchborne/* from the GH regis
 npm install
 npm run dev        # next dev on http://localhost:3001
 npm run build
-npm run lint       # next lint
+npm run lint       # eslint .
 npm run typecheck  # tsc --noEmit
 npm test           # vitest run (test:watch to iterate)
 npm run format     # prettier --write .
