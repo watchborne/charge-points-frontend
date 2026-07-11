@@ -79,12 +79,6 @@ jobs:
           # exactly what is on the branch.
           ref: ${{ steps.pr.outputs.sha }}
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: "package.json"
-          cache: "npm"
-          cache-dependency-path: package-lock.json
-
       - name: Install dependencies
         uses: ./.github/workflows/composites/install-dependencies
         with:

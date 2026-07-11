@@ -1,15 +1,29 @@
 name: "Install dependencies"
-description: "Install and cache dependencies"
+description: "Set up Node.js and install dependencies with npm cache"
 
 inputs:
   npm-token:
     description: "NPM token for private packages"
     required: true
+  registry-url:
+    description: "npm registry URL to configure (for publishing)"
+    required: false
+  scope:
+    description: "npm scope to configure (for publishing)"
+    required: false
 
 runs:
   using: "composite"
 
   steps:
+    - uses: actions/setup-node@v6
+      with:
+        node-version-file: "package.json"
+        cache: "npm"
+        cache-dependency-path: package-lock.json
+        registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
+
     - name: Get Node version
       id: node-version
       uses: ./.github/workflows/composites/get-node-version
