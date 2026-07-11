@@ -19,7 +19,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write",
-    "*.{ts,tsx,js,jsx}": "eslint --fix && vitest related --run"
+    "*.{ts,tsx,js,jsx}": ["eslint --fix", "vitest related --run"]
   },
   "dependencies": {
     "@faker-js/faker": "^10.4.0",
