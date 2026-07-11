@@ -18,7 +18,11 @@
     "all-checks": "bash scripts/all-checks.sh"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write"
+    "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write",
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "vitest related --run"
+    ]
   },
   "dependencies": {
     "@faker-js/faker": "^10.4.0",
