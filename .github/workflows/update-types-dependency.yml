@@ -16,18 +16,12 @@ jobs:
         with:
           ref: main
 
-      - uses: actions/setup-node@v6
+      - name: Install dependencies
+        uses: ./.github/workflows/composites/install-dependencies
         with:
-          node-version-file: package.json
+          npm-token: ${{ secrets.NPM_TOKEN }}
           registry-url: https://npm.pkg.github.com
           scope: "@watchborne"
-          cache: "npm"
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Update @watchborne/charge-points-types
         run: |
