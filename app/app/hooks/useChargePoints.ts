@@ -36,6 +36,15 @@ export function useChargePoints(): UseChargePointsReturn {
     }
   }, []);
 
+  const refetchSilently = useCallback(async () => {
+    try {
+      const data = await api.ChargePoints.getChargePoints();
+      setChargePoints(data);
+    } catch (err) {
+      console.error("Failed to refetch charge points:", err);
+    }
+  }, []);
+
   useEffect(() => {
     if (lastMessage?.type !== "CHARGE_POINT_MONITORING") return;
     const incoming = lastMessage.payload?.chargePoint as ChargePointWithConnectors | undefined;
@@ -56,13 +65,15 @@ export function useChargePoints(): UseChargePointsReturn {
   // Le WebSocket ne rejoue pas les événements manqués pendant une coupure : on
   // resynchronise via un refetch REST à chaque reconnexion (mais pas à la
   // toute première connexion, déjà couverte par le fetch initial ci-dessus).
+  // Use refetchSilently instead of loadChargePoints to avoid showing the loading
+  // state, which causes visual flicker on dashboard reconnections.
   useEffect(() => {
     if (status !== "CONNECTED") return;
     if (hasConnectedRef.current) {
-      loadChargePoints();
+      void refetchSilently();
     }
     hasConnectedRef.current = true;
-  }, [status, loadChargePoints]);
+  }, [status, refetchSilently]);
 
   return {
     chargePoints,
