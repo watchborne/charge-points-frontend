@@ -25,6 +25,9 @@
       "rootApp/*": ["./app/*"]
     }
   },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", ".next", "**/__tests__/**", "**/*.test.ts", "vitest.config.ts"]
 }
