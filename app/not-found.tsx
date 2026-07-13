@@ -1,9 +1,9 @@
 import { PlugZap } from "lucide-react";
 import type { Metadata } from "next";
-import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { NextIntlClientProvider, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
