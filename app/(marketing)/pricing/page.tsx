@@ -69,9 +69,9 @@ export default function PricingPage() {
         <p className="mt-4 text-lg text-muted-foreground">{t("pricingPage.hero.subtitle")}</p>
       </div>
 
-      <div className="mx-auto mt-12 max-w-4xl rounded-lg border bg-orange-50 p-6">
-        <h3 className="mb-2 font-semibold text-orange-900">{t("pricingPage.alphaNotice.title")}</h3>
-        <p className="text-sm text-orange-800">{t("pricingPage.alphaNotice.description")}</p>
+      <div className="mx-auto mt-12 max-w-4xl rounded-lg border border-charge-200 bg-charge-50 p-6">
+        <h3 className="mb-2 font-semibold text-charge-700">{t("pricingPage.alphaNotice.title")}</h3>
+        <p className="text-sm text-charge-700">{t("pricingPage.alphaNotice.description")}</p>
       </div>
 
       <div className="mx-auto mt-16 grid max-w-6xl gap-6 lg:grid-cols-3">

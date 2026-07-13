@@ -45,24 +45,24 @@ export const ChargePointStats = ({
         <StatCard
           title="Total"
           value={stats.total}
-          icon={<Battery className="h-5 w-5 text-gray-600" />}
+          icon={<Battery className="h-5 w-5 text-muted-foreground" />}
         />
         <StatCard
           title="Connected"
           value={stats.connected.value}
-          icon={<PlugZap className="h-5 w-5 text-yellow-600" />}
+          icon={<PlugZap className="h-5 w-5 text-st-charging-500" />}
           subtitle={stats.connected.percentage}
         />
         <StatCard
           title="Offline"
           value={stats.offline.value}
-          icon={<RefreshCw className="h-5 w-5 text-green-600" />}
+          icon={<RefreshCw className="h-5 w-5 text-st-offline-500" />}
           subtitle={stats.offline.percentage}
         />
         <StatCard
           title="Not stable"
           value={stats.notStable.value}
-          icon={<X className="h-5 w-5 text-red-600" />}
+          icon={<X className="h-5 w-5 text-st-error-500" />}
           subtitle={stats.notStable.percentage}
         />
       </div>
@@ -70,7 +70,7 @@ export const ChargePointStats = ({
         <StatCard
           title="Synced"
           value={stats.synced.value}
-          icon={<Cloud className="h-6 w-6 text-green-600" />}
+          icon={<Cloud className="h-6 w-6 text-st-available-500" />}
         >
           <div className="flex flex-col content-stretch gap-2 text-sm mt-2">
             {(
@@ -95,8 +95,10 @@ export const ChargePointStats = ({
                     <p className="text-md italic">{status}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="ml-auto text-sm font-bold text-gray-900">{countForStatus}</p>
-                    <p className="text-sm text-gray-500">({makePercentage(countForStatus)})</p>
+                    <p className="ml-auto text-sm font-bold text-foreground">{countForStatus}</p>
+                    <p className="text-sm text-muted-foreground">
+                      ({makePercentage(countForStatus)})
+                    </p>
                   </div>
                 </div>
               );
@@ -111,20 +113,20 @@ export const ChargePointStats = ({
 const getStatusIcon = (status: ConnectorStatus): ReactNode => {
   switch (status) {
     case "Available":
-      return <CheckCircle className="h-5 w-5 text-green-600" />;
+      return <CheckCircle className="h-5 w-5 text-st-available-500" />;
     case "Preparing":
     case "Finishing":
-      return <RefreshCw className="h-5 w-5 text-yellow-600" />;
+      return <RefreshCw className="h-5 w-5 text-st-charging-500" />;
     case "Charging":
     case "Occupied":
-      return <Battery className="h-5 w-5 text-blue-600" />;
+      return <Battery className="h-5 w-5 text-st-charging-500" />;
     case "SuspendedEV":
     case "SuspendedEVSE":
     case "Reserved":
     case "Unavailable":
-      return <Cloud className="h-5 w-5 text-orange-700" />;
+      return <Cloud className="h-5 w-5 text-st-maint-500" />;
     case "Faulted":
-      return <X className="h-5 w-5 text-red-600" />;
+      return <X className="h-5 w-5 text-st-error-500" />;
     default:
       return null;
   }

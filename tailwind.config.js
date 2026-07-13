@@ -9,12 +9,9 @@ module.exports = {
   theme: {
     extend: {
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        "wb-sm": "var(--r-sm)",
-        "wb-md": "var(--r-md)",
-        "wb-lg": "var(--r-lg)",
+        lg: "var(--r-lg)",
+        md: "var(--r-md)",
+        sm: "var(--r-sm)",
       },
       colors: {
         background: "hsl(var(--background))",

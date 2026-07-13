@@ -96,21 +96,21 @@ export default function HomePage() {
                     <div className="mt-6 space-y-4">
                       <div className="rounded-lg border bg-background p-4">
                         <div className="font-medium">Paris HQ</div>
-                        <div className="mt-2 text-sm text-green-600">
+                        <div className="mt-2 text-sm text-st-available-700">
                           14 {t("homePage.dashboard.status.online")}
                         </div>
                       </div>
 
                       <div className="rounded-lg border bg-background p-4">
                         <div className="font-medium">Lyon</div>
-                        <div className="mt-2 text-sm text-orange-500">
+                        <div className="mt-2 text-sm text-st-offline-700">
                           1 {t("homePage.dashboard.status.offline")}
                         </div>
                       </div>
 
                       <div className="rounded-lg border bg-background p-4">
                         <div className="font-medium">Marseille</div>
-                        <div className="mt-2 text-sm text-green-600">
+                        <div className="mt-2 text-sm text-st-available-700">
                           8 {t("homePage.dashboard.status.online")}
                         </div>
                       </div>
@@ -132,22 +132,22 @@ export default function HomePage() {
                         {
                           id: "CP-001",
                           status: t("homePage.dashboard.status.available"),
-                          color: "bg-green-500",
+                          color: "bg-st-available-500",
                         },
                         {
                           id: "CP-002",
                           status: t("homePage.dashboard.status.charging"),
-                          color: "bg-blue-500",
+                          color: "bg-st-charging-500",
                         },
                         {
                           id: "CP-003",
                           status: t("homePage.dashboard.status.faulted"),
-                          color: "bg-red-500",
+                          color: "bg-st-error-500",
                         },
                         {
                           id: "CP-004",
                           status: t("homePage.dashboard.status.offline"),
-                          color: "bg-orange-500",
+                          color: "bg-st-offline-500",
                         },
                       ].map((cp) => (
                         <div

@@ -1,5 +1,7 @@
 import { PropsWithChildren } from "react";
 
+import { Card } from "@/components/ui/card";
+
 type StatCardProps = {
   title: string;
   value: number;
@@ -9,14 +11,14 @@ type StatCardProps = {
 
 export const StatCard = ({ title, value, icon, subtitle, children }: StatCardProps) => {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col content-stretch">
+    <Card className="p-4 flex flex-col content-stretch">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
         {icon}
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+      <p className="text-2xl font-bold text-foreground">{value}</p>
+      {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
       {children}
-    </div>
+    </Card>
   );
 };

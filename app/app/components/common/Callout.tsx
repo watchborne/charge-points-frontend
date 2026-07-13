@@ -10,8 +10,8 @@ export const Callout = ({ error, variant = "error" }: Props) => {
   return (
     <div
       className={classNames("mb-6 rounded-lg p-4", {
-        "bg-red-50 border border-red-200 text-red-800": variant === "error",
-        "bg-orange-100 border border-orange-300 text-orange-500": variant === "warning",
+        "bg-st-error-100 border border-st-error-500 text-st-error-700": variant === "error",
+        "bg-st-maint-100 border border-st-maint-500 text-st-maint-700": variant === "warning",
       })}
     >
       <div className="flex items-center gap-2">

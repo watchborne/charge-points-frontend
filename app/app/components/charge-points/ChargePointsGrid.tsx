@@ -34,7 +34,7 @@ export const ChargePointsGrid = ({
           key={siteId}
           className={classNames(
             "rounded-lg p-4 flex flex-col gap-2",
-            siteId.toLowerCase() === "unknown" ? "bg-orange-300" : "bg-gray-300",
+            siteId.toLowerCase() === "unknown" ? "bg-charge-100" : "bg-muted",
           )}
         >
           <div className="flex items-center gap-2">

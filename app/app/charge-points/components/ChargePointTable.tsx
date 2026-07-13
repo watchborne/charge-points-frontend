@@ -45,7 +45,7 @@ export const ChargePointTable = ({
             className={[
               "cursor-pointer",
               cp.id === highlightedId
-                ? "bg-blue-50 ring-1 ring-inset ring-blue-200"
+                ? "bg-charge-50 ring-1 ring-inset ring-charge-200"
                 : !cp.isActive
                   ? "opacity-50"
                   : "",
@@ -57,13 +57,13 @@ export const ChargePointTable = ({
             </TableCell>
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.vendor || <span className="text-slate-300">—</span>}
+              {cp.meta?.vendor || <span className="text-muted-foreground/50">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.model || <span className="text-slate-300">—</span>}
+              {cp.meta?.model || <span className="text-muted-foreground/50">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm font-mono text-xs">
-              {cp.meta?.serialNumber || <span className="text-slate-300">—</span>}
+              {cp.meta?.serialNumber || <span className="text-muted-foreground/50">—</span>}
             </TableCell>
             <TableCell>
               {cp.meta?.firmwareVersion ? (
@@ -71,7 +71,7 @@ export const ChargePointTable = ({
                   v{cp.meta?.firmwareVersion}
                 </Badge>
               ) : (
-                <span className="text-slate-300">—</span>
+                <span className="text-muted-foreground/50">—</span>
               )}
             </TableCell>
             <TableCell onClick={(e) => e.stopPropagation()}>

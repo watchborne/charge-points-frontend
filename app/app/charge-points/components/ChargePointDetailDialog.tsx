@@ -1,20 +1,7 @@
 import { Site } from "@watchborne/charge-points-types";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
-import {
-  Battery,
-  CheckCircle,
-  CircleEllipsis,
-  Clock,
-  Loader,
-  Pause,
-  Pencil,
-  PlugZap,
-  Shield,
-  Ticket,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Battery, Clock, Pencil, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,9 +12,10 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
+import { getConnectorStatusIcon } from "../../components/charge-points/connector-status-icon";
 import { Callout } from "../../components/common/Callout";
 import { Tag } from "../../components/common/Tag";
 
@@ -63,7 +51,7 @@ export const ChargePointDetailDialog = ({
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Battery className="h-5 w-5 text-blue-600" />
+            <Battery className="h-5 w-5 text-muted-foreground" />
             {chargePoint.name}
             {!chargePoint.isActive && (
               <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
@@ -91,7 +79,7 @@ export const ChargePointDetailDialog = ({
                     Connector #{connector.connectorId}
                   </span>
                   <div className="flex items-center gap-1.5">
-                    {getConnectorStatusIcon(connector.status)}
+                    {getConnectorStatusIcon(connector.status, "16px")}
                     <span className="text-sm font-medium">{connector.status}</span>
                   </div>
                 </div>
@@ -180,29 +168,4 @@ export const ChargePointDetailDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-const getConnectorStatusIcon = (status: ConnectorStatus) => {
-  switch (status) {
-    case "Available":
-      return <CheckCircle size="16px" className="text-green-600" />;
-    case "Preparing":
-      return <CircleEllipsis size="16px" className="text-yellow-600" />;
-    case "Charging":
-    case "Occupied":
-      return <PlugZap size="16px" className="text-blue-600" />;
-    case "SuspendedEV":
-    case "SuspendedEVSE":
-      return <Pause size="16px" className="text-yellow-600" />;
-    case "Finishing":
-      return <Loader size="16px" className="text-blue-600" />;
-    case "Reserved":
-      return <Ticket size="16px" className="text-pink-600" />;
-    case "Unavailable":
-      return <X size="16px" className="text-red-600" />;
-    case "Faulted":
-      return <Shield size="16px" className="text-red-600" />;
-    default:
-      return null;
-  }
 };

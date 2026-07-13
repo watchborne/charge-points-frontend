@@ -11,10 +11,10 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
     <span
       className={classNames(
         "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs capitalize font-medium text-white",
-        status === "CONNECTED" && "bg-yellow-500",
-        status === "SYNCED" && "bg-green-500",
-        status === "OFFLINE" && "bg-slate-500",
-        status === "WARNING" && "bg-orange-500",
+        status === "CONNECTED" && "bg-st-charging-500",
+        status === "SYNCED" && "bg-st-available-500",
+        status === "OFFLINE" && "bg-st-offline-500",
+        status === "WARNING" && "bg-st-maint-500",
       )}
     >
       {status.toLowerCase()}
