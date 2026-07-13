@@ -159,10 +159,10 @@ export default function ChargePointsPage() {
     const params = new URLSearchParams(searchParams.toString());
     if (cp) {
       params.set("id", cp.id);
-      router.push(`/charge-points?id=${cp.id}`);
+      router.replace(`/app/charge-points?id=${cp.id}`);
     } else {
       params.delete("id");
-      router.push(`/charge-points`);
+      router.replace(`/app/charge-points`);
     }
   };
 
