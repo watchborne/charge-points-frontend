@@ -86,10 +86,19 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   don't live under `app/app/`.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
-  server component, middleware).
+  server component, middleware). `lib/supabase/admin.ts` is the one exception:
+  a service-role client used only by the local-dev sign-in shortcut below.
 - Log out via the shared `LogoutButton` (`app/auth/components/LogoutButton.tsx`), used
   by both the app `Header` and the marketing `Navbar`, which calls
   `supabase.auth.signOut()` then redirects to the marketing homepage (`/`).
+- `app/auth/dev-login/route.ts` is a **local-dev-only** shortcut that mints a
+  magic link through the Supabase admin API and redirects into it, skipping
+  the email round-trip; `app/login/components/DevLoginShortcut.tsx` renders
+  its form on `/login`, only when `NODE_ENV !== "production"`. The route
+  itself re-checks `NODE_ENV` and requires `SUPABASE_SERVICE_ROLE_KEY` to be
+  set — never set that key outside a local `.env`. It still redirects through
+  the real `/auth/callback` code-exchange, so no session-creation logic is
+  duplicated.
 - `app/signup/` is a public alpha-signup page alongside `/login`; like `/login`,
   an already-authenticated visitor is redirected to `/app/dashboard`.
 
