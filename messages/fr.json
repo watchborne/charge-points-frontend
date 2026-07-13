@@ -222,6 +222,11 @@
       ]
     }
   },
+  "notFoundPage": {
+    "title": "Page introuvable",
+    "description": "La page que vous cherchez n'existe pas, a été déplacée ou l'URL est incorrecte.",
+    "cta": "Retour à l'accueil"
+  },
   "signupPage": {
     "alphaBadge": "ALPHA",
     "title": "Rejoignez l'Alpha.",
