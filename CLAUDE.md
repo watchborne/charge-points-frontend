@@ -126,7 +126,13 @@ npm run format     # prettier --write .
 
 CI (`.github/workflows/build-test-pull-request.yml`) runs lint/format,
 typecheck, build, and unit tests — keep them green. A Husky pre-commit hook runs
-`npm test` then `lint-staged`.
+`lint-staged`, which applies Prettier to staged files and, for staged
+`.ts/.tsx/.js/.jsx` files, ESLint (`--fix`) followed by `vitest related --run`
+(only the tests affected by the staged files, not the full suite).
+
+`.github/workflows/update-types-dependency.yml` listens for a `types-released`
+`repository_dispatch` event from `charge-points-types` and opens an automated PR
+bumping the `@watchborne/charge-points-types` version in `package.json`.
 
 ## Environment
 
