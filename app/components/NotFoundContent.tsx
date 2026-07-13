@@ -1,23 +1,10 @@
 import { PlugZap } from "lucide-react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 import Link from "next/link";
-import { NextIntlClientProvider, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  icons: {
-    icon: "/favicon.svg",
-  },
-  title: "Watchborne - Page Not Found",
-  description: "This page could not be found",
-};
-
-const NotFoundContent = () => {
+export const NotFoundContent = () => {
   const t = useTranslations("notFoundPage");
   const tRoot = useTranslations("");
 
@@ -48,15 +35,3 @@ const NotFoundContent = () => {
     </div>
   );
 };
-
-export default function NotFound() {
-  return (
-    <html lang="fr">
-      <body className={inter.className}>
-        <NextIntlClientProvider>
-          <NotFoundContent />
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
-}
