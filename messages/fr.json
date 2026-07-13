@@ -190,6 +190,15 @@
       }
     }
   },
+  "notFoundPage": {
+    "badge": "Erreur 404",
+    "title": "Cette page n'existe pas.",
+    "subtitle": "La page que vous recherchez a peut-être été déplacée ou n'a jamais existé.",
+    "backHome": "Retour à l'accueil",
+    "branding": {
+      "tagline": "Supervisez vos bornes de recharge en temps réel."
+    }
+  },
   "loginPage": {
     "alphaBadge": "ALPHA",
     "title": "Bon retour.",

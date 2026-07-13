@@ -190,6 +190,15 @@
       }
     }
   },
+  "notFoundPage": {
+    "badge": "404 error",
+    "title": "This page doesn't exist.",
+    "subtitle": "The page you're looking for may have been moved or never existed.",
+    "backHome": "Back to home",
+    "branding": {
+      "tagline": "Monitor your EV charge points in real time."
+    }
+  },
   "loginPage": {
     "alphaBadge": "ALPHA",
     "title": "Welcome back.",
