@@ -14,7 +14,6 @@ import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteTable } from "./components/SiteTable";
 import { Callout } from "../components/common/Callout";
 import { Loader } from "../components/common/Loader";
-import { Header } from "../components/layout/Header";
 import { useSites } from "../hooks/useSites";
 
 export default function SitesPage() {
@@ -58,65 +57,61 @@ export default function SitesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <Header />
+    <>
+      {error && <Callout error={error} />}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && <Callout error={error} />}
+      {loading && <Loader label={t("appPage.loading.sites")} />}
 
-        {loading && <Loader label={t("appPage.loading.sites")} />}
+      {!loading && !error && (
+        <div className="flex flex-col gap-4 content-stretch">
+          <div className="flex items-center gap-3 w-full">
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("appPage.sites.page.buttons.addSite")}
+            </Button>
 
-        {!loading && !error && (
-          <div className="flex flex-col gap-4 content-stretch">
-            <div className="flex items-center gap-3 w-full">
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                {t("appPage.sites.page.buttons.addSite")}
-              </Button>
-
-              <div className="relative max-w-sm ml-auto">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={t("appPage.sites.page.buttons.search")}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
+            <div className="relative max-w-sm ml-auto">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t("appPage.sites.page.buttons.search")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
             </div>
-
-            <SiteTable
-              sites={filteredSites}
-              onEditClicked={(site) => setEditTarget(site)}
-              onDeleteClicked={(site) => setDeleteTarget(site)}
-            />
-
-            <SiteFormDialog
-              open={createOpen}
-              onOpenChange={setCreateOpen}
-              onSubmit={handleCreate}
-              mode="create"
-            />
-            <SiteFormDialog
-              open={!!editTarget}
-              onOpenChange={(open) => !open && setEditTarget(null)}
-              initialValues={
-                editTarget
-                  ? { ...editTarget, lastVisitedAt: editTarget.lastVisitedAt ?? undefined }
-                  : undefined
-              }
-              onSubmit={handleEdit}
-              mode="edit"
-            />
-            <SiteDeletionDialog
-              open={!!deleteTarget}
-              onOpenChange={(open) => !open && setDeleteTarget(null)}
-              deleteTarget={deleteTarget}
-              onDeleteClicked={handleDelete}
-            />
           </div>
-        )}
-      </main>
-    </div>
+
+          <SiteTable
+            sites={filteredSites}
+            onEditClicked={(site) => setEditTarget(site)}
+            onDeleteClicked={(site) => setDeleteTarget(site)}
+          />
+
+          <SiteFormDialog
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            onSubmit={handleCreate}
+            mode="create"
+          />
+          <SiteFormDialog
+            open={!!editTarget}
+            onOpenChange={(open) => !open && setEditTarget(null)}
+            initialValues={
+              editTarget
+                ? { ...editTarget, lastVisitedAt: editTarget.lastVisitedAt ?? undefined }
+                : undefined
+            }
+            onSubmit={handleEdit}
+            mode="edit"
+          />
+          <SiteDeletionDialog
+            open={!!deleteTarget}
+            onOpenChange={(open) => !open && setDeleteTarget(null)}
+            deleteTarget={deleteTarget}
+            onDeleteClicked={handleDelete}
+          />
+        </div>
+      )}
+    </>
   );
 }

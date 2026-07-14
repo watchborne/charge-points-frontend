@@ -1,37 +1,22 @@
 "use client";
 
 import classNames from "classnames";
-import { AlertCircle, CheckCircle, Loader, LogOut, XCircle } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { AlertCircle, CheckCircle, Loader, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/app/auth/components/LogoutButton";
+import { Navbar, NavbarLink } from "@/app/components/layout/Navbar";
 import { WS_URL } from "@/lib/constants";
-import { createClient } from "@/lib/supabase/client";
-import svgLogo from "@/public/favicon.svg";
 
 import { useWebSocket } from "../../hooks/useWebSocket";
 
 export const Header = () => {
   const t = useTranslations("");
   const { status } = useWebSocket(WS_URL);
-  const pathname = usePathname();
-  const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  async function handleLogout() {
-    setIsLoggingOut(true);
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
 
   const webSocketConnectionStatus = useMemo(() => {
-    const sizing = "h-6 w-6";
+    const sizing = "h-5 w-5";
 
     switch (status) {
       case "CONNECTING":
@@ -47,61 +32,21 @@ export const Header = () => {
     }
   }, [status]);
 
+  const links = [
+    { key: "sites", label: t("layout.navbar.app.links.sites"), url: "/app/sites" },
+    {
+      key: "charge-points",
+      label: t("layout.navbar.app.links.chargePoints"),
+      url: "/app/charge-points",
+    },
+  ] satisfies NavbarLink[];
+
   return (
-    <header className="bg-card border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Link href="/app/" className="flex items-center gap-3">
-            <Image
-              src={svgLogo}
-              alt="Watchborne logo"
-              width="56"
-              className="h-10 w-10 sm:h-14 sm:w-14"
-            />
-            <h1 className="text-lg font-bold text-foreground sm:text-2xl">{t("appName")}</h1>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/app/sites"
-              className={classNames(
-                "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                pathname === "/app/sites"
-                  ? "bg-charge-soft text-charge-strong"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
-              )}
-            >
-              {t("layout.navbar.app.links.sites")}
-            </Link>
-            <Link
-              href="/app/charge-points"
-              className={classNames(
-                "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                pathname === "/app/charge-points"
-                  ? "bg-charge-soft text-charge-strong"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
-              )}
-            >
-              {t("layout.navbar.app.links.chargePoints")}
-            </Link>
-          </div>
-          <div className="flex items-center gap-4 sm:ml-auto">
-            <div className="flex items-center gap-2">
-              <p className="hidden sm:block">{t("layout.navbar.app.connectionStatus")}:</p>
-              {webSocketConnectionStatus}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("layout.navbar.actions.logout")}</span>
-            </Button>
-          </div>
-        </div>
+    <Navbar links={links}>
+      <div className="flex items-center gap-4 sm:ml-auto">
+        <div className="flex items-center gap-2">{webSocketConnectionStatus}</div>
+        <LogoutButton />
       </div>
-    </header>
+    </Navbar>
   );
 };

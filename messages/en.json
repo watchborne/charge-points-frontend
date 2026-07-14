@@ -68,8 +68,7 @@
         "links": {
           "chargePoints": "Charge Points",
           "sites": "Sites"
-        },
-        "connectionStatus": "Connection Status"
+        }
       }
     }
   },

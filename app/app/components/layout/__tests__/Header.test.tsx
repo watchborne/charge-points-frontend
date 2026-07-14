@@ -23,13 +23,8 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, refresh }),
 }));
 
-vi.mock("../../hooks/useWebSocket", () => ({
+vi.mock("../../../hooks/useWebSocket", () => ({
   useWebSocket: () => ({ status: "CONNECTED" }),
-}));
-
-vi.mock("next/image", () => ({
-  // eslint-disable-next-line @next/next/no-img-element
-  default: ({ alt }: { alt: string }) => <img alt={alt} />,
 }));
 
 vi.mock("next-intl", () => {
@@ -37,8 +32,8 @@ vi.mock("next-intl", () => {
     appName: "Watchborne",
     "layout.navbar.app.links.sites": "Sites",
     "layout.navbar.app.links.chargePoints": "Charge Points",
-    "layout.navbar.app.connectionStatus": "Connection Status",
     "layout.navbar.actions.logout": "Logout",
+    "layout.navbar.actions.menu": "Menu",
   };
   return {
     useTranslations: () => (key: string) => translations[key] || key,
@@ -46,6 +41,8 @@ vi.mock("next-intl", () => {
 });
 
 const renderComponent = () => render(<Header />);
+
+const CONNECTED_ICON_CLASS = "lucide-circle-check-big";
 
 beforeEach(() => {
   signOut.mockReset().mockResolvedValue({ error: null });
@@ -66,19 +63,19 @@ describe("Header", () => {
     expect(screen.getByRole("button", { name: /logout/i })).toBeTruthy();
   });
 
-  it("signs the user out and redirects to /login when logout is clicked", async () => {
+  it("signs the user out and redirects to the homepage when logout is clicked", async () => {
     renderComponent();
 
     fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
     await waitFor(() => expect(signOut).toHaveBeenCalled());
-    expect(replace).toHaveBeenCalledWith("/login");
+    expect(replace).toHaveBeenCalledWith("/");
     expect(refresh).toHaveBeenCalled();
   });
 
   it("displays WebSocket connection status", async () => {
-    renderComponent();
+    const { container } = renderComponent();
 
-    expect(screen.getByText(/connection status/i)).toBeTruthy();
+    expect(container.querySelector(`svg.${CONNECTED_ICON_CLASS}`)).toBeTruthy();
   });
 });

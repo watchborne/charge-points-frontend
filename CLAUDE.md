@@ -87,8 +87,9 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
   server component, middleware).
-- Log out via the header's logout button (`app/app/components/layout/Header.tsx`),
-  which calls `supabase.auth.signOut()` then redirects to `/login`.
+- Log out via the shared `LogoutButton` (`app/auth/components/LogoutButton.tsx`), used
+  by both the app `Header` and the marketing `Navbar`, which calls
+  `supabase.auth.signOut()` then redirects to the marketing homepage (`/`).
 - `app/signup/` is a public alpha-signup page alongside `/login`; like `/login`,
   an already-authenticated visitor is redirected to `/app/dashboard`.
 
