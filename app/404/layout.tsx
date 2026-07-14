@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 
+import { Footer } from "../(marketing)/layout/Footer";
+import { Navbar } from "../(marketing)/layout/Navbar";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,7 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className={inter.className}>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -8,7 +8,7 @@ export const NotFoundContent = () => {
   const t = useTranslations("");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-8">
+    <div className="flex items-center justify-center bg-background p-[10vh]">
       <div className="w-full max-w-sm text-center">
         <Link
           href="/"
