@@ -54,6 +54,7 @@
       "alphaBadge": "ALPHA",
       "navigation": {
         "home": "Accueil",
+        "features": "Fonctionnalités",
         "pricing": "Tarifs",
         "contact": "Contact"
       },
@@ -164,6 +165,60 @@
         "offline": "Hors ligne",
         "online": "En ligne"
       }
+    }
+  },
+  "featuresPage": {
+    "badge": "Produit en construction",
+    "hero": {
+      "title": "Une plateforme pensée pour tout le cycle de travail des installateurs IRVE",
+      "subtitle": "Watchborne centralise la supervision de vos bornes de recharge pour vous faire gagner du temps et de la fiabilité, de l'installation à la maintenance."
+    },
+    "intro": {
+      "title": "Qu'est-ce que Watchborne ?",
+      "description": "Watchborne est une plateforme de supervision OCPP pensée pour les installateurs de bornes de recharge. Elle centralise l'état de toutes vos bornes, sur tous vos sites, dans un seul tableau de bord en temps réel — pour que vous sachiez toujours ce qui se passe sur le terrain, sans avoir à vous déplacer ni à attendre un appel client."
+    },
+    "workflow": {
+      "title": "Un gain de temps à chaque étape",
+      "subtitle": "De la mise en service au support client, Watchborne accompagne tout le cycle de vie de vos bornes.",
+      "items": {
+        "installation": {
+          "title": "Mise en service",
+          "description": "Vérifiez instantanément qu'une borne nouvellement installée communique correctement, sans attendre un retour client."
+        },
+        "monitoring": {
+          "title": "Supervision quotidienne",
+          "description": "Gardez un œil en temps réel sur l'état de connexion et de charge de tout votre parc, multi-sites, depuis un seul écran."
+        },
+        "maintenance": {
+          "title": "Maintenance & intervention",
+          "description": "Détectez les déconnexions et anomalies avant vos clients, et priorisez vos interventions terrain en conséquence."
+        },
+        "reporting": {
+          "title": "Reporting client",
+          "description": "Donnez à vos clients une visibilité fiable sur la disponibilité de leurs bornes, sans reporting manuel."
+        }
+      }
+    },
+    "constructionNotice": {
+      "title": "Un produit en construction, une roadmap ambitieuse",
+      "description": "Watchborne est en développement actif. Les fonctionnalités ci-dessous font partie d'une feuille de route ambitieuse, construite avec des installateurs IRVE pour répondre à leurs besoins réels sur le terrain."
+    },
+    "roadmap": {
+      "badge": "Feuille de route",
+      "title": "Ce que nous construisons",
+      "items": {
+        "alerting": "Alertes automatiques en cas de panne ou de déconnexion",
+        "historicalAnalytics": "Historique et analyses de disponibilité",
+        "maintenance": "Planification et suivi des interventions de maintenance",
+        "reporting": "Rapports automatisés pour vos clients",
+        "rbac": "Gestion des accès par équipe et par site",
+        "integrations": "Intégrations avec vos outils métier"
+      }
+    },
+    "cta": {
+      "title": "Construisons cette plateforme avec vous.",
+      "subtitle": "Rejoignez l'alpha et participez à façonner les outils dont les installateurs IRVE ont besoin.",
+      "button": "Demander l'accès à l'alpha"
     }
   },
   "contactPage": {

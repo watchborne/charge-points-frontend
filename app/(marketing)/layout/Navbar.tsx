@@ -29,6 +29,7 @@ export function Navbar() {
   }, []);
 
   const links = [
+    { key: "features", label: t("layout.navbar.navigation.features"), url: "/features" },
     { key: "pricing", label: t("layout.navbar.navigation.pricing"), url: "/pricing" },
     { key: "contact", label: t("layout.navbar.navigation.contact"), url: "/contact" },
   ] satisfies NavbarLink[];

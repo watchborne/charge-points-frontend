@@ -18,6 +18,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
       appName: "Watchborne",
+      "layout.navbar.navigation.features": "Features",
       "layout.navbar.navigation.pricing": "Pricing",
       "layout.navbar.navigation.contact": "Contact",
       "layout.navbar.actions.login": "Login",
