@@ -49,8 +49,8 @@ export default function HomePage() {
     },
   ];
 
-  const roadmap = t.raw("homePage.roadmap.items") as string[];
-  const mvpFeatures = t.raw("homePage.mvpFeatures.items") as string[];
+  const roadmap = Object.entries(t.raw("homePage.roadmap.items") as Record<string, string>);
+  const mvpFeatures = Object.entries(t.raw("homePage.mvpFeatures.items") as Record<string, string>);
 
   return (
     <main className="flex flex-col">
@@ -213,8 +213,8 @@ export default function HomePage() {
         </div>
 
         <div className="mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-2">
-          {mvpFeatures.map((item) => (
-            <div key={item}>
+          {mvpFeatures.map(([key, item]) => (
+            <div key={key}>
               <div className="flex items-center gap-3 p-5">
                 <ShieldCheck className="h-5 w-5" />
                 <span>{item}</span>
@@ -234,8 +234,8 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold">{t("homePage.roadmap.title")}</h2>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {roadmap.map((item) => (
-              <div key={item} className="rounded-xl border bg-background p-4">
+            {roadmap.map(([key, item]) => (
+              <div key={key} className="rounded-xl border bg-background p-4">
                 {item}
               </div>
             ))}

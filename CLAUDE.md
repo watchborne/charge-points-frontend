@@ -111,6 +111,17 @@ visit (`localeForHost`: `.fr` -> fr, `.com` -> en, else the default), so
 resolved locale is written back to the cookie on every request. Add keys to
 **both** `messages/fr.json` and `messages/en.json`.
 
+**Translation usage pattern:**
+
+- **Single call per component:** always use `const t = useTranslations("")` (root
+  namespace) — never use `useTranslations("some.namespace")`.
+- **Full paths:** reference translations with the complete path from root,
+  e.g. `t("loginPage.form.email")` not `t("form.email")`.
+- **No arrays in translations:** translate lists as objects with key-value pairs.
+  For example, instead of `"features": ["item1", "item2"]`, use
+  `"features": { "ocpp": "item1", "multisite": "item2" }`. Iterate over them
+  with `Object.entries(t.raw("path.to.features"))` in components.
+
 ## Commands
 
 ```bash
