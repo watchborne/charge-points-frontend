@@ -35,27 +35,13 @@ export default function PricingPage() {
     },
   ];
 
-  const includedFeatures = [
-    t("pricingPage.included.items.realtime"),
-    t("pricingPage.included.items.offlineDetection"),
-    t("pricingPage.included.items.multisite"),
-    t("pricingPage.included.items.alphaAccess"),
-  ];
+  const includedFeatures = Object.entries(
+    t.raw("pricingPage.included.items") as Record<string, string>,
+  );
 
-  const faqItems = [
-    {
-      question: t("pricingPage.faq.items.pricing.question"),
-      answer: t("pricingPage.faq.items.pricing.answer"),
-    },
-    {
-      question: t("pricingPage.faq.items.billing.question"),
-      answer: t("pricingPage.faq.items.billing.answer"),
-    },
-    {
-      question: t("pricingPage.faq.items.alpha.question"),
-      answer: t("pricingPage.faq.items.alpha.answer"),
-    },
-  ];
+  const faqItems = Object.entries(
+    t.raw("pricingPage.faq.items") as Record<string, { question: string; answer: string }>,
+  );
 
   return (
     <main className="container mx-auto px-6 py-24">
@@ -102,8 +88,8 @@ export default function PricingPage() {
         <h2 className="mb-8 text-center text-2xl font-bold">{t("pricingPage.included.title")}</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {includedFeatures.map((feature) => (
-            <div key={feature} className="flex items-center gap-3">
+          {includedFeatures.map(([key, feature]) => (
+            <div key={key} className="flex items-center gap-3">
               <Check className="h-5 w-5 text-primary" />
               <span>{feature}</span>
             </div>
@@ -154,8 +140,8 @@ export default function PricingPage() {
         <h2 className="mb-10 text-center text-3xl font-bold">{t("pricingPage.faq.title")}</h2>
 
         <div className="space-y-8">
-          {faqItems.map((item, index) => (
-            <div key={index}>
+          {faqItems.map(([key, item]) => (
+            <div key={key}>
               <h3 className="font-semibold">{item.question}</h3>
 
               <p className="mt-2 text-muted-foreground">{item.answer}</p>

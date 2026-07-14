@@ -13,7 +13,7 @@ import {
 import { isLocale, locales, withLocaleParam } from "@/i18n/locale";
 
 export function LocaleSwitcher() {
-  const t = useTranslations("layout.footer.language");
+  const t = useTranslations("");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -28,13 +28,13 @@ export function LocaleSwitcher() {
 
   return (
     <Select value={locale} onValueChange={handleChange}>
-      <SelectTrigger aria-label={t("label")} className="w-32">
+      <SelectTrigger aria-label={t("layout.footer.language.label")} className="w-32">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         {locales.map((value) => (
           <SelectItem key={value} value={value}>
-            {t(value)}
+            {t(`layout.footer.language.${value}`)}
           </SelectItem>
         ))}
       </SelectContent>

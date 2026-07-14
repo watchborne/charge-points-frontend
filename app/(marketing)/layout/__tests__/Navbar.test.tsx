@@ -18,18 +18,6 @@ vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, refresh }),
-  useTranslations: () => (key: string) => {
-    const translations: Record<string, string> = {
-      appName: "Watchborne",
-      "layout.navbar.navigation.pricing": "Pricing",
-      "layout.navbar.navigation.contact": "Contact",
-      "layout.navbar.actions.login": "Login",
-      "layout.navbar.actions.logout": "Logout",
-      "layout.navbar.actions.requestAlphaAccess": "Request Alpha Access",
-      "layout.navbar.actions.menu": "Menu",
-    };
-    return translations[key] || key;
-  },
 }));
 
 vi.mock("next-intl", () => ({

@@ -18,8 +18,8 @@
         "product": {
           "title": "Product",
           "links": {
-            "pricing": "Pricing",
-            "contact": "Contact"
+            "features": "Features",
+            "pricing": "Pricing"
           }
         },
         "company": {
@@ -120,13 +120,13 @@
     "roadmap": {
       "badge": "Roadmap",
       "title": "What's coming next",
-      "items": [
-        "Alerting",
-        "Event History",
-        "Historical analytics",
-        "Role-based access control",
-        "Site health overview"
-      ]
+      "items": {
+        "alerting": "Alerting",
+        "eventHistory": "Event History",
+        "historicalAnalytics": "Historical analytics",
+        "rbac": "Role-based access control",
+        "siteHealth": "Site health overview"
+      }
     },
     "featuresSection": {
       "title": "Built for EV charging installers",
@@ -135,13 +135,13 @@
     "mvpFeatures": {
       "title": "Included today",
       "subtitle": "Everything required to supervise a fleet of charging stations.",
-      "items": [
-        "Charge Point Management",
-        "Connection State Tracking",
-        "Real-Time Dashboard",
-        "Offline Detection",
-        "Multi-Site Organization"
-      ]
+      "items": {
+        "management": "Charge Point Management",
+        "stateTracking": "Connection State Tracking",
+        "dashboard": "Real-Time Dashboard",
+        "offlineDetection": "Offline Detection",
+        "multisite": "Multi-Site Organization"
+      }
     },
     "cta": {
       "title": "Stop guessing.",
@@ -215,11 +215,11 @@
     },
     "branding": {
       "tagline": "Monitor your EV charge points in real time.",
-      "features": [
-        "Real-time OCPP 2.0.1 supervision",
-        "Multi-site dashboard",
-        "Instant offline detection"
-      ]
+      "features": {
+        "ocpp": "Real-time OCPP 2.0.1 supervision",
+        "multisite": "Multi-site dashboard",
+        "offline": "Instant offline detection"
+      }
     }
   },
   "notFoundPage": {
