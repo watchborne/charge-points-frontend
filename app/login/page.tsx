@@ -8,10 +8,8 @@ import { AuthErrorCallout } from "./components/AuthErrorCallout";
 import { LoginForm } from "./components/LoginForm";
 
 export default function LoginPage() {
-  const t = useTranslations("loginPage");
-  const tRoot = useTranslations("");
-
-  const features = t.raw("branding.features") as string[];
+  const t = useTranslations("");
+  const features = t.raw("loginPage.branding.features") as Record<string, string>;
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-2">
@@ -21,17 +19,17 @@ export default function LoginPage() {
           href="/"
           className="text-lg font-semibold tracking-tight hover:opacity-80 transition-opacity"
         >
-          {tRoot("appName")}
+          {t("appName")}
         </Link>
 
         <div>
           <PlugZap className="h-10 w-10 mb-8 opacity-70" />
 
-          <p className="text-3xl font-bold leading-snug">{t("branding.tagline")}</p>
+          <p className="text-3xl font-bold leading-snug">{t("loginPage.branding.tagline")}</p>
 
           <ul className="mt-8 space-y-3">
-            {features.map((feature) => (
-              <li key={feature} className="flex items-center gap-3 text-sm opacity-80">
+            {Object.entries(features).map(([key, feature]) => (
+              <li key={key} className="flex items-center gap-3 text-sm opacity-80">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground shrink-0" />
                 {feature}
               </li>
@@ -40,7 +38,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-xs opacity-40">
-          © {new Date().getFullYear()} {tRoot("appName")}
+          © {new Date().getFullYear()} {t("appName")}
         </p>
       </div>
 
@@ -52,40 +50,40 @@ export default function LoginPage() {
             href="/"
             className="inline-block text-lg font-semibold tracking-tight mb-8 lg:hidden"
           >
-            {tRoot("appName")}
+            {t("appName")}
           </Link>
 
           <div className="mb-8">
             <Badge variant="secondary" className="mb-4">
-              {t("alphaBadge")}
+              {t("loginPage.alphaBadge")}
             </Badge>
 
-            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t("loginPage.title")}</h1>
 
-            <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("loginPage.subtitle")}</p>
           </div>
 
           <AuthErrorCallout />
 
           <LoginForm
             labels={{
-              email: t("form.email"),
-              emailPlaceholder: t("form.emailPlaceholder"),
-              submit: t("form.submit"),
-              sentTitle: t("magicLink.sentTitle"),
-              sentDescription: t("magicLink.sentDescription"),
-              error: t("magicLink.error"),
-              unknownUser: t("magicLink.unknownUser"),
+              email: t("loginPage.form.email"),
+              emailPlaceholder: t("loginPage.form.emailPlaceholder"),
+              submit: t("loginPage.form.submit"),
+              sentTitle: t("loginPage.magicLink.sentTitle"),
+              sentDescription: t("loginPage.magicLink.sentDescription"),
+              error: t("loginPage.magicLink.error"),
+              unknownUser: t("loginPage.magicLink.unknownUser"),
             }}
           />
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {t("noAccount.text")}{" "}
+            {t("loginPage.noAccount.text")}{" "}
             <Link
               href="/signup"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              {t("noAccount.link")}
+              {t("loginPage.noAccount.link")}
             </Link>
           </p>
         </div>

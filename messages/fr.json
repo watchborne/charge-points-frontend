@@ -120,13 +120,13 @@
     "roadmap": {
       "badge": "Feuille de route",
       "title": "Ce qui arrive ensuite",
-      "items": [
-        "Système d'alertes",
-        "Historique des événements",
-        "Analyses historiques",
-        "Contrôle d'accès basé sur les rôles",
-        "Vue d'ensemble de la santé du site"
-      ]
+      "items": {
+        "alerting": "Système d'alertes",
+        "eventHistory": "Historique des événements",
+        "historicalAnalytics": "Analyses historiques",
+        "rbac": "Contrôle d'accès basé sur les rôles",
+        "siteHealth": "Vue d'ensemble de la santé du site"
+      }
     },
     "featuresSection": {
       "title": "Conçu pour les installateurs IRVE",
@@ -135,13 +135,13 @@
     "mvpFeatures": {
       "title": "Inclus aujourd'hui",
       "subtitle": "Tout ce qui est nécessaire pour superviser un parc de bornes de recharge.",
-      "items": [
-        "Gestion des bornes de recharge",
-        "Suivi de l'état de connexion",
-        "Tableau de bord en temps réel",
-        "Détection des déconnexions",
-        "Organisation multi-sites"
-      ]
+      "items": {
+        "management": "Gestion des bornes de recharge",
+        "stateTracking": "Suivi de l'état de connexion",
+        "dashboard": "Tableau de bord en temps réel",
+        "offlineDetection": "Détection des déconnexions",
+        "multisite": "Organisation multi-sites"
+      }
     },
     "cta": {
       "title": "Arrêtez de deviner.",
@@ -215,11 +215,11 @@
     },
     "branding": {
       "tagline": "Supervisez vos bornes de recharge en temps réel.",
-      "features": [
-        "Supervision OCPP 2.0.1 en temps réel",
-        "Tableau de bord multi-sites",
-        "Détection des déconnexions instantanée"
-      ]
+      "features": {
+        "ocpp": "Supervision OCPP 2.0.1 en temps réel",
+        "multisite": "Tableau de bord multi-sites",
+        "offline": "Détection des déconnexions instantanée"
+      }
     }
   },
   "notFoundPage": {

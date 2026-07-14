@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 
 function AuthErrorCalloutContent() {
-  const t = useTranslations("loginPage.authError");
+  const t = useTranslations("");
   const searchParams = useSearchParams();
 
   const errorCode = searchParams.get("error_code");
@@ -15,7 +15,10 @@ function AuthErrorCalloutContent() {
     return null;
   }
 
-  const description = errorCode === "otp_expired" ? t("otpExpired") : t("generic");
+  const description =
+    errorCode === "otp_expired"
+      ? t("loginPage.authError.otpExpired")
+      : t("loginPage.authError.generic");
 
   return (
     <div className="mb-6 flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
