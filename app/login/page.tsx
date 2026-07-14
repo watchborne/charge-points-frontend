@@ -12,8 +12,7 @@ export default function LoginPage() {
   const features = t.raw("loginPage.branding.features") as Record<string, string>;
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-2">
-      {/* Left panel — branding */}
+    <>
       <div className="hidden lg:flex flex-col justify-between bg-primary text-primary-foreground p-10">
         <Link
           href="/"
@@ -42,7 +41,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Right panel — form */}
       <div className="flex items-center justify-center min-h-screen lg:min-h-0 p-8 bg-background">
         <div className="w-full max-w-sm">
           {/* Mobile brand */}
@@ -88,6 +86,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 }
