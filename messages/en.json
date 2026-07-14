@@ -68,6 +68,12 @@
         "links": {
           "chargePoints": "Charge Points",
           "sites": "Sites"
+        },
+        "wsStatus": {
+          "connecting": "Connecting…",
+          "connected": "Connected",
+          "disconnected": "Disconnected",
+          "error": "Connection error"
         }
       }
     }

@@ -20,17 +20,41 @@ export const Header = () => {
 
     switch (status) {
       case "CONNECTING":
-        return <Loader className={classNames(sizing, "animate-spin text-muted-foreground")} />;
+        return (
+          <Loader
+            role="img"
+            aria-label={t("layout.navbar.app.wsStatus.connecting")}
+            className={classNames(sizing, "animate-spin text-muted-foreground")}
+          />
+        );
       case "CONNECTED":
-        return <CheckCircle className={classNames(sizing, "text-status-available-foreground")} />;
+        return (
+          <CheckCircle
+            role="img"
+            aria-label={t("layout.navbar.app.wsStatus.connected")}
+            className={classNames(sizing, "text-status-available-foreground")}
+          />
+        );
       case "DISCONNECTED":
-        return <XCircle className={classNames(sizing, "text-status-error-foreground")} />;
+        return (
+          <XCircle
+            role="img"
+            aria-label={t("layout.navbar.app.wsStatus.disconnected")}
+            className={classNames(sizing, "text-status-error-foreground")}
+          />
+        );
       case "ERROR":
-        return <AlertCircle className={classNames(sizing, "text-status-warning-foreground")} />;
+        return (
+          <AlertCircle
+            role="img"
+            aria-label={t("layout.navbar.app.wsStatus.error")}
+            className={classNames(sizing, "text-status-warning-foreground")}
+          />
+        );
       default:
         return null;
     }
-  }, [status]);
+  }, [status, t]);
 
   const links = [
     { key: "sites", label: t("layout.navbar.app.links.sites"), url: "/app/sites" },

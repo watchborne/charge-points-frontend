@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { WebSocketStatus } from "../../../ws/ws-manager";
 import { Header } from "../Header";
 
 const { createBrowserClient, signOut } = vi.hoisted(() => {
@@ -16,6 +17,10 @@ const { replace, refresh } = vi.hoisted(() => ({
   refresh: vi.fn(),
 }));
 
+const { useWebSocket } = vi.hoisted(() => ({
+  useWebSocket: vi.fn(),
+}));
+
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 vi.mock("next/navigation", () => ({
@@ -23,9 +28,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, refresh }),
 }));
 
-vi.mock("../../../hooks/useWebSocket", () => ({
-  useWebSocket: () => ({ status: "CONNECTED" }),
-}));
+vi.mock("../../../hooks/useWebSocket", () => ({ useWebSocket }));
 
 vi.mock("next-intl", () => {
   const translations: Record<string, string> = {
@@ -34,6 +37,10 @@ vi.mock("next-intl", () => {
     "layout.navbar.app.links.chargePoints": "Charge Points",
     "layout.navbar.actions.logout": "Logout",
     "layout.navbar.actions.menu": "Menu",
+    "layout.navbar.app.wsStatus.connecting": "Connecting…",
+    "layout.navbar.app.wsStatus.connected": "Connected",
+    "layout.navbar.app.wsStatus.disconnected": "Disconnected",
+    "layout.navbar.app.wsStatus.error": "Connection error",
   };
   return {
     useTranslations: () => (key: string) => translations[key] ?? key,
@@ -42,12 +49,14 @@ vi.mock("next-intl", () => {
 
 const renderComponent = () => render(<Header />);
 
-const CONNECTED_ICON_CLASS = "lucide-circle-check-big";
+const setWebSocketStatus = (status: WebSocketStatus) => useWebSocket.mockReturnValue({ status });
 
 beforeEach(() => {
   signOut.mockReset().mockResolvedValue({ error: null });
   replace.mockReset();
   refresh.mockReset();
+  useWebSocket.mockReset();
+  setWebSocketStatus("CONNECTED");
 });
 
 afterEach(() => {
@@ -73,9 +82,21 @@ describe("Header", () => {
     expect(refresh).toHaveBeenCalled();
   });
 
-  it("displays WebSocket connection status", async () => {
-    const { container } = renderComponent();
+  describe("WebSocket connection status", () => {
+    it.each([
+      ["CONNECTING", "Connecting…"],
+      ["CONNECTED", "Connected"],
+      ["DISCONNECTED", "Disconnected"],
+      ["ERROR", "Connection error"],
+    ] satisfies [WebSocketStatus, string][])(
+      "SHOULD expose an accessible status icon WHEN the WebSocket status is %s",
+      (status, accessibleName) => {
+        setWebSocketStatus(status);
 
-    expect(container.querySelector(`svg.${CONNECTED_ICON_CLASS}`)).toBeTruthy();
+        renderComponent();
+
+        expect(screen.getByRole("img", { name: accessibleName })).toBeTruthy();
+      },
+    );
   });
 });
