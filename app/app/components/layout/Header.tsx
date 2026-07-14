@@ -49,14 +49,14 @@ export const Header = () => {
 
   return (
     <header className="bg-card border-b sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="container mx-auto px-3 sm:px-5 lg:px-7 py-3">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Link href="/app/" className="flex items-center gap-3">
+          <Link href="/app/dashboard" className="flex items-center gap-5">
             <Image
               src={svgLogo}
               alt="Watchborne logo"
-              width="56"
-              className="h-10 w-10 sm:h-14 sm:w-14"
+              width="48"
+              className="h-8 w-8 sm:h-10 sm:w-10"
             />
             <h1 className="text-lg font-bold text-foreground sm:text-2xl">{t("appName")}</h1>
           </Link>
