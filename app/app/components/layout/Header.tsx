@@ -35,20 +35,20 @@ export const Header = () => {
 
     switch (status) {
       case "CONNECTING":
-        return <Loader className={classNames(sizing, "animate-spin")} />;
+        return <Loader className={classNames(sizing, "animate-spin text-muted-foreground")} />;
       case "CONNECTED":
-        return <CheckCircle className={classNames(sizing, "text-green-600")} />;
+        return <CheckCircle className={classNames(sizing, "text-status-available-foreground")} />;
       case "DISCONNECTED":
-        return <XCircle className={classNames(sizing, "text-red-600")} />;
+        return <XCircle className={classNames(sizing, "text-status-error-foreground")} />;
       case "ERROR":
-        return <AlertCircle className={classNames(sizing, "text-yellow-600")} />;
+        return <AlertCircle className={classNames(sizing, "text-status-warning-foreground")} />;
       default:
         return null;
     }
   }, [status]);
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-card border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <Link href="/app/" className="flex items-center gap-3">
@@ -58,7 +58,7 @@ export const Header = () => {
               width="56"
               className="h-10 w-10 sm:h-14 sm:w-14"
             />
-            <h1 className="text-lg font-bold text-gray-900 sm:text-2xl">{t("appName")}</h1>
+            <h1 className="text-lg font-bold text-foreground sm:text-2xl">{t("appName")}</h1>
           </Link>
           <div className="flex items-center gap-3">
             <Link
@@ -66,8 +66,8 @@ export const Header = () => {
               className={classNames(
                 "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
                 pathname === "/app/sites"
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+                  ? "bg-charge-soft text-charge-strong"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               {t("layout.navbar.app.links.sites")}
@@ -77,8 +77,8 @@ export const Header = () => {
               className={classNames(
                 "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
                 pathname === "/app/charge-points"
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+                  ? "bg-charge-soft text-charge-strong"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               {t("layout.navbar.app.links.chargePoints")}
@@ -94,7 +94,7 @@ export const Header = () => {
               size="sm"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="gap-2 text-gray-600 hover:text-gray-900"
+              className="gap-2 text-muted-foreground hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">{t("layout.navbar.actions.logout")}</span>

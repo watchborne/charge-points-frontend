@@ -1,6 +1,9 @@
+import classNames from "classnames";
 import { Battery, CheckCircle, Cloud, PlugZap, RefreshCw, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 
+import { connectorStatusTone, toneTextClass } from "@/lib/status";
 import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
 
 import { StatCard } from "../common/StatCard";
@@ -10,6 +13,7 @@ export const ChargePointStats = ({
 }: {
   chargePoints: ChargePointWithConnectors[];
 }) => {
+  const t = useTranslations("");
   const connectedDevices = chargePoints.filter(({ connection }) =>
     ["SYNCED", "CONNECTED"].includes(connection.status),
   );
@@ -43,34 +47,34 @@ export const ChargePointStats = ({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
         <StatCard
-          title="Total"
+          title={t("appPage.chargePoints.stats.total")}
           value={stats.total}
-          icon={<Battery className="h-5 w-5 text-gray-600" />}
+          icon={<Battery className="h-5 w-5 text-muted-foreground" />}
         />
         <StatCard
-          title="Connected"
+          title={t("appPage.chargePoints.stats.connected")}
           value={stats.connected.value}
-          icon={<PlugZap className="h-5 w-5 text-yellow-600" />}
+          icon={<PlugZap className="h-5 w-5 text-status-pending-foreground" />}
           subtitle={stats.connected.percentage}
         />
         <StatCard
-          title="Offline"
+          title={t("appPage.chargePoints.stats.offline")}
           value={stats.offline.value}
-          icon={<RefreshCw className="h-5 w-5 text-green-600" />}
+          icon={<RefreshCw className="h-5 w-5 text-status-offline-foreground" />}
           subtitle={stats.offline.percentage}
         />
         <StatCard
-          title="Not stable"
+          title={t("appPage.chargePoints.stats.notStable")}
           value={stats.notStable.value}
-          icon={<X className="h-5 w-5 text-red-600" />}
+          icon={<X className="h-5 w-5 text-status-error-foreground" />}
           subtitle={stats.notStable.percentage}
         />
       </div>
       <div className="h-full md:col-span-1 [&>div]:h-full">
         <StatCard
-          title="Synced"
+          title={t("appPage.chargePoints.stats.synced")}
           value={stats.synced.value}
-          icon={<Cloud className="h-6 w-6 text-green-600" />}
+          icon={<Cloud className="h-6 w-6 text-status-available-foreground" />}
         >
           <div className="flex flex-col content-stretch gap-2 text-sm mt-2">
             {(
@@ -95,8 +99,10 @@ export const ChargePointStats = ({
                     <p className="text-md italic">{status}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="ml-auto text-sm font-bold text-gray-900">{countForStatus}</p>
-                    <p className="text-sm text-gray-500">({makePercentage(countForStatus)})</p>
+                    <p className="ml-auto text-sm font-bold text-foreground">{countForStatus}</p>
+                    <p className="text-sm text-muted-foreground">
+                      ({makePercentage(countForStatus)})
+                    </p>
                   </div>
                 </div>
               );
@@ -109,22 +115,24 @@ export const ChargePointStats = ({
 };
 
 const getStatusIcon = (status: ConnectorStatus): ReactNode => {
+  const className = classNames("h-5 w-5", toneTextClass[connectorStatusTone(status)]);
+
   switch (status) {
     case "Available":
-      return <CheckCircle className="h-5 w-5 text-green-600" />;
+      return <CheckCircle className={className} />;
     case "Preparing":
     case "Finishing":
-      return <RefreshCw className="h-5 w-5 text-yellow-600" />;
+      return <RefreshCw className={className} />;
     case "Charging":
     case "Occupied":
-      return <Battery className="h-5 w-5 text-blue-600" />;
+      return <Battery className={className} />;
     case "SuspendedEV":
     case "SuspendedEVSE":
     case "Reserved":
     case "Unavailable":
-      return <Cloud className="h-5 w-5 text-orange-700" />;
+      return <Cloud className={className} />;
     case "Faulted":
-      return <X className="h-5 w-5 text-red-600" />;
+      return <X className={className} />;
     default:
       return null;
   }

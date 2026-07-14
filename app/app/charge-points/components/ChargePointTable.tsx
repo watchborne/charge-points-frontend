@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -25,17 +27,19 @@ export const ChargePointTable = ({
   onRowClicked,
   onToggleActive,
 }: ChargePointTableProps) => {
+  const t = useTranslations("");
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Status</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Vendor</TableHead>
-          <TableHead>Model</TableHead>
-          <TableHead>Serial number</TableHead>
-          <TableHead>Firmware</TableHead>
-          <TableHead>Active</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.status")}</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.name")}</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.vendor")}</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.model")}</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.serialNumber")}</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.firmware")}</TableHead>
+          <TableHead>{t("appPage.chargePoints.page.table.columns.active")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -45,7 +49,7 @@ export const ChargePointTable = ({
             className={[
               "cursor-pointer",
               cp.id === highlightedId
-                ? "bg-blue-50 ring-1 ring-inset ring-blue-200"
+                ? "bg-charge-soft ring-1 ring-inset ring-charge/30"
                 : !cp.isActive
                   ? "opacity-50"
                   : "",
@@ -57,13 +61,13 @@ export const ChargePointTable = ({
             </TableCell>
             <TableCell className="font-medium">{cp.name}</TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.vendor || <span className="text-slate-300">—</span>}
+              {cp.meta?.vendor || <span className="text-muted-foreground/50">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">
-              {cp.meta?.model || <span className="text-slate-300">—</span>}
+              {cp.meta?.model || <span className="text-muted-foreground/50">—</span>}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm font-mono text-xs">
-              {cp.meta?.serialNumber || <span className="text-slate-300">—</span>}
+              {cp.meta?.serialNumber || <span className="text-muted-foreground/50">—</span>}
             </TableCell>
             <TableCell>
               {cp.meta?.firmwareVersion ? (
@@ -71,7 +75,7 @@ export const ChargePointTable = ({
                   v{cp.meta?.firmwareVersion}
                 </Badge>
               ) : (
-                <span className="text-slate-300">—</span>
+                <span className="text-muted-foreground/50">—</span>
               )}
             </TableCell>
             <TableCell onClick={(e) => e.stopPropagation()}>

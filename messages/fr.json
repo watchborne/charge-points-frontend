@@ -326,5 +326,147 @@
         }
       }
     }
+  },
+  "appPage": {
+    "loading": {
+      "chargePoints": "Chargement des bornes de recharge...",
+      "sites": "Chargement des sites..."
+    },
+    "chargePoints": {
+      "page": {
+        "buttons": {
+          "addChargePoint": "Ajouter une borne de recharge",
+          "addForThisSite": "Ajouter pour ce site",
+          "search": "Chercher..."
+        },
+        "labels": {
+          "countText_singular": "{count} borne de recharge",
+          "countText_plural": "{count} bornes de recharge"
+        },
+        "table": {
+          "columns": {
+            "status": "Statut",
+            "name": "Nom",
+            "vendor": "Fabricant",
+            "model": "Modèle",
+            "serialNumber": "Numéro de série",
+            "firmware": "Firmware",
+            "active": "Actif"
+          }
+        },
+        "empty": {
+          "noChargePointFound": "Aucune borne de recharge trouvée."
+        }
+      },
+      "form": {
+        "createTitle": "Ajouter une borne de recharge",
+        "editTitle": "Modifier la borne de recharge",
+        "createDescription": "Remplissez les détails de la nouvelle borne de recharge.",
+        "editDescription": "Modifiez les détails de la borne de recharge.",
+        "buttons": {
+          "create": "Créer",
+          "save": "Enregistrer",
+          "cancel": "Annuler"
+        },
+        "fields": {
+          "name": "Nom",
+          "namePlaceholder": "Ex: CP-001",
+          "site": "Site",
+          "technicalInformation": "Informations techniques",
+          "vendor": "Fabricant",
+          "vendorPlaceholder": "Ex: Schneider Electric",
+          "model": "Modèle",
+          "modelPlaceholder": "Ex: Terra AC",
+          "serialNumber": "Numéro de série",
+          "serialNumberPlaceholder": "Ex: SN-001",
+          "firmware": "Firmware",
+          "firmwarePlaceholder": "Ex: 1.2.3"
+        }
+      },
+      "detail": {
+        "connectionStatus": "Statut de connexion",
+        "connector": "Connecteur #{connectorId}",
+        "lastSeen": "Dernière vue",
+        "never": "Jamais",
+        "site": "Site",
+        "unknownSite": "Site inconnu",
+        "inactive": "Inactif"
+      },
+      "deletion": {
+        "title": "Supprimer « {name} » ?",
+        "description": "Action destructive : cette borne de recharge sera irrécupérable."
+      },
+      "stats": {
+        "total": "Total",
+        "connected": "Connecté",
+        "offline": "Hors ligne",
+        "notStable": "Pas stable",
+        "synced": "Synchronisé"
+      },
+      "card": {
+        "model": "Modèle",
+        "firmware": "Firmware",
+        "connectors": "Connecteurs",
+        "site": "Site:",
+        "lastSeen": "Dernière vue",
+        "neverSeen": "Jamais vue"
+      },
+      "emptyState": {
+        "noDetected": "Aucune borne de recharge détectée",
+        "description": "Les bornes de recharge apparaîtront ici une fois connectées au serveur OCPP"
+      }
+    },
+    "sites": {
+      "page": {
+        "buttons": {
+          "addSite": "Ajouter un site",
+          "search": "Chercher un site par nom..."
+        },
+        "table": {
+          "columns": {
+            "name": "Nom",
+            "customer": "Client",
+            "installDate": "Date d'installation",
+            "lastVisit": "Dernière visite",
+            "actions": "Actions"
+          },
+          "empty": "Aucune correspondance trouvée."
+        }
+      },
+      "form": {
+        "createTitle": "Ajouter un site",
+        "editTitle": "Modifier un site",
+        "createDescription": "Remplissez les détails du nouveau site.",
+        "editDescription": "Modifiez les détails du nouveau site.",
+        "buttons": {
+          "create": "Créer site",
+          "save": "Enregistrer",
+          "cancel": "Annuler"
+        },
+        "fields": {
+          "siteName": "Nom du site",
+          "siteNamePlaceholder": "Ex: Paris - Nom du client",
+          "customerName": "Nom du client",
+          "customerNamePlaceholder": "Nom du client",
+          "installDate": "Date d'installation",
+          "installDatePlaceholder": "Date d'installation...",
+          "lastVisit": "Dernière visite",
+          "lastVisitPlaceholder": "Dernière visite..."
+        }
+      },
+      "deletion": {
+        "title": "Supprimer « {name} » ?",
+        "description": "Action destructive : ce site sera irrécupérable."
+      },
+      "siteCombobox": {
+        "placeholder": "Sélectionner un site...",
+        "search": "Chercher un site...",
+        "empty": "Aucun site trouvé."
+      }
+    },
+    "deletion": {
+      "title": "Supprimer « {name} » ?",
+      "description": "Action destructive : ce site sera irrécupérable."
+    }
   }
 }

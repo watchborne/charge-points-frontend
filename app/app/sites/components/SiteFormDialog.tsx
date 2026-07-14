@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Globe } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -48,6 +49,7 @@ export const SiteFormDialog = ({
   onSubmit,
   mode,
 }: SiteFormDialogProps) => {
+  const t = useTranslations("");
   const form = useForm<SiteFormValues>({
     resolver: zodResolver(siteFormSchema),
     defaultValues: {
@@ -80,12 +82,14 @@ export const SiteFormDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-primary" />
-            {mode === "create" ? "Add a site" : "Edit a site"}
+            {mode === "create"
+              ? t("appPage.sites.form.createTitle")
+              : t("appPage.sites.form.editTitle")}
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Fill in the details about the new site."
-              : "Edit the details about the new site."}
+              ? t("appPage.sites.form.createDescription")
+              : t("appPage.sites.form.editDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -96,9 +100,12 @@ export const SiteFormDialog = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Site name</FormLabel>
+                  <FormLabel>{t("appPage.sites.form.fields.siteName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Paris - Customer name" {...field} />
+                    <Input
+                      placeholder={t("appPage.sites.form.fields.siteNamePlaceholder")}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,9 +117,12 @@ export const SiteFormDialog = ({
               name="customer"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Customer name</FormLabel>
+                  <FormLabel>{t("appPage.sites.form.fields.customerName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Customer name" {...field} />
+                    <Input
+                      placeholder={t("appPage.sites.form.fields.customerNamePlaceholder")}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,12 +135,12 @@ export const SiteFormDialog = ({
                 name="installedAt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Install date</FormLabel>
+                    <FormLabel>{t("appPage.sites.form.fields.installDate")}</FormLabel>
                     <FormControl>
                       <Datepicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Install date..."
+                        placeholder={t("appPage.sites.form.fields.installDatePlaceholder")}
                       />
                     </FormControl>
                     <FormMessage />
@@ -143,12 +153,12 @@ export const SiteFormDialog = ({
                 name="lastVisitedAt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last visit</FormLabel>
+                    <FormLabel>{t("appPage.sites.form.fields.lastVisit")}</FormLabel>
                     <FormControl>
                       <Datepicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Last visit..."
+                        placeholder={t("appPage.sites.form.fields.lastVisitPlaceholder")}
                         disabled={(date) => date > new Date()}
                       />
                     </FormControl>
@@ -160,9 +170,13 @@ export const SiteFormDialog = ({
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("appPage.sites.form.buttons.cancel")}
               </Button>
-              <Button type="submit">{mode === "create" ? "Create site" : "Save"}</Button>
+              <Button type="submit">
+                {mode === "create"
+                  ? t("appPage.sites.form.buttons.create")
+                  : t("appPage.sites.form.buttons.save")}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

@@ -327,5 +327,147 @@
         }
       }
     }
+  },
+  "appPage": {
+    "loading": {
+      "chargePoints": "Loading charge points...",
+      "sites": "Loading sites..."
+    },
+    "chargePoints": {
+      "page": {
+        "buttons": {
+          "addChargePoint": "Add a charge point",
+          "addForThisSite": "Add for this site",
+          "search": "Search..."
+        },
+        "labels": {
+          "countText_singular": "{count} charge point",
+          "countText_plural": "{count} charge points"
+        },
+        "table": {
+          "columns": {
+            "status": "Status",
+            "name": "Name",
+            "vendor": "Vendor",
+            "model": "Model",
+            "serialNumber": "Serial number",
+            "firmware": "Firmware",
+            "active": "Active"
+          }
+        },
+        "empty": {
+          "noChargePointFound": "No charge point found."
+        }
+      },
+      "form": {
+        "createTitle": "Add a charge point",
+        "editTitle": "Edit the charge point",
+        "createDescription": "Fill in details about new charge point.",
+        "editDescription": "Edit details about the charge point.",
+        "buttons": {
+          "create": "Create",
+          "save": "Save",
+          "cancel": "Cancel"
+        },
+        "fields": {
+          "name": "Name",
+          "namePlaceholder": "Ex: CP-001",
+          "site": "Site",
+          "technicalInformation": "Technical information",
+          "vendor": "Vendor",
+          "vendorPlaceholder": "Ex: Schneider Electric",
+          "model": "Model",
+          "modelPlaceholder": "Ex: Terra AC",
+          "serialNumber": "Serial number",
+          "serialNumberPlaceholder": "Ex: SN-001",
+          "firmware": "Firmware",
+          "firmwarePlaceholder": "Ex: 1.2.3"
+        }
+      },
+      "detail": {
+        "connectionStatus": "Connection status",
+        "connector": "Connector #{connectorId}",
+        "lastSeen": "Last seen",
+        "never": "Never",
+        "site": "Site",
+        "unknownSite": "Unknown site",
+        "inactive": "Inactive"
+      },
+      "deletion": {
+        "title": "Delete « {name} » ?",
+        "description": "Destroy action: this charge point will be unrecoverable."
+      },
+      "stats": {
+        "total": "Total",
+        "connected": "Connected",
+        "offline": "Offline",
+        "notStable": "Not stable",
+        "synced": "Synced"
+      },
+      "card": {
+        "model": "Model",
+        "firmware": "Firmware",
+        "connectors": "Connectors",
+        "site": "Site:",
+        "lastSeen": "Last seen",
+        "neverSeen": "Never seen"
+      },
+      "emptyState": {
+        "noDetected": "No detected charge points",
+        "description": "Charge points will appear here once connected to the OCPP server"
+      }
+    },
+    "sites": {
+      "page": {
+        "buttons": {
+          "addSite": "Add a site",
+          "search": "Search a site by name..."
+        },
+        "table": {
+          "columns": {
+            "name": "Name",
+            "customer": "Customer",
+            "installDate": "Install date",
+            "lastVisit": "Last visit",
+            "actions": "Actions"
+          },
+          "empty": "No matches found."
+        }
+      },
+      "form": {
+        "createTitle": "Add a site",
+        "editTitle": "Edit a site",
+        "createDescription": "Fill in the details about the new site.",
+        "editDescription": "Edit the details about the new site.",
+        "buttons": {
+          "create": "Create site",
+          "save": "Save",
+          "cancel": "Cancel"
+        },
+        "fields": {
+          "siteName": "Site name",
+          "siteNamePlaceholder": "Ex: Paris - Customer name",
+          "customerName": "Customer name",
+          "customerNamePlaceholder": "Customer name",
+          "installDate": "Install date",
+          "installDatePlaceholder": "Install date...",
+          "lastVisit": "Last visit",
+          "lastVisitPlaceholder": "Last visit..."
+        }
+      },
+      "deletion": {
+        "title": "Delete « {name} » ?",
+        "description": "Destroy action: this site will be unrecoverable."
+      },
+      "siteCombobox": {
+        "placeholder": "Select a site...",
+        "search": "Search for site...",
+        "empty": "No site found."
+      }
+    },
+    "deletion": {
+      "title": "Delete « {name} » ?",
+      "description": "Destroy action: this site will be unrecoverable."
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { Site } from "@watchborne/charge-points-types";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,23 +26,27 @@ type SiteTableProps = {
 };
 
 export const SiteTable = ({ sites, onEditClicked, onDeleteClicked }: SiteTableProps) => {
+  const t = useTranslations("");
+
   return (
     <div className="rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Install date</TableHead>
-            <TableHead>Last visit</TableHead>
-            <TableHead className="w-[60px]" />
+            <TableHead>{t("appPage.sites.page.table.columns.name")}</TableHead>
+            <TableHead>{t("appPage.sites.page.table.columns.customer")}</TableHead>
+            <TableHead>{t("appPage.sites.page.table.columns.installDate")}</TableHead>
+            <TableHead>{t("appPage.sites.page.table.columns.lastVisit")}</TableHead>
+            <TableHead className="w-[60px]">
+              {t("appPage.sites.page.table.columns.actions")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sites.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                No matches found.
+                {t("appPage.sites.page.table.empty")}
               </TableCell>
             </TableRow>
           ) : (
@@ -62,13 +67,15 @@ export const SiteTable = ({ sites, onEditClicked, onDeleteClicked }: SiteTablePr
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Actions</span>
+                        <span className="sr-only">
+                          {t("appPage.sites.page.table.columns.actions")}
+                        </span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => onEditClicked(site)}>
                         <Pencil className="h-4 w-4 mr-2" />
-                        Edit
+                        {t("common.edit")}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -76,7 +83,7 @@ export const SiteTable = ({ sites, onEditClicked, onDeleteClicked }: SiteTablePr
                         onClick={() => onDeleteClicked(site)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        {t("common.delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

@@ -14,8 +14,10 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 
+import { connectorStatusTone, toneTextClass } from "@/lib/status";
 import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
 
 import { StatusBadge } from "./StatusBadge";
@@ -25,6 +27,7 @@ interface ChargePointCardProps {
 }
 
 export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
+  const t = useTranslations("");
   const lastSeenText =
     chargePoint.connection.lastSeenAt &&
     formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
@@ -35,17 +38,17 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
     <Link
       href={`/app/charge-points?id=${chargePoint.id}`}
       className={classNames(
-        "block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer",
+        "block bg-card rounded-lg border p-4 hover:shadow-md transition-shadow cursor-pointer",
         !chargePoint.isActive && "opacity-50 grayscale",
       )}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Battery className="h-5 w-5 text-gray-600" />
+          <Battery className="h-5 w-5 text-muted-foreground" />
           <h3 className="font-semibold text-lg">{chargePoint.name}</h3>
           {!chargePoint.isActive && (
             <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-              Inactive
+              {t("appPage.chargePoints.detail.inactive")}
             </span>
           )}
         </div>
@@ -56,26 +59,28 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
         <div className="space-y-1 mb-3">
           {[
             {
-              label: "Model",
+              label: t("appPage.chargePoints.card.model"),
               data: chargePoint.meta.vendor && chargePoint.meta.model && (
-                <p className="text-gray-500 font-medium">
+                <p className="text-muted-foreground font-medium">
                   {`${chargePoint.meta.vendor} ${chargePoint.meta.model}`}
                 </p>
               ),
             },
             {
-              label: "Firmware",
+              label: t("appPage.chargePoints.card.firmware"),
               data: chargePoint.meta.firmwareVersion && (
-                <p className="text-gray-500 font-medium">{chargePoint.meta.firmwareVersion}</p>
+                <p className="text-muted-foreground font-medium">
+                  {chargePoint.meta.firmwareVersion}
+                </p>
               ),
             },
             {
-              label: "Connectors",
+              label: t("appPage.chargePoints.card.connectors"),
               data: chargePoint.connectors.length > 0 && (
                 <div className="flex flex-col gap-1">
                   {chargePoint.connectors.map((connector) => (
                     <div key={connector.id} className="flex items-center gap-2">
-                      <p className="text-gray-500 font-medium">
+                      <p className="text-muted-foreground font-medium">
                         #{connector.connectorId} {connector.status}
                       </p>
                       {getConnectorStatusIcon(connector.status)}
@@ -90,9 +95,13 @@ export function ChargePointCard({ chargePoint }: ChargePointCardProps) {
         </div>
       )}
 
-      <div className="flex items-center gap-2 text-sm text-gray-500 pt-3 border-t">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-3 border-t">
         <Clock className="h-4 w-4" />
-        <span>{lastSeenText ? `Last seen ${lastSeenText}` : "Never seen"}</span>
+        <span>
+          {lastSeenText
+            ? `${t("appPage.chargePoints.card.lastSeen")} ${lastSeenText}`
+            : t("appPage.chargePoints.card.neverSeen")}
+        </span>
       </div>
     </Link>
   );
@@ -103,7 +112,7 @@ const ChargePointDetail = ({ label, detail }: { label: string; detail?: ReactNod
 
   return (
     <div className="flex items-center gap-1 text-sm">
-      <label className="text-gray-900 font-medium" htmlFor={label}>
+      <label className="text-foreground font-medium" htmlFor={label}>
         {label}:{" "}
       </label>
       {detail}
@@ -112,26 +121,27 @@ const ChargePointDetail = ({ label, detail }: { label: string; detail?: ReactNod
 };
 
 const getConnectorStatusIcon = (status: ConnectorStatus) => {
+  const className = classNames("shrink-0", toneTextClass[connectorStatusTone(status)]);
+
   switch (status) {
     case "Available":
-      return <CheckCircle size="18px" className="text-green-800" />;
+      return <CheckCircle size="18px" className={className} />;
     case "Preparing":
-      return <CircleEllipsis size="18px" className="text-yellow-800" />;
+      return <CircleEllipsis size="18px" className={className} />;
     case "Charging":
-      return <PlugZap size="18px" className="text-blue-800" />;
+      return <PlugZap size="18px" className={className} />;
     case "SuspendedEV":
-      return <Pause size="18px" className="text-yellow-800" />;
     case "SuspendedEVSE":
-      return <Pause size="18px" className="text-yellow-800" />;
+      return <Pause size="18px" className={className} />;
     case "Occupied":
-      return <PlugZap size="18px" className="text-blue-600" />;
+      return <PlugZap size="18px" className={className} />;
     case "Finishing":
-      return <Loader size="18px" className="text-blue-600" />;
+      return <Loader size="18px" className={className} />;
     case "Reserved":
-      return <Ticket size="18px" className="text-pink-800" />;
+      return <Ticket size="18px" className={className} />;
     case "Unavailable":
-      return <X size="18px" className="text-red-800" />;
+      return <X size="18px" className={className} />;
     case "Faulted":
-      return <Shield size="18px" className="text-red-800" />;
+      return <Shield size="18px" className={className} />;
   }
 };

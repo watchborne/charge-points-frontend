@@ -15,6 +15,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { connectorStatusTone, toneTextClass } from "@/lib/status";
 import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
@@ -46,6 +48,8 @@ export const ChargePointDetailDialog = ({
   onEditClicked,
   onDeleteClicked,
 }: ChargePointDetailDialogProps) => {
+  const t = useTranslations("");
+
   if (!chargePoint) return null;
 
   const lastSeenText =
@@ -63,20 +67,21 @@ export const ChargePointDetailDialog = ({
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Battery className="h-5 w-5 text-blue-600" />
+            <Battery className="h-5 w-5 text-muted-foreground" />
             {chargePoint.name}
             {!chargePoint.isActive && (
               <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                Inactive
+                {t("appPage.chargePoints.detail.inactive")}
               </span>
             )}
           </DialogTitle>
         </DialogHeader>
 
         <div className="overflow-y-auto flex-1 space-y-4 py-2 pr-1">
-          {/* Status row */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Connection status</span>
+            <span className="text-sm text-muted-foreground">
+              {t("appPage.chargePoints.detail.connectionStatus")}
+            </span>
             <StatusBadge status={chargePoint.connection.status} />
           </div>
           {chargePoint.connection.statusMessage && (
@@ -88,7 +93,9 @@ export const ChargePointDetailDialog = ({
               {chargePoint.connectors.map((connector) => (
                 <div key={connector.id} className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-muted-foreground">
-                    Connector #{connector.connectorId}
+                    {t("appPage.chargePoints.detail.connector", {
+                      connectorId: connector.connectorId,
+                    })}
                   </span>
                   <div className="flex items-center gap-1.5">
                     {getConnectorStatusIcon(connector.status)}
@@ -100,11 +107,13 @@ export const ChargePointDetailDialog = ({
           )}
 
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Last seen</span>
+            <span className="text-sm text-muted-foreground">
+              {t("appPage.chargePoints.detail.lastSeen")}
+            </span>
             <span className="text-sm font-medium flex flex-col items-end">
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                {lastSeenText ?? "Never"}
+                {lastSeenText ?? t("appPage.chargePoints.detail.never")}
               </span>
               {chargePoint.connection.lastSeenAt && (
                 <span className="text-[10px] text-muted-foreground">
@@ -115,36 +124,45 @@ export const ChargePointDetailDialog = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Site</span>
+            <span className="text-sm text-muted-foreground">
+              {t("appPage.chargePoints.detail.site")}
+            </span>
             <span className="text-sm font-medium">
-              {site ? <Tag>{site.name}</Tag> : "Unknown site"}
+              {site ? <Tag>{site.name}</Tag> : t("appPage.chargePoints.detail.unknownSite")}
             </span>
           </div>
 
-          {/* Meta section */}
           {chargePoint.meta && (
             <div className="border rounded-md divide-y">
               {chargePoint.meta.vendor && (
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">Vendor</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("appPage.chargePoints.form.fields.vendor")}
+                  </span>
                   <span className="text-sm font-medium">{chargePoint.meta.vendor}</span>
                 </div>
               )}
               {chargePoint.meta.model && (
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">Model</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("appPage.chargePoints.form.fields.model")}
+                  </span>
                   <span className="text-sm font-medium">{chargePoint.meta.model}</span>
                 </div>
               )}
               {chargePoint.meta.serialNumber && (
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">Serial number</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("appPage.chargePoints.form.fields.serialNumber")}
+                  </span>
                   <span className="text-sm font-mono">{chargePoint.meta.serialNumber}</span>
                 </div>
               )}
               {chargePoint.meta.firmwareVersion && (
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">Firmware</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("appPage.chargePoints.form.fields.firmware")}
+                  </span>
                   <Badge variant="outline" className="font-mono text-xs">
                     v{chargePoint.meta.firmwareVersion}
                   </Badge>
@@ -164,7 +182,7 @@ export const ChargePointDetailDialog = ({
             }}
           >
             <Trash2 className="h-4 w-4 mr-1.5" />
-            Delete
+            {t("common.delete")}
           </Button>
           <Button
             size="sm"
@@ -174,7 +192,7 @@ export const ChargePointDetailDialog = ({
             }}
           >
             <Pencil className="h-4 w-4 mr-1.5" />
-            Edit
+            {t("common.edit")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -183,25 +201,27 @@ export const ChargePointDetailDialog = ({
 };
 
 const getConnectorStatusIcon = (status: ConnectorStatus) => {
+  const className = toneTextClass[connectorStatusTone(status)];
+
   switch (status) {
     case "Available":
-      return <CheckCircle size="16px" className="text-green-600" />;
+      return <CheckCircle size="16px" className={className} />;
     case "Preparing":
-      return <CircleEllipsis size="16px" className="text-yellow-600" />;
+      return <CircleEllipsis size="16px" className={className} />;
     case "Charging":
     case "Occupied":
-      return <PlugZap size="16px" className="text-blue-600" />;
+      return <PlugZap size="16px" className={className} />;
     case "SuspendedEV":
     case "SuspendedEVSE":
-      return <Pause size="16px" className="text-yellow-600" />;
+      return <Pause size="16px" className={className} />;
     case "Finishing":
-      return <Loader size="16px" className="text-blue-600" />;
+      return <Loader size="16px" className={className} />;
     case "Reserved":
-      return <Ticket size="16px" className="text-pink-600" />;
+      return <Ticket size="16px" className={className} />;
     case "Unavailable":
-      return <X size="16px" className="text-red-600" />;
+      return <X size="16px" className={className} />;
     case "Faulted":
-      return <Shield size="16px" className="text-red-600" />;
+      return <Shield size="16px" className={className} />;
     default:
       return null;
   }

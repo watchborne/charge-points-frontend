@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -11,6 +12,7 @@ export const ChargePointsGrid = ({
 }: {
   chargePoints: ChargePointWithConnectors[];
 }) => {
+  const t = useTranslations("");
   const { sites } = useSites();
   const sitesById = new Map(sites.map((site) => [site.id, site]));
 
@@ -33,13 +35,13 @@ export const ChargePointsGrid = ({
         <div
           key={siteId}
           className={classNames(
-            "rounded-lg p-4 flex flex-col gap-2",
-            siteId.toLowerCase() === "unknown" ? "bg-orange-300" : "bg-gray-300",
+            "rounded-lg border p-4 flex flex-col gap-2",
+            siteId.toLowerCase() === "unknown" ? "bg-status-warning-soft" : "bg-muted",
           )}
         >
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">Site:</h3>
-            <Tag>{sitesById.get(siteId)?.name ?? "Unknown site"}</Tag>
+            <h3 className="text-lg font-semibold">{t("appPage.chargePoints.card.site")}</h3>
+            <Tag>{sitesById.get(siteId)?.name ?? t("appPage.chargePoints.detail.unknownSite")}</Tag>
           </div>
           {chargePoints.map((chargePoint) => (
             <ChargePointCard key={chargePoint.id} chargePoint={chargePoint} />

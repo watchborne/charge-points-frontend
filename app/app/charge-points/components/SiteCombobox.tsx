@@ -1,6 +1,7 @@
 import { Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ type SiteComboboxProps = {
 };
 
 export const SiteCombobox = ({ value, onChange, sites }: SiteComboboxProps) => {
+  const t = useTranslations("");
   const [open, setOpen] = useState(false);
   const selected = sites.find((s) => s.id === value);
 
@@ -33,15 +35,15 @@ export const SiteCombobox = ({ value, onChange, sites }: SiteComboboxProps) => {
           aria-expanded={open}
           className="w-full justify-between font-normal"
         >
-          {selected ? selected.name : "Select a site..."}
+          {selected ? selected.name : t("appPage.sites.siteCombobox.placeholder")}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search for site..." />
+          <CommandInput placeholder={t("appPage.sites.siteCombobox.search")} />
           <CommandList>
-            <CommandEmpty>No site found.</CommandEmpty>
+            <CommandEmpty>{t("appPage.sites.siteCombobox.empty")}</CommandEmpty>
             <CommandGroup>
               {sites.map((site) => (
                 <CommandItem
