@@ -13,7 +13,7 @@ vi.mock("next-intl", () => ({
       appName: "Watchborne",
       "layout.navbar.actions.menu": "Menu",
     };
-    return translations[key] || key;
+    return translations[key] ?? key;
   },
 }));
 

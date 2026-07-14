@@ -36,7 +36,7 @@ vi.mock("next-intl", () => {
     "layout.navbar.actions.menu": "Menu",
   };
   return {
-    useTranslations: () => (key: string) => translations[key] || key,
+    useTranslations: () => (key: string) => translations[key] ?? key,
   };
 });
 

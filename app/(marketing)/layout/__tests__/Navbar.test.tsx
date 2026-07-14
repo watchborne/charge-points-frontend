@@ -26,7 +26,7 @@ vi.mock("next-intl", () => ({
       "layout.navbar.actions.requestAlphaAccess": "Request Alpha Access",
       "layout.navbar.actions.menu": "Menu",
     };
-    return translations[key] || key;
+    return translations[key] ?? key;
   },
 }));
 

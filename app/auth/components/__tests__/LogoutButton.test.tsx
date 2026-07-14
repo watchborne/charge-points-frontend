@@ -25,7 +25,7 @@ vi.mock("next-intl", () => ({
     const translations: Record<string, string> = {
       "layout.navbar.actions.logout": "Logout",
     };
-    return translations[key] || key;
+    return translations[key] ?? key;
   },
 }));
 
