@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe("SignupForm", () => {
-  it("signs the user up and shows the confirmation panel with the submitted email", async () => {
+  it("SHOULD sign the user up and show the confirmation panel WHEN the form is submitted", async () => {
     signUp.mockResolvedValue({ error: null });
     render(<SignupForm labels={labels} />);
 
@@ -51,7 +51,7 @@ describe("SignupForm", () => {
     expect(screen.getByText("user@example.com")).toBeTruthy();
   });
 
-  it("shows the translated error and stays on the form when signUp fails", async () => {
+  it("SHOULD show the translated error and stay on the form WHEN signUp fails", async () => {
     signUp.mockResolvedValue({ error: { message: "boom" } });
     render(<SignupForm labels={labels} />);
 
@@ -64,7 +64,7 @@ describe("SignupForm", () => {
     expect(screen.queryByText(labels.sentTitle)).toBeNull();
   });
 
-  it("disables the submit button while the request is in flight", async () => {
+  it("SHOULD disable the submit button WHILE the request is in flight", async () => {
     let resolveSignUp: (value: { error: null }) => void = () => {};
     signUp.mockReturnValue(
       new Promise((resolve) => {

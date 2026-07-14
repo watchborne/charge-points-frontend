@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 describe("LoginForm", () => {
-  it("sends a magic link and shows the confirmation panel with the submitted email", async () => {
+  it("SHOULD send a magic link and show the confirmation panel WHEN the form is submitted", async () => {
     signInWithOtp.mockResolvedValue({ error: null });
     render(<LoginForm labels={labels} />);
 
@@ -53,7 +53,7 @@ describe("LoginForm", () => {
     expect(screen.getByText("user@example.com")).toBeTruthy();
   });
 
-  it("shows the translated error and stays on the form when signInWithOtp fails", async () => {
+  it("SHOULD show the translated error and stay on the form WHEN signInWithOtp fails", async () => {
     signInWithOtp.mockResolvedValue({ error: { message: "boom", code: "unexpected_failure" } });
     render(<LoginForm labels={labels} />);
 
@@ -66,7 +66,7 @@ describe("LoginForm", () => {
     expect(screen.queryByText(labels.sentTitle)).toBeNull();
   });
 
-  it("shows the unknown-user message when the email doesn't belong to an existing account", async () => {
+  it("SHOULD show the unknown-user message WHEN the email doesn't belong to an existing account", async () => {
     signInWithOtp.mockResolvedValue({
       error: { message: "Signups not allowed for otp", code: "otp_disabled" },
     });
@@ -82,7 +82,7 @@ describe("LoginForm", () => {
     expect(screen.queryByText(labels.sentTitle)).toBeNull();
   });
 
-  it("disables the submit button while the request is in flight", async () => {
+  it("SHOULD disable the submit button WHILE the request is in flight", async () => {
     let resolveSignIn: (value: { error: null }) => void = () => {};
     signInWithOtp.mockReturnValue(
       new Promise((resolve) => {

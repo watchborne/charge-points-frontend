@@ -64,7 +64,7 @@ afterEach(() => {
 });
 
 describe("Header", () => {
-  it("renders the header with navigation links and logout button", async () => {
+  it("SHOULD render navigation links and the logout button", async () => {
     renderComponent();
 
     expect(screen.getByRole("link", { name: /sites/i })).toBeTruthy();
@@ -72,7 +72,7 @@ describe("Header", () => {
     expect(screen.getByRole("button", { name: /logout/i })).toBeTruthy();
   });
 
-  it("signs the user out and redirects to the homepage when logout is clicked", async () => {
+  it("SHOULD sign the user out and redirect to the homepage WHEN logout is clicked", async () => {
     renderComponent();
 
     fireEvent.click(screen.getByRole("button", { name: /logout/i }));

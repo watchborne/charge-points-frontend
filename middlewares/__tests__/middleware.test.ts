@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 describe("middleware auth guard", () => {
-  it("returns 401 for /api/* without a session", async () => {
+  it("SHOULD return 401 for /api/* WHEN there is no session", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
@@ -48,7 +48,7 @@ describe("middleware auth guard", () => {
     expect(res.status).toBe(401);
   });
 
-  it("lets /api/* through with a session", async () => {
+  it("SHOULD let /api/* through WHEN there is a session", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
@@ -58,7 +58,7 @@ describe("middleware auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
-  it("redirects /app/* to /login without a session", async () => {
+  it("SHOULD redirect /app/* to /login WHEN there is no session", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
@@ -68,7 +68,7 @@ describe("middleware auth guard", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
 
-  it("lets /app/* through with a session", async () => {
+  it("SHOULD let /app/* through WHEN there is a session", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
@@ -77,7 +77,7 @@ describe("middleware auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
-  it("redirects /login to the dashboard when already authenticated", async () => {
+  it("SHOULD redirect /login to the dashboard WHEN already authenticated", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
@@ -87,7 +87,7 @@ describe("middleware auth guard", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/app/dashboard");
   });
 
-  it("lets /login through without a session", async () => {
+  it("SHOULD let /login through WHEN there is no session", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
@@ -98,7 +98,7 @@ describe("middleware auth guard", () => {
 });
 
 describe("app-host rewrite", () => {
-  it("rewrites a bare path on an app.* host into /app/*", async () => {
+  it("SHOULD rewrite a bare path into /app/* WHEN the host is app.*", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
@@ -107,7 +107,7 @@ describe("app-host rewrite", () => {
     expect(new URL(res.headers.get("x-middleware-rewrite")!).pathname).toBe("/app/dashboard");
   });
 
-  it("guards the rewritten path as an /app route (redirects to /login without a session)", async () => {
+  it("SHOULD redirect the rewritten path to /login WHEN there is no session", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
@@ -117,7 +117,7 @@ describe("app-host rewrite", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
 
-  it("does not double-prefix a path that already starts with /app", async () => {
+  it("SHOULD NOT double-prefix a path WHEN it already starts with /app", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
@@ -126,7 +126,7 @@ describe("app-host rewrite", () => {
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
 
-  it("does not rewrite /api on an app.* host (API routes live outside app/app/)", async () => {
+  it("SHOULD NOT rewrite /api WHEN the host is app.* (API routes live outside app/app/)", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
@@ -136,7 +136,7 @@ describe("app-host rewrite", () => {
     expect(res.status).not.toBe(401);
   });
 
-  it("does not rewrite /login on an app.* host", async () => {
+  it("SHOULD NOT rewrite /login WHEN the host is app.*", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
@@ -145,7 +145,7 @@ describe("app-host rewrite", () => {
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
 
-  it("does not rewrite paths on a non-app host", async () => {
+  it("SHOULD NOT rewrite paths WHEN the host is not an app.* host", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 

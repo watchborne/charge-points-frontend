@@ -21,7 +21,7 @@ function errorResponse(status: number) {
 }
 
 describe("httpClient.get", () => {
-  it("calls fetch with GET and JSON headers", async () => {
+  it("SHOULD call fetch with GET and JSON headers", async () => {
     mockFetch.mockReturnValue(okResponse({ id: 1 }));
 
     await httpClient.get("/api/items");
@@ -32,7 +32,7 @@ describe("httpClient.get", () => {
     });
   });
 
-  it("returns parsed JSON", async () => {
+  it("SHOULD return parsed JSON", async () => {
     mockFetch.mockReturnValue(okResponse({ id: 1, name: "test" }));
 
     const result = await httpClient.get<{ id: number; name: string }>("/api/items/1");
@@ -40,7 +40,7 @@ describe("httpClient.get", () => {
     expect(result).toEqual({ id: 1, name: "test" });
   });
 
-  it("throws on non-ok response", async () => {
+  it("SHOULD throw WHEN the response is not ok", async () => {
     mockFetch.mockReturnValue(errorResponse(404));
 
     await expect(httpClient.get("/api/missing")).rejects.toThrow("HTTP error! status: 404");
@@ -48,7 +48,7 @@ describe("httpClient.get", () => {
 });
 
 describe("httpClient.post", () => {
-  it("calls fetch with POST, JSON headers, and serialized body", async () => {
+  it("SHOULD call fetch with POST, JSON headers, and a serialized body", async () => {
     mockFetch.mockReturnValue(okResponse({ id: 2 }));
     const payload = { name: "new item" };
 
@@ -61,7 +61,7 @@ describe("httpClient.post", () => {
     });
   });
 
-  it("returns parsed JSON", async () => {
+  it("SHOULD return parsed JSON", async () => {
     const created = { id: 2, name: "new item" };
     mockFetch.mockReturnValue(okResponse(created));
 
@@ -70,7 +70,7 @@ describe("httpClient.post", () => {
     expect(result).toEqual(created);
   });
 
-  it("throws on non-ok response", async () => {
+  it("SHOULD throw WHEN the response is not ok", async () => {
     mockFetch.mockReturnValue(errorResponse(422));
 
     await expect(httpClient.post("/api/items", {})).rejects.toThrow("HTTP error! status: 422");
@@ -78,7 +78,7 @@ describe("httpClient.post", () => {
 });
 
 describe("httpClient.patch", () => {
-  it("calls fetch with PATCH, JSON headers, and serialized body", async () => {
+  it("SHOULD call fetch with PATCH, JSON headers, and a serialized body", async () => {
     mockFetch.mockReturnValue(okResponse({ id: 1, name: "updated" }));
     const payload = { name: "updated" };
 
@@ -91,7 +91,7 @@ describe("httpClient.patch", () => {
     });
   });
 
-  it("returns parsed JSON", async () => {
+  it("SHOULD return parsed JSON", async () => {
     const updated = { id: 1, name: "updated" };
     mockFetch.mockReturnValue(okResponse(updated));
 
@@ -100,7 +100,7 @@ describe("httpClient.patch", () => {
     expect(result).toEqual(updated);
   });
 
-  it("throws on non-ok response", async () => {
+  it("SHOULD throw WHEN the response is not ok", async () => {
     mockFetch.mockReturnValue(errorResponse(500));
 
     await expect(httpClient.patch("/api/items/1", {})).rejects.toThrow("HTTP error! status: 500");
@@ -108,7 +108,7 @@ describe("httpClient.patch", () => {
 });
 
 describe("httpClient.delete", () => {
-  it("calls fetch with DELETE method and JSON headers", async () => {
+  it("SHOULD call fetch with DELETE method and JSON headers", async () => {
     mockFetch.mockReturnValue(okResponse(null));
 
     await httpClient.delete("/api/items/1");
@@ -119,7 +119,7 @@ describe("httpClient.delete", () => {
     });
   });
 
-  it("throws on non-ok response", async () => {
+  it("SHOULD throw WHEN the response is not ok", async () => {
     mockFetch.mockReturnValue(errorResponse(403));
 
     await expect(httpClient.delete("/api/items/1")).rejects.toThrow("HTTP error! status: 403");
