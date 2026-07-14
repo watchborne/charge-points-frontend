@@ -68,8 +68,7 @@
         "links": {
           "chargePoints": "Bornes de recharge",
           "sites": "Sites"
-        },
-        "connectionStatus": "Statut de connexion"
+        }
       }
     }
   },
