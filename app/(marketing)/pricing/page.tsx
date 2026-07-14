@@ -55,9 +55,11 @@ export default function PricingPage() {
         <p className="mt-4 text-lg text-muted-foreground">{t("pricingPage.hero.subtitle")}</p>
       </div>
 
-      <div className="mx-auto mt-12 max-w-4xl rounded-lg border bg-orange-50 p-6">
-        <h3 className="mb-2 font-semibold text-orange-900">{t("pricingPage.alphaNotice.title")}</h3>
-        <p className="text-sm text-orange-800">{t("pricingPage.alphaNotice.description")}</p>
+      <div className="mx-auto mt-12 max-w-4xl rounded-lg border border-charge/20 bg-charge-soft p-6">
+        <h3 className="mb-2 font-semibold text-charge-strong">
+          {t("pricingPage.alphaNotice.title")}
+        </h3>
+        <p className="text-sm text-charge-strong/90">{t("pricingPage.alphaNotice.description")}</p>
       </div>
 
       <div className="mx-auto mt-16 grid max-w-6xl gap-6 lg:grid-cols-3">
@@ -66,7 +68,7 @@ export default function PricingPage() {
             key={plan.id}
             className={
               plan.highlighted
-                ? "rounded-lg border border-primary p-8 shadow-lg"
+                ? "rounded-lg border-2 border-charge p-8 shadow-lg"
                 : "rounded-lg border p-8"
             }
           >
@@ -131,7 +133,7 @@ export default function PricingPage() {
 
         <p className="mt-4 text-lg text-muted-foreground">{t("pricingPage.cta.subtitle")}</p>
 
-        <Button className="mt-8" size="lg">
+        <Button className="mt-8" size="lg" variant="charge">
           {t("pricingPage.cta.button")}
         </Button>
       </section>

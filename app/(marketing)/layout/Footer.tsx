@@ -61,7 +61,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="rounded-lg border p-4 text-sm text-blue-600 bg-blue-200">
+        <div className="rounded-lg border border-charge/20 p-4 text-sm text-charge-strong bg-charge-soft">
           <h4 className="mb-2 font-medium">{t("layout.footer.warning.title")}</h4>
           <p>{t("layout.footer.warning.description")}</p>
 

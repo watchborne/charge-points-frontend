@@ -2,6 +2,7 @@
 
 import { Plus, Search, Server, Zap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 
 export default function ChargePointsPage() {
+  const t = useTranslations("");
   const { sites, loading: loadingSites, error: errorSites } = useSites();
   const {
     chargePoints,
@@ -167,13 +169,13 @@ export default function ChargePointsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/30">
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {errorChargePoints && <Callout error={errorChargePoints} />}
 
-        {loadingChargePoints && <Loader label="Loading charge points..." />}
+        {loadingChargePoints && <Loader label={t("appPage.loading.chargePoints")} />}
 
         {!loadingChargePoints && !errorChargePoints && (
           <div className="flex flex-col gap-4 content-stretch">
@@ -185,13 +187,13 @@ export default function ChargePointsPage() {
                 }}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add a charge point
+                {t("appPage.chargePoints.page.buttons.addChargePoint")}
               </Button>
 
               <div className="relative max-w-sm ml-auto">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search..."
+                  placeholder={t("appPage.chargePoints.page.buttons.search")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9"
@@ -199,14 +201,19 @@ export default function ChargePointsPage() {
               </div>
             </div>
             <p className="text mt-1">
-              {chargePoints.length} charge point
-              {chargePoints.length > 1 ? "s" : ""} on {sites.length} site
-              {sites.length > 1 ? "s" : ""}
+              {chargePoints.length === 1
+                ? t("appPage.chargePoints.page.labels.countText_singular", {
+                    count: chargePoints.length,
+                  })
+                : t("appPage.chargePoints.page.labels.countText_plural", {
+                    count: chargePoints.length,
+                  })}{" "}
+              {t("misc.siteWithCount", { count: sites.length })}
             </p>
 
             {groupedChargePoints.length === 0 && ungroupedChargePoints.length === 0 && (
               <div className="rounded-lg border py-16 text-center text-muted-foreground">
-                No charge point found.
+                {t("appPage.chargePoints.page.empty.noChargePointFound")}
               </div>
             )}
 
@@ -232,7 +239,7 @@ export default function ChargePointsPage() {
                   onClick={() => activeTab && openCreateForSite(activeTab)}
                 >
                   <Plus className="h-3.5 w-3.5 mr-1.5" />
-                  Add for this site
+                  {t("appPage.chargePoints.page.buttons.addForThisSite")}
                 </Button>
               </div>
 
@@ -258,7 +265,9 @@ export default function ChargePointsPage() {
               <div className="border rounded-lg overflow-hidden">
                 <div className="px-4 py-3 bg-muted/40 border-b flex items-center gap-2">
                   <Server className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Unknown site</span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t("appPage.chargePoints.detail.unknownSite")}
+                  </span>
                   <Badge variant="secondary">{ungroupedChargePoints.length}</Badge>
                 </div>
                 <ChargePointTable

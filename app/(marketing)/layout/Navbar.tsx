@@ -82,7 +82,7 @@ export function Navbar() {
                 <Link href="/login">{t("layout.navbar.actions.login")}</Link>
               </Button>
 
-              <Button asChild>
+              <Button variant="charge" asChild>
                 <Link href="/signup">{t("layout.navbar.actions.requestAlphaAccess")}</Link>
               </Button>
             </>
@@ -151,7 +151,7 @@ export function Navbar() {
                   </Link>
                 </Button>
 
-                <Button asChild className="w-full justify-center">
+                <Button variant="charge" asChild className="w-full justify-center">
                   <Link href="/signup" onClick={closeMobileMenu}>
                     {t("layout.navbar.actions.requestAlphaAccess")}
                   </Link>

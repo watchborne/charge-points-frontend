@@ -23,14 +23,14 @@ export default function LoginPage() {
         </Link>
 
         <div>
-          <PlugZap className="h-10 w-10 mb-8 opacity-70" />
+          <PlugZap className="h-10 w-10 mb-8 text-charge" />
 
           <p className="text-3xl font-bold leading-snug">{t("loginPage.branding.tagline")}</p>
 
           <ul className="mt-8 space-y-3">
             {Object.entries(features).map(([key, feature]) => (
               <li key={key} className="flex items-center gap-3 text-sm opacity-80">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground shrink-0" />
+                <div className="h-1.5 w-1.5 rounded-full bg-charge shrink-0" />
                 {feature}
               </li>
             ))}

@@ -71,7 +71,7 @@ export default function HomePage() {
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button size="lg">
+              <Button size="lg" variant="charge">
                 {t("homePage.hero.cta.primary")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -96,21 +96,21 @@ export default function HomePage() {
                     <div className="mt-6 space-y-4">
                       <div className="rounded-lg border bg-background p-4">
                         <div className="font-medium">Paris HQ</div>
-                        <div className="mt-2 text-sm text-green-600">
+                        <div className="mt-2 text-sm text-status-available-foreground">
                           14 {t("homePage.dashboard.status.online")}
                         </div>
                       </div>
 
                       <div className="rounded-lg border bg-background p-4">
                         <div className="font-medium">Lyon</div>
-                        <div className="mt-2 text-sm text-orange-500">
+                        <div className="mt-2 text-sm text-status-warning-foreground">
                           1 {t("homePage.dashboard.status.offline")}
                         </div>
                       </div>
 
                       <div className="rounded-lg border bg-background p-4">
                         <div className="font-medium">Marseille</div>
-                        <div className="mt-2 text-sm text-green-600">
+                        <div className="mt-2 text-sm text-status-available-foreground">
                           8 {t("homePage.dashboard.status.online")}
                         </div>
                       </div>
@@ -132,22 +132,22 @@ export default function HomePage() {
                         {
                           id: "CP-001",
                           status: t("homePage.dashboard.status.available"),
-                          color: "bg-green-500",
+                          color: "bg-status-available",
                         },
                         {
                           id: "CP-002",
                           status: t("homePage.dashboard.status.charging"),
-                          color: "bg-blue-500",
+                          color: "bg-status-charging",
                         },
                         {
                           id: "CP-003",
                           status: t("homePage.dashboard.status.faulted"),
-                          color: "bg-red-500",
+                          color: "bg-status-error",
                         },
                         {
                           id: "CP-004",
                           status: t("homePage.dashboard.status.offline"),
-                          color: "bg-orange-500",
+                          color: "bg-status-offline",
                         },
                       ].map((cp) => (
                         <div
@@ -190,7 +190,7 @@ export default function HomePage() {
             return (
               <div key={feature.title}>
                 <div className="p-6">
-                  <Icon className="mb-4 h-6 w-6" />
+                  <Icon className="mb-4 h-6 w-6 text-charge-strong" />
 
                   <h3 className="mb-2 font-semibold">{feature.title}</h3>
 
@@ -216,7 +216,7 @@ export default function HomePage() {
           {mvpFeatures.map(([key, item]) => (
             <div key={key}>
               <div className="flex items-center gap-3 p-5">
-                <ShieldCheck className="h-5 w-5" />
+                <ShieldCheck className="h-5 w-5 text-charge-strong" />
                 <span>{item}</span>
               </div>
             </div>
@@ -251,7 +251,7 @@ export default function HomePage() {
 
             <p className="mt-4 text-lg opacity-90">{t("homePage.cta.subtitle")}</p>
 
-            <Button size="lg" variant="secondary" className="mt-8">
+            <Button size="lg" variant="charge" className="mt-8">
               {t("homePage.cta.button")}
             </Button>
           </div>

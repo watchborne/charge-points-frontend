@@ -1,4 +1,5 @@
 import { Site } from "@watchborne/charge-points-types";
+import { useTranslations } from "next-intl";
 
 import {
   AlertDialogHeader,
@@ -21,22 +22,26 @@ export const SiteDeletionDialog = ({
   deleteTarget: Site | null;
   onDeleteClicked: () => void;
 }) => {
+  const t = useTranslations("");
+
   return (
     <AlertDialog open={!!deleteTarget}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete « {deleteTarget?.name} » ?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Destroy action: this site will be unrecoverable.
-          </AlertDialogDescription>
+          <AlertDialogTitle>
+            {deleteTarget && t("appPage.sites.deletion.title", { name: deleteTarget.name })}
+          </AlertDialogTitle>
+          <AlertDialogDescription>{t("appPage.sites.deletion.description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onOpenChange(false)}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => onOpenChange(false)}>
+            {t("common.cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={onDeleteClicked}
           >
-            Delete
+            {t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

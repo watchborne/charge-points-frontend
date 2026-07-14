@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
 import { Zap, ChevronDown, Server } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -65,6 +66,7 @@ export const ChargePointFormDialog = ({
   sites,
   defaultSiteId,
 }: ChargePointFormDialogProps) => {
+  const t = useTranslations("");
   const [metaOpen, setMetaOpen] = useState(false);
 
   const form = useForm<ChargePointFormValues>({
@@ -110,39 +112,43 @@ export const ChargePointFormDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
-            {mode === "create" ? "Add a charge point" : "Edit the charge point"}
+            {mode === "create"
+              ? t("appPage.chargePoints.form.createTitle")
+              : t("appPage.chargePoints.form.editTitle")}
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Fill in details about new charge point."
-              : "Edit details about the charge point."}
+              ? t("appPage.chargePoints.form.createDescription")
+              : t("appPage.chargePoints.form.editDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
-            {/* Nom */}
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("appPage.chargePoints.form.fields.name")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: CP-001" disabled={mode === "edit"} {...field} />
+                    <Input
+                      placeholder={t("appPage.chargePoints.form.fields.namePlaceholder")}
+                      disabled={mode === "edit"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Site */}
             <FormField
               control={form.control}
               name="siteId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Site</FormLabel>
+                  <FormLabel>{t("appPage.chargePoints.form.fields.site")}</FormLabel>
                   <FormControl>
                     <SiteCombobox value={field.value} onChange={field.onChange} sites={sites} />
                   </FormControl>
@@ -151,7 +157,6 @@ export const ChargePointFormDialog = ({
               )}
             />
 
-            {/* Section meta repliable */}
             <Collapsible open={metaOpen} onOpenChange={setMetaOpen}>
               <CollapsibleTrigger asChild>
                 <Button
@@ -161,7 +166,7 @@ export const ChargePointFormDialog = ({
                 >
                   <span className="flex items-center gap-2">
                     <Server className="h-4 w-4" />
-                    Technical information
+                    {t("appPage.chargePoints.form.fields.technicalInformation")}
                   </span>
                   <ChevronDown
                     className={classNames(
@@ -178,9 +183,12 @@ export const ChargePointFormDialog = ({
                     name="meta.vendor"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Vendor</FormLabel>
+                        <FormLabel>{t("appPage.chargePoints.form.fields.vendor")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ex: Schneider Electric" {...field} />
+                          <Input
+                            placeholder={t("appPage.chargePoints.form.fields.vendorPlaceholder")}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -191,9 +199,12 @@ export const ChargePointFormDialog = ({
                     name="meta.model"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model</FormLabel>
+                        <FormLabel>{t("appPage.chargePoints.form.fields.model")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ex: Terra AC" {...field} />
+                          <Input
+                            placeholder={t("appPage.chargePoints.form.fields.modelPlaceholder")}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -204,9 +215,14 @@ export const ChargePointFormDialog = ({
                     name="meta.serialNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Serial number</FormLabel>
+                        <FormLabel>{t("appPage.chargePoints.form.fields.serialNumber")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ex: SN-001" {...field} />
+                          <Input
+                            placeholder={t(
+                              "appPage.chargePoints.form.fields.serialNumberPlaceholder",
+                            )}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -217,9 +233,12 @@ export const ChargePointFormDialog = ({
                     name="meta.firmwareVersion"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Firmware</FormLabel>
+                        <FormLabel>{t("appPage.chargePoints.form.fields.firmware")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ex: 1.2.3" {...field} />
+                          <Input
+                            placeholder={t("appPage.chargePoints.form.fields.firmwarePlaceholder")}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -231,9 +250,13 @@ export const ChargePointFormDialog = ({
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("appPage.chargePoints.form.buttons.cancel")}
               </Button>
-              <Button type="submit">{mode === "create" ? "Create" : "Save"}</Button>
+              <Button type="submit">
+                {mode === "create"
+                  ? t("appPage.chargePoints.form.buttons.create")
+                  : t("appPage.chargePoints.form.buttons.save")}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
