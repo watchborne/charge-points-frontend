@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 
 import { AuthErrorCallout } from "./components/AuthErrorCallout";
+import { DevLoginShortcut } from "./components/DevLoginShortcut";
 import { LoginForm } from "./components/LoginForm";
 
 export default function LoginPage() {
@@ -74,6 +75,8 @@ export default function LoginPage() {
               unknownUser: t("loginPage.magicLink.unknownUser"),
             }}
           />
+
+          {process.env.NODE_ENV !== "production" && <DevLoginShortcut />}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("loginPage.noAccount.text")}{" "}
