@@ -65,10 +65,11 @@ redirected to `/login`.
 
 Set `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API → `service_role`) in
 your local `.env` to get a "Dev only" sign-in box on `/login`: it mints a
-magic link via the Supabase admin API and redirects straight into it, so you
-don't have to check your inbox on every sign-in while developing. It goes
-through the same `/auth/callback` code-exchange as a real email link — only
-the "send an email" step is skipped.
+magic link via the Supabase admin API and verifies it server-side, so you
+don't have to check your inbox on every sign-in while developing. It does
+**not** go through `/auth/callback` — an admin-generated link has no matching
+PKCE code_verifier for that route's `exchangeCodeForSession` to consume, so
+the dev route verifies the link's `token_hash` directly instead.
 
 This is disabled outside `npm run dev` and whenever
 `SUPABASE_SERVICE_ROLE_KEY` isn't set, so **never** set that variable outside

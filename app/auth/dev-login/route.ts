@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 /**
- * Local-dev-only shortcut around the magic-link email round-trip: mints a
- * Supabase confirmation link via the admin API and redirects straight to it,
- * so a developer doesn't have to check their inbox. That confirmation link
- * is the exact same Supabase-hosted `/auth/v1/verify` URL a real email would
- * contain, and it redirects back to our own `/auth/callback`, so session
- * creation still goes through the one real code-exchange path — nothing
- * about `exchangeCodeForSession` is bypassed or duplicated here.
+ * Local-dev-only shortcut around the magic-link email round-trip.
+ *
+ * A real magic link works because the browser's own `signInWithOtp` call
+ * stores a PKCE code_verifier before the link is ever clicked, so
+ * `/auth/callback`'s `exchangeCodeForSession` has something to match the
+ * returned code against. The admin API has no such browser-side step, so an
+ * admin-generated confirmation link can't be exchanged the same way — hence
+ * verifying its `token_hash` directly here (server-side, via the anon-key
+ * client) instead of redirecting through `/auth/callback`. This never runs
+ * outside this dev-only route, so it doesn't affect the callback's
+ * code-exchange-only contract for real magic links.
  *
  * Disabled outside development and whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
  * set (which it never is in a deployed environment), so this can't activate
@@ -20,26 +25,32 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
 
   if (!email) {
     return NextResponse.json({ error: "Missing email" }, { status: 400 });
   }
 
-  const supabase = createAdminClient();
-  const { data, error } = await supabase.auth.admin.generateLink({
-    type: "magiclink",
-    email,
-    options: { redirectTo: `${origin}/auth/callback` },
-  });
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email });
 
-  if (error || !data?.properties?.action_link) {
+  if (error || !data?.properties?.hashed_token) {
     return NextResponse.json(
       { error: error?.message ?? "Could not generate a sign-in link" },
       { status: 400 },
     );
   }
 
-  return NextResponse.redirect(data.properties.action_link);
+  const supabase = await createClient();
+  const { error: verifyError } = await supabase.auth.verifyOtp({
+    type: "magiclink",
+    token_hash: data.properties.hashed_token,
+  });
+
+  if (verifyError) {
+    return NextResponse.json({ error: verifyError.message }, { status: 400 });
+  }
+
+  return NextResponse.redirect(new URL("/app/dashboard", request.url));
 }
