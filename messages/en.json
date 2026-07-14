@@ -18,8 +18,8 @@
         "product": {
           "title": "Product",
           "links": {
-            "pricing": "Pricing",
-            "contact": "Contact"
+            "features": "Features",
+            "pricing": "Pricing"
           }
         },
         "company": {
