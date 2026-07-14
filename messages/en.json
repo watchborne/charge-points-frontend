@@ -54,6 +54,7 @@
       "alphaBadge": "ALPHA",
       "navigation": {
         "home": "Home",
+        "features": "Features",
         "pricing": "Pricing",
         "contact": "Contact"
       },
@@ -164,6 +165,60 @@
         "offline": "Offline",
         "online": "Online"
       }
+    }
+  },
+  "featuresPage": {
+    "badge": "Product under construction",
+    "hero": {
+      "title": "A platform built for the whole EV installer workflow",
+      "subtitle": "Watchborne centralizes the supervision of your charging stations to save you time and bring reliability, from installation to maintenance."
+    },
+    "intro": {
+      "title": "What is Watchborne?",
+      "description": "Watchborne is an OCPP monitoring platform built for EV charging station installers. It centralizes the status of every charger, across every site, in a single real-time dashboard — so you always know what's happening in the field, without driving out or waiting for a customer call."
+    },
+    "workflow": {
+      "title": "Time saved at every step",
+      "subtitle": "From commissioning to customer support, Watchborne supports the whole lifecycle of your charging stations.",
+      "items": {
+        "installation": {
+          "title": "Commissioning",
+          "description": "Instantly confirm a newly installed charger is communicating correctly, without waiting for customer feedback."
+        },
+        "monitoring": {
+          "title": "Daily supervision",
+          "description": "Keep a real-time eye on the connection and charging status of your whole fleet, across sites, from a single screen."
+        },
+        "maintenance": {
+          "title": "Maintenance & intervention",
+          "description": "Catch disconnections and anomalies before your customers do, and prioritize field interventions accordingly."
+        },
+        "reporting": {
+          "title": "Customer reporting",
+          "description": "Give your customers reliable visibility into their charger availability, without manual reporting."
+        }
+      }
+    },
+    "constructionNotice": {
+      "title": "A product under construction, an ambitious roadmap",
+      "description": "Watchborne is under active development. The capabilities below are part of an ambitious roadmap, built together with EV installers to address their real needs in the field."
+    },
+    "roadmap": {
+      "badge": "Roadmap",
+      "title": "What we're building",
+      "items": {
+        "alerting": "Automatic alerts on faults or disconnections",
+        "historicalAnalytics": "Availability history and analytics",
+        "maintenance": "Maintenance intervention planning and tracking",
+        "reporting": "Automated reports for your customers",
+        "rbac": "Team- and site-level access management",
+        "integrations": "Integrations with your business tools"
+      }
+    },
+    "cta": {
+      "title": "Let's build this platform with you.",
+      "subtitle": "Join the alpha and help shape the tools EV installers actually need.",
+      "button": "Request alpha access"
     }
   },
   "contactPage": {
