@@ -7,9 +7,6 @@ import { useSites } from "../app/hooks/useSites";
 
 vi.mock("../../lib/api", () => ({
   api: {
-    ChargePoints: {
-      getChargePoints: vi.fn(),
-    },
     Sites: {
       getSites: vi.fn(),
     },
