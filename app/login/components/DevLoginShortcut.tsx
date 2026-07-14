@@ -13,7 +13,7 @@ export function DevLoginShortcut() {
       <p className="text-xs font-medium text-muted-foreground">
         Dev only — signs in instantly, skips the magic-link email
       </p>
-      <form action="/auth/dev-login" method="GET" className="flex gap-2">
+      <form action="/auth/dev-login" method="GET" className="flex gap-2 items-center">
         <Input
           name="email"
           type="email"
