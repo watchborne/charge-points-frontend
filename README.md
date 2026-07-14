@@ -61,6 +61,20 @@ redirected to `/login`.
    `/login`, an already-authenticated visitor is redirected straight to
    `/app/dashboard`.
 
+### Skipping the magic-link email in local dev
+
+Set `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API → `service_role`) in
+your local `.env` to get a "Dev only" sign-in box on `/login`: it mints a
+magic link via the Supabase admin API and verifies it server-side, so you
+don't have to check your inbox on every sign-in while developing. It does
+**not** go through `/auth/callback` — an admin-generated link has no matching
+PKCE code_verifier for that route's `exchangeCodeForSession` to consume, so
+the dev route verifies the link's `token_hash` directly instead.
+
+This is disabled outside `npm run dev` and whenever
+`SUPABASE_SERVICE_ROLE_KEY` isn't set, so **never** set that variable outside
+your local `.env` — it bypasses Row Level Security.
+
 ## 🌐 Netlify deploy previews
 
 Deploy previews are **on demand** instead of being rebuilt on every push. A
