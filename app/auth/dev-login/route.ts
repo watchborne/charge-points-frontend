@@ -11,10 +11,12 @@ import { createClient } from "@/lib/supabase/server";
  * `/auth/callback`'s `exchangeCodeForSession` has something to match the
  * returned code against. The admin API has no such browser-side step, so an
  * admin-generated confirmation link can't be exchanged the same way — hence
- * verifying its `token_hash` directly here (server-side, via the anon-key
- * client) instead of redirecting through `/auth/callback`. This never runs
- * outside this dev-only route, so it doesn't affect the callback's
- * code-exchange-only contract for real magic links.
+ * verifying the generated `email_otp` directly here (server-side, via the
+ * anon-key client — this is Supabase's own documented recipe for signing in
+ * a user without sending an email) instead of redirecting through
+ * `/auth/callback`. This never runs outside this dev-only route, so it
+ * doesn't affect the callback's code-exchange-only contract for real magic
+ * links.
  *
  * Disabled outside development and whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
  * set (which it never is in a deployed environment), so this can't activate
@@ -35,7 +37,7 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email });
 
-  if (error || !data?.properties?.hashed_token) {
+  if (error || !data?.properties?.email_otp) {
     return NextResponse.json(
       { error: error?.message ?? "Could not generate a sign-in link" },
       { status: 400 },
@@ -45,7 +47,8 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { error: verifyError } = await supabase.auth.verifyOtp({
     type: "magiclink",
-    token_hash: data.properties.hashed_token,
+    email,
+    token: data.properties.email_otp,
   });
 
   if (verifyError) {

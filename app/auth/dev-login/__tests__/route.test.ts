@@ -74,7 +74,7 @@ describe("GET /auth/dev-login", () => {
 
   it("SHOULD return 400 WHEN verifyOtp fails", async () => {
     generateLink.mockResolvedValue({
-      data: { properties: { hashed_token: "hashed-token" } },
+      data: { properties: { email_otp: "123456" } },
       error: null,
     });
     verifyOtp.mockResolvedValue({ error: { message: "invalid token" } });
@@ -87,7 +87,7 @@ describe("GET /auth/dev-login", () => {
 
   it("SHOULD verify the token and redirect to the dashboard WHEN sign-in succeeds", async () => {
     generateLink.mockResolvedValue({
-      data: { properties: { hashed_token: "hashed-token" } },
+      data: { properties: { email_otp: "123456" } },
       error: null,
     });
     verifyOtp.mockResolvedValue({ error: null });
@@ -97,7 +97,11 @@ describe("GET /auth/dev-login", () => {
     );
 
     expect(generateLink).toHaveBeenCalledWith({ type: "magiclink", email: "dev@example.com" });
-    expect(verifyOtp).toHaveBeenCalledWith({ type: "magiclink", token_hash: "hashed-token" });
+    expect(verifyOtp).toHaveBeenCalledWith({
+      type: "magiclink",
+      email: "dev@example.com",
+      token: "123456",
+    });
     expect(res.headers.get("location")).toBe("http://localhost:3001/app/dashboard");
   });
 });

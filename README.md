@@ -69,7 +69,7 @@ magic link via the Supabase admin API and verifies it server-side, so you
 don't have to check your inbox on every sign-in while developing. It does
 **not** go through `/auth/callback` — an admin-generated link has no matching
 PKCE code_verifier for that route's `exchangeCodeForSession` to consume, so
-the dev route verifies the link's `token_hash` directly instead.
+the dev route verifies the link's `email_otp` directly instead.
 
 This is disabled outside `npm run dev` and whenever
 `SUPABASE_SERVICE_ROLE_KEY` isn't set, so **never** set that variable outside

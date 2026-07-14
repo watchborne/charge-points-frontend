@@ -92,8 +92,9 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   by both the app `Header` and the marketing `Navbar`, which calls
   `supabase.auth.signOut()` then redirects to the marketing homepage (`/`).
 - `app/auth/dev-login/route.ts` is a **local-dev-only** shortcut that mints a
-  magic link through the Supabase admin API and verifies its `token_hash`
-  server-side (`supabase.auth.verifyOtp`), skipping the email round-trip;
+  magic link through the Supabase admin API and verifies its `email_otp`
+  server-side (`supabase.auth.verifyOtp` — Supabase's documented recipe for
+  signing in a user without sending an email), skipping the email round-trip;
   `app/login/components/DevLoginShortcut.tsx` renders its form on `/login`,
   only when `NODE_ENV !== "production"`. The route itself re-checks
   `NODE_ENV` and requires `SUPABASE_SERVICE_ROLE_KEY` to be set — never set
@@ -101,7 +102,7 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   `/auth/callback`: a real magic link works because the browser's own
   `signInWithOtp` call stores a PKCE code_verifier before the link is
   clicked, which an admin-generated link never has, so `exchangeCodeForSession`
-  can't consume it. Verifying the `token_hash` directly is the dev-only
+  can't consume it. Verifying the `email_otp` directly is the dev-only
   route's own, separate mechanism — it doesn't touch or duplicate the
   callback's code-exchange-only contract for real magic links.
 - `app/signup/` is a public alpha-signup page alongside `/login`; like `/login`,
