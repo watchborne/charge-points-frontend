@@ -63,7 +63,7 @@ describe("useChargePoints", () => {
     });
   });
 
-  it("charge les charge points au montage", async () => {
+  it("SHOULD load charge points WHEN mounted", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
     const { result } = renderHook(() => useChargePoints());
@@ -77,7 +77,7 @@ describe("useChargePoints", () => {
     expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
   });
 
-  it("est en état loading pendant le fetch", async () => {
+  it("SHOULD be in a loading state WHILE fetching", async () => {
     let resolvePromise!: (value: typeof mockChargePoints) => void;
     const pendingPromise = new Promise<typeof mockChargePoints>((resolve) => {
       resolvePromise = resolve;
@@ -86,10 +86,10 @@ describe("useChargePoints", () => {
 
     const { result } = renderHook(() => useChargePoints());
 
-    // Initialement en loading
+    // Initially loading
     expect(result.current.loading).toBe(true);
 
-    // Résoudre la promesse
+    // Resolve the promise
     await act(async () => {
       resolvePromise(mockChargePoints);
       await pendingPromise;
@@ -100,7 +100,7 @@ describe("useChargePoints", () => {
     });
   });
 
-  it("gère les erreurs si l'API échoue", async () => {
+  it("SHOULD expose an error WHEN the API call fails", async () => {
     mockGetChargePoints.mockRejectedValue(new Error("Network error"));
 
     const { result } = renderHook(() => useChargePoints());
@@ -114,7 +114,7 @@ describe("useChargePoints", () => {
     expect(result.current.chargePoints).toEqual([]);
   });
 
-  it("refetch recharge les données", async () => {
+  it("SHOULD reload the data WHEN refetch is called", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
     const { result } = renderHook(() => useChargePoints());
@@ -144,7 +144,7 @@ describe("useChargePoints", () => {
     expect(result.current.chargePoints).toEqual(newChargePoints);
   });
 
-  it("met à jour un charge point en place lors d'un message WebSocket CHARGE_POINT_MONITORING", async () => {
+  it("SHOULD update a charge point in place WHEN a CHARGE_POINT_MONITORING WebSocket message arrives", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
     const { result, rerender } = renderHook(() => useChargePoints());
@@ -163,7 +163,7 @@ describe("useChargePoints", () => {
       connection: { status: "OFFLINE" as const },
     };
 
-    // Simuler un message WebSocket CHARGE_POINT_MONITORING avec payload
+    // Simulate a CHARGE_POINT_MONITORING WebSocket message with payload
     mockUseWebSocketContext.mockReturnValue({
       lastMessage: {
         type: "CHARGE_POINT_MONITORING",
@@ -183,11 +183,11 @@ describe("useChargePoints", () => {
       expect(result.current.chargePoints[0]).toEqual(updatedChargePoint);
     });
 
-    // Mise à jour locale uniquement, pas de nouvel appel API
+    // Local update only, no new API call
     expect(mockGetChargePoints.mock.calls.length).toBe(initialCallCount);
   });
 
-  it("refetch les charge points quand le WebSocket se reconnecte après une coupure", async () => {
+  it("SHOULD refetch charge points WHEN the WebSocket reconnects after a drop", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
     mockUseWebSocketContext.mockReturnValue({
       lastMessage: null,
@@ -204,7 +204,7 @@ describe("useChargePoints", () => {
       expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
     });
 
-    // Une simple coupure ne doit pas déclencher de refetch
+    // A plain drop must not trigger a refetch
     mockUseWebSocketContext.mockReturnValue({
       lastMessage: null,
       messages: [],
@@ -216,7 +216,7 @@ describe("useChargePoints", () => {
     rerender();
     expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
 
-    // La reconnexion doit resynchroniser les données via un refetch REST
+    // Reconnecting must resync data via a REST refetch
     mockUseWebSocketContext.mockReturnValue({
       lastMessage: null,
       messages: [],
