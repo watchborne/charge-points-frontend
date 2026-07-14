@@ -23,7 +23,7 @@ beforeEach(() => {
 });
 
 describe("GET /auth/callback", () => {
-  it("verifies the code and redirects to the dashboard on success", async () => {
+  it("SHOULD verify the code and redirect to the dashboard WHEN the exchange succeeds", async () => {
     exchangeCodeForSession.mockResolvedValue({ error: null });
 
     const res = await GET(new NextRequest("http://localhost:3001/auth/callback?code=abc123"));
@@ -32,7 +32,7 @@ describe("GET /auth/callback", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/app/dashboard");
   });
 
-  it("redirects to /login when the token verification fails", async () => {
+  it("SHOULD redirect to /login WHEN the token verification fails", async () => {
     exchangeCodeForSession.mockResolvedValue({ error: { message: "expired" } });
 
     const res = await GET(new NextRequest("http://localhost:3001/auth/callback?code=stale"));
@@ -40,7 +40,7 @@ describe("GET /auth/callback", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
 
-  it("redirects to /login when code is missing", async () => {
+  it("SHOULD redirect to /login WHEN the code is missing", async () => {
     const res = await GET(new NextRequest("http://localhost:3001/auth/callback"));
 
     expect(exchangeCodeForSession).not.toHaveBeenCalled();

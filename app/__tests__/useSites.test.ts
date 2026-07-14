@@ -7,9 +7,6 @@ import { useSites } from "../app/hooks/useSites";
 
 vi.mock("../../lib/api", () => ({
   api: {
-    ChargePoints: {
-      getChargePoints: vi.fn(),
-    },
     Sites: {
       getSites: vi.fn(),
     },
@@ -28,7 +25,7 @@ describe("useSites", () => {
     vi.clearAllMocks();
   });
 
-  it("charge les sites au montage", async () => {
+  it("SHOULD load sites WHEN mounted", async () => {
     mockGetSites.mockResolvedValue(mockSites);
 
     const { result } = renderHook(() => useSites());
@@ -42,7 +39,7 @@ describe("useSites", () => {
     expect(mockGetSites).toHaveBeenCalled();
   });
 
-  it("est en état loading pendant le fetch", async () => {
+  it("SHOULD be in a loading state WHILE fetching", async () => {
     let resolvePromise!: (value: typeof mockSites) => void;
     const pendingPromise = new Promise<typeof mockSites>((resolve) => {
       resolvePromise = resolve;
@@ -51,11 +48,11 @@ describe("useSites", () => {
 
     const { result } = renderHook(() => useSites());
 
-    // Initialement en loading
+    // Initially loading
     expect(result.current.loading).toBe(true);
     expect(result.current.sites).toEqual([]);
 
-    // Résoudre la promesse
+    // Resolve the promise
     await act(async () => {
       resolvePromise(mockSites);
       await pendingPromise;
@@ -66,7 +63,7 @@ describe("useSites", () => {
     });
   });
 
-  it("gère les erreurs si l'API échoue", async () => {
+  it("SHOULD expose an error WHEN the API call fails", async () => {
     mockGetSites.mockRejectedValue(new Error("Network error"));
 
     const { result } = renderHook(() => useSites());
@@ -80,7 +77,7 @@ describe("useSites", () => {
     expect(result.current.sites).toEqual([]);
   });
 
-  it("refetch recharge les données", async () => {
+  it("SHOULD reload the data WHEN refetch is called", async () => {
     mockGetSites.mockResolvedValue(mockSites);
 
     const { result } = renderHook(() => useSites());
@@ -102,7 +99,7 @@ describe("useSites", () => {
     expect(result.current.sites).toEqual(newSites);
   });
 
-  it("réinitialise l'erreur lors d'un refetch réussi", async () => {
+  it("SHOULD clear the error WHEN a refetch succeeds", async () => {
     mockGetSites.mockRejectedValue(new Error("Erreur réseau"));
 
     const { result } = renderHook(() => useSites());
@@ -113,7 +110,7 @@ describe("useSites", () => {
 
     expect(result.current.error).toBeTruthy();
 
-    // Refetch avec succès
+    // Refetch succeeds
     mockGetSites.mockResolvedValue(mockSites);
 
     await act(async () => {

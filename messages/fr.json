@@ -68,6 +68,12 @@
         "links": {
           "chargePoints": "Bornes de recharge",
           "sites": "Sites"
+        },
+        "wsStatus": {
+          "connecting": "Connexion en cours…",
+          "connected": "Connecté",
+          "disconnected": "Déconnecté",
+          "error": "Erreur de connexion"
         }
       }
     }

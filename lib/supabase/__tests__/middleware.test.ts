@@ -1,9 +1,25 @@
-import { NextRequest } from "next/server";
+import type { CookieOptions } from "@supabase/ssr";
+import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createServerClient } = vi.hoisted(() => ({
-  createServerClient: vi.fn(() => ({ auth: { getUser: vi.fn() } })),
-}));
+type CookiesAdapter = {
+  getAll: () => { name: string; value: string }[];
+  setAll: (cookies: { name: string; value: string; options: CookieOptions }[]) => void;
+};
+
+const { createServerClient } = vi.hoisted(() => {
+  const fn = vi.fn<
+    (
+      url: string,
+      key: string,
+      options: { cookies: unknown },
+    ) => {
+      auth: { getUser: ReturnType<typeof vi.fn> };
+    }
+  >();
+  fn.mockImplementation(() => ({ auth: { getUser: vi.fn() } }));
+  return { createServerClient: fn };
+});
 
 vi.mock("@supabase/ssr", () => ({ createServerClient }));
 
@@ -31,15 +47,32 @@ describe("supabase middleware client", () => {
     expect(key).toBe("test-anon-key");
   });
 
-  it("returns the supabase client and a response carrying refreshed cookies", async () => {
+  it("returns the client built by createServerClient and a non-redirecting NextResponse", async () => {
     const { createClient } = await import("../middleware");
     const request = new NextRequest("http://localhost:3001/app/dashboard");
 
     const { supabase, supabaseResponse } = createClient(request);
 
-    expect(supabase).toBeDefined();
-    expect(supabaseResponse).toBeDefined();
-    expect(supabaseResponse.cookies).toBeDefined();
+    expect(supabase).toBe(createServerClient.mock.results[0].value);
+    expect(supabaseResponse).toBeInstanceOf(NextResponse);
+    expect(supabaseResponse.headers.get("location")).toBeNull();
+  });
+
+  it("writes cookies set via the adapter's setAll onto both the response and the request", async () => {
+    createServerClient.mockImplementationOnce((_url, _key, options) => {
+      (options as { cookies: CookiesAdapter }).cookies.setAll([
+        { name: "sb-access-token", value: "refreshed", options: {} },
+      ]);
+      return { auth: { getUser: vi.fn() } };
+    });
+
+    const { createClient } = await import("../middleware");
+    const request = new NextRequest("http://localhost:3001/app/dashboard");
+
+    const { supabaseResponse } = createClient(request);
+
+    expect(supabaseResponse.cookies.get("sb-access-token")?.value).toBe("refreshed");
+    expect(request.cookies.get("sb-access-token")?.value).toBe("refreshed");
   });
 
   it("reads cookies from the incoming request via the cookies adapter", async () => {
