@@ -17,16 +17,24 @@ Stack: **Next.js 14 (App Router)**, React 18, TypeScript (strict),
 
 ```
 app/
-  (marketing)/          # public site (route group): home, pricing, contact
+  (marketing)/          # public site (route group): home, pricing, contact, features
   app/                  # authenticated dashboard
     dashboard/ charge-points/ sites/   # pages
     components/         # feature + common + layout components
+    404/                 # dashboard-scoped not-found page
     hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
-  api/                  # Next route handlers that PROXY to the backend
-  login/                # login page (magic-link sign-in)
-  signup/               # alpha signup page
-  auth/callback/        # Supabase magic-link code-exchange handler
+  components/layout/Navbar.tsx  # shared Navbar used by both the marketing
+                                 #   Navbar and the dashboard Header
+  404/                   # top-level not-found page
+  api/                   # Next route handlers that PROXY to the backend
+  login/                 # login page (magic-link sign-in)
+  signup/                # alpha signup page
+  auth/callback/         # Supabase magic-link code-exchange handler
+  auth/components/       # LogoutButton, shared by Header and marketing Navbar
+  auth/dev-login/        # local-dev-only magic-link shortcut route
+  design-system/         # tokens.css (Tailwind design tokens)
+  assets/                # static assets used by app/ components
 middleware.ts           # Supabase session refresh, locale resolution
                         # (?lang= > cookie > host), app.* subdomain rewrite,
                         # and auth guard for /app, /api, /login, /signup
