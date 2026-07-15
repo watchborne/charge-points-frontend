@@ -32,7 +32,10 @@ export const WsStatusBadge = ({ status }: WsStatusBadgeProps) => {
 
   if (status === "ERROR") {
     return (
-      <Badge variant="outline" className="gap-1.5 border-status-error/30 text-status-error-foreground">
+      <Badge
+        variant="outline"
+        className="gap-1.5 border-status-error/30 text-status-error-foreground"
+      >
         <span className="h-1.5 w-1.5 rounded-full bg-status-error" />
         {t("layout.navbar.app.wsStatus.error")}
       </Badge>

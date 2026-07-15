@@ -76,7 +76,9 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                   onClick={() => setSelectedSiteId(isSelected ? null : site.id)}
                   className={classNames(
                     "block w-full rounded-lg border p-4 text-left transition-shadow hover:shadow-md",
-                    isSelected ? "border-charge ring-1 ring-charge bg-charge-soft/40" : "bg-background",
+                    isSelected
+                      ? "border-charge ring-1 ring-charge bg-charge-soft/40"
+                      : "bg-background",
                   )}
                 >
                   <div className="font-medium">{site.name}</div>
@@ -137,7 +139,9 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
 
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <div className={classNames("h-2.5 w-2.5 rounded-full", toneDotClass[tone])} />
+                        <div
+                          className={classNames("h-2.5 w-2.5 rounded-full", toneDotClass[tone])}
+                        />
                         <span className="text-sm capitalize">
                           {chargePoint.connection.status.toLowerCase()}
                         </span>
@@ -163,7 +167,9 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                       )}
 
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{t("appPage.dashboard.uptime")}</span>
+                        <span className="text-muted-foreground">
+                          {t("appPage.dashboard.uptime")}
+                        </span>
                         <span className="font-medium">
                           {lastSeenText
                             ? t(
