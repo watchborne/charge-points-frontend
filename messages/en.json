@@ -394,6 +394,18 @@
       "chargePoints": "Loading charge points...",
       "sites": "Loading sites..."
     },
+    "dashboard": {
+      "sites": "Sites",
+      "fleetOverview": "Fleet Overview",
+      "fleetOverviewForSite": "Charge points installed at {site}",
+      "live": "Live",
+      "online": "online",
+      "offline": "offline",
+      "noChargePoints": "No charge points",
+      "uptime": "Uptime",
+      "uptimeOnline": "Online for {time}",
+      "uptimeOffline": "Offline for {time}"
+    },
     "chargePoints": {
       "page": {
         "buttons": {
@@ -462,8 +474,7 @@
         "total": "Total",
         "connected": "Connected",
         "offline": "Offline",
-        "notStable": "Not stable",
-        "synced": "Synced"
+        "error": "In error"
       },
       "card": {
         "model": "Model",

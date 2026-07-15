@@ -3,37 +3,35 @@
 import { useTranslations } from "next-intl";
 
 import { ChargePointStats } from "../components/charge-points/ChargePointStats";
-import { ChargePointsGrid } from "../components/charge-points/ChargePointsGrid";
 import { EmptyStateChargePoints } from "../components/charge-points/EmptyStateChargePoints";
 import { Callout } from "../components/common/Callout";
 import { Loader } from "../components/common/Loader";
+import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { useChargePoints } from "../hooks/useChargePoints";
+import { useSites } from "../hooks/useSites";
 
 export default function DashboardPage() {
   const t = useTranslations("");
   const { chargePoints, loading, error } = useChargePoints();
+  const { sites, loading: loadingSites, error: errorSites } = useSites();
 
   return (
     <>
       {error && <Callout error={error} />}
+      {errorSites && <Callout error={errorSites} />}
 
-      {loading && <Loader label={t("appPage.loading.chargePoints")} />}
+      {(loading || loadingSites) && <Loader label={t("appPage.loading.chargePoints")} />}
 
-      {!loading && !error && (
-        <>
+      {!loading && !loadingSites && !error && !errorSites && (
+        <div className="flex flex-col gap-8">
           <ChargePointStats chargePoints={chargePoints} />
 
-          <div>
-            <h2 className="text-xl font-semibold mb-4">
-              {t("misc.chargePoint_plural")} ({chargePoints.length})
-            </h2>
-            {chargePoints.length === 0 ? (
-              <EmptyStateChargePoints />
-            ) : (
-              <ChargePointsGrid chargePoints={chargePoints} />
-            )}
-          </div>
-        </>
+          {chargePoints.length === 0 ? (
+            <EmptyStateChargePoints />
+          ) : (
+            <FleetOverviewPanel chargePoints={chargePoints} sites={sites} />
+          )}
+        </div>
       )}
     </>
   );

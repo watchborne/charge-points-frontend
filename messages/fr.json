@@ -393,6 +393,18 @@
       "chargePoints": "Chargement des bornes de recharge...",
       "sites": "Chargement des sites..."
     },
+    "dashboard": {
+      "sites": "Sites",
+      "fleetOverview": "Vue d'ensemble du parc",
+      "fleetOverviewForSite": "Bornes installées sur le site {site}",
+      "live": "En direct",
+      "online": "en ligne",
+      "offline": "hors ligne",
+      "noChargePoints": "Aucune borne de recharge",
+      "uptime": "Uptime",
+      "uptimeOnline": "En ligne depuis {time}",
+      "uptimeOffline": "Hors ligne depuis {time}"
+    },
     "chargePoints": {
       "page": {
         "buttons": {
@@ -461,8 +473,7 @@
         "total": "Total",
         "connected": "Connecté",
         "offline": "Hors ligne",
-        "notStable": "Pas stable",
-        "synced": "Synchronisé"
+        "error": "En erreur"
       },
       "card": {
         "model": "Modèle",
