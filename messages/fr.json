@@ -68,7 +68,8 @@
       "app": {
         "links": {
           "chargePoints": "Bornes de recharge",
-          "sites": "Sites"
+          "sites": "Sites",
+          "configuration": "Configuration"
         },
         "wsStatus": {
           "connecting": "Connexion en cours…",
@@ -538,6 +539,33 @@
     "deletion": {
       "title": "Supprimer « {name} » ?",
       "description": "Action destructive : ce site sera irrécupérable."
+    },
+    "configuration": {
+      "page": {
+        "title": "Configuration",
+        "subtitle": "Paramétrez la connexion de vos bornes de recharge et découvrez les fonctionnalités à venir."
+      },
+      "connection": {
+        "title": "Connecter une borne à Watchborne",
+        "description": "Pour qu'une borne de recharge remonte son état dans Watchborne, elle doit se connecter à notre serveur OCPP. Renseignez l'adresse ci-dessous dans les paramètres OCPP de la borne, puis suffixez-la avec l'identifiant unique de la borne.",
+        "serverAddressLabel": "Adresse du serveur OCPP",
+        "steps": {
+          "openSettings": "Ouvrez les paramètres OCPP (parfois appelés « Central System URL ») de la borne, généralement dans son interface d'administration.",
+          "enterAddress": "Renseignez l'adresse du serveur OCPP ci-dessus.",
+          "appendId": "Suffixez l'adresse avec l'identifiant unique de la borne, par exemple : {example}",
+          "restart": "Enregistrez puis redémarrez la borne : elle apparaîtra dans Watchborne dès sa première connexion."
+        }
+      },
+      "association": {
+        "title": "Associer une borne à un site",
+        "description": "L'association se fait directement depuis la fiche de la borne : ouvrez « Bornes de recharge », puis créez ou modifiez une borne et sélectionnez son site dans le champ « Site ». Une borne ne peut être rattachée qu'à un seul site à la fois.",
+        "cta": "Aller aux bornes de recharge"
+      },
+      "comingSoon": {
+        "title": "D'autres sections à venir",
+        "description": "De nouvelles rubriques de configuration seront ajoutées ici au fur et à mesure de l'évolution de Watchborne.",
+        "badge": "Bientôt disponible"
+      }
     }
   }
 }

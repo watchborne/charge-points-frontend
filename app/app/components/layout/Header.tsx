@@ -20,6 +20,11 @@ export const Header = () => {
       label: t("layout.navbar.app.links.chargePoints"),
       url: "/app/charge-points",
     },
+    {
+      key: "configuration",
+      label: t("layout.navbar.app.links.configuration"),
+      url: "/app/configuration",
+    },
   ] satisfies NavbarLink[];
 
   return (
