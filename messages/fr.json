@@ -392,6 +392,14 @@
       "chargePoints": "Chargement des bornes de recharge...",
       "sites": "Chargement des sites..."
     },
+    "dashboard": {
+      "sites": "Sites",
+      "fleetOverview": "Vue d'ensemble du parc",
+      "live": "En direct",
+      "online": "en ligne",
+      "offline": "hors ligne",
+      "noChargePoints": "Aucune borne de recharge"
+    },
     "chargePoints": {
       "page": {
         "buttons": {
