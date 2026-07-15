@@ -22,15 +22,17 @@ export default function ConfigurationPage() {
   return (
     <div className="flex flex-col gap-6 content-stretch">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
           {t("appPage.configuration.page.title")}
         </h1>
-        <p className="text-muted-foreground mt-1">{t("appPage.configuration.page.subtitle")}</p>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">
+          {t("appPage.configuration.page.subtitle")}
+        </p>
       </div>
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
-          <Server className="h-4 w-4 text-muted-foreground" />
+          <Server className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="text-sm font-medium">{t("appPage.configuration.connection.title")}</span>
         </div>
         <div className="flex flex-col gap-4 p-4">
@@ -62,7 +64,7 @@ export default function ConfigurationPage() {
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
-          <MapPinned className="h-4 w-4 text-muted-foreground" />
+          <MapPinned className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="text-sm font-medium">
             {t("appPage.configuration.association.title")}
           </span>
@@ -71,7 +73,7 @@ export default function ConfigurationPage() {
           <p className="text-sm text-muted-foreground">
             {t("appPage.configuration.association.description")}
           </p>
-          <Button asChild variant="outline" className="w-fit">
+          <Button asChild variant="outline" className="w-full sm:w-fit">
             <Link href="/app/charge-points">
               {t("appPage.configuration.association.cta")}
               <ArrowRight className="h-4 w-4" />
@@ -81,10 +83,10 @@ export default function ConfigurationPage() {
       </section>
 
       <section className="rounded-lg border border-dashed">
-        <div className="flex items-center gap-3 p-4">
-          <Sparkles className="h-4 w-4 text-muted-foreground shrink-0" />
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
+        <div className="flex items-start gap-3 p-4">
+          <Sparkles className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="text-sm font-medium">
                 {t("appPage.configuration.comingSoon.title")}
               </span>
