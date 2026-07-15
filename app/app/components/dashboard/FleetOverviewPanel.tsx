@@ -58,7 +58,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
   return (
     <div className="rounded-xl border bg-card shadow-2xl overflow-hidden">
       <div className="grid md:grid-cols-3">
-        <div className="border-r bg-muted/30 p-6">
+        <div className="border-b bg-muted/30 p-4 sm:p-6 md:border-b-0 md:border-r">
           <div className="text-sm font-medium text-muted-foreground">
             {t("appPage.dashboard.sites")}
           </div>
@@ -106,8 +106,8 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
           </div>
         </div>
 
-        <div className="md:col-span-2 p-6">
-          <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="p-4 sm:p-6 md:col-span-2">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">{panelTitle}</h3>
 
             <WsStatusBadge status={status} />
@@ -133,11 +133,11 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                     type="button"
                     onClick={() => toggleExpanded(chargePoint.id)}
                     aria-expanded={isExpanded}
-                    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/40"
+                    className="flex w-full flex-wrap items-center justify-between gap-2 p-4 text-left transition-colors hover:bg-muted/40"
                   >
-                    <div className="font-medium">{chargePoint.name}</div>
+                    <div className="min-w-0 flex-1 truncate font-medium">{chargePoint.name}</div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-3">
                       <div className="flex items-center gap-2">
                         <div
                           className={classNames("h-2.5 w-2.5 rounded-full", toneDotClass[tone])}
@@ -158,7 +158,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                   {isExpanded && (
                     <div className="space-y-3 border-t bg-muted/20 p-4">
                       {vendorModel && (
-                        <div className="flex items-center justify-between text-sm">
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-sm">
                           <span className="text-muted-foreground">
                             {t("appPage.chargePoints.card.model")}
                           </span>
@@ -166,7 +166,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-1 text-sm">
                         <span className="text-muted-foreground">
                           {t("appPage.dashboard.uptime")}
                         </span>
@@ -187,7 +187,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                           {chargePoint.connectors.map((connector) => (
                             <div
                               key={connector.id}
-                              className="flex items-center justify-between px-3 py-2 text-sm"
+                              className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-sm"
                             >
                               <span className="text-muted-foreground">
                                 {t("appPage.chargePoints.detail.connector", {
