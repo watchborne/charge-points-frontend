@@ -540,7 +540,7 @@
         "serverAddressLabel": "Adresse du serveur OCPP",
         "steps": {
           "openSettings": "Ouvrez les paramètres OCPP (parfois appelés « Central System URL ») de la borne, généralement dans son interface d'administration.",
-          "enterAddress": "Renseignez l'adresse du serveur OCPP ci-dessus. Elle varie selon l'environnement (production, préproduction, local).",
+          "enterAddress": "Renseignez l'adresse du serveur OCPP ci-dessus.",
           "appendId": "Suffixez l'adresse avec l'identifiant unique de la borne, par exemple : {example}",
           "restart": "Enregistrez puis redémarrez la borne : elle apparaîtra dans Watchborne dès sa première connexion."
         }

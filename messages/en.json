@@ -541,7 +541,7 @@
         "serverAddressLabel": "OCPP server address",
         "steps": {
           "openSettings": "Open the charge point's OCPP settings (sometimes called the \"Central System URL\"), usually found in its admin interface.",
-          "enterAddress": "Enter the OCPP server address above. It varies depending on the environment (production, staging, local).",
+          "enterAddress": "Enter the OCPP server address above.",
           "appendId": "Suffix the address with the charge point's unique identifier, for example: {example}",
           "restart": "Save and restart the charge point: it will appear in Watchborne as soon as it first connects."
         }
