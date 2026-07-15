@@ -2,6 +2,13 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000
 
 export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000/ws";
 
+// Public-facing OCPP endpoint that charge points themselves dial into — distinct
+// from WS_URL above, which is the dashboard's own status websocket. Charge
+// points are configured with this address suffixed by their own charge point
+// identifier. Configure per environment via NEXT_PUBLIC_OCPP_SERVER_URL.
+export const OCPP_SERVER_URL =
+  process.env.NEXT_PUBLIC_OCPP_SERVER_URL || "ws://localhost:9000/ocpp";
+
 // Same-origin Next.js route that mints a single-use dashboard WebSocket token.
 // It proxies to the backend server-side (injecting the shared API key), so the
 // browser never sees the secret. Fetched right before each WS (re)connection.
