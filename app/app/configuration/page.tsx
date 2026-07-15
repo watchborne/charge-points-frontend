@@ -31,9 +31,7 @@ export default function ConfigurationPage() {
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
           <Server className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">
-            {t("appPage.configuration.connection.title")}
-          </span>
+          <span className="text-sm font-medium">{t("appPage.configuration.connection.title")}</span>
         </div>
         <div className="flex flex-col gap-4 p-4">
           <p className="text-sm text-muted-foreground">
