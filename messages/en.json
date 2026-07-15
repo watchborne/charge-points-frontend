@@ -68,7 +68,8 @@
       "app": {
         "links": {
           "chargePoints": "Charge Points",
-          "sites": "Sites"
+          "sites": "Sites",
+          "configuration": "Configuration"
         },
         "wsStatus": {
           "connecting": "Connecting…",
@@ -528,6 +529,33 @@
     "deletion": {
       "title": "Delete « {name} » ?",
       "description": "Destroy action: this site will be unrecoverable."
+    },
+    "configuration": {
+      "page": {
+        "title": "Configuration",
+        "subtitle": "Set up how your charge points connect and discover upcoming features."
+      },
+      "connection": {
+        "title": "Connect a charge point to Watchborne",
+        "description": "For a charge point to report its status in Watchborne, it needs to connect to our OCPP server. Enter the address below in the charge point's OCPP settings, then suffix it with the charge point's unique identifier.",
+        "serverAddressLabel": "OCPP server address",
+        "steps": {
+          "openSettings": "Open the charge point's OCPP settings (sometimes called the \"Central System URL\"), usually found in its admin interface.",
+          "enterAddress": "Enter the OCPP server address above. It varies depending on the environment (production, staging, local).",
+          "appendId": "Suffix the address with the charge point's unique identifier, for example: {example}",
+          "restart": "Save and restart the charge point: it will appear in Watchborne as soon as it first connects."
+        }
+      },
+      "association": {
+        "title": "Associate a charge point with a site",
+        "description": "Association happens directly from the charge point's form: open \"Charge Points\", then create or edit a charge point and select its site in the \"Site\" field. A charge point can only be attached to one site at a time.",
+        "cta": "Go to charge points"
+      },
+      "comingSoon": {
+        "title": "More sections coming soon",
+        "description": "New configuration topics will be added here as Watchborne evolves.",
+        "badge": "Coming soon"
+      }
     }
   }
 }
