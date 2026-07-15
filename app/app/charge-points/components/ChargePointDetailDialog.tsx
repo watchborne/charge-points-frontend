@@ -1,20 +1,7 @@
 import { Site } from "@watchborne/charge-points-types";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
-import {
-  Battery,
-  CheckCircle,
-  CircleEllipsis,
-  Clock,
-  Loader,
-  Pause,
-  Pencil,
-  PlugZap,
-  Shield,
-  Ticket,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Battery, Clock, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,11 +13,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { connectorStatusTone, toneTextClass } from "@/lib/status";
-import { ChargePointWithConnectors, ConnectorStatus } from "@/types/charge-point";
+import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { Callout } from "../../components/common/Callout";
+import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { Tag } from "../../components/common/Tag";
 
 type ChargePointDetailDialogProps = {
@@ -98,7 +85,7 @@ export const ChargePointDetailDialog = ({
                     })}
                   </span>
                   <div className="flex items-center gap-1.5">
-                    {getConnectorStatusIcon(connector.status)}
+                    <ConnectorStatusIcon status={connector.status} />
                     <span className="text-sm font-medium">{connector.status}</span>
                   </div>
                 </div>
@@ -198,31 +185,4 @@ export const ChargePointDetailDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-const getConnectorStatusIcon = (status: ConnectorStatus) => {
-  const className = toneTextClass[connectorStatusTone(status)];
-
-  switch (status) {
-    case "Available":
-      return <CheckCircle size="16px" className={className} />;
-    case "Preparing":
-      return <CircleEllipsis size="16px" className={className} />;
-    case "Charging":
-    case "Occupied":
-      return <PlugZap size="16px" className={className} />;
-    case "SuspendedEV":
-    case "SuspendedEVSE":
-      return <Pause size="16px" className={className} />;
-    case "Finishing":
-      return <Loader size="16px" className={className} />;
-    case "Reserved":
-      return <Ticket size="16px" className={className} />;
-    case "Unavailable":
-      return <X size="16px" className={className} />;
-    case "Faulted":
-      return <Shield size="16px" className={className} />;
-    default:
-      return null;
-  }
 };

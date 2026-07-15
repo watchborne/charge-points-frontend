@@ -41,6 +41,7 @@ vi.mock("next-intl", () => {
     "layout.navbar.app.wsStatus.connected": "Connected",
     "layout.navbar.app.wsStatus.disconnected": "Disconnected",
     "layout.navbar.app.wsStatus.error": "Connection error",
+    "appPage.dashboard.live": "Live",
   };
   return {
     useTranslations: () => (key: string) => translations[key] ?? key,
@@ -85,17 +86,17 @@ describe("Header", () => {
   describe("WebSocket connection status", () => {
     it.each([
       ["CONNECTING", "Connecting…"],
-      ["CONNECTED", "Connected"],
+      ["CONNECTED", "Live"],
       ["DISCONNECTED", "Disconnected"],
       ["ERROR", "Connection error"],
     ] satisfies [WebSocketStatus, string][])(
-      "SHOULD expose an accessible status icon WHEN the WebSocket status is %s",
-      (status, accessibleName) => {
+      "SHOULD render a status badge WHEN the WebSocket status is %s",
+      (status, label) => {
         setWebSocketStatus(status);
 
         renderComponent();
 
-        expect(screen.getByRole("img", { name: accessibleName })).toBeTruthy();
+        expect(screen.getByText(label)).toBeTruthy();
       },
     );
   });
