@@ -6,13 +6,10 @@ import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { WS_URL } from "@/lib/constants";
 import { connectionStatusTone, toneDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { useWebSocket } from "../../hooks/useWebSocket";
 import { ConnectorStatusIcon } from "../common/ConnectorStatusIcon";
-import { WsStatusBadge } from "../common/WsStatusBadge";
 
 interface FleetOverviewPanelProps {
   chargePoints: ChargePointWithConnectors[];
@@ -21,7 +18,6 @@ interface FleetOverviewPanelProps {
 
 export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelProps) => {
   const t = useTranslations("");
-  const { status } = useWebSocket(WS_URL);
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
@@ -109,8 +105,6 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
         <div className="p-4 sm:p-6 md:col-span-2">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">{panelTitle}</h3>
-
-            <WsStatusBadge status={status} />
           </div>
 
           <div className="space-y-4">
