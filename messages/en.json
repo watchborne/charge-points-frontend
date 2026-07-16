@@ -429,6 +429,15 @@
         },
         "empty": {
           "noChargePointFound": "No charge point found."
+        },
+        "groupBy": {
+          "label": "Group by",
+          "site": "By site",
+          "vendor": "By vendor",
+          "unknownVendor": "Unknown vendor"
+        },
+        "detail": {
+          "selectPrompt": "Select a charge point to view its details."
         }
       },
       "form": {

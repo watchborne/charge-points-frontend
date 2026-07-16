@@ -429,6 +429,15 @@
         },
         "empty": {
           "noChargePointFound": "Aucune borne de recharge trouvée."
+        },
+        "groupBy": {
+          "label": "Grouper par",
+          "site": "Par site",
+          "vendor": "Par fabricant",
+          "unknownVendor": "Fabricant inconnu"
+        },
+        "detail": {
+          "selectPrompt": "Sélectionnez une borne pour voir ses détails."
         }
       },
       "form": {

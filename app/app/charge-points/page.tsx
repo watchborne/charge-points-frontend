@@ -11,7 +11,6 @@ import { api } from "@/lib/api";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
-import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { ChargePointTableSkeleton } from "./components/ChargePointTableSkeleton";
@@ -36,11 +35,9 @@ export default function ChargePointsPage() {
   const didAutoSwitch = useRef(false);
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [createDefaultSiteId, setCreateDefaultSiteId] = useState<string | undefined>();
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
 
   const filteredChargePoints = useMemo(() => {
     if (search.length <= 2) return chargePoints;
@@ -66,7 +63,6 @@ export default function ChargePointsPage() {
     if (highlightedId && !loadingChargePoints && !loadingSites && !didAutoSwitch.current) {
       const target = chargePoints.find((cp) => cp.id === highlightedId);
       if (target) {
-        setSelectedSiteId(target.siteId);
         didAutoSwitch.current = true;
         setDetailTarget(target);
       }
@@ -117,12 +113,10 @@ export default function ChargePointsPage() {
     await api.ChargePoints.deleteChargePoint(deleteTarget.id);
     await refetchChargePoints();
 
+    if (detailTarget?.id === deleteTarget.id) {
+      updateDetailTarget(null);
+    }
     setDeleteTarget(null);
-  };
-
-  const openCreateForSite = (siteId: string) => {
-    setCreateDefaultSiteId(siteId);
-    setCreateOpen(true);
   };
 
   const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
@@ -154,12 +148,7 @@ export default function ChargePointsPage() {
       {!loadingChargePoints && !loadingSites && !errorChargePoints && (
         <div className="flex flex-col gap-4 content-stretch">
           <div className="flex items-center gap-3 w-full">
-            <Button
-              onClick={() => {
-                setCreateDefaultSiteId(undefined);
-                setCreateOpen(true);
-              }}
-            >
+            <Button onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               {t("appPage.chargePoints.page.buttons.addChargePoint")}
             </Button>
@@ -187,12 +176,11 @@ export default function ChargePointsPage() {
           <ChargePointFleetPanel
             sites={sites}
             chargePoints={filteredChargePoints}
-            highlightedId={highlightedId}
-            selectedSiteId={selectedSiteId}
-            onSelectSite={setSelectedSiteId}
-            onRowClicked={updateDetailTarget}
+            selected={detailTarget}
+            onSelect={updateDetailTarget}
             onToggleActive={handleToggleActive}
-            onAddForSite={openCreateForSite}
+            onEditClicked={(cp) => setEditTarget(cp)}
+            onDeleteClicked={(cp) => setDeleteTarget(cp)}
           />
 
           <ChargePointFormDialog
@@ -201,7 +189,7 @@ export default function ChargePointsPage() {
             onSubmit={handleCreate}
             mode="create"
             sites={sites}
-            defaultSiteId={createDefaultSiteId}
+            defaultSiteId={detailTarget?.siteId}
           />
           <ChargePointFormDialog
             open={!!editTarget}
@@ -223,13 +211,6 @@ export default function ChargePointsPage() {
             onSubmit={handleEdit}
             mode="edit"
             sites={sites}
-          />
-          <ChargePointDetailDialog
-            chargePoint={detailTarget}
-            site={sites.find((s) => s.id === detailTarget?.siteId)}
-            onOpenChange={(open) => !open && updateDetailTarget(null)}
-            onEditClicked={(cp) => setEditTarget(cp)}
-            onDeleteClicked={(cp) => setDeleteTarget(cp)}
           />
           <ChargePointDeletionDialog
             open={!!deleteTarget}
