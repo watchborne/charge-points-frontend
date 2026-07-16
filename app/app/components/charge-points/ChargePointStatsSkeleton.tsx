@@ -2,11 +2,11 @@ import { Skeleton } from "../common/Skeleton";
 
 export const ChargePointStatsSkeleton = () => {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="bg-card rounded-lg border p-4 flex flex-col content-stretch">
-          <div className="flex items-center justify-between mb-2">
-            <Skeleton className="h-4 w-20" />
+          <div className="flex items-center justify-between mb-2 gap-2">
+            <Skeleton className="h-4 w-16" />
             <Skeleton className="h-5 w-5 rounded-full" />
           </div>
           <Skeleton className="h-8 w-12 mb-2" />

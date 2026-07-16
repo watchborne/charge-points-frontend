@@ -10,10 +10,9 @@ export const FleetOverviewPanelSkeleton = () => {
 
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="rounded-lg border p-4 bg-background">
+              <div key={i} className="rounded-lg border p-4 bg-background overflow-hidden">
                 <Skeleton className="h-5 w-32 mb-3" />
                 <Skeleton className="h-4 w-20 mb-2" />
-                <Skeleton className="h-4 w-24" />
               </div>
             ))}
           </div>
@@ -22,18 +21,15 @@ export const FleetOverviewPanelSkeleton = () => {
         {/* Right content - charge points list */}
         <div className="p-4 sm:p-6 md:col-span-2">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-7 w-48" />
           </div>
 
           <div className="space-y-4">
-            {[...Array(4)].map((_, i) => (
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="rounded-lg border overflow-hidden">
                 <div className="flex w-full flex-wrap items-center justify-between gap-2 p-4">
-                  <Skeleton className="h-5 w-40" />
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-4 rounded-full" />
-                  </div>
+                  <Skeleton className="h-6 w-28" />
+                  <Skeleton className="h-6 w-20" />
                 </div>
               </div>
             ))}
