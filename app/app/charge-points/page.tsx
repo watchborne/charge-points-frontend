@@ -164,15 +164,6 @@ export default function ChargePointsPage() {
             </div>
           </div>
 
-          <p className="text mt-1">
-            {[
-              t("misc.chargePointWithCount", {
-                count: chargePoints.length,
-              }),
-              t("misc.siteWithCount", { count: sites.length }),
-            ].join(" / ")}
-          </p>
-
           <ChargePointFleetPanel
             sites={sites}
             chargePoints={filteredChargePoints}

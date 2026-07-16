@@ -75,6 +75,14 @@ export const ChargePointFleetPanel = ({
     <div className="rounded-xl border bg-card shadow-2xl overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6">
         <h3 className="text-lg font-semibold">{t("appPage.dashboard.fleetOverview")}</h3>
+        <p className="text mt-1">
+          {[
+            t("misc.chargePointWithCount", {
+              count: chargePoints.length,
+            }),
+            t("misc.siteWithCount", { count: sites.length }),
+          ].join(" / ")}
+        </p>
 
         <Tabs value={groupBy} onValueChange={(value) => setGroupBy(value as GroupBy)}>
           <TabsList aria-label={t("appPage.chargePoints.page.groupBy.label")}>
