@@ -475,6 +475,25 @@
         "title": "Delete « {name} » ?",
         "description": "Destroy action: this charge point will be unrecoverable."
       },
+      "reset": {
+        "button": "Reset",
+        "title": "Reset « {name} » ?",
+        "description": "The station will reboot. Any ongoing charging session may be interrupted.",
+        "typeLabel": "Reset type",
+        "types": {
+          "hard": "Hard — immediate reboot",
+          "soft": "Soft — graceful restart"
+        },
+        "confirm": "Reset",
+        "result": {
+          "accepted": "Reset accepted by the station.",
+          "notConnectedOrRejected": "Cannot reset: the station is offline or refused it.",
+          "notFound": "Charge point not found.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "The reset failed. Please try again."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",

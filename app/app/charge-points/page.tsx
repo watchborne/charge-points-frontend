@@ -1,5 +1,6 @@
 "use client";
 
+import type { ResetType } from "@watchborne/charge-points-types";
 import { Plus, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -13,6 +14,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
+import { ChargePointResetDialog } from "./components/ChargePointResetDialog";
 import { ChargePointTableSkeleton } from "./components/ChargePointTableSkeleton";
 import { Callout } from "../components/common/Callout";
 import { useChargePoints } from "../hooks/useChargePoints";
@@ -38,6 +40,8 @@ export default function ChargePointsPage() {
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
+  const [resetTarget, setResetTarget] = useState<ChargePointWithConnectors | null>(null);
+  const [activeTab, setActiveTab] = useState<string>();
 
   const filteredChargePoints = useMemo(() => {
     if (search.length <= 2) return chargePoints;
@@ -117,6 +121,20 @@ export default function ChargePointsPage() {
       updateDetailTarget(null);
     }
     setDeleteTarget(null);
+  };
+
+  const handleReset = (type: ResetType) => {
+    if (!resetTarget) return Promise.resolve({ ok: false, httpStatus: 0 } as const);
+    return api.ChargePoints.resetChargePoint(resetTarget.id, type);
+  };
+
+  const openCreateForSite = (siteId: string) => {
+    setCreateDefaultSiteId(siteId);
+    setCreateOpen(true);
+  };
+
+  const getCountForSite = (id: string) => {
+    return filteredChargePoints.filter((cp) => cp.siteId === id).length;
   };
 
   const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
@@ -208,6 +226,11 @@ export default function ChargePointsPage() {
             onOpenChange={(open) => !open && setDeleteTarget(null)}
             deleteTarget={deleteTarget}
             onDeleteClicked={handleDelete}
+          />
+          <ChargePointResetDialog
+            resetTarget={resetTarget}
+            onOpenChange={(open) => !open && setResetTarget(null)}
+            onConfirm={handleReset}
           />
         </div>
       )}
