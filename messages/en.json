@@ -361,7 +361,6 @@
     "futurePricing": {
       "title": "Current pricing hypothesis",
       "description": "The model currently being evaluated is based on the number of managed sites.",
-
       "sites": "Site-based subscription",
       "includedChargePoints": "10 charge points included per site",
       "extraChargePoint": "Additional charge points: €2/month per charger"
@@ -491,9 +490,16 @@
     },
     "sites": {
       "page": {
+        "title": "Your sites",
         "buttons": {
           "addSite": "Add a site",
           "search": "Search a site by name..."
+        },
+        "stats": {
+          "totalSites": "Sites",
+          "totalChargePoints": "Charge points",
+          "online": "Online",
+          "offline": "Offline"
         },
         "table": {
           "columns": {

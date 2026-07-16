@@ -14,11 +14,14 @@ import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteTable } from "./components/SiteTable";
 import { SiteTableSkeleton } from "./components/SiteTableSkeleton";
 import { Callout } from "../components/common/Callout";
+import { SiteStats } from "../components/sites/SiteStats";
+import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 
 export default function SitesPage() {
   const t = useTranslations("");
   const { sites, loading, error, refetch: refetchSites } = useSites();
+  const { chargePoints } = useChargePoints();
   const [search, setSearch] = useState("");
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -71,29 +74,37 @@ export default function SitesPage() {
       )}
 
       {!loading && !error && (
-        <div className="flex flex-col gap-4 content-stretch">
-          <div className="flex items-center gap-3 w-full">
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("appPage.sites.page.buttons.addSite")}
-            </Button>
+        <div className="flex flex-col gap-8">
+          <SiteStats sites={sites} chargePoints={chargePoints} />
 
-            <div className="relative max-w-sm ml-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={t("appPage.sites.page.buttons.search")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
+          <div className="rounded-xl border bg-card shadow-2xl overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4 sm:p-6">
+              <h3 className="text-lg font-semibold">{t("appPage.sites.page.title")}</h3>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t("appPage.sites.page.buttons.search")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                <Button onClick={() => setCreateOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("appPage.sites.page.buttons.addSite")}
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <SiteTable
-            sites={filteredSites}
-            onEditClicked={(site) => setEditTarget(site)}
-            onDeleteClicked={(site) => setDeleteTarget(site)}
-          />
+            <SiteTable
+              sites={filteredSites}
+              onEditClicked={(site) => setEditTarget(site)}
+              onDeleteClicked={(site) => setDeleteTarget(site)}
+            />
+          </div>
 
           <SiteFormDialog
             open={createOpen}
