@@ -490,9 +490,16 @@
     },
     "sites": {
       "page": {
+        "title": "Vos sites",
         "buttons": {
           "addSite": "Ajouter un site",
           "search": "Chercher un site par nom..."
+        },
+        "stats": {
+          "totalSites": "Sites",
+          "totalChargePoints": "Bornes",
+          "online": "En ligne",
+          "offline": "Hors ligne"
         },
         "table": {
           "columns": {

@@ -29,7 +29,7 @@ export const SiteTable = ({ sites, onEditClicked, onDeleteClicked }: SiteTablePr
   const t = useTranslations("");
 
   return (
-    <div className="rounded-lg border">
+    <div className="overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
