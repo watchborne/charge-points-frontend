@@ -1,21 +1,19 @@
 "use client";
 
-import { Plus, Search, Server, Zap } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
+import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
-import { ChargePointTable } from "./components/ChargePointTable";
 import { ChargePointTableSkeleton } from "./components/ChargePointTableSkeleton";
 import { Callout } from "../components/common/Callout";
 import { useChargePoints } from "../hooks/useChargePoints";
@@ -42,9 +40,20 @@ export default function ChargePointsPage() {
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [activeTab, setActiveTab] = useState<string>();
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
 
-  const [filteredChargePoints, setFilteredChargePoints] = useState<ChargePointWithConnectors[]>([]);
+  const filteredChargePoints = useMemo(() => {
+    if (search.length <= 2) return chargePoints;
+
+    const query = search.toLowerCase();
+    return chargePoints.filter(
+      (cp) =>
+        cp.name.toLowerCase().includes(query) ||
+        cp.meta?.vendor?.toLowerCase().includes(query) ||
+        cp.meta?.model?.toLowerCase().includes(query) ||
+        cp.meta?.serialNumber?.toLowerCase().includes(query),
+    );
+  }, [chargePoints, search]);
 
   useEffect(() => {
     if (detailTarget) {
@@ -54,50 +63,15 @@ export default function ChargePointsPage() {
   }, [chargePoints, detailTarget]);
 
   useEffect(() => {
-    if (!loadingChargePoints && !errorChargePoints) {
-      setFilteredChargePoints(chargePoints);
-    }
-
-    if (search.length > 2) {
-      setFilteredChargePoints(
-        chargePoints.filter(
-          (cp) =>
-            cp.name.toLowerCase().includes(search.toLowerCase()) ||
-            cp.meta?.vendor?.toLowerCase().includes(search.toLowerCase()) ||
-            cp.meta?.model?.toLowerCase().includes(search.toLowerCase()) ||
-            cp.meta?.serialNumber?.toLowerCase().includes(search.toLowerCase()),
-        ),
-      );
-    }
-  }, [chargePoints, search, loadingChargePoints, errorChargePoints]);
-
-  useEffect(() => {
-    if (!loadingSites && !errorSites && sites.length > 0 && !highlightedId) {
-      setActiveTab(sites[0].id);
-    }
-  }, [sites, loadingSites, errorSites, highlightedId]);
-
-  useEffect(() => {
     if (highlightedId && !loadingChargePoints && !loadingSites && !didAutoSwitch.current) {
       const target = chargePoints.find((cp) => cp.id === highlightedId);
       if (target) {
-        setActiveTab(target.siteId);
+        setSelectedSiteId(target.siteId);
         didAutoSwitch.current = true;
         setDetailTarget(target);
       }
     }
   }, [highlightedId, chargePoints, loadingChargePoints, loadingSites]);
-
-  const groupedChargePoints = sites
-    .map((site) => ({
-      site,
-      chargePoints: filteredChargePoints.filter((cp) => cp.siteId === site.id),
-    }))
-    .filter((g) => g.chargePoints.length > 0);
-
-  const ungroupedChargePoints = filteredChargePoints.filter(
-    (cp) => !sites.find((s) => s.id === cp.siteId),
-  );
 
   const handleCreate = async (values: ChargePointFormValues) => {
     await api.ChargePoints.createChargePoint({
@@ -151,18 +125,11 @@ export default function ChargePointsPage() {
     setCreateOpen(true);
   };
 
-  const getCountForSite = (id: string) => {
-    return filteredChargePoints.filter((cp) => cp.siteId === id).length;
-  };
-
   const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
     setDetailTarget(cp);
-    const params = new URLSearchParams(searchParams.toString());
     if (cp) {
-      params.set("id", cp.id);
       router.replace(`/app/charge-points?id=${cp.id}`);
     } else {
-      params.delete("id");
       router.replace(`/app/charge-points`);
     }
   };
@@ -170,6 +137,7 @@ export default function ChargePointsPage() {
   return (
     <>
       {errorChargePoints && <Callout error={errorChargePoints} />}
+      {errorSites && <Callout error={errorSites} />}
 
       {loadingChargePoints && (
         <div className="flex flex-col gap-4 content-stretch">
@@ -183,7 +151,7 @@ export default function ChargePointsPage() {
         </div>
       )}
 
-      {!loadingChargePoints && !errorChargePoints && (
+      {!loadingChargePoints && !loadingSites && !errorChargePoints && (
         <div className="flex flex-col gap-4 content-stretch">
           <div className="flex items-center gap-3 w-full">
             <Button
@@ -206,6 +174,7 @@ export default function ChargePointsPage() {
               />
             </div>
           </div>
+
           <p className="text mt-1">
             {chargePoints.length === 1
               ? t("appPage.chargePoints.page.labels.countText_singular", {
@@ -217,73 +186,16 @@ export default function ChargePointsPage() {
             {t("misc.siteWithCount", { count: sites.length })}
           </p>
 
-          {groupedChargePoints.length === 0 && ungroupedChargePoints.length === 0 && (
-            <div className="rounded-lg border py-16 text-center text-muted-foreground">
-              {t("appPage.chargePoints.page.empty.noChargePointFound")}
-            </div>
-          )}
-
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0 overflow-x-auto">
-                <TabsList>
-                  {sites.map((site) => (
-                    <TabsTrigger key={site.id} value={site.id} className="gap-2">
-                      {site.name}
-                      <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                        {getCountForSite(site.id)}
-                      </Badge>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-
-              <Button
-                size="sm"
-                variant="outline"
-                className="shrink-0"
-                onClick={() => activeTab && openCreateForSite(activeTab)}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1.5" />
-                {t("appPage.chargePoints.page.buttons.addForThisSite")}
-              </Button>
-            </div>
-
-            {sites.map((site) => (
-              <TabsContent key={site.id} value={site.id} className="mt-4">
-                <div className="rounded-lg border">
-                  <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
-                    <Zap className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">{site.name}</span>
-                  </div>
-                  <ChargePointTable
-                    items={filteredChargePoints.filter((cp) => cp.siteId === site.id)}
-                    highlightedId={highlightedId}
-                    onRowClicked={updateDetailTarget}
-                    onToggleActive={handleToggleActive}
-                  />
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-
-          {ungroupedChargePoints.length > 0 && (
-            <div className="border rounded-lg overflow-hidden">
-              <div className="px-4 py-3 bg-muted/40 border-b flex items-center gap-2">
-                <Server className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  {t("appPage.chargePoints.detail.unknownSite")}
-                </span>
-                <Badge variant="secondary">{ungroupedChargePoints.length}</Badge>
-              </div>
-              <ChargePointTable
-                items={ungroupedChargePoints}
-                highlightedId={highlightedId}
-                onRowClicked={(cp) => setDetailTarget(cp)}
-                onToggleActive={handleToggleActive}
-              />
-            </div>
-          )}
+          <ChargePointFleetPanel
+            sites={sites}
+            chargePoints={filteredChargePoints}
+            highlightedId={highlightedId}
+            selectedSiteId={selectedSiteId}
+            onSelectSite={setSelectedSiteId}
+            onRowClicked={updateDetailTarget}
+            onToggleActive={handleToggleActive}
+            onAddForSite={openCreateForSite}
+          />
 
           <ChargePointFormDialog
             open={createOpen}
