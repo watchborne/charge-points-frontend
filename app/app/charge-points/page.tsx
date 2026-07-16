@@ -176,14 +176,12 @@ export default function ChargePointsPage() {
           </div>
 
           <p className="text mt-1">
-            {chargePoints.length === 1
-              ? t("appPage.chargePoints.page.labels.countText_singular", {
-                  count: chargePoints.length,
-                })
-              : t("appPage.chargePoints.page.labels.countText_plural", {
-                  count: chargePoints.length,
-                })}{" "}
-            {t("misc.siteWithCount", { count: sites.length })}
+            {[
+              t("misc.chargePointWithCount", {
+                count: chargePoints.length,
+              }),
+              t("misc.siteWithCount", { count: sites.length }),
+            ].join(" / ")}
           </p>
 
           <ChargePointFleetPanel
