@@ -12,8 +12,8 @@ import { api } from "@/lib/api";
 import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
 import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteTable } from "./components/SiteTable";
+import { SiteTableSkeleton } from "./components/SiteTableSkeleton";
 import { Callout } from "../components/common/Callout";
-import { Loader } from "../components/common/Loader";
 import { useSites } from "../hooks/useSites";
 
 export default function SitesPage() {
@@ -60,7 +60,15 @@ export default function SitesPage() {
     <>
       {error && <Callout error={error} />}
 
-      {loading && <Loader label={t("appPage.loading.sites")} />}
+      {loading && (
+        <div className="flex flex-col gap-4 content-stretch">
+          <div className="flex items-center gap-3 w-full">
+            <div className="h-10 bg-muted rounded animate-pulse w-40" />
+            <div className="relative max-w-sm ml-auto h-10 bg-muted rounded animate-pulse w-60" />
+          </div>
+          <SiteTableSkeleton />
+        </div>
+      )}
 
       {!loading && !error && (
         <div className="flex flex-col gap-4 content-stretch">
