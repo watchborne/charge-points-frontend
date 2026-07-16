@@ -52,9 +52,7 @@ export const ChargePointFleetPanel = ({
       : []),
   ];
 
-  const displayedChargePoints = selectedSiteId
-    ? chargePointsForSite(selectedSiteId)
-    : chargePoints;
+  const displayedChargePoints = selectedSiteId ? chargePointsForSite(selectedSiteId) : chargePoints;
 
   const selectedSiteName =
     selectedSiteId === UNGROUPED_SITE_ID
