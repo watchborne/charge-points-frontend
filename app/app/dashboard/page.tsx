@@ -3,10 +3,11 @@
 import { useTranslations } from "next-intl";
 
 import { ChargePointStats } from "../components/charge-points/ChargePointStats";
+import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePointStatsSkeleton";
 import { EmptyStateChargePoints } from "../components/charge-points/EmptyStateChargePoints";
 import { Callout } from "../components/common/Callout";
-import { Loader } from "../components/common/Loader";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
+import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 
@@ -20,7 +21,12 @@ export default function DashboardPage() {
       {error && <Callout error={error} />}
       {errorSites && <Callout error={errorSites} />}
 
-      {(loading || loadingSites) && <Loader label={t("appPage.loading.chargePoints")} />}
+      {(loading || loadingSites) && (
+        <div className="flex flex-col gap-8">
+          <ChargePointStatsSkeleton />
+          <FleetOverviewPanelSkeleton />
+        </div>
+      )}
 
       {!loading && !loadingSites && !error && !errorSites && (
         <div className="flex flex-col gap-8">

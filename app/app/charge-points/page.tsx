@@ -16,8 +16,8 @@ import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialo
 import { ChargePointDetailDialog } from "./components/ChargePointDetailDialog";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { ChargePointTable } from "./components/ChargePointTable";
+import { ChargePointTableSkeleton } from "./components/ChargePointTableSkeleton";
 import { Callout } from "../components/common/Callout";
-import { Loader } from "../components/common/Loader";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 
@@ -171,7 +171,17 @@ export default function ChargePointsPage() {
     <>
       {errorChargePoints && <Callout error={errorChargePoints} />}
 
-      {loadingChargePoints && <Loader label={t("appPage.loading.chargePoints")} />}
+      {loadingChargePoints && (
+        <div className="flex flex-col gap-4 content-stretch">
+          <div className="flex items-center gap-3 w-full">
+            <div className="h-10 bg-muted rounded animate-pulse w-40" />
+            <div className="relative max-w-sm ml-auto h-10 bg-muted rounded animate-pulse w-60" />
+          </div>
+          <div className="rounded-lg border overflow-hidden">
+            <ChargePointTableSkeleton />
+          </div>
+        </div>
+      )}
 
       {!loadingChargePoints && !errorChargePoints && (
         <div className="flex flex-col gap-4 content-stretch">
