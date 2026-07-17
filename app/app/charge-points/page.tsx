@@ -1,6 +1,5 @@
 "use client";
 
-import type { ResetType } from "@watchborne/charge-points-types";
 import { Plus, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -14,7 +13,6 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
-import { ChargePointResetDialog } from "./components/ChargePointResetDialog";
 import { ChargePointTableSkeleton } from "./components/ChargePointTableSkeleton";
 import { Callout } from "../components/common/Callout";
 import { useChargePoints } from "../hooks/useChargePoints";
@@ -40,7 +38,6 @@ export default function ChargePointsPage() {
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [activeTab, setActiveTab] = useState<string>();
 
   const filteredChargePoints = useMemo(() => {
     if (search.length <= 2) return chargePoints;
@@ -122,15 +119,6 @@ export default function ChargePointsPage() {
     setDeleteTarget(null);
   };
 
-  const openCreateForSite = (siteId: string) => {
-    setCreateDefaultSiteId(siteId);
-    setCreateOpen(true);
-  };
-
-  const getCountForSite = (id: string) => {
-    return filteredChargePoints.filter((cp) => cp.siteId === id).length;
-  };
-
   const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
     setDetailTarget(cp);
     if (cp) {
@@ -184,6 +172,7 @@ export default function ChargePointsPage() {
             onToggleActive={handleToggleActive}
             onEditClicked={(cp) => setEditTarget(cp)}
             onDeleteClicked={(cp) => setDeleteTarget(cp)}
+            onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}
           />
 
           <ChargePointFormDialog

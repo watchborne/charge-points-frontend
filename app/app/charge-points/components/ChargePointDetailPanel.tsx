@@ -1,12 +1,29 @@
-import { Site } from "@watchborne/charge-points-types";
+import { ResetType, Site } from "@watchborne/charge-points-types";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
-import { Battery, Clock, Pencil, Trash2 } from "lucide-react";
+import {
+  Battery,
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  Loader2,
+  Pencil,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { ResetChargePointOutcome } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
@@ -14,12 +31,36 @@ import { Callout } from "../../components/common/Callout";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { Tag } from "../../components/common/Tag";
 
+type ResetState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: ResetChargePointOutcome };
+
+const resetErrorMessageKey = (httpStatus: number): string => {
+  switch (httpStatus) {
+    case 404:
+      return "appPage.chargePoints.reset.result.notFound";
+    case 409:
+      return "appPage.chargePoints.reset.result.notConnectedOrRejected";
+    case 502:
+      return "appPage.chargePoints.reset.result.stationError";
+    case 504:
+      return "appPage.chargePoints.reset.result.timeout";
+    default:
+      return "appPage.chargePoints.reset.result.genericError";
+  }
+};
+
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
   onToggleActive: (cp: ChargePointWithConnectors) => void;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
+  onResetClicked: (
+    cp: ChargePointWithConnectors,
+    type: ResetType,
+  ) => Promise<ResetChargePointOutcome>;
 };
 
 export const ChargePointDetailPanel = ({
@@ -28,8 +69,23 @@ export const ChargePointDetailPanel = ({
   onToggleActive,
   onEditClicked,
   onDeleteClicked,
+  onResetClicked,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
+
+  const [resetState, setResetState] = useState<ResetState>({ status: "idle" });
+
+  // Drop any previous run's pending/result state when a different station is
+  // opened, so it never leaks across charge points.
+  useEffect(() => {
+    setResetState({ status: "idle" });
+  }, [chargePoint?.id]);
+
+  const handleReset = async (type: ResetType) => {
+    setResetState({ status: "loading" });
+    const outcome = await onResetClicked(chargePoint, type);
+    setResetState({ status: "done", outcome });
+  };
 
   const lastSeenText =
     chargePoint.connection.lastSeenAt &&
@@ -162,6 +218,46 @@ export const ChargePointDetailPanel = ({
           )}
         </div>
       )}
+
+      <div className="mt-auto flex flex-col gap-2">
+        <div className="flex items-stretch gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
+                {resetState.status === "loading" ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4 mr-1.5" />
+                )}
+                {t("appPage.chargePoints.reset.button")}
+                <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => handleReset("Hard")}>
+                {t("appPage.chargePoints.reset.types.hard")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleReset("Soft")}>
+                {t("appPage.chargePoints.reset.types.soft")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {resetState.status === "done" &&
+          (resetState.outcome.ok ? (
+            <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <p className="font-medium">{t("appPage.chargePoints.reset.result.accepted")}</p>
+            </div>
+          ) : (
+            <Callout
+              error={t(resetErrorMessageKey(resetState.outcome.httpStatus))}
+              variant="error"
+              className="mb-0"
+            />
+          ))}
+      </div>
     </div>
   );
 };
