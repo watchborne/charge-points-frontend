@@ -1,4 +1,6 @@
 import type {
+  AvailabilityType,
+  ChangeAvailabilityStatus,
   ChargePoint,
   ChargePointWithConnectors,
   ChargePointWithSite,
@@ -22,6 +24,15 @@ type PatchChargePointBody = Partial<CreateChargePointBody>;
  */
 export type ResetChargePointOutcome =
   | { ok: true; status: ResetStatus }
+  | { ok: false; httpStatus: number };
+
+/**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
+ * reason: ChangeAvailability is a request/response OCPP command whose caller
+ * needs the specific outcome (accepted/scheduled vs. offline/rejected/timeout).
+ */
+export type ChangeAvailabilityOutcome =
+  | { ok: true; status: ChangeAvailabilityStatus }
   | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
@@ -96,6 +107,29 @@ export const chargePointApis = {
       return { ok: false, httpStatus: response.status };
     } catch (error) {
       console.error(`Failed to reset charge point ${chargePointId}`, error);
+      return { ok: false, httpStatus: 0 };
+    }
+  },
+  changeAvailability: async function (
+    chargePointId: ChargePoint["id"],
+    connectorId: number,
+    type: AvailabilityType,
+  ): Promise<ChangeAvailabilityOutcome> {
+    try {
+      const response = await fetch(`/api/charge-points/${chargePointId}/availability`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ connectorId, type }),
+      });
+
+      if (response.ok) {
+        const { status } = (await response.json()) as { status: ChangeAvailabilityStatus };
+        return { ok: true, status };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    } catch (error) {
+      console.error(`Failed to change availability of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },

@@ -490,6 +490,23 @@
           "genericError": "The reset failed. Please try again."
         }
       },
+      "availability": {
+        "button": "Availability",
+        "wholeChargePoint": "Whole charge point",
+        "types": {
+          "operative": "Bring into service",
+          "inoperative": "Take out of service"
+        },
+        "result": {
+          "accepted": "Availability change accepted by the station.",
+          "scheduled": "Availability change scheduled: it will take effect once the current transaction ends.",
+          "notConnectedOrRejected": "Cannot change availability: the station is offline or refused it.",
+          "notFound": "Charge point not found.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "The availability change failed. Please try again."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",

@@ -1,4 +1,4 @@
-import { ResetType, Site } from "@watchborne/charge-points-types";
+import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import {
@@ -8,6 +8,7 @@ import {
   Clock,
   Loader2,
   Pencil,
+  Power,
   RotateCcw,
   Trash2,
 } from "lucide-react";
@@ -23,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { ResetChargePointOutcome } from "@/lib/api-charge-points";
+import { ChangeAvailabilityOutcome, ResetChargePointOutcome } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
@@ -35,6 +36,14 @@ type ResetState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "done"; outcome: ResetChargePointOutcome };
+
+type AvailabilityState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: ChangeAvailabilityOutcome };
+
+/** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
+const WHOLE_CHARGE_POINT_KEY = "chargePoint";
 
 const resetErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
@@ -51,6 +60,26 @@ const resetErrorMessageKey = (httpStatus: number): string => {
   }
 };
 
+const availabilityErrorMessageKey = (httpStatus: number): string => {
+  switch (httpStatus) {
+    case 404:
+      return "appPage.chargePoints.availability.result.notFound";
+    case 409:
+      return "appPage.chargePoints.availability.result.notConnectedOrRejected";
+    case 502:
+      return "appPage.chargePoints.availability.result.stationError";
+    case 504:
+      return "appPage.chargePoints.availability.result.timeout";
+    default:
+      return "appPage.chargePoints.availability.result.genericError";
+  }
+};
+
+const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok: true }): string =>
+  status.status === "Scheduled"
+    ? "appPage.chargePoints.availability.result.scheduled"
+    : "appPage.chargePoints.availability.result.accepted";
+
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
@@ -61,6 +90,11 @@ type ChargePointDetailPanelProps = {
     cp: ChargePointWithConnectors,
     type: ResetType,
   ) => Promise<ResetChargePointOutcome>;
+  onChangeAvailability: (
+    cp: ChargePointWithConnectors,
+    connectorId: number,
+    type: AvailabilityType,
+  ) => Promise<ChangeAvailabilityOutcome>;
 };
 
 export const ChargePointDetailPanel = ({
@@ -70,15 +104,18 @@ export const ChargePointDetailPanel = ({
   onEditClicked,
   onDeleteClicked,
   onResetClicked,
+  onChangeAvailability,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
 
   const [resetState, setResetState] = useState<ResetState>({ status: "idle" });
+  const [availabilityState, setAvailabilityState] = useState<Record<string, AvailabilityState>>({});
 
   // Drop any previous run's pending/result state when a different station is
   // opened, so it never leaks across charge points.
   useEffect(() => {
     setResetState({ status: "idle" });
+    setAvailabilityState({});
   }, [chargePoint?.id]);
 
   const handleReset = async (type: ResetType) => {
@@ -86,6 +123,20 @@ export const ChargePointDetailPanel = ({
     const outcome = await onResetClicked(chargePoint, type);
     setResetState({ status: "done", outcome });
   };
+
+  const handleChangeAvailability = async (
+    key: string,
+    connectorId: number,
+    type: AvailabilityType,
+  ) => {
+    setAvailabilityState((prev) => ({ ...prev, [key]: { status: "loading" } }));
+    const outcome = await onChangeAvailability(chargePoint, connectorId, type);
+    setAvailabilityState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
+  };
+
+  const wholeChargePointAvailability: AvailabilityState = availabilityState[
+    WHOLE_CHARGE_POINT_KEY
+  ] ?? { status: "idle" };
 
   const lastSeenText =
     chargePoint.connection.lastSeenAt &&
@@ -138,19 +189,78 @@ export const ChargePointDetailPanel = ({
 
       {chargePoint.connectors.length > 0 && (
         <div className="divide-y rounded-md border">
-          {chargePoint.connectors.map((connector) => (
-            <div key={connector.id} className="flex items-center justify-between px-3 py-2">
-              <span className="text-sm text-muted-foreground">
-                {t("appPage.chargePoints.detail.connector", {
-                  connectorId: connector.connectorId,
-                })}
-              </span>
-              <div className="flex items-center gap-1.5">
-                <ConnectorStatusIcon status={connector.status} />
-                <span className="text-sm font-medium">{connector.status}</span>
+          {chargePoint.connectors.map((connector) => {
+            const state = availabilityState[connector.id] ?? { status: "idle" };
+            return (
+              <div key={connector.id} className="flex flex-col gap-1.5 px-3 py-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {t("appPage.chargePoints.detail.connector", {
+                      connectorId: connector.connectorId,
+                    })}
+                  </span>
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-1.5">
+                      <ConnectorStatusIcon status={connector.status} />
+                      <span className="text-sm font-medium">{connector.status}</span>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          disabled={state.status === "loading"}
+                          aria-label={t("appPage.chargePoints.availability.button")}
+                        >
+                          {state.status === "loading" ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Power className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleChangeAvailability(
+                              connector.id,
+                              connector.connectorId,
+                              "Operative",
+                            )
+                          }
+                        >
+                          {t("appPage.chargePoints.availability.types.operative")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleChangeAvailability(
+                              connector.id,
+                              connector.connectorId,
+                              "Inoperative",
+                            )
+                          }
+                        >
+                          {t("appPage.chargePoints.availability.types.inoperative")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                {state.status === "done" &&
+                  (state.outcome.ok ? (
+                    <p className="text-xs font-medium text-status-available-foreground">
+                      {t(availabilitySuccessMessageKey(state.outcome))}
+                    </p>
+                  ) : (
+                    <Callout
+                      error={t(availabilityErrorMessageKey(state.outcome.httpStatus))}
+                      variant="error"
+                      className="mb-0"
+                    />
+                  ))}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -242,6 +352,36 @@ export const ChargePointDetailPanel = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={wholeChargePointAvailability.status === "loading"}
+              >
+                {wholeChargePointAvailability.status === "loading" ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <Power className="h-4 w-4 mr-1.5" />
+                )}
+                {t("appPage.chargePoints.availability.wholeChargePoint")}
+                <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onClick={() => handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, "Operative")}
+              >
+                {t("appPage.chargePoints.availability.types.operative")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, "Inoperative")}
+              >
+                {t("appPage.chargePoints.availability.types.inoperative")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {resetState.status === "done" &&
@@ -253,6 +393,24 @@ export const ChargePointDetailPanel = ({
           ) : (
             <Callout
               error={t(resetErrorMessageKey(resetState.outcome.httpStatus))}
+              variant="error"
+              className="mb-0"
+            />
+          ))}
+
+        {wholeChargePointAvailability.status === "done" &&
+          (wholeChargePointAvailability.outcome.ok ? (
+            <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <p className="font-medium">
+                {t(availabilitySuccessMessageKey(wholeChargePointAvailability.outcome))}
+              </p>
+            </div>
+          ) : (
+            <Callout
+              error={t(
+                availabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
+              )}
               variant="error"
               className="mb-0"
             />

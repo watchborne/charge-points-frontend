@@ -173,6 +173,9 @@ export default function ChargePointsPage() {
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
               onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}
+              onChangeAvailability={(cp, connectorId, type) =>
+                api.ChargePoints.changeAvailability(cp.id, connectorId, type)
+              }
             />
           </div>
 
