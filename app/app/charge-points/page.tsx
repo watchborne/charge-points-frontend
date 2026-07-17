@@ -172,6 +172,7 @@ export default function ChargePointsPage() {
             onToggleActive={handleToggleActive}
             onEditClicked={(cp) => setEditTarget(cp)}
             onDeleteClicked={(cp) => setDeleteTarget(cp)}
+            onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}
           />
 
           <ChargePointFormDialog

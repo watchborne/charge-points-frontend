@@ -4,12 +4,13 @@ import { AlertCircle } from "lucide-react";
 type Props = {
   error: string;
   variant?: "error" | "warning";
+  className?: string;
 };
 
-export const Callout = ({ error, variant = "error" }: Props) => {
+export const Callout = ({ error, variant = "error", className }: Props) => {
   return (
     <div
-      className={classNames("mb-6 rounded-lg border p-4", {
+      className={classNames(className, "mb-6 rounded-lg border p-4", {
         "bg-status-error-soft border-status-error/20 text-status-error-foreground":
           variant === "error",
         "bg-status-warning-soft border-status-warning/20 text-status-warning-foreground":

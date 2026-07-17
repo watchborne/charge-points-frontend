@@ -475,6 +475,21 @@
         "title": "Supprimer « {name} » ?",
         "description": "Action destructive : cette borne de recharge sera irrécupérable."
       },
+      "reset": {
+        "button": "Redémarrer",
+        "types": {
+          "hard": "Matériel (Hard) — redémarrage immédiat",
+          "soft": "Logiciel (Soft) — redémarrage en douceur"
+        },
+        "result": {
+          "accepted": "Redémarrage accepté par la borne.",
+          "notConnectedOrRejected": "Redémarrage impossible : la borne est hors ligne ou l'a refusé.",
+          "notFound": "Borne de recharge introuvable.",
+          "stationError": "La borne a renvoyé une réponse invalide.",
+          "timeout": "La borne n'a pas répondu à temps.",
+          "genericError": "Le redémarrage a échoué. Veuillez réessayer."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",
