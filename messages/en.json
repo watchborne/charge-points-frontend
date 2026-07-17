@@ -507,6 +507,17 @@
           "genericError": "The availability change failed. Please try again."
         }
       },
+      "unlockConnector": {
+        "button": "Unlock",
+        "result": {
+          "unlocked": "Connector unlocked by the station.",
+          "notConnectedOrFailed": "Cannot unlock: the station is offline, failed to unlock the connector, or does not support it.",
+          "notFound": "Charge point not found.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "The unlock request failed. Please try again."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",
