@@ -13,10 +13,11 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
-import { ChargePointTableSkeleton } from "./components/ChargePointTableSkeleton";
 import { Callout } from "../components/common/Callout";
+import { Skeleton } from "../components/common/Skeleton";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
+import { FleetChargePointsPanelSkeleton } from "./components/FleetChargePointsPanelSkeleton";
 
 export default function ChargePointsPage() {
   const t = useTranslations("");
@@ -135,45 +136,45 @@ export default function ChargePointsPage() {
 
       {loadingChargePoints && (
         <div className="flex flex-col gap-4 content-stretch">
-          <div className="flex items-center gap-3 w-full">
-            <div className="h-10 bg-muted rounded animate-pulse w-40" />
-            <div className="relative max-w-sm ml-auto h-10 bg-muted rounded animate-pulse w-60" />
+          <div className="flex items-center gap-3 w-full justify-between">
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-9 w-64" />
           </div>
-          <div className="rounded-lg border overflow-hidden">
-            <ChargePointTableSkeleton />
-          </div>
+          <FleetChargePointsPanelSkeleton />
         </div>
       )}
 
       {!loadingChargePoints && !loadingSites && !errorChargePoints && (
-        <div className="flex flex-col gap-4 content-stretch">
-          <div className="flex items-center gap-3 w-full">
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("appPage.chargePoints.page.buttons.addChargePoint")}
-            </Button>
+        <>
+          <div className="flex flex-col gap-4 content-stretch">
+            <div className="flex items-center gap-3">
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                {t("appPage.chargePoints.page.buttons.addChargePoint")}
+              </Button>
 
-            <div className="relative max-w-sm ml-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={t("appPage.chargePoints.page.buttons.search")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
+              <div className="relative max-w-sm ml-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={t("appPage.chargePoints.page.buttons.search")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
             </div>
-          </div>
 
-          <ChargePointFleetPanel
-            sites={sites}
-            chargePoints={filteredChargePoints}
-            selected={detailTarget}
-            onSelect={updateDetailTarget}
-            onToggleActive={handleToggleActive}
-            onEditClicked={(cp) => setEditTarget(cp)}
-            onDeleteClicked={(cp) => setDeleteTarget(cp)}
-            onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}
-          />
+            <ChargePointFleetPanel
+              sites={sites}
+              chargePoints={filteredChargePoints}
+              selected={detailTarget}
+              onSelect={updateDetailTarget}
+              onToggleActive={handleToggleActive}
+              onEditClicked={(cp) => setEditTarget(cp)}
+              onDeleteClicked={(cp) => setDeleteTarget(cp)}
+              onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}
+            />
+          </div>
 
           <ChargePointFormDialog
             open={createOpen}
@@ -210,7 +211,7 @@ export default function ChargePointsPage() {
             deleteTarget={deleteTarget}
             onDeleteClicked={handleDelete}
           />
-        </div>
+        </>
       )}
     </>
   );
