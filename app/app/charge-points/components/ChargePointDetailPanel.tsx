@@ -199,7 +199,7 @@ export const ChargePointDetailPanel = ({
                       connectorId: connector.connectorId,
                     })}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-6">
                     <div className="flex items-center gap-1.5">
                       <ConnectorStatusIcon status={connector.status} />
                       <span className="text-sm font-medium">{connector.status}</span>
@@ -207,7 +207,7 @@ export const ChargePointDetailPanel = ({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
-                          variant="ghost"
+                          variant="secondary"
                           size="sm"
                           disabled={state.status === "loading"}
                           aria-label={t("appPage.chargePoints.availability.button")}
