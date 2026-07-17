@@ -176,6 +176,9 @@ export default function ChargePointsPage() {
               onChangeAvailability={(cp, connectorId, type) =>
                 api.ChargePoints.changeAvailability(cp.id, connectorId, type)
               }
+              onUnlockConnector={(cp, connectorId) =>
+                api.ChargePoints.unlockConnector(cp.id, connectorId)
+              }
             />
           </div>
 

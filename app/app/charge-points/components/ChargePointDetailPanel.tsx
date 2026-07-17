@@ -11,6 +11,7 @@ import {
   Power,
   RotateCcw,
   Trash2,
+  Unlock,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -24,7 +25,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { ChangeAvailabilityOutcome, ResetChargePointOutcome } from "@/lib/api-charge-points";
+import {
+  ChangeAvailabilityOutcome,
+  ResetChargePointOutcome,
+  UnlockConnectorOutcome,
+} from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
@@ -41,6 +46,11 @@ type AvailabilityState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "done"; outcome: ChangeAvailabilityOutcome };
+
+type UnlockConnectorState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: UnlockConnectorOutcome };
 
 /** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
 const WHOLE_CHARGE_POINT_KEY = "chargePoint";
@@ -80,6 +90,21 @@ const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok:
     ? "appPage.chargePoints.availability.result.scheduled"
     : "appPage.chargePoints.availability.result.accepted";
 
+const unlockConnectorErrorMessageKey = (httpStatus: number): string => {
+  switch (httpStatus) {
+    case 404:
+      return "appPage.chargePoints.unlockConnector.result.notFound";
+    case 409:
+      return "appPage.chargePoints.unlockConnector.result.notConnectedOrFailed";
+    case 502:
+      return "appPage.chargePoints.unlockConnector.result.stationError";
+    case 504:
+      return "appPage.chargePoints.unlockConnector.result.timeout";
+    default:
+      return "appPage.chargePoints.unlockConnector.result.genericError";
+  }
+};
+
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
@@ -95,6 +120,10 @@ type ChargePointDetailPanelProps = {
     connectorId: number,
     type: AvailabilityType,
   ) => Promise<ChangeAvailabilityOutcome>;
+  onUnlockConnector: (
+    cp: ChargePointWithConnectors,
+    connectorId: number,
+  ) => Promise<UnlockConnectorOutcome>;
 };
 
 export const ChargePointDetailPanel = ({
@@ -105,17 +134,22 @@ export const ChargePointDetailPanel = ({
   onDeleteClicked,
   onResetClicked,
   onChangeAvailability,
+  onUnlockConnector,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
 
   const [resetState, setResetState] = useState<ResetState>({ status: "idle" });
   const [availabilityState, setAvailabilityState] = useState<Record<string, AvailabilityState>>({});
+  const [unlockConnectorState, setUnlockConnectorState] = useState<
+    Record<string, UnlockConnectorState>
+  >({});
 
   // Drop any previous run's pending/result state when a different station is
   // opened, so it never leaks across charge points.
   useEffect(() => {
     setResetState({ status: "idle" });
     setAvailabilityState({});
+    setUnlockConnectorState({});
   }, [chargePoint?.id]);
 
   const handleReset = async (type: ResetType) => {
@@ -132,6 +166,12 @@ export const ChargePointDetailPanel = ({
     setAvailabilityState((prev) => ({ ...prev, [key]: { status: "loading" } }));
     const outcome = await onChangeAvailability(chargePoint, connectorId, type);
     setAvailabilityState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
+  };
+
+  const handleUnlockConnector = async (key: string, connectorId: number) => {
+    setUnlockConnectorState((prev) => ({ ...prev, [key]: { status: "loading" } }));
+    const outcome = await onUnlockConnector(chargePoint, connectorId);
+    setUnlockConnectorState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
   };
 
   const wholeChargePointAvailability: AvailabilityState = availabilityState[
@@ -191,6 +231,7 @@ export const ChargePointDetailPanel = ({
         <div className="divide-y rounded-md border">
           {chargePoint.connectors.map((connector) => {
             const state = availabilityState[connector.id] ?? { status: "idle" };
+            const unlockState = unlockConnectorState[connector.id] ?? { status: "idle" };
             return (
               <div key={connector.id} className="flex flex-col gap-1.5 px-3 py-2">
                 <div className="flex items-center justify-between">
@@ -244,6 +285,19 @@ export const ChargePointDetailPanel = ({
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={unlockState.status === "loading"}
+                      aria-label={t("appPage.chargePoints.unlockConnector.button")}
+                      onClick={() => handleUnlockConnector(connector.id, connector.connectorId)}
+                    >
+                      {unlockState.status === "loading" ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Unlock className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
                   </div>
                 </div>
                 {state.status === "done" &&
@@ -254,6 +308,18 @@ export const ChargePointDetailPanel = ({
                   ) : (
                     <Callout
                       error={t(availabilityErrorMessageKey(state.outcome.httpStatus))}
+                      variant="error"
+                      className="mb-0"
+                    />
+                  ))}
+                {unlockState.status === "done" &&
+                  (unlockState.outcome.ok ? (
+                    <p className="text-xs font-medium text-status-available-foreground">
+                      {t("appPage.chargePoints.unlockConnector.result.unlocked")}
+                    </p>
+                  ) : (
+                    <Callout
+                      error={t(unlockConnectorErrorMessageKey(unlockState.outcome.httpStatus))}
                       variant="error"
                       className="mb-0"
                     />

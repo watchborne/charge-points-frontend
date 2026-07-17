@@ -6,6 +6,7 @@ import type {
   ChargePointWithSite,
   ResetStatus,
   ResetType,
+  UnlockConnectorStatus,
 } from "@watchborne/charge-points-types";
 
 import { httpClient } from "./http-client";
@@ -33,6 +34,15 @@ export type ResetChargePointOutcome =
  */
 export type ChangeAvailabilityOutcome =
   | { ok: true; status: ChangeAvailabilityStatus }
+  | { ok: false; httpStatus: number };
+
+/**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
+ * reason: UnlockConnector is a request/response OCPP command whose caller
+ * needs the specific outcome (unlocked vs. offline/unlock-failed/not-supported/timeout).
+ */
+export type UnlockConnectorOutcome =
+  | { ok: true; status: UnlockConnectorStatus }
   | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
@@ -130,6 +140,28 @@ export const chargePointApis = {
       return { ok: false, httpStatus: response.status };
     } catch (error) {
       console.error(`Failed to change availability of charge point ${chargePointId}`, error);
+      return { ok: false, httpStatus: 0 };
+    }
+  },
+  unlockConnector: async function (
+    chargePointId: ChargePoint["id"],
+    connectorId: number,
+  ): Promise<UnlockConnectorOutcome> {
+    try {
+      const response = await fetch(`/api/charge-points/${chargePointId}/unlock-connector`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ connectorId }),
+      });
+
+      if (response.ok) {
+        const { status } = (await response.json()) as { status: UnlockConnectorStatus };
+        return { ok: true, status };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    } catch (error) {
+      console.error(`Failed to unlock connector of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },

@@ -507,6 +507,17 @@
           "genericError": "Le changement de disponibilité a échoué. Veuillez réessayer."
         }
       },
+      "unlockConnector": {
+        "button": "Déverrouiller",
+        "result": {
+          "unlocked": "Connecteur déverrouillé par la borne.",
+          "notConnectedOrFailed": "Déverrouillage impossible : la borne est hors ligne, a échoué à déverrouiller le connecteur, ou ne le prend pas en charge.",
+          "notFound": "Borne de recharge introuvable.",
+          "stationError": "La borne a renvoyé une réponse invalide.",
+          "timeout": "La borne n'a pas répondu à temps.",
+          "genericError": "La demande de déverrouillage a échoué. Veuillez réessayer."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",

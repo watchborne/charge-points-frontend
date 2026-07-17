@@ -5,7 +5,11 @@ import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChangeAvailabilityOutcome, ResetChargePointOutcome } from "@/lib/api-charge-points";
+import {
+  ChangeAvailabilityOutcome,
+  ResetChargePointOutcome,
+  UnlockConnectorOutcome,
+} from "@/lib/api-charge-points";
 import { connectionStatusTone, toneDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -38,6 +42,10 @@ interface ChargePointFleetPanelProps {
     connectorId: number,
     type: AvailabilityType,
   ) => Promise<ChangeAvailabilityOutcome>;
+  onUnlockConnector: (
+    cp: ChargePointWithConnectors,
+    connectorId: number,
+  ) => Promise<UnlockConnectorOutcome>;
 }
 
 export const ChargePointFleetPanel = ({
@@ -50,6 +58,7 @@ export const ChargePointFleetPanel = ({
   onDeleteClicked,
   onResetClicked,
   onChangeAvailability,
+  onUnlockConnector,
 }: ChargePointFleetPanelProps) => {
   const t = useTranslations("");
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
@@ -188,6 +197,7 @@ export const ChargePointFleetPanel = ({
               onDeleteClicked={onDeleteClicked}
               onResetClicked={onResetClicked}
               onChangeAvailability={onChangeAvailability}
+              onUnlockConnector={onUnlockConnector}
             />
           ) : (
             <div className="flex h-full min-h-48 items-center justify-center text-sm text-muted-foreground">
