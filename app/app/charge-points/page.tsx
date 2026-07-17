@@ -40,7 +40,6 @@ export default function ChargePointsPage() {
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [resetTarget, setResetTarget] = useState<ChargePointWithConnectors | null>(null);
   const [activeTab, setActiveTab] = useState<string>();
 
   const filteredChargePoints = useMemo(() => {
@@ -121,11 +120,6 @@ export default function ChargePointsPage() {
       updateDetailTarget(null);
     }
     setDeleteTarget(null);
-  };
-
-  const handleReset = (type: ResetType) => {
-    if (!resetTarget) return Promise.resolve({ ok: false, httpStatus: 0 } as const);
-    return api.ChargePoints.resetChargePoint(resetTarget.id, type);
   };
 
   const openCreateForSite = (siteId: string) => {
@@ -226,11 +220,6 @@ export default function ChargePointsPage() {
             onOpenChange={(open) => !open && setDeleteTarget(null)}
             deleteTarget={deleteTarget}
             onDeleteClicked={handleDelete}
-          />
-          <ChargePointResetDialog
-            resetTarget={resetTarget}
-            onOpenChange={(open) => !open && setResetTarget(null)}
-            onConfirm={handleReset}
           />
         </div>
       )}

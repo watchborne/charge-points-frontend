@@ -477,14 +477,10 @@
       },
       "reset": {
         "button": "Redémarrer",
-        "title": "Redémarrer « {name} » ?",
-        "description": "La borne va être redémarrée. Une session de recharge en cours peut être interrompue.",
-        "typeLabel": "Type de redémarrage",
         "types": {
           "hard": "Matériel (Hard) — redémarrage immédiat",
           "soft": "Logiciel (Soft) — redémarrage en douceur"
         },
-        "confirm": "Redémarrer",
         "result": {
           "accepted": "Redémarrage accepté par la borne.",
           "notConnectedOrRejected": "Redémarrage impossible : la borne est hors ligne ou l'a refusé.",

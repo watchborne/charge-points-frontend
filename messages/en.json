@@ -477,14 +477,10 @@
       },
       "reset": {
         "button": "Reset",
-        "title": "Reset « {name} » ?",
-        "description": "The station will reboot. Any ongoing charging session may be interrupted.",
-        "typeLabel": "Reset type",
         "types": {
           "hard": "Hard — immediate reboot",
           "soft": "Soft — graceful restart"
         },
-        "confirm": "Reset",
         "result": {
           "accepted": "Reset accepted by the station.",
           "notConnectedOrRejected": "Cannot reset: the station is offline or refused it.",
