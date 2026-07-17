@@ -490,6 +490,23 @@
           "genericError": "Le redémarrage a échoué. Veuillez réessayer."
         }
       },
+      "availability": {
+        "button": "Disponibilité",
+        "wholeChargePoint": "Toute la borne",
+        "types": {
+          "operative": "Remettre en service",
+          "inoperative": "Mettre hors service"
+        },
+        "result": {
+          "accepted": "Changement de disponibilité accepté par la borne.",
+          "scheduled": "Changement de disponibilité programmé : il prendra effet à la fin de la transaction en cours.",
+          "notConnectedOrRejected": "Changement de disponibilité impossible : la borne est hors ligne ou l'a refusé.",
+          "notFound": "Borne de recharge introuvable.",
+          "stationError": "La borne a renvoyé une réponse invalide.",
+          "timeout": "La borne n'a pas répondu à temps.",
+          "genericError": "Le changement de disponibilité a échoué. Veuillez réessayer."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",

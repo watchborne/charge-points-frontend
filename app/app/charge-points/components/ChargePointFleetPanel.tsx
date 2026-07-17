@@ -1,11 +1,11 @@
-import { ResetType, Site } from "@watchborne/charge-points-types";
+import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ResetChargePointOutcome } from "@/lib/api-charge-points";
+import { ChangeAvailabilityOutcome, ResetChargePointOutcome } from "@/lib/api-charge-points";
 import { connectionStatusTone, toneDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -33,6 +33,11 @@ interface ChargePointFleetPanelProps {
     cp: ChargePointWithConnectors,
     type: ResetType,
   ) => Promise<ResetChargePointOutcome>;
+  onChangeAvailability: (
+    cp: ChargePointWithConnectors,
+    connectorId: number,
+    type: AvailabilityType,
+  ) => Promise<ChangeAvailabilityOutcome>;
 }
 
 export const ChargePointFleetPanel = ({
@@ -44,6 +49,7 @@ export const ChargePointFleetPanel = ({
   onEditClicked,
   onDeleteClicked,
   onResetClicked,
+  onChangeAvailability,
 }: ChargePointFleetPanelProps) => {
   const t = useTranslations("");
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
@@ -181,6 +187,7 @@ export const ChargePointFleetPanel = ({
               onEditClicked={onEditClicked}
               onDeleteClicked={onDeleteClicked}
               onResetClicked={onResetClicked}
+              onChangeAvailability={onChangeAvailability}
             />
           ) : (
             <div className="flex h-full min-h-48 items-center justify-center text-sm text-muted-foreground">
