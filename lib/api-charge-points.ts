@@ -26,7 +26,8 @@ type PatchChargePointBody = Partial<CreateChargePointBody>;
  * failure that never reached the proxy.
  */
 export type ResetChargePointOutcome =
-  { ok: true; status: ResetStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: ResetStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -34,7 +35,8 @@ export type ResetChargePointOutcome =
  * needs the specific outcome (accepted/scheduled vs. offline/rejected/timeout).
  */
 export type ChangeAvailabilityOutcome =
-  { ok: true; status: ChangeAvailabilityStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: ChangeAvailabilityStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -42,7 +44,8 @@ export type ChangeAvailabilityOutcome =
  * needs the specific outcome (unlocked vs. offline/unlock-failed/not-supported/timeout).
  */
 export type UnlockConnectorOutcome =
-  { ok: true; status: UnlockConnectorStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: UnlockConnectorStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * GetConfiguration is a request/response OCPP read: on success it returns the
@@ -60,7 +63,8 @@ export type GetConfigurationOutcome =
  * not-supported/timeout).
  */
 export type ChangeConfigurationOutcome =
-  { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: ChangeConfigurationStatus }
+  | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {

@@ -22,14 +22,16 @@ import { ChargePoint } from "@/types/charge-point";
 import { Callout } from "../../components/common/Callout";
 
 type FetchState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetConfigurationOutcome };
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: GetConfigurationOutcome };
 
 type SetState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "done"; outcome: ChangeConfigurationOutcome };
 
-const readErrorMessageKey = (httpStatus: number): string => {
+const errorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
     case 404:
       return "appPage.chargePoints.configuration.result.notFound";
@@ -100,8 +102,19 @@ export const ChargePointConfigurationDialog = ({
       setSetState({ status: "idle" });
       return;
     }
+
+    let cancelled = false;
+    setState({ status: "loading" });
+    api.ChargePoints.getConfiguration(chargePointId).then((outcome) => {
+      if (!cancelled) setState({ status: "done", outcome });
+    });
+
     void load();
-  }, [open, load]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, load, chargePointId]);
 
   const handleSet = async () => {
     if (!key.trim()) return;
@@ -136,11 +149,11 @@ export const ChargePointConfigurationDialog = ({
         )}
 
         {state.status === "done" && !state.outcome.ok && (
-          <Callout error={t(readErrorMessageKey(state.outcome.httpStatus))} variant="error" />
+          <Callout error={t(errorMessageKey(state.outcome.httpStatus))} variant="error" />
         )}
 
         {state.status === "done" && state.outcome.ok && (
-          <div className="flex max-h-[45vh] flex-col gap-3 overflow-y-auto">
+          <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
             {(state.outcome.configurationKey?.length ?? 0) === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
                 {t("appPage.chargePoints.configuration.empty")}
