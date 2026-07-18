@@ -565,6 +565,25 @@
           }
         }
       },
+      "trigger": {
+        "button": "Trigger a message",
+        "types": {
+          "BootNotification": "Boot notification",
+          "DiagnosticsStatusNotification": "Diagnostics status",
+          "FirmwareStatusNotification": "Firmware status",
+          "Heartbeat": "Heartbeat",
+          "MeterValues": "Meter values",
+          "StatusNotification": "Status notification"
+        },
+        "result": {
+          "accepted": "Accepted: the station will send the message.",
+          "notFound": "Charge point not found.",
+          "notConnectedOrRejected": "Cannot trigger: the station is offline, rejected it, or cannot trigger this message.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "The request failed. Please try again."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",

@@ -565,6 +565,25 @@
           }
         }
       },
+      "trigger": {
+        "button": "Déclencher un message",
+        "types": {
+          "BootNotification": "Notification de démarrage",
+          "DiagnosticsStatusNotification": "Statut des diagnostics",
+          "FirmwareStatusNotification": "Statut du firmware",
+          "Heartbeat": "Heartbeat",
+          "MeterValues": "Valeurs de compteur",
+          "StatusNotification": "Notification de statut"
+        },
+        "result": {
+          "accepted": "Demande acceptée : la borne va renvoyer le message.",
+          "notFound": "Borne de recharge introuvable.",
+          "notConnectedOrRejected": "Demande impossible : la borne est hors ligne, l'a refusée, ou ne sait pas déclencher ce message.",
+          "stationError": "La borne a renvoyé une réponse invalide.",
+          "timeout": "La borne n'a pas répondu à temps.",
+          "genericError": "La demande a échoué. Veuillez réessayer."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",

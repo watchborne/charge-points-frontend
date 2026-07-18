@@ -8,6 +8,8 @@ import type {
   ConfigurationKey,
   ResetStatus,
   ResetType,
+  TriggerMessageStatus,
+  TriggerMessageType,
   UnlockConnectorStatus,
 } from "@watchborne/charge-points-types";
 
@@ -64,6 +66,15 @@ export type GetConfigurationOutcome =
  */
 export type ChangeConfigurationOutcome =
   | { ok: true; status: ChangeConfigurationStatus }
+  | { ok: false; httpStatus: number };
+
+/**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
+ * reason: TriggerMessage is a request/response OCPP command whose caller needs
+ * the specific outcome (accepted vs. offline/rejected/not-implemented/timeout).
+ */
+export type TriggerMessageOutcome =
+  | { ok: true; status: TriggerMessageStatus }
   | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
@@ -231,6 +242,31 @@ export const chargePointApis = {
       return { ok: false, httpStatus: response.status };
     } catch (error) {
       console.error(`Failed to change configuration of charge point ${chargePointId}`, error);
+      return { ok: false, httpStatus: 0 };
+    }
+  },
+  triggerMessage: async function (
+    chargePointId: ChargePoint["id"],
+    requestedMessage: TriggerMessageType,
+    connectorId?: number,
+  ): Promise<TriggerMessageOutcome> {
+    try {
+      const response = await fetch(`/api/charge-points/${chargePointId}/trigger`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          connectorId != null ? { requestedMessage, connectorId } : { requestedMessage },
+        ),
+      });
+
+      if (response.ok) {
+        const { status } = (await response.json()) as { status: TriggerMessageStatus };
+        return { ok: true, status };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    } catch (error) {
+      console.error(`Failed to trigger a message on charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },

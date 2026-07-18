@@ -33,6 +33,7 @@ import {
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
+import { TriggerMessageControl } from "./TriggerMessageControl";
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { Callout } from "../../components/common/Callout";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
@@ -451,6 +452,8 @@ export const ChargePointDetailPanel = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        <TriggerMessageControl chargePointId={chargePoint.id} />
 
         {resetState.status === "done" &&
           (resetState.outcome.ok ? (
