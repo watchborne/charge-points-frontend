@@ -480,6 +480,11 @@
           "title": "Mise en service",
           "description": "Nommez la borne et rattachez-la à un site.",
           "submit": "Mettre en service"
+        },
+        "selfTest": {
+          "title": "Vérification de mise en service",
+          "online": "Borne connectée",
+          "connectors": "Les connecteurs remontent leur statut"
         }
       },
       "deletion": {

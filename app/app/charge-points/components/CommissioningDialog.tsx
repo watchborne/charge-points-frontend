@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
+import { CommissioningChecklist } from "./CommissioningChecklist";
 import { SiteCombobox } from "./SiteCombobox";
 
 const commissioningSchema = z.object({
@@ -90,6 +91,8 @@ export const CommissioningDialog = ({
             {t("appPage.chargePoints.commissioning.dialog.description")}
           </DialogDescription>
         </DialogHeader>
+
+        {chargePoint && <CommissioningChecklist chargePoint={chargePoint} />}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">

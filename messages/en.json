@@ -480,6 +480,11 @@
           "title": "Commissioning",
           "description": "Name the charge point and attach it to a site.",
           "submit": "Commission"
+        },
+        "selfTest": {
+          "title": "Commissioning check",
+          "online": "Station connected",
+          "connectors": "Connectors report their status"
         }
       },
       "deletion": {
