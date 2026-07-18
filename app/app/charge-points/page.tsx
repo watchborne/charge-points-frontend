@@ -13,6 +13,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
+import { CommissioningDialog } from "./components/CommissioningDialog";
 import { CommissioningQueue } from "./components/CommissioningQueue";
 import { Callout } from "../components/common/Callout";
 import { Skeleton } from "../components/common/Skeleton";
@@ -39,6 +40,7 @@ export default function ChargePointsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
+  const [commissionTarget, setCommissionTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
 
   // Discovered-but-unassigned charge points form the commissioning backlog.
@@ -112,6 +114,16 @@ export default function ChargePointsPage() {
     setEditTarget(null);
   };
 
+  const handleCommission = async (values: { name: string; siteId: string | null }) => {
+    if (!commissionTarget) return;
+    await api.ChargePoints.updateChargePoint(commissionTarget.id, {
+      name: values.name,
+      siteId: values.siteId,
+    });
+    await refetchChargePoints();
+    setCommissionTarget(null);
+  };
+
   const handleToggleActive = async (cp: ChargePointWithConnectors) => {
     await api.ChargePoints.updateChargePoint(cp.id, {
       isActive: !cp.isActive,
@@ -177,7 +189,7 @@ export default function ChargePointsPage() {
 
             <CommissioningQueue
               chargePoints={unassignedChargePoints}
-              onCommission={(cp) => setEditTarget(cp)}
+              onCommission={(cp) => setCommissionTarget(cp)}
             />
 
             <ChargePointFleetPanel
@@ -197,6 +209,14 @@ export default function ChargePointsPage() {
               }
             />
           </div>
+
+          <CommissioningDialog
+            open={!!commissionTarget}
+            onOpenChange={(open) => !open && setCommissionTarget(null)}
+            chargePoint={commissionTarget}
+            sites={sites}
+            onCommission={handleCommission}
+          />
 
           <ChargePointFormDialog
             open={createOpen}

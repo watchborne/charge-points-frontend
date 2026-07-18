@@ -475,7 +475,12 @@
         "title": "Awaiting commissioning",
         "description": "{count, plural, =1 {1 discovered charge point not yet assigned to a site.} other {# discovered charge points not yet assigned to a site.}}",
         "cta": "Commission",
-        "connectorsWithCount": "{count, plural, =0 {no connector} =1 {1 connector} other {# connectors}}"
+        "connectorsWithCount": "{count, plural, =0 {no connector} =1 {1 connector} other {# connectors}}",
+        "dialog": {
+          "title": "Commissioning",
+          "description": "Name the charge point and attach it to a site.",
+          "submit": "Commission"
+        }
       },
       "deletion": {
         "title": "Delete « {name} » ?",
