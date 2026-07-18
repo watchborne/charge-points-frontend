@@ -31,7 +31,7 @@ type SetState =
   | { status: "loading" }
   | { status: "done"; outcome: ChangeConfigurationOutcome };
 
-const errorMessageKey = (httpStatus: number): string => {
+const readErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
     case 404:
       return "appPage.chargePoints.configuration.result.notFound";
@@ -149,11 +149,11 @@ export const ChargePointConfigurationDialog = ({
         )}
 
         {state.status === "done" && !state.outcome.ok && (
-          <Callout error={t(errorMessageKey(state.outcome.httpStatus))} variant="error" />
+          <Callout error={t(readErrorMessageKey(state.outcome.httpStatus))} variant="error" />
         )}
 
         {state.status === "done" && state.outcome.ok && (
-          <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
+          <div className="flex max-h-[45vh] flex-col gap-3 overflow-y-auto">
             {(state.outcome.configurationKey?.length ?? 0) === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
                 {t("appPage.chargePoints.configuration.empty")}
