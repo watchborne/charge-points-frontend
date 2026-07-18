@@ -52,6 +52,15 @@ export type GetConfigurationOutcome =
   | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
   | { ok: false; httpStatus: number };
 
+/**
+ * GetConfiguration is a request/response OCPP read: on success it returns the
+ * station's reported configuration rather than a status. Same raw-status
+ * discriminated shape as the other commands for precise offline/timeout feedback.
+ */
+export type GetConfigurationOutcome =
+  | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
+  | { ok: false; httpStatus: number };
+
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
     try {
