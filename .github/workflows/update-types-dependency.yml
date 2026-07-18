@@ -19,14 +19,15 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
-          registry-url: https://npm.pkg.github.com
-          scope: "@watchborne"
 
       - name: Update @watchborne/charge-points-types
         run: |
-          npm install --save "@watchborne/charge-points-types@${{ github.event.client_payload.version }}"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.dependencies['@watchborne/charge-points-types'] = '^${{ github.event.client_payload.version }}';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
