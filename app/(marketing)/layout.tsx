@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 
+import { ToastNotification } from "@/components/ui/ToastNotification/ToastNotification";
+
 import { Footer } from "./layout/Footer";
 import { Navbar } from "./layout/Navbar";
 
@@ -25,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           {children}
           <Footer />
+          <ToastNotification />
         </NextIntlClientProvider>
       </body>
     </html>
