@@ -548,6 +548,21 @@
           "stationError": "The station returned an invalid response.",
           "timeout": "The station did not answer in time.",
           "genericError": "Reading the configuration failed. Please try again."
+        },
+        "set": {
+          "title": "Change a key",
+          "keyPlaceholder": "Key",
+          "valuePlaceholder": "Value",
+          "button": "Apply",
+          "result": {
+            "accepted": "Change applied by the station.",
+            "rebootRequired": "Change accepted: the station requires a reboot.",
+            "notFound": "Charge point not found.",
+            "notConnectedOrRejected": "Cannot change: the station is offline, rejected it, or does not support this key.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The change failed. Please try again."
+          }
         }
       },
       "stats": {
