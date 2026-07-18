@@ -3,10 +3,18 @@ name: Update Types Dependency
 on:
   repository_dispatch:
     types: [types-released]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Package version"
+        required: true
 
 permissions:
   contents: write
   pull-requests: write
+
+env:
+  package_version: ${{ github.event.client_payload.version || inputs.ref }}
 
 jobs:
   update-dependency:
@@ -25,21 +33,21 @@ jobs:
 
       - name: Update @watchborne/charge-points-types
         run: |
-          npm install "@watchborne/charge-points-types@${{ github.event.client_payload.version }}"
+          npm install "@watchborne/charge-points-types@${{ env.package_version }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore(deps): bump @watchborne/charge-points-types to ${{ github.event.client_payload.version }}"
-          title: "chore(deps): bump @watchborne/charge-points-types to ${{ github.event.client_payload.version }}"
+          commit-message: "chore(deps): bump @watchborne/charge-points-types to ${{ env.package_version }}"
+          title: "chore(deps): bump @watchborne/charge-points-types to ${{ env.package_version }}"
           body: |
             Automated dependency bump from types package release.
 
-            **Release:** [`${{ github.event.client_payload.version }}`](https://github.com/watchborne/charge-points-types/releases/tag/${{ github.event.client_payload.version }})
+            **Release:** [`${{ env.package_version }}`](https://github.com/watchborne/charge-points-types/releases/tag/${{ env.package_version }})
 
             **Changes:**
-            - Updates `@watchborne/charge-points-types` to `${{ github.event.client_payload.version }}`
+            - Updates `@watchborne/charge-points-types` to `${{ env.package_version }}`
 
-            Please review the [types release notes](https://github.com/watchborne/charge-points-types/releases/tag/${{ github.event.client_payload.version }}) for any breaking changes.
-          branch: chore/bump-types-${{ github.event.client_payload.version }}
+            Please review the [types release notes](https://github.com/watchborne/charge-points-types/releases/tag/${{ env.package_version }}) for any breaking changes.
+          branch: chore/bump-types-${{ env.package_version }}
           delete-branch: true
