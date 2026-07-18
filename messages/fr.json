@@ -589,7 +589,8 @@
       "siteCombobox": {
         "placeholder": "Sélectionner un site...",
         "search": "Chercher un site...",
-        "empty": "Aucun site trouvé."
+        "empty": "Aucun site trouvé.",
+        "unassigned": "Aucun site (non affectée)"
       }
     },
     "deletion": {

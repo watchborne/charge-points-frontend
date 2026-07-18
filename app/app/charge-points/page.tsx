@@ -73,7 +73,8 @@ export default function ChargePointsPage() {
   const handleCreate = async (values: ChargePointFormValues) => {
     await api.ChargePoints.createChargePoint({
       name: values.name,
-      siteId: values.siteId,
+      // Empty selection means "unassigned" — send null, not "".
+      siteId: values.siteId || null,
       isActive: values.isActive,
       meta: {
         vendor: values.meta?.vendor ?? "",
@@ -89,7 +90,8 @@ export default function ChargePointsPage() {
     if (!editTarget) return;
     await api.ChargePoints.updateChargePoint(editTarget.id, {
       name: values.name,
-      siteId: values.siteId,
+      // Empty selection detaches the charge point from its site.
+      siteId: values.siteId || null,
       meta: {
         vendor: values.meta?.vendor ?? "",
         model: values.meta?.model ?? "",
@@ -197,7 +199,7 @@ export default function ChargePointsPage() {
               editTarget
                 ? {
                     name: editTarget.name,
-                    siteId: editTarget.siteId,
+                    siteId: editTarget.siteId ?? "",
                     meta: {
                       vendor: editTarget.meta?.vendor ?? "",
                       model: editTarget.meta?.model ?? "",

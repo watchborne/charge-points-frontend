@@ -64,7 +64,7 @@ export const ChargePointFleetPanel = ({
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
   const { registerFlipItem } = useFlipReorder();
 
-  const siteName = (siteId: string) => sites.find((site) => site.id === siteId)?.name;
+  const siteName = (siteId: string | null) => sites.find((site) => site.id === siteId)?.name;
 
   const groups: ChargePointGroup[] =
     groupBy === "site"
