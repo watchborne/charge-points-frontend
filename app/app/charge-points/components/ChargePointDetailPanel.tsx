@@ -32,6 +32,7 @@ import {
 } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
+import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { Callout } from "../../components/common/Callout";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
@@ -414,6 +415,11 @@ export const ChargePointDetailPanel = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <ChargePointConfigurationDialog
+            chargePointId={chargePoint.id}
+            chargePointName={chargePoint.name}
+          />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

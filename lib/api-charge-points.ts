@@ -4,6 +4,7 @@ import type {
   ChargePoint,
   ChargePointWithConnectors,
   ChargePointWithSite,
+  ConfigurationKey,
   ResetStatus,
   ResetType,
   UnlockConnectorStatus,
@@ -41,6 +42,15 @@ export type ChangeAvailabilityOutcome =
  */
 export type UnlockConnectorOutcome =
   { ok: true; status: UnlockConnectorStatus } | { ok: false; httpStatus: number };
+
+/**
+ * GetConfiguration is a request/response OCPP read: on success it returns the
+ * station's reported configuration rather than a status. Same raw-status
+ * discriminated shape as the other commands for precise offline/timeout feedback.
+ */
+export type GetConfigurationOutcome =
+  | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
+  | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
@@ -159,6 +169,31 @@ export const chargePointApis = {
       return { ok: false, httpStatus: response.status };
     } catch (error) {
       console.error(`Failed to unlock connector of charge point ${chargePointId}`, error);
+      return { ok: false, httpStatus: 0 };
+    }
+  },
+  getConfiguration: async function (
+    chargePointId: ChargePoint["id"],
+    key?: string[],
+  ): Promise<GetConfigurationOutcome> {
+    try {
+      const response = await fetch(`/api/charge-points/${chargePointId}/configuration`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(key ? { key } : {}),
+      });
+
+      if (response.ok) {
+        const { configurationKey, unknownKey } = (await response.json()) as {
+          configurationKey?: ConfigurationKey[];
+          unknownKey?: string[];
+        };
+        return { ok: true, configurationKey, unknownKey };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    } catch (error) {
+      console.error(`Failed to read configuration of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },
