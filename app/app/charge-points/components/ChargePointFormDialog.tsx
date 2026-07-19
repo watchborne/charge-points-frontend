@@ -38,12 +38,14 @@ type ChargePointFormDialogProps = {
   onSubmit: (values: ChargePointFormValues) => void;
   mode: "create" | "edit";
   sites: Site[];
-  defaultSiteId?: string;
+  defaultSiteId?: string | null;
 };
 
 const chargePointSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  siteId: z.string().min(1, "Site is required"),
+  // A charge point may be left unassigned (no site) — an empty string, mapped
+  // to `null` by the page before it hits the API.
+  siteId: z.string(),
   isActive: z.boolean(),
   meta: z
     .object({
