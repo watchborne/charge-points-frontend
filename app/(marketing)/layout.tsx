@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 
-import { ToastNotification } from "@/components/ui/ToastNotification/ToastNotification";
+import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
 
 import { Footer } from "./layout/Footer";
 import { Navbar } from "./layout/Navbar";

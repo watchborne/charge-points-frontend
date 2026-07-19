@@ -1,6 +1,3 @@
-"use client";
-
-import { useMemo } from "react";
 import { toast, type ExternalToast } from "sonner";
 
 import type {
@@ -41,29 +38,24 @@ function pushNotification(
   return notificationByType[type]();
 }
 
-export function useToastNotification(): ToastNotificationApi {
-  return useMemo(
-    () => ({
-      pushNotification,
+export const useToastNotification = (): ToastNotificationApi => ({
+  pushNotification,
 
-      pushSuccessNotification: (
-        content: ToastNotificationContent,
-        options: ToastNotificationOptions = {},
-      ) =>
-        pushNotification(content, {
-          ...options,
-          type: "success",
-        }),
-
-      pushErrorNotification: (
-        content: ToastNotificationContent,
-        options: ToastNotificationOptions = {},
-      ) =>
-        pushNotification(content, {
-          ...options,
-          type: "error",
-        }),
+  pushSuccessNotification: (
+    content: ToastNotificationContent,
+    options: ToastNotificationOptions = {},
+  ) =>
+    pushNotification(content, {
+      ...options,
+      type: "success",
     }),
-    [],
-  );
-}
+
+  pushErrorNotification: (
+    content: ToastNotificationContent,
+    options: ToastNotificationOptions = {},
+  ) =>
+    pushNotification(content, {
+      ...options,
+      type: "error",
+    }),
+});

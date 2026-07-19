@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 
 import "../globals.css";
-import { ToastNotification } from "@/components/ui/ToastNotification/ToastNotification";
+import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
 
 import { Header } from "./components/layout/Header";
 import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
