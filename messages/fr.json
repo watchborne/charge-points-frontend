@@ -475,7 +475,12 @@
         "title": "À mettre en service",
         "description": "{count, plural, =1 {borne découverte, pas encore rattachée à un site.} other {# bornes découvertes, pas encore rattachées à un site.}}",
         "cta": "Mettre en service",
-        "connectorsWithCount": "{count, plural, =0 {aucun connecteur} =1 {1 connecteur} other {# connecteurs}}"
+        "connectorsWithCount": "{count, plural, =0 {aucun connecteur} =1 {1 connecteur} other {# connecteurs}}",
+        "dialog": {
+          "title": "Mise en service",
+          "description": "Nommez la borne et rattachez-la à un site.",
+          "submit": "Mettre en service"
+        }
       },
       "deletion": {
         "title": "Supprimer « {name} » ?",
