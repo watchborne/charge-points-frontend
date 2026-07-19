@@ -534,6 +534,22 @@
           "genericError": "The unlock request failed. Please try again."
         }
       },
+      "configuration": {
+        "button": "Configuration",
+        "title": "OCPP configuration",
+        "description": "Configuration reported by \"{name}\".",
+        "loading": "Reading configuration…",
+        "empty": "No configuration keys.",
+        "readonly": "read-only",
+        "unknownKeys": "Unknown keys",
+        "result": {
+          "notFound": "Charge point not found.",
+          "notConnected": "Cannot read: the station is offline.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "Reading the configuration failed. Please try again."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",

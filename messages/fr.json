@@ -534,6 +534,22 @@
           "genericError": "La demande de déverrouillage a échoué. Veuillez réessayer."
         }
       },
+      "configuration": {
+        "button": "Configuration",
+        "title": "Configuration OCPP",
+        "description": "Configuration signalée par « {name} ».",
+        "loading": "Lecture de la configuration…",
+        "empty": "Aucune clé de configuration.",
+        "readonly": "lecture seule",
+        "unknownKeys": "Clés inconnues",
+        "result": {
+          "notFound": "Borne de recharge introuvable.",
+          "notConnected": "Lecture impossible : la borne est hors ligne.",
+          "stationError": "La borne a renvoyé une réponse invalide.",
+          "timeout": "La borne n'a pas répondu à temps.",
+          "genericError": "La lecture de la configuration a échoué. Veuillez réessayer."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",
