@@ -1,6 +1,7 @@
 import type {
   AvailabilityType,
   ChangeAvailabilityStatus,
+  ChangeConfigurationStatus,
   ChargePoint,
   ChargePointWithConnectors,
   ChargePointWithSite,
@@ -51,6 +52,15 @@ export type UnlockConnectorOutcome =
 export type GetConfigurationOutcome =
   | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
   | { ok: false; httpStatus: number };
+
+/**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
+ * reason: ChangeConfiguration is a request/response OCPP command whose caller
+ * needs the specific outcome (accepted/reboot-required vs. offline/rejected/
+ * not-supported/timeout).
+ */
+export type ChangeConfigurationOutcome =
+  { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
@@ -194,6 +204,29 @@ export const chargePointApis = {
       return { ok: false, httpStatus: response.status };
     } catch (error) {
       console.error(`Failed to read configuration of charge point ${chargePointId}`, error);
+      return { ok: false, httpStatus: 0 };
+    }
+  },
+  changeConfiguration: async function (
+    chargePointId: ChargePoint["id"],
+    key: string,
+    value: string,
+  ): Promise<ChangeConfigurationOutcome> {
+    try {
+      const response = await fetch(`/api/charge-points/${chargePointId}/configuration`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, value }),
+      });
+
+      if (response.ok) {
+        const { status } = (await response.json()) as { status: ChangeConfigurationStatus };
+        return { ok: true, status };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    } catch (error) {
+      console.error(`Failed to change configuration of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },

@@ -548,6 +548,21 @@
           "stationError": "La borne a renvoyé une réponse invalide.",
           "timeout": "La borne n'a pas répondu à temps.",
           "genericError": "La lecture de la configuration a échoué. Veuillez réessayer."
+        },
+        "set": {
+          "title": "Modifier une clé",
+          "keyPlaceholder": "Clé",
+          "valuePlaceholder": "Valeur",
+          "button": "Appliquer",
+          "result": {
+            "accepted": "Modification appliquée par la borne.",
+            "rebootRequired": "Modification acceptée : un redémarrage de la borne est requis.",
+            "notFound": "Borne de recharge introuvable.",
+            "notConnectedOrRejected": "Modification impossible : la borne est hors ligne, l'a refusée, ou ne prend pas en charge cette clé.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "La modification a échoué. Veuillez réessayer."
+          }
         }
       },
       "stats": {
