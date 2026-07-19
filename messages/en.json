@@ -471,6 +471,12 @@
         "unknownSite": "Unknown site",
         "inactive": "Inactive"
       },
+      "commissioning": {
+        "title": "Awaiting commissioning",
+        "description": "{count, plural, =1 {1 discovered charge point not yet assigned to a site.} other {# discovered charge points not yet assigned to a site.}}",
+        "cta": "Commission",
+        "connectorsWithCount": "{count, plural, =0 {no connector} =1 {1 connector} other {# connectors}}"
+      },
       "deletion": {
         "title": "Delete « {name} » ?",
         "description": "Destroy action: this charge point will be unrecoverable."

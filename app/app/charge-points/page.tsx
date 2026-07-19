@@ -13,6 +13,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
+import { CommissioningQueue } from "./components/CommissioningQueue";
 import { Callout } from "../components/common/Callout";
 import { Skeleton } from "../components/common/Skeleton";
 import { useChargePoints } from "../hooks/useChargePoints";
@@ -39,6 +40,14 @@ export default function ChargePointsPage() {
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
+
+  // Discovered-but-unassigned charge points form the commissioning backlog.
+  // Computed from the full list (not the search-filtered one) so the queue is
+  // always complete regardless of the current search.
+  const unassignedChargePoints = useMemo(
+    () => chargePoints.filter((cp) => cp.siteId === null),
+    [chargePoints],
+  );
 
   const filteredChargePoints = useMemo(() => {
     if (search.length <= 2) return chargePoints;
@@ -165,6 +174,11 @@ export default function ChargePointsPage() {
                 />
               </div>
             </div>
+
+            <CommissioningQueue
+              chargePoints={unassignedChargePoints}
+              onCommission={(cp) => setEditTarget(cp)}
+            />
 
             <ChargePointFleetPanel
               sites={sites}

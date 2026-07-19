@@ -11,13 +11,7 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  * the marketing site and the app stay in sync.
  */
 export type StatusTone =
-  | "available"
-  | "charging"
-  | "pending"
-  | "warning"
-  | "error"
-  | "offline"
-  | "reserved";
+  "available" | "charging" | "pending" | "warning" | "error" | "offline" | "reserved";
 
 /** Network connectivity of a station (`ChargePoint.connection.status`). */
 export const connectionStatusTone = (status: ChargePointConnectionStatus): StatusTone => {
