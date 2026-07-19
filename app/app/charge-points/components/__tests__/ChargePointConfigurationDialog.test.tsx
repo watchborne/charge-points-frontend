@@ -3,7 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const { getConfiguration } = vi.hoisted(() => ({ getConfiguration: vi.fn() }));
 
-vi.mock("@/lib/api", () => ({
+// Mocked via the relative module path (not the "@/lib/api" alias): vi.mock
+// resolves its target against this file, and this project's Vitest config does
+// not alias "@/" for the mock resolver — so an aliased target would silently
+// fail to intercept and the real fetch would run. Matches the repo convention
+// of relative vi.mock targets.
+vi.mock("../../../../../lib/api", () => ({
   api: { ChargePoints: { getConfiguration } },
 }));
 
