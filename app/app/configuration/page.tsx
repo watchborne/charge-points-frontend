@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, MapPinned, Server, Sparkles } from "lucide-react";
+import { ArrowRight, PlugZap, Server, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -64,7 +64,7 @@ export default function ConfigurationPage() {
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
-          <MapPinned className="h-4 w-4 text-muted-foreground shrink-0" />
+          <PlugZap className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="text-sm font-medium">
             {t("appPage.configuration.association.title")}
           </span>
