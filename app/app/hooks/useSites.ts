@@ -1,4 +1,5 @@
 import { Site } from "@watchborne/charge-points-types";
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useCallback } from "react";
 
 import { api } from "@/lib/api";
@@ -11,6 +12,8 @@ export interface UseSitesReturn {
 }
 
 export function useSites(): UseSitesReturn {
+  const t = useTranslations("");
+
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,18 +25,12 @@ export function useSites(): UseSitesReturn {
       const data = await api.Sites.getSites();
       setSites(data);
     } catch (err) {
-      setError(
-        "Impossible de charger les sites. Vérifiez que le backend tourne sur http://localhost:3000",
-      );
+      setError(t("errors.loadingSites"));
       console.error(err);
     } finally {
       setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    loadSites();
-  }, [loadSites]);
 
   useEffect(() => {
     loadSites();

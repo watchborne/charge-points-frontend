@@ -50,6 +50,10 @@ const mockChargePoints = [
   }),
 ];
 
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 describe("useChargePoints", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -110,7 +114,7 @@ describe("useChargePoints", () => {
     });
 
     expect(result.current.error).toBeTruthy();
-    expect(result.current.error).toContain("Impossible de charger les bornes");
+    expect(result.current.error).toContain("errors.loadingChargePoints");
     expect(result.current.chargePoints).toEqual([]);
   });
 

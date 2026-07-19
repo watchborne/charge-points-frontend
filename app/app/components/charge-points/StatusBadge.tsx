@@ -17,7 +17,7 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
         toneBadgeClass[tone],
       )}
     >
-      <span className={classNames("h-1.5 w-1.5 rounded-full", toneDotClass[tone])} />
+      <div className={classNames("h-2 w-2 rounded-full", toneDotClass[tone])} />
       {status.toLowerCase()}
     </span>
   );
