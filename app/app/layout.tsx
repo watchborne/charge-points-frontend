@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 
 import "../globals.css";
+import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
+
 import { Header } from "./components/layout/Header";
 import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
 
@@ -26,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Header />
               <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
             </div>
+            <ToastNotification />
           </NextIntlClientProvider>
         </WebSocketDataProvider>
       </body>
