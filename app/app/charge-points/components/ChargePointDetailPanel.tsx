@@ -222,7 +222,7 @@ export const ChargePointDetailPanel = ({
       </div>
 
       {chargePoint.connection.statusMessage && (
-        <Callout error={chargePoint.connection.statusMessage} variant="warning" />
+        <Callout description={chargePoint.connection.statusMessage} variant="warning" />
       )}
 
       {chargePoint.connectors.length > 0 && (
@@ -305,9 +305,8 @@ export const ChargePointDetailPanel = ({
                     </p>
                   ) : (
                     <Callout
-                      error={t(availabilityErrorMessageKey(state.outcome.httpStatus))}
+                      description={t(availabilityErrorMessageKey(state.outcome.httpStatus))}
                       variant="error"
-                      className="mb-0"
                     />
                   ))}
                 {unlockState.status === "done" &&
@@ -317,9 +316,10 @@ export const ChargePointDetailPanel = ({
                     </p>
                   ) : (
                     <Callout
-                      error={t(unlockConnectorErrorMessageKey(unlockState.outcome.httpStatus))}
+                      description={t(
+                        unlockConnectorErrorMessageKey(unlockState.outcome.httpStatus),
+                      )}
                       variant="error"
-                      className="mb-0"
                     />
                   ))}
               </div>
@@ -463,9 +463,8 @@ export const ChargePointDetailPanel = ({
             </div>
           ) : (
             <Callout
-              error={t(resetErrorMessageKey(resetState.outcome.httpStatus))}
+              description={t(resetErrorMessageKey(resetState.outcome.httpStatus))}
               variant="error"
-              className="mb-0"
             />
           ))}
 
@@ -479,11 +478,10 @@ export const ChargePointDetailPanel = ({
             </div>
           ) : (
             <Callout
-              error={t(
+              description={t(
                 availabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
               )}
               variant="error"
-              className="mb-0"
             />
           ))}
       </div>

@@ -20,6 +20,10 @@ const mockSites = [
   createSite({ id: "site-2", name: "Site Lyon", customer: "customer-2" }),
 ];
 
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 describe("useSites", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -73,7 +77,7 @@ describe("useSites", () => {
     });
 
     expect(result.current.error).toBeTruthy();
-    expect(result.current.error).toContain("Impossible de charger les sites");
+    expect(result.current.error).toContain("errors.loadingSites");
     expect(result.current.sites).toEqual([]);
   });
 

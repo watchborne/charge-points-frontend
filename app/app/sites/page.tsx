@@ -61,7 +61,7 @@ export default function SitesPage() {
 
   return (
     <>
-      {error && <Callout error={error} />}
+      {error && <Callout variant="error" description={error} />}
 
       {loading && (
         <div className="flex flex-col gap-4 content-stretch">

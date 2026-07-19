@@ -25,8 +25,12 @@ export default function DashboardPage() {
 
   return (
     <>
-      {error && <Callout error={error} />}
-      {errorSites && <Callout error={errorSites} />}
+      {(error || errorSites) && (
+        <div className="flex flex-col gap-2 content-stretch mb-4">
+          {error && <Callout variant="error" description={error} />}
+          {errorSites && <Callout variant="error" description={errorSites} />}
+        </div>
+      )}
 
       {(loading || loadingSites) && (
         <div className="flex flex-col gap-8">

@@ -137,7 +137,7 @@ export const ChargePointConfigurationDialog = ({
         )}
 
         {state.status === "done" && !state.outcome.ok && (
-          <Callout error={t(readErrorMessageKey(state.outcome.httpStatus))} variant="error" />
+          <Callout description={t(readErrorMessageKey(state.outcome.httpStatus))} variant="error" />
         )}
 
         {state.status === "done" && state.outcome.ok && (
@@ -178,7 +178,7 @@ export const ChargePointConfigurationDialog = ({
           </div>
         )}
 
-        <div className="flex flex-col gap-2 border-t pt-3">
+        <div className="flex flex-col gap-3 border-t pt-3">
           <p className="text-xs font-medium text-muted-foreground">
             {t("appPage.chargePoints.configuration.set.title")}
           </p>
@@ -216,9 +216,8 @@ export const ChargePointConfigurationDialog = ({
               </div>
             ) : (
               <Callout
-                error={t(setErrorMessageKey(setState_.outcome.httpStatus))}
+                description={t(setErrorMessageKey(setState_.outcome.httpStatus))}
                 variant="error"
-                className="mb-0"
               />
             ))}
         </div>

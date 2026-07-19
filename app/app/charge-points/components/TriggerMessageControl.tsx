@@ -85,11 +85,7 @@ export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlPr
             {t("appPage.chargePoints.trigger.result.accepted")}
           </div>
         ) : (
-          <Callout
-            error={t(errorMessageKey(state.outcome.httpStatus))}
-            variant="error"
-            className="mb-0"
-          />
+          <Callout description={t(errorMessageKey(state.outcome.httpStatus))} variant="error" />
         ))}
     </div>
   );

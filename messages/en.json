@@ -690,5 +690,10 @@
         "badge": "Coming soon"
       }
     }
+  },
+  "errors": {
+    "default": "An error has occurred.",
+    "loadingChargePoints": "Loading charge points failed.",
+    "loadingSites": "Loading sites failed."
   }
 }

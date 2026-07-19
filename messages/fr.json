@@ -690,5 +690,10 @@
         "badge": "Bientôt disponible"
       }
     }
+  },
+  "errors": {
+    "default": "Une erreur est survenue.",
+    "loadingChargePoints": "Impossible de charger les bornes.",
+    "loadingSites": "Impossible de charger les sites."
   }
 }

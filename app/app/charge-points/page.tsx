@@ -154,8 +154,12 @@ export default function ChargePointsPage() {
 
   return (
     <>
-      {errorChargePoints && <Callout error={errorChargePoints} />}
-      {errorSites && <Callout error={errorSites} />}
+      {(errorChargePoints || errorSites) && (
+        <div className="flex flex-col gap-2 content-stretch mb-4">
+          {errorChargePoints && <Callout variant="error" description={errorChargePoints} />}
+          {errorSites && <Callout variant="error" description={errorSites} />}
+        </div>
+      )}
 
       {loadingChargePoints && (
         <div className="flex flex-col gap-4 content-stretch">

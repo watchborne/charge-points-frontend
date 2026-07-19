@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useCallback, useRef } from "react";
 
 import { api } from "@/lib/api";
@@ -13,6 +14,7 @@ export interface UseChargePointsReturn {
 }
 
 export function useChargePoints(): UseChargePointsReturn {
+  const t = useTranslations("");
   const [chargePoints, setChargePoints] = useState<ChargePointWithConnectors[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +29,7 @@ export function useChargePoints(): UseChargePointsReturn {
       const data = await api.ChargePoints.getChargePoints();
       setChargePoints(data);
     } catch (err) {
-      setError(
-        "Impossible de charger les bornes. Vérifiez que le backend tourne sur http://localhost:3000",
-      );
+      setError(t("errors.loadingChargePoints"));
       console.error(err);
     } finally {
       setLoading(false);
