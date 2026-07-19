@@ -35,7 +35,7 @@ export const SiteCombobox = ({ value, onChange, sites }: SiteComboboxProps) => {
           aria-expanded={open}
           className="w-full justify-between font-normal"
         >
-          {selected ? selected.name : t("appPage.sites.siteCombobox.placeholder")}
+          {selected ? selected.name : t("appPage.sites.siteCombobox.unassigned")}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -45,6 +45,19 @@ export const SiteCombobox = ({ value, onChange, sites }: SiteComboboxProps) => {
           <CommandList>
             <CommandEmpty>{t("appPage.sites.siteCombobox.empty")}</CommandEmpty>
             <CommandGroup>
+              {/* Explicit "no site" choice — leaves the charge point unassigned. */}
+              <CommandItem
+                value=""
+                onSelect={() => {
+                  onChange("");
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={classNames("mr-2 h-4 w-4", value === "" ? "opacity-100" : "opacity-0")}
+                />
+                {t("appPage.sites.siteCombobox.unassigned")}
+              </CommandItem>
               {sites.map((site) => (
                 <CommandItem
                   key={site.id}
