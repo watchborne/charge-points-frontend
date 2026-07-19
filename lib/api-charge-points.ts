@@ -54,23 +54,13 @@ export type GetConfigurationOutcome =
   | { ok: false; httpStatus: number };
 
 /**
- * GetConfiguration is a request/response OCPP read: on success it returns the
- * station's reported configuration rather than a status. Same raw-status
- * discriminated shape as the other commands for precise offline/timeout feedback.
- */
-export type GetConfigurationOutcome =
-  | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
-  | { ok: false; httpStatus: number };
-
-/**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
  * reason: ChangeConfiguration is a request/response OCPP command whose caller
  * needs the specific outcome (accepted/reboot-required vs. offline/rejected/
  * not-supported/timeout).
  */
 export type ChangeConfigurationOutcome =
-  | { ok: true; status: ChangeConfigurationStatus }
-  | { ok: false; httpStatus: number };
+  { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {

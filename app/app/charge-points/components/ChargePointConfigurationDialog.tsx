@@ -22,9 +22,7 @@ import { ChargePoint } from "@/types/charge-point";
 import { Callout } from "../../components/common/Callout";
 
 type FetchState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: GetConfigurationOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetConfigurationOutcome };
 
 type SetState =
   | { status: "idle" }
