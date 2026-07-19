@@ -29,9 +29,9 @@ export const CommissioningQueue = ({ chargePoints, onCommission }: Commissioning
       <div className="flex flex-wrap items-center gap-2 border-b border-charge-strong/10 px-4 py-3 sm:px-6">
         <PlugZap className="h-4 w-4 shrink-0 text-charge-strong" />
         <h3 className="text-sm font-semibold">{t("appPage.chargePoints.commissioning.title")}</h3>
-        <Badge variant="secondary">{chargePoints.length}</Badge>
+        <Badge variant="default">{chargePoints.length}</Badge>
         <p className="w-full text-sm text-muted-foreground sm:ml-1 sm:w-auto">
-          {t("appPage.chargePoints.commissioning.description")}
+          {t("appPage.chargePoints.commissioning.description", { count: chargePoints.length })}
         </p>
       </div>
 

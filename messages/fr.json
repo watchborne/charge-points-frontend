@@ -473,7 +473,7 @@
       },
       "commissioning": {
         "title": "À mettre en service",
-        "description": "Bornes découvertes, pas encore rattachées à un site.",
+        "description": "{count, plural, =1 {borne découverte, pas encore rattachée à un site.} other {# bornes découvertes, pas encore rattachées à un site.}}",
         "cta": "Mettre en service",
         "connectorsWithCount": "{count, plural, =0 {aucun connecteur} =1 {1 connecteur} other {# connecteurs}}"
       },
