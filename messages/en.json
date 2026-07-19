@@ -680,8 +680,8 @@
         }
       },
       "association": {
-        "title": "Associate a charge point with a site",
-        "description": "Association happens directly from the charge point's form: open \"Charge Points\", then create or edit a charge point and select its site in the \"Site\" field. A charge point can only be attached to one site at a time.",
+        "title": "Commission a charge point",
+        "description": "A charge point connecting for the first time is automatically discovered and appears in the \"Awaiting commissioning\" queue at the top of the \"Charge Points\" page. Click \"Commission\" to rename it and attach it to a site in one step. You can also change this association later from the charge point's form. A charge point can only be attached to one site at a time.",
         "cta": "Go to charge points"
       },
       "comingSoon": {

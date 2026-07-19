@@ -680,8 +680,8 @@
         }
       },
       "association": {
-        "title": "Associer une borne à un site",
-        "description": "L'association se fait directement depuis la fiche de la borne : ouvrez « Bornes de recharge », puis créez ou modifiez une borne et sélectionnez son site dans le champ « Site ». Une borne ne peut être rattachée qu'à un seul site à la fois.",
+        "title": "Mettre en service une borne",
+        "description": "Une borne qui se connecte pour la première fois est automatiquement découverte et apparaît dans la file « À mettre en service » en haut de la page « Bornes de recharge ». Cliquez sur « Mettre en service » pour la renommer et l'associer à un site en une seule étape. Vous pouvez aussi modifier cette association plus tard depuis la fiche de la borne. Une borne ne peut être rattachée qu'à un seul site à la fois.",
         "cta": "Aller aux bornes de recharge"
       },
       "comingSoon": {
