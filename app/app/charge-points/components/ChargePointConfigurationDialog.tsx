@@ -100,8 +100,9 @@ export const ChargePointConfigurationDialog = ({
       setSetState({ status: "idle" });
       return;
     }
+
     void load();
-  }, [open, load]);
+  }, [open, load, chargePointId]);
 
   const handleSet = async () => {
     if (!key.trim()) return;
