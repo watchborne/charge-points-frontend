@@ -2,6 +2,16 @@
 
 import { Toaster, type ToasterProps } from "sonner";
 
+const DEFAULT_DURATION_MS = 15_000;
+
 export function ToastNotification(props: ToasterProps) {
-  return <Toaster position="top-right" richColors {...props} />;
+  return (
+    <Toaster
+      position="bottom-right"
+      richColors
+      closeButton
+      duration={DEFAULT_DURATION_MS}
+      {...props}
+    />
+  );
 }
