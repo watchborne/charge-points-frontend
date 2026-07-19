@@ -22,9 +22,7 @@ import { ChargePoint } from "@/types/charge-point";
 import { Callout } from "../../components/common/Callout";
 
 type FetchState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: GetConfigurationOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetConfigurationOutcome };
 
 type SetState =
   | { status: "idle" }
@@ -103,17 +101,7 @@ export const ChargePointConfigurationDialog = ({
       return;
     }
 
-    let cancelled = false;
-    setState({ status: "loading" });
-    api.ChargePoints.getConfiguration(chargePointId).then((outcome) => {
-      if (!cancelled) setState({ status: "done", outcome });
-    });
-
     void load();
-
-    return () => {
-      cancelled = true;
-    };
   }, [open, load, chargePointId]);
 
   const handleSet = async () => {
