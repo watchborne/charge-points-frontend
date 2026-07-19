@@ -19,9 +19,7 @@ import { ChargePoint } from "@/types/charge-point";
 import { Callout } from "../../components/common/Callout";
 
 type TriggerState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: TriggerMessageOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: TriggerMessageOutcome };
 
 const errorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
