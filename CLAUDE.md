@@ -19,7 +19,7 @@ Stack: **Next.js 14 (App Router)**, React 18, TypeScript (strict),
 app/
   (marketing)/          # public site (route group): home, pricing, contact, features
   app/                  # authenticated dashboard
-    dashboard/ charge-points/ sites/   # pages
+    dashboard/ charge-points/ sites/ configuration/   # pages
     components/         # feature + common + layout components
     404/                 # dashboard-scoped not-found page
     hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
