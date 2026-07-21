@@ -2,8 +2,10 @@ import classNames from "classnames";
 import { AlertCircle, AlertTriangle, CheckCircle } from "lucide-react";
 import { PropsWithChildren, ReactNode, useMemo } from "react";
 
+export type CalloutVariant = "default" | "info" | "error" | "warning" | "success";
+
 type CalloutProps = PropsWithChildren & {
-  variant?: "default" | "error" | "warning" | "success";
+  variant?: CalloutVariant;
   title?: string;
   description?: string;
   icon?: ReactNode;
@@ -22,9 +24,9 @@ export const Callout = ({
     if (icon) return icon;
 
     if (variant !== "default") {
-      if (variant === "error") return <AlertCircle className="h-5 w-5" />;
-      if (variant === "warning") return <AlertTriangle className="h-5 w-5" />;
-      if (variant === "success") return <CheckCircle className="h-5 w-5" />;
+      if (variant === "error") return <AlertCircle />;
+      if (variant === "warning") return <AlertTriangle />;
+      if (variant === "success") return <CheckCircle />;
     }
 
     return undefined;
@@ -35,6 +37,8 @@ export const Callout = ({
       className={classNames(
         className,
         "rounded-lg border p-4",
+        variant === "info" &&
+          "bg-status-charging-soft border-status-charging/20 text-status-charging-foreground",
         variant === "success" &&
           "bg-status-available-soft border-status-available/20 text-status-available-foreground",
         variant === "error" &&
@@ -43,13 +47,12 @@ export const Callout = ({
           "bg-status-warning-soft border-status-warning/20 text-status-warning-foreground",
       )}
     >
-      <div className="flex items-center gap-3">
-        {calloutIcon}
-
+      <div className="flex items-center gap-5">
+        {calloutIcon && <div className="h-5 w-5">{calloutIcon}</div>}
         {children ?? (
           <div className="flex flex-col gap-1 content-stretch">
-            {title && <h4 className="text-l">{title}</h4>}
-            {description && <p className="font-medium">{description}</p>}
+            {title && <h4 className="title-m font-bold">{title}</h4>}
+            {description && <p className="body-m font-tiny">{description}</p>}
           </div>
         )}
       </div>
