@@ -259,8 +259,8 @@
       "submit": "Send magic link"
     },
     "magicLink": {
-      "sentTitle": "Check your inbox",
-      "sentDescription": "A sign-in link has been sent to the address below. Click it to access your dashboard.",
+      "calloutTitle": "Check your inbox",
+      "calloutDescription": "A sign-in link has been sent to <0>{email}</0>. Click it to access your dashboard.",
       "error": "Couldn't send the sign-in link. Please try again.",
       "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
     },
@@ -296,8 +296,8 @@
       "submit": "Sign up"
     },
     "confirmation": {
-      "sentTitle": "Check your inbox",
-      "sentDescription": "A confirmation email has been sent to the address below. Click the link to activate your Alpha access.",
+      "calloutTitle": "Check your inbox",
+      "calloutDescription": "A confirmation email has been sent to <0>{email}</0>. Click the link to activate your Alpha access.",
       "error": "Couldn't create your account. Please try again."
     },
     "hasAccount": {
