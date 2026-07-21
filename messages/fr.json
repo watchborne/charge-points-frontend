@@ -260,7 +260,7 @@
     },
     "magicLink": {
       "calloutTitle": "Vérifiez votre boîte mail",
-      "calloutDescription": "Un lien de connexion a été envoyé à <0>{email}</0>. Cliquez dessus pour accéder à votre espace.",
+      "calloutDescription": "Un lien de connexion a été envoyé à <link>{email}</link>. Cliquez dessus pour accéder à votre espace.",
       "error": "Impossible d'envoyer le lien de connexion. Veuillez réessayer.",
       "unknownUser": "Aucun compte n'est associé à cette adresse email. Demandez un accès Alpha pour en créer un."
     },
@@ -297,7 +297,7 @@
     },
     "confirmation": {
       "calloutTitle": "Vérifiez votre boîte mail",
-      "calloutDescription": "Un email de confirmation a été envoyé à <0>{email}</0>. Cliquez sur le lien pour activer votre accès Alpha.",
+      "calloutDescription": "Un email de confirmation a été envoyé à <link>{email}</link>. Cliquez sur le lien pour activer votre accès Alpha.",
       "error": "Impossible de créer votre compte. Veuillez réessayer."
     },
     "hasAccount": {
