@@ -1,32 +1,26 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { Callout } from "@/app/app/components/common/Callout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 interface LoginFormProps {
-  labels: {
-    email: string;
-    emailPlaceholder: string;
-    submit: string;
-    sentTitle: string;
-    sentDescription: string;
-    error: string;
-    unknownUser: string;
-  };
+  onFormSubmitted: (email: string) => void;
 }
 
-export function LoginForm({ labels }: LoginFormProps) {
+export function LoginForm({ onFormSubmitted }: LoginFormProps) {
+  const t = useTranslations("");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState<"unknown-user" | "generic" | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
@@ -54,27 +48,17 @@ export function LoginForm({ labels }: LoginFormProps) {
       return;
     }
 
-    setSent(true);
-  }
-
-  if (sent) {
-    return (
-      <div className="rounded-lg border bg-muted/50 p-6 text-center space-y-2">
-        <p className="font-medium">{labels.sentTitle}</p>
-        <p className="text-sm text-muted-foreground">{labels.sentDescription}</p>
-        <p className="text-sm font-medium">{email}</p>
-      </div>
-    );
-  }
+    onFormSubmitted(email);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">{labels.email}</Label>
+        <Label htmlFor="email">{t("loginPage.form.email")}</Label>
         <Input
           id="email"
           type="email"
-          placeholder={labels.emailPlaceholder}
+          placeholder={t("loginPage.form.emailPlaceholder")}
           required
           autoComplete="email"
           disabled={isLoading}
@@ -84,14 +68,19 @@ export function LoginForm({ labels }: LoginFormProps) {
       </div>
 
       {error && (
-        <p className="text-sm text-destructive">
-          {error === "unknown-user" ? labels.unknownUser : labels.error}
-        </p>
+        <Callout
+          variant="error"
+          description={
+            error === "unknown-user"
+              ? t("loginPage.magicLink.unknownUser")
+              : t("loginPage.magicLink.error")
+          }
+        />
       )}
 
       <Button type="submit" className="w-full" disabled={isLoading} size="lg">
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {labels.submit}
+        {t("loginPage.form.submit")}
       </Button>
     </form>
   );

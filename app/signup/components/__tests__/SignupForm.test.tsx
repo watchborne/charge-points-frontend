@@ -11,19 +11,25 @@ const { createBrowserClient, signUp } = vi.hoisted(() => {
 
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      "signupPage.form.email": "Email address",
+      "signupPage.form.emailPlaceholder": "you@example.com",
+      "signupPage.form.submit": "Sign up",
+      "signupPage.confirmation.error": "Couldn't create your account. Please try again.",
+    };
+    return translations[key] ?? key;
+  },
+}));
+
 import { SignupForm } from "../SignupForm";
 
-const labels = {
-  email: "Email address",
-  emailPlaceholder: "you@example.com",
-  submit: "Sign up",
-  sentTitle: "Check your inbox",
-  sentDescription: "A confirmation email has been sent to the address below.",
-  error: "Couldn't create your account. Please try again.",
-};
+const onFormSubmitted = vi.fn();
 
 beforeEach(() => {
   signUp.mockReset();
+  onFormSubmitted.mockReset();
 });
 
 afterEach(() => {
@@ -31,16 +37,16 @@ afterEach(() => {
 });
 
 describe("SignupForm", () => {
-  it("SHOULD sign the user up and show the confirmation panel WHEN the form is submitted", async () => {
+  it("SHOULD sign the user up and notify the parent WHEN the form is submitted", async () => {
     signUp.mockResolvedValue({ error: null });
-    render(<SignupForm labels={labels} />);
+    render(<SignupForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "user@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
 
-    await waitFor(() => expect(screen.getByText(labels.sentTitle)).toBeTruthy());
+    await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
 
     expect(signUp).toHaveBeenCalledTimes(1);
     const call = signUp.mock.calls[0][0];
@@ -48,20 +54,21 @@ describe("SignupForm", () => {
     expect(typeof call.password).toBe("string");
     expect(call.password.length).toBeGreaterThan(0);
     expect(call.options).toEqual({ emailRedirectTo: `${window.location.origin}/auth/callback` });
-    expect(screen.getByText("user@example.com")).toBeTruthy();
   });
 
   it("SHOULD show the translated error and stay on the form WHEN signUp fails", async () => {
     signUp.mockResolvedValue({ error: { message: "boom" } });
-    render(<SignupForm labels={labels} />);
+    render(<SignupForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "user@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
 
-    await waitFor(() => expect(screen.getByText(labels.error)).toBeTruthy());
-    expect(screen.queryByText(labels.sentTitle)).toBeNull();
+    await waitFor(() =>
+      expect(screen.getByText("Couldn't create your account. Please try again.")).toBeTruthy(),
+    );
+    expect(onFormSubmitted).not.toHaveBeenCalled();
   });
 
   it("SHOULD disable the submit button WHILE the request is in flight", async () => {
@@ -71,18 +78,18 @@ describe("SignupForm", () => {
         resolveSignUp = resolve;
       }),
     );
-    render(<SignupForm labels={labels} />);
+    render(<SignupForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "user@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
 
-    expect(
-      (screen.getByRole("button", { name: labels.submit }) as HTMLButtonElement).disabled,
-    ).toBe(true);
+    expect((screen.getByRole("button", { name: "Sign up" }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
 
     resolveSignUp({ error: null });
-    await waitFor(() => expect(screen.getByText(labels.sentTitle)).toBeTruthy());
+    await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
   });
 });
