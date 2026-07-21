@@ -11,20 +11,27 @@ const { createBrowserClient, signInWithOtp } = vi.hoisted(() => {
 
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      "loginPage.form.email": "Email address",
+      "loginPage.form.emailPlaceholder": "you@example.com",
+      "loginPage.form.submit": "Send magic link",
+      "loginPage.magicLink.error": "Couldn't send the sign-in link. Please try again.",
+      "loginPage.magicLink.unknownUser":
+        "No account is associated with this email address. Request Alpha access to create one.",
+    };
+    return translations[key] ?? key;
+  },
+}));
+
 import { LoginForm } from "../LoginForm";
 
-const labels = {
-  email: "Email address",
-  emailPlaceholder: "you@example.com",
-  submit: "Send magic link",
-  sentTitle: "Check your inbox",
-  sentDescription: "A sign-in link has been sent to the address below.",
-  error: "Couldn't send the sign-in link. Please try again.",
-  unknownUser: "No account is associated with this email address.",
-};
+const onFormSubmitted = vi.fn();
 
 beforeEach(() => {
   signInWithOtp.mockReset();
+  onFormSubmitted.mockReset();
 });
 
 afterEach(() => {
@@ -32,16 +39,16 @@ afterEach(() => {
 });
 
 describe("LoginForm", () => {
-  it("SHOULD send a magic link and show the confirmation panel WHEN the form is submitted", async () => {
+  it("SHOULD send a magic link and notify the parent WHEN the form is submitted", async () => {
     signInWithOtp.mockResolvedValue({ error: null });
-    render(<LoginForm labels={labels} />);
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "user@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Send magic link" }));
 
-    await waitFor(() => expect(screen.getByText(labels.sentTitle)).toBeTruthy());
+    await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
 
     expect(signInWithOtp).toHaveBeenCalledWith({
       email: "user@example.com",
@@ -50,36 +57,43 @@ describe("LoginForm", () => {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    expect(screen.getByText("user@example.com")).toBeTruthy();
   });
 
   it("SHOULD show the translated error and stay on the form WHEN signInWithOtp fails", async () => {
     signInWithOtp.mockResolvedValue({ error: { message: "boom", code: "unexpected_failure" } });
-    render(<LoginForm labels={labels} />);
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "user@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Send magic link" }));
 
-    await waitFor(() => expect(screen.getByText(labels.error)).toBeTruthy());
-    expect(screen.queryByText(labels.sentTitle)).toBeNull();
+    await waitFor(() =>
+      expect(screen.getByText("Couldn't send the sign-in link. Please try again.")).toBeTruthy(),
+    );
+    expect(onFormSubmitted).not.toHaveBeenCalled();
   });
 
   it("SHOULD show the unknown-user message WHEN the email doesn't belong to an existing account", async () => {
     signInWithOtp.mockResolvedValue({
       error: { message: "Signups not allowed for otp", code: "otp_disabled" },
     });
-    render(<LoginForm labels={labels} />);
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "unknown@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Send magic link" }));
 
-    await waitFor(() => expect(screen.getByText(labels.unknownUser)).toBeTruthy());
-    expect(screen.queryByText(labels.error)).toBeNull();
-    expect(screen.queryByText(labels.sentTitle)).toBeNull();
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          "No account is associated with this email address. Request Alpha access to create one.",
+        ),
+      ).toBeTruthy(),
+    );
+    expect(screen.queryByText("Couldn't send the sign-in link. Please try again.")).toBeNull();
+    expect(onFormSubmitted).not.toHaveBeenCalled();
   });
 
   it("SHOULD disable the submit button WHILE the request is in flight", async () => {
@@ -89,18 +103,18 @@ describe("LoginForm", () => {
         resolveSignIn = resolve;
       }),
     );
-    render(<LoginForm labels={labels} />);
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText(labels.email), {
+    fireEvent.change(screen.getByLabelText("Email address"), {
       target: { value: "user@example.com" },
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.submit }));
+    fireEvent.click(screen.getByRole("button", { name: "Send magic link" }));
 
     expect(
-      (screen.getByRole("button", { name: labels.submit }) as HTMLButtonElement).disabled,
+      (screen.getByRole("button", { name: "Send magic link" }) as HTMLButtonElement).disabled,
     ).toBe(true);
 
     resolveSignIn({ error: null });
-    await waitFor(() => expect(screen.getByText(labels.sentTitle)).toBeTruthy());
+    await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
   });
 });

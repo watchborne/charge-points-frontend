@@ -1,15 +1,20 @@
+"use client";
+
 import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 
 import { SignupForm } from "./components/SignupForm";
+import { Callout } from "../app/components/common/Callout";
 
 export default function SignupPage() {
   const t = useTranslations("");
 
   const features = Object.entries(t.raw("signupPage.branding.features") as Record<string, string>);
+  const [userEmail, setUserEmail] = useState<string>();
 
   return (
     <>
@@ -61,16 +66,21 @@ export default function SignupPage() {
             <p className="mt-2 text-sm text-muted-foreground">{t("signupPage.subtitle")}</p>
           </div>
 
-          <SignupForm
-            labels={{
-              email: t("signupPage.form.email"),
-              emailPlaceholder: t("signupPage.form.emailPlaceholder"),
-              submit: t("signupPage.form.submit"),
-              sentTitle: t("signupPage.confirmation.sentTitle"),
-              sentDescription: t("signupPage.confirmation.sentDescription"),
-              error: t("signupPage.confirmation.error"),
-            }}
-          />
+          {!userEmail ? (
+            <SignupForm onFormSubmitted={(email) => setUserEmail(email)} />
+          ) : (
+            <Callout variant="success" title={t("signupPage.confirmation.calloutTitle")}>
+              <div className="block">
+                {t.rich("signupPage.confirmation.calloutDescription", {
+                  link: () => (
+                    <a className="font-bold" href={`mailto:${userEmail}`}>
+                      {userEmail}
+                    </a>
+                  ),
+                })}
+              </div>
+            </Callout>
+          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("signupPage.hasAccount.text")}{" "}

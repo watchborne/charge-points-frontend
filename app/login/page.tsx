@@ -1,16 +1,21 @@
+"use client";
+
 import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 
 import { AuthErrorCallout } from "./components/AuthErrorCallout";
 import { DevLoginShortcut } from "./components/DevLoginShortcut";
 import { LoginForm } from "./components/LoginForm";
+import { Callout } from "../app/components/common/Callout";
 
 export default function LoginPage() {
   const t = useTranslations("");
   const features = t.raw("loginPage.branding.features") as Record<string, string>;
+  const [userEmail, setUserEmail] = useState<string>();
 
   return (
     <>
@@ -64,17 +69,21 @@ export default function LoginPage() {
 
           <AuthErrorCallout />
 
-          <LoginForm
-            labels={{
-              email: t("loginPage.form.email"),
-              emailPlaceholder: t("loginPage.form.emailPlaceholder"),
-              submit: t("loginPage.form.submit"),
-              sentTitle: t("loginPage.magicLink.sentTitle"),
-              sentDescription: t("loginPage.magicLink.sentDescription"),
-              error: t("loginPage.magicLink.error"),
-              unknownUser: t("loginPage.magicLink.unknownUser"),
-            }}
-          />
+          {!userEmail ? (
+            <LoginForm onFormSubmitted={(email) => setUserEmail(email)} />
+          ) : (
+            <Callout variant="success" title={t("loginPage.magicLink.calloutTitle")}>
+              <div className="block">
+                {t.rich("loginPage.magicLink.calloutDescription", {
+                  link: () => (
+                    <a className="font-bold" href={`mailto:${userEmail}`}>
+                      {userEmail}
+                    </a>
+                  ),
+                })}
+              </div>
+            </Callout>
+          )}
 
           {process.env.NODE_ENV !== "production" && <DevLoginShortcut />}
 
