@@ -260,7 +260,7 @@
     },
     "magicLink": {
       "calloutTitle": "Check your inbox",
-      "calloutDescription": "A sign-in link has been sent to <link>{email}</link>. Click it to access your dashboard.",
+      "calloutDescription": "A sign-in link has been sent to <link>link</link>. Click it to access your dashboard.",
       "error": "Couldn't send the sign-in link. Please try again.",
       "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
     },
@@ -297,7 +297,7 @@
     },
     "confirmation": {
       "calloutTitle": "Check your inbox",
-      "calloutDescription": "A confirmation email has been sent to <link>{email}</link>. Click the link to activate your Alpha access.",
+      "calloutDescription": "A confirmation email has been sent to <link>link</link>. Click the link to activate your Alpha access.",
       "error": "Couldn't create your account. Please try again."
     },
     "hasAccount": {
