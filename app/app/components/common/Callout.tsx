@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { AlertCircle, AlertTriangle, CheckCircle } from "lucide-react";
 import { PropsWithChildren, ReactNode, useMemo } from "react";
 
-export type CalloutVariant = "default" | "error" | "warning" | "success";
+export type CalloutVariant = "default" | "info" | "error" | "warning" | "success";
 
 type CalloutProps = PropsWithChildren & {
   variant?: CalloutVariant;
@@ -37,6 +37,8 @@ export const Callout = ({
       className={classNames(
         className,
         "rounded-lg border p-4",
+        variant === "info" &&
+          "bg-status-charging-soft border-status-charging/20 text-status-charging-foreground",
         variant === "success" &&
           "bg-status-available-soft border-status-available/20 text-status-available-foreground",
         variant === "error" &&
@@ -46,7 +48,7 @@ export const Callout = ({
       )}
     >
       <div className="flex items-center gap-5">
-        <div className="h-5 w-5">{calloutIcon}</div>
+        {calloutIcon && <div className="h-5 w-5">{calloutIcon}</div>}
         {children ?? (
           <div className="flex flex-col gap-1 content-stretch">
             {title && <h4 className="title-m font-bold">{title}</h4>}
