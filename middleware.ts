@@ -46,10 +46,13 @@ function resolveLocale(request: NextRequest) {
 }
 
 /**
- * Global middleware: refreshes the Supabase session on every matched request,
- * resolves the locale for the request, rewrites requests on the app.*
- * subdomain into the /app route tree, and gates access to the authenticated
- * surface.
+ * Global middleware: resolves the locale for every matched request, rewrites
+ * requests on the app.* subdomain into the /app route tree, and gates access to
+ * the authenticated surface — refreshing the Supabase session as it does so.
+ *
+ * The Supabase session lookup (`getUser()`, a network round-trip) runs only for
+ * the authenticated surface (`/api`, `/app`, `/login`, `/signup`); public
+ * marketing pages skip it and just get locale + any app-host rewrite.
  *
  * - The locale comes from `resolveLocale` (see above). It's set on the
  *   request's cookies too (not just the response) so this request's RSC
@@ -78,22 +81,43 @@ export async function middleware(request: NextRequest) {
   // request onward.
   request.cookies.set(LOCALE_COOKIE_NAME, locale);
 
+  const rewrittenUrl = rewriteToAppTree(request);
+  const pathname = rewrittenUrl ? rewrittenUrl.pathname : request.nextUrl.pathname;
+
+  const setLocaleCookie = (response: NextResponse) => {
+    response.cookies.set(LOCALE_COOKIE_NAME, locale, {
+      path: "/",
+      maxAge: LOCALE_COOKIE_MAX_AGE,
+    });
+    return response;
+  };
+
+  // Only the authenticated surface needs a Supabase session lookup. Public
+  // marketing pages skip `supabase.auth.getUser()` — a network round-trip to
+  // Supabase that ran on *every* request, marketing pages included. They still
+  // get locale resolution and, on an app.* host, the /app rewrite.
+  const needsAuth =
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/app") ||
+    pathname === "/login" ||
+    pathname === "/signup";
+
+  if (!needsAuth) {
+    const response = rewrittenUrl
+      ? NextResponse.rewrite(rewrittenUrl, { request })
+      : NextResponse.next({ request });
+    return setLocaleCookie(response);
+  }
+
   const { supabase, supabaseResponse } = createClient(request);
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const rewrittenUrl = rewriteToAppTree(request);
-  const pathname = rewrittenUrl ? rewrittenUrl.pathname : request.nextUrl.pathname;
-
   const withSessionCookies = (response: NextResponse) => {
     supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
-    response.cookies.set(LOCALE_COOKIE_NAME, locale, {
-      path: "/",
-      maxAge: LOCALE_COOKIE_MAX_AGE,
-    });
-    return response;
+    return setLocaleCookie(response);
   };
 
   const redirectTo = (path: string) => {
