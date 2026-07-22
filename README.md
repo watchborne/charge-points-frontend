@@ -36,10 +36,16 @@ Next.js dashboard to fetch real-time data on charge points realm.
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000
 NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws
+NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp
 API_SECRET_KEY=<shared secret, must match the backend's APP_API_KEY>
 NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon key>
+SUPABASE_SERVICE_ROLE_KEY=<optional, local dev only — see below>
 ```
+
+`NEXT_PUBLIC_OCPP_SERVER_URL` is the public-facing OCPP endpoint charge points
+dial into, shown as-is on the in-app Configuration page — distinct from
+`NEXT_PUBLIC_WS_URL`, which is the dashboard's own status websocket.
 
 ## 🔐 Authentication
 

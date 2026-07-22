@@ -10,8 +10,8 @@ shows charge points and sites in real time, backed by `charge-points-server`.
 
 Stack: **Next.js 14 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
-`next-intl` for i18n. Dev server runs on **port 3001**. Domain types come from
-`@watchborne/charge-points-types`.
+`next-intl` for i18n, `sonner` for toast notifications. Dev server runs on
+**port 3001**. Domain types come from `@watchborne/charge-points-types`.
 
 ## Layout
 
@@ -19,13 +19,19 @@ Stack: **Next.js 14 (App Router)**, React 18, TypeScript (strict),
 app/
   (marketing)/          # public site (route group): home, pricing, contact, features
   app/                  # authenticated dashboard
-    dashboard/ charge-points/ sites/ configuration/   # pages
-    components/         # feature + common + layout components
+    dashboard/ sites/ configuration/   # pages (no local components/ subfolder)
+    charge-points/       # page + its own components/ (commissioning dialog/queue/
+                         #   checklist, fleet panel, config dialog, trigger message)
+    sites/components/    # page-scoped components: SiteFormDialog, SiteTable, ...
+    components/         # shared feature + common + layout components
+                        #   (common/Callout.tsx: default/info/error/warning/success)
     404/                 # dashboard-scoped not-found page
     hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
   components/layout/Navbar.tsx  # shared Navbar used by both the marketing
                                  #   Navbar and the dashboard Header
+  components/ToastNotification/  # stackable toast system (wraps sonner's Toaster;
+                                  #   bottom-center, 15s, dismissible, richColors)
   404/                   # top-level not-found page
   api/                   # Next route handlers that PROXY to the backend
   login/                 # login page (magic-link sign-in)
@@ -122,6 +128,13 @@ Use the existing `components/ui/*` shadcn primitives and `lib` helpers
 the shadcn CLI rather than hand-editing generated files. Style with Tailwind and
 the tokens in `app/design-system/tokens.css`.
 
+- `app/components/ToastNotification/` wraps `sonner`'s `Toaster` into the
+  dashboard-wide stackable toast system (bottom-center, 15s, dismissible,
+  `richColors`) — use it instead of adding another notification mechanism.
+- `app/app/components/common/Callout.tsx` is the shared inline-message
+  component (`default` / `info` / `error` / `warning` / `success` variants),
+  used both in the dashboard and on `/login` (e.g. `AuthErrorCallout`).
+
 ### i18n
 
 All user-facing strings go through `next-intl`. Default locale is **`fr`**;
@@ -155,7 +168,9 @@ npm run build
 npm run lint       # eslint .
 npm run typecheck  # tsc --noEmit
 npm test           # vitest run (test:watch to iterate)
+npm run test:ci    # vitest run
 npm run format     # prettier --write .
+npm run all-checks # scripts/all-checks.sh - runs the full CI suite locally
 ```
 
 CI (`.github/workflows/build-test-pull-request.yml`) runs lint/format,
@@ -171,17 +186,20 @@ bumping the `@watchborne/charge-points-types` version in `package.json`.
 ## Environment
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:3000   # backend base URL
-NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws    # dashboard WebSocket
-API_SECRET_KEY=<shared secret>               # SERVER-SIDE ONLY (x-api-key)
-NEXT_PUBLIC_SUPABASE_URL=<project url>       # Supabase Auth (public)
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>     # Supabase Auth (public)
+NEXT_PUBLIC_API_URL=http://localhost:3000        # backend base URL
+NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws         # dashboard WebSocket
+NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp  # public OCPP endpoint (Configuration page)
+API_SECRET_KEY=<shared secret>                    # SERVER-SIDE ONLY (x-api-key)
+NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)
+SUPABASE_SERVICE_ROLE_KEY=                        # optional, LOCAL DEV ONLY (dev-login shortcut)
 ```
 
 `NEXT_PUBLIC_*` values are exposed to the browser; anything secret (like
-`API_SECRET_KEY`) must stay unprefixed. The Supabase anon key is public by
-design (Row Level Security governs access), so it is `NEXT_PUBLIC_`. Both
-Supabase values are centralized in `lib/constants.ts` and consumed only through
+`API_SECRET_KEY` and `SUPABASE_SERVICE_ROLE_KEY`) must stay unprefixed. The
+Supabase anon key is public by design (Row Level Security governs access), so
+it is `NEXT_PUBLIC_`. `NEXT_PUBLIC_OCPP_SERVER_URL` and the Supabase values are
+centralized in `lib/constants.ts` and consumed only through
 `lib/supabase/{client,server,middleware}.ts`. See `.env.example`.
 
 ## Coding conventions
