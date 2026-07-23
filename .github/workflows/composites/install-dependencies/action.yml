@@ -24,10 +24,6 @@ runs:
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
 
-    - name: Get Node version
-      id: node-version
-      uses: ./.github/workflows/composites/get-node-version
-
     - name: Install dependencies
       run: npm ci
       env:

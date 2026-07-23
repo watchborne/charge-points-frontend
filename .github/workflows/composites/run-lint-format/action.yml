@@ -16,10 +16,6 @@ runs:
       with:
         npm-token: ${{ inputs.npm-token }}
 
-    - name: Get Node version
-      id: node-version
-      uses: ./.github/workflows/composites/get-node-version
-
     - name: Run lint
       run: npm run lint
       shell: bash
