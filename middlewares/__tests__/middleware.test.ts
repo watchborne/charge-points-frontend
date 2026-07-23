@@ -237,3 +237,35 @@ describe("locale resolution", () => {
     expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
   });
 });
+
+describe("Supabase session lookup scoping", () => {
+  it("SHOULD NOT hit Supabase for a public marketing page", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    await middleware(request("/pricing"));
+
+    // No Supabase client is constructed and no getUser round-trip happens for
+    // marketing routes — the whole point of the optimization.
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(getUser).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD hit Supabase for an /app route", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    await middleware(request("/app/dashboard"));
+
+    expect(getUser).toHaveBeenCalledTimes(1);
+  });
+
+  it("SHOULD hit Supabase for an /api route", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    await middleware(request("/api/charge-points"));
+
+    expect(getUser).toHaveBeenCalledTimes(1);
+  });
+});
