@@ -1,4 +1,4 @@
-import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
+import { AvailabilityType, ResetType, SampledValue, Site } from "@watchborne/charge-points-types";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import {
@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Trash2,
   Unlock,
+  Zap,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -102,6 +103,9 @@ const unlockConnectorErrorMessageKey = (httpStatus: number): string => {
       return "appPage.chargePoints.unlockConnector.result.genericError";
   }
 };
+
+const formatSampledValue = (sample: SampledValue): string =>
+  sample.unit ? `${sample.value} ${sample.unit}` : sample.value;
 
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
@@ -298,6 +302,25 @@ export const ChargePointDetailPanel = ({
                     </Button>
                   </div>
                 </div>
+                {connector.lastMeterValue && (
+                  <div
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                    title={t("appPage.chargePoints.detail.lastMeterValue")}
+                  >
+                    <Zap className="h-3 w-3 shrink-0" />
+                    <span>
+                      {connector.lastMeterValue.sampledValue.map(formatSampledValue).join(" · ")}
+                    </span>
+                    <span>
+                      (
+                      {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
+                        addSuffix: true,
+                        locale: enGB,
+                      })}
+                      )
+                    </span>
+                  </div>
+                )}
                 {state.status === "done" &&
                   (state.outcome.ok ? (
                     <p className="text-xs font-medium text-status-available-foreground">
