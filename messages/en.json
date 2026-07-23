@@ -465,6 +465,7 @@
       "detail": {
         "connectionStatus": "Connection status",
         "connector": "Connector #{connectorId}",
+        "lastMeterValue": "Last meter reading",
         "lastSeen": "Last seen",
         "never": "Never",
         "site": "Site",

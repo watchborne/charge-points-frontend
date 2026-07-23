@@ -16,9 +16,16 @@ runs:
       with:
         npm-token: ${{ inputs.npm-token }}
 
-    - name: Get Node version
-      id: node-version
-      uses: ./.github/workflows/composites/get-node-version
+    # Persist Next.js's incremental compiler cache between runs. A fresh entry
+    # is written per commit; restore-keys falls back to the most recent cache
+    # for the same lockfile, so unchanged modules are not recompiled.
+    - name: Cache Next.js build
+      uses: actions/cache@v4
+      with:
+        path: .next/cache
+        key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+        restore-keys: |
+          nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
 
     - name: Run build
       run: npm run build
