@@ -9,16 +9,7 @@ const { createBrowserClient, signOut } = vi.hoisted(() => {
   };
 });
 
-const { replace, refresh } = vi.hoisted(() => ({
-  replace: vi.fn(),
-  refresh: vi.fn(),
-}));
-
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace, refresh }),
-}));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => {
@@ -31,25 +22,36 @@ vi.mock("next-intl", () => ({
 
 import { LogoutButton } from "../LogoutButton";
 
+const assign = vi.fn();
+const originalLocation = window.location;
+
 beforeEach(() => {
   signOut.mockReset().mockResolvedValue({ error: null });
-  replace.mockReset();
-  refresh.mockReset();
+  assign.mockReset();
+  // jsdom's window.location.assign can't be spied on directly, so swap in a
+  // stub that records the navigation target.
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    value: { ...originalLocation, assign },
+  });
 });
 
 afterEach(() => {
   cleanup();
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    value: originalLocation,
+  });
 });
 
 describe("LogoutButton", () => {
-  it("SHOULD sign the user out and redirect to the homepage WHEN clicked", async () => {
+  it("SHOULD sign the user out and hard-reload to the homepage WHEN clicked", async () => {
     render(<LogoutButton />);
 
     fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
     await waitFor(() => expect(signOut).toHaveBeenCalled());
-    expect(replace).toHaveBeenCalledWith("/");
-    expect(refresh).toHaveBeenCalled();
+    await waitFor(() => expect(assign).toHaveBeenCalledWith("/"));
   });
 
   it("SHOULD disable the button WHILE logging out", async () => {
