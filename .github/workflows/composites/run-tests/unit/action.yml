@@ -22,10 +22,6 @@ runs:
       with:
         npm-token: ${{ inputs.npm-token }}
 
-    - name: Get Node version
-      id: node-version
-      uses: ./.github/workflows/composites/get-node-version
-
     - name: Run tests
       run: npm run test:ci
       shell: bash
