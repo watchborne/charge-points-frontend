@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { createClient } from "@/lib/supabase/server";
+
 import { API_URL } from "./constants";
 
 export async function proxyToBackend(
@@ -19,6 +21,18 @@ export async function proxyToBackend(
   const apiKey = process.env.API_SECRET_KEY;
   if (apiKey) {
     headers["x-api-key"] = apiKey;
+  }
+
+  // Forwards the signed-in caller's Supabase access token so the backend can
+  // resolve their per-user AccessScope (ADR 0002 in charge-points-server —
+  // multi-tenant access control). middleware.ts already guarantees a session
+  // exists for every /api/* request; the optional chaining just avoids a
+  // crash on the theoretical race of a token expiring between the two.
+  const {
+    data: { session },
+  } = await createClient().auth.getSession();
+  if (session?.access_token) {
+    headers["Authorization"] = `Bearer ${session.access_token}`;
   }
 
   const init: RequestInit = { method: request.method, headers };
