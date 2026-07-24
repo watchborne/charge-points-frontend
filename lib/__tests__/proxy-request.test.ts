@@ -7,6 +7,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // can be overridden per test without re-importing.
 const BACKEND_URL = "https://backend.test";
 
+const { getSession, createServerClient } = vi.hoisted(() => {
+  const getSession = vi.fn().mockResolvedValue({ data: { session: null } });
+  return { getSession, createServerClient: vi.fn(() => ({ auth: { getSession } })) };
+});
+
+// Both mocked specifiers are external/bare (@supabase/ssr, next/headers), not path
+// aliases — those are reliably intercepted, unlike "@/..." aliased mocks (see
+// app/auth/callback/__tests__/route.test.ts for the same pattern).
+vi.mock("@supabase/ssr", () => ({ createServerClient }));
+vi.mock("next/headers", () => ({
+  cookies: () => ({ getAll: () => [], set: vi.fn() }),
+}));
+
 const mockFetch = vi.fn();
 
 function backendResponse(body: string, status = 200) {
@@ -35,6 +48,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", mockFetch);
   vi.stubEnv("NEXT_PUBLIC_API_URL", BACKEND_URL);
   vi.stubEnv("API_SECRET_KEY", "secret-key");
+  getSession.mockReset().mockResolvedValue({ data: { session: null } });
 });
 
 afterEach(() => {
@@ -73,6 +87,24 @@ describe("proxyToBackend", () => {
       "Content-Type": "application/json",
       "x-api-key": "secret-key",
     });
+  });
+
+  it("SHOULD forward the caller's Supabase access token as an Authorization header", async () => {
+    getSession.mockResolvedValue({ data: { session: { access_token: "the-jwt" } } });
+    const proxyToBackend = await importProxy();
+
+    await proxyToBackend(requestOf("/api/charge-points"), "/api/charge-points");
+
+    expect(fetchCall().init.headers["Authorization"]).toBe("Bearer the-jwt");
+  });
+
+  it("SHOULD omit the Authorization header WHEN there is no session", async () => {
+    getSession.mockResolvedValue({ data: { session: null } });
+    const proxyToBackend = await importProxy();
+
+    await proxyToBackend(requestOf("/api/charge-points"), "/api/charge-points");
+
+    expect(fetchCall().init.headers["Authorization"]).toBeUndefined();
   });
 
   it("SHOULD omit the x-api-key header WHEN API_SECRET_KEY is not configured", async () => {
