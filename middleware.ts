@@ -16,6 +16,20 @@ const APP_HOSTS = ["app.watch-borne.com", "app.watchborne.netlify.app"];
 // with /app would 404.
 const APP_REWRITE_EXCLUDED_PREFIXES = ["/app", "/api", "/login", "/signup", "/auth"];
 
+// Production marketing hosts, mapped to their app.* counterpart. Any /app/* URL hit on
+// one of these is sent over to the dashboard subdomain instead of being served at the
+// /app-prefixed path (prod-only: localhost has no subdomain routing, so it never
+// matches this map).
+const MAIN_HOST_TO_APP_HOST: Record<string, string> = {
+  "watch-borne.com": "app.watch-borne.com",
+  "watchborne.netlify.app": "app.watchborne.netlify.app",
+};
+
+// The .fr domain is retired in favor of .com with the French locale forced; visitors
+// are redirected there permanently.
+const FR_HOST = "watch-borne.fr";
+const FR_REDIRECT_HOST = "watch-borne.com";
+
 function rewriteToAppTree(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   const { pathname } = request.nextUrl;
@@ -25,6 +39,35 @@ function rewriteToAppTree(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = `/app${pathname}`;
+  return url;
+}
+
+// Permanently moves .fr traffic to .com, forcing the French locale via the same
+// `?lang=` param the footer's LocaleSwitcher uses so `resolveLocale` picks it up
+// immediately and persists it to the NEXT_LOCALE cookie on the redirected request.
+function redirectFrHostToCom(request: NextRequest) {
+  if ((request.headers.get("host") ?? "") !== FR_HOST) return null;
+
+  const url = request.nextUrl.clone();
+  url.host = FR_REDIRECT_HOST;
+  url.port = "";
+  url.searchParams.set(LOCALE_QUERY_PARAM, "fr");
+  return url;
+}
+
+// Permanently sends any /app/* path hit on a production marketing host over to the
+// matching app.* subdomain, stripping the /app prefix (the counterpart of
+// `rewriteToAppTree`, which adds it back internally once a request lands there).
+function redirectAppPathToAppHost(request: NextRequest) {
+  const appHost = MAIN_HOST_TO_APP_HOST[request.headers.get("host") ?? ""];
+  const { pathname } = request.nextUrl;
+
+  if (!appHost || !(pathname === "/app" || pathname.startsWith("/app/"))) return null;
+
+  const url = request.nextUrl.clone();
+  url.host = appHost;
+  url.port = "";
+  url.pathname = pathname.slice("/app".length) || "/";
   return url;
 }
 
@@ -46,14 +89,19 @@ function resolveLocale(request: NextRequest) {
 }
 
 /**
- * Global middleware: resolves the locale for every matched request, rewrites
- * requests on the app.* subdomain into the /app route tree, and gates access to
- * the authenticated surface — refreshing the Supabase session as it does so.
+ * Global middleware: redirects retired/canonical hosts, resolves the locale for
+ * every matched request, rewrites requests on the app.* subdomain into the /app
+ * route tree, and gates access to the authenticated surface — refreshing the
+ * Supabase session as it does so.
  *
  * The Supabase session lookup (`getUser()`, a network round-trip) runs only for
  * the authenticated surface (`/api`, `/app`, `/login`, `/signup`); public
  * marketing pages skip it and just get locale + any app-host rewrite.
  *
+ * - `watch-borne.fr` is redirected (308) to `watch-borne.com` with `?lang=fr`
+ *   forced, and any `/app/*` path on a production marketing host is redirected
+ *   (308) to the matching `app.*` subdomain — see `redirectFrHostToCom` /
+ *   `redirectAppPathToAppHost`. Both run before anything else below.
  * - The locale comes from `resolveLocale` (see above). It's set on the
  *   request's cookies too (not just the response) so this request's RSC
  *   render picks it up immediately via `i18n/request.ts` — a cookie on the
@@ -74,6 +122,12 @@ function resolveLocale(request: NextRequest) {
  * session cookies, otherwise a token rotated during `getUser()` is lost.
  */
 export async function middleware(request: NextRequest) {
+  const frRedirectUrl = redirectFrHostToCom(request);
+  if (frRedirectUrl) return NextResponse.redirect(frRedirectUrl, 308);
+
+  const appPathRedirectUrl = redirectAppPathToAppHost(request);
+  if (appPathRedirectUrl) return NextResponse.redirect(appPathRedirectUrl, 308);
+
   const locale = resolveLocale(request);
   // Set on the request too (not just the response) so the current request's
   // RSC render picks it up immediately via `i18n/request.ts` — the cookie
