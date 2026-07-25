@@ -155,21 +155,99 @@ describe("app-host rewrite", () => {
   });
 });
 
+describe(".fr host redirect", () => {
+  it("SHOULD redirect to .com WHEN the host is watch-borne.fr", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.fr", "/pricing?ref=footer"));
+
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("http://watch-borne.com/pricing?ref=footer&lang=fr");
+  });
+
+  it("SHOULD override an existing lang param WHEN redirecting from watch-borne.fr", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.fr", "/?lang=en"));
+
+    expect(res.headers.get("location")).toBe("http://watch-borne.com/?lang=fr");
+  });
+
+  it("SHOULD NOT redirect WHEN the host is already watch-borne.com", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.com", "/pricing"));
+
+    expect(res.status).not.toBe(308);
+  });
+});
+
+describe("/app/* redirect to the app.* subdomain", () => {
+  it("SHOULD redirect to app.watch-borne.com WHEN /app/* is hit on watch-borne.com", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.com", "/app/dashboard?tab=1"));
+
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("http://app.watch-borne.com/dashboard?tab=1");
+  });
+
+  it("SHOULD redirect the bare /app path to the app host root", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.com", "/app"));
+
+    expect(res.headers.get("location")).toBe("http://app.watch-borne.com/");
+  });
+
+  it("SHOULD redirect to app.watchborne.netlify.app WHEN /app/* is hit on watchborne.netlify.app", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watchborne.netlify.app", "/app/sites"));
+
+    expect(res.headers.get("location")).toBe("http://app.watchborne.netlify.app/sites");
+  });
+
+  it("SHOULD NOT redirect a path that merely starts with /app WHEN it is not a real /app segment", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("watch-borne.com", "/apples"));
+
+    expect(res.status).not.toBe(308);
+  });
+
+  it("SHOULD NOT redirect /app/* WHEN the host is already an app.* subdomain", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(requestFromHost("app.watch-borne.com", "/app/dashboard"));
+
+    expect(res.status).not.toBe(308);
+  });
+
+  it("SHOULD NOT redirect /app/* WHEN the host is not a known production host (e.g. localhost)", async () => {
+    setUser({ id: "user-1" });
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(request("/app/dashboard"));
+
+    expect(res.status).not.toBe(308);
+  });
+});
+
 describe("locale resolution", () => {
   it("SHOULD default the NEXT_LOCALE cookie to fr WHEN there is no lang param or cookie", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
     const res = await middleware(request("/pricing"));
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
-  });
-
-  it("SHOULD set NEXT_LOCALE to fr WHEN the host is watch-borne.fr", async () => {
-    setUser({ id: "user-1" });
-    const { middleware } = await import("../../middleware");
-
-    const res = await middleware(requestFromHost("watch-borne.fr", "/"));
 
     expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
   });
