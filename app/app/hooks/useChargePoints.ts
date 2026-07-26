@@ -3,8 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 
 import { useToastNotification } from "@/app/components/ToastNotification";
 import { api } from "@/lib/api";
-import { isExpectedConnectorTransition } from "@/lib/connector-transitions";
-import { ChargePointWithConnectors } from "@/types/charge-point";
+import { ChargePointWithConnectors, isExpectedConnectorTransition } from "@/types/charge-point";
 
 import { useWebSocketContext } from "./useWebSocketContext";
 
