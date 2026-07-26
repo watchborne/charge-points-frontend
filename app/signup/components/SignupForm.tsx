@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Callout } from "@/app/app/components/common/Callout";
@@ -16,6 +16,7 @@ interface SignupFormProps {
 
 export function SignupForm({ onFormSubmitted }: SignupFormProps) {
   const t = useTranslations("");
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -34,6 +35,9 @@ export function SignupForm({ onFormSubmitted }: SignupFormProps) {
       password: crypto.randomUUID(),
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // Read by the "Confirm signup" email template (Supabase dashboard) as
+        // {{ .Data.locale }} to send the email in the user's current language.
+        data: { locale },
       },
     });
 
