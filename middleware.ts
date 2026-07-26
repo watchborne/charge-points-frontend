@@ -16,6 +16,12 @@ const APP_HOSTS = ["app.watch-borne.com", "app.watchborne.netlify.app"];
 // with /app would 404.
 const APP_REWRITE_EXCLUDED_PREFIXES = ["/app", "/api", "/login", "/signup", "/auth"];
 
+// API routes reachable without a Supabase session. The alpha access request is
+// submitted from /signup by an unauthenticated visitor, so its proxy route must
+// not be gated behind a session (it still forwards the shared API key to the
+// backend server-side).
+const PUBLIC_API_PATHS = ["/api/access-requests"];
+
 // Production marketing hosts, mapped to their app.* counterpart. Any /app/* URL hit on
 // one of these is sent over to the dashboard subdomain instead of being served at the
 // /app-prefixed path (prod-only: localhost has no subdomain routing, so it never
@@ -166,7 +172,7 @@ export async function middleware(request: NextRequest) {
   // Supabase that ran on *every* request, marketing pages included. They still
   // get locale resolution and, on an app.* host, the /app rewrite.
   const needsAuth =
-    pathname.startsWith("/api") ||
+    (pathname.startsWith("/api") && !PUBLIC_API_PATHS.includes(pathname)) ||
     pathname.startsWith("/app") ||
     pathname === "/login" ||
     pathname === "/signup";

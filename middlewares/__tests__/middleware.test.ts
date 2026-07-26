@@ -58,6 +58,17 @@ describe("middleware auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  it("SHOULD let the public /api/access-requests route through WHEN there is no session", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(request("/api/access-requests"));
+
+    // The alpha access request is submitted by an unauthenticated visitor, so
+    // this endpoint is exempt from the /api/* session gate (no 401).
+    expect(res.status).not.toBe(401);
+  });
+
   it("SHOULD redirect /app/* to /login WHEN there is no session", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
