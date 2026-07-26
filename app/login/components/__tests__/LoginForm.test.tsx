@@ -12,6 +12,7 @@ const { createBrowserClient, signInWithOtp } = vi.hoisted(() => {
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
       "loginPage.form.email": "Email address",
@@ -55,6 +56,7 @@ describe("LoginForm", () => {
       options: {
         shouldCreateUser: false,
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { locale: "fr" },
       },
     });
   });

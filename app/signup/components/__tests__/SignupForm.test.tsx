@@ -12,6 +12,7 @@ const { createBrowserClient, signUp } = vi.hoisted(() => {
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
       "signupPage.form.email": "Email address",
@@ -53,7 +54,10 @@ describe("SignupForm", () => {
     expect(call.email).toBe("user@example.com");
     expect(typeof call.password).toBe("string");
     expect(call.password.length).toBeGreaterThan(0);
-    expect(call.options).toEqual({ emailRedirectTo: `${window.location.origin}/auth/callback` });
+    expect(call.options).toEqual({
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
+      data: { locale: "fr" },
+    });
   });
 
   it("SHOULD show the translated error and stay on the form WHEN signUp fails", async () => {
