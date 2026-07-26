@@ -602,6 +602,9 @@
       "emptyState": {
         "noDetected": "Aucune borne de recharge détectée",
         "description": "Les bornes de recharge apparaîtront ici une fois connectées au serveur OCPP"
+      },
+      "anomalies": {
+        "unexpectedTransition": "{chargePointName} — connecteur #{connectorId} : transition inattendue ({from} → {to})"
       }
     },
     "sites": {

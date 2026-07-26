@@ -30,6 +30,16 @@ vi.mock("../app/hooks/useWebSocketContext", () => ({
   })),
 }));
 
+const mockPushWarningNotification = vi.fn();
+vi.mock("../../app/components/ToastNotification", () => ({
+  useToastNotification: vi.fn(() => ({
+    pushNotification: vi.fn(),
+    pushSuccessNotification: vi.fn(),
+    pushErrorNotification: vi.fn(),
+    pushWarningNotification: mockPushWarningNotification,
+  })),
+}));
+
 const mockGetChargePoints = vi.mocked(api.ChargePoints.getChargePoints);
 const mockUseWebSocketContext = vi.mocked(useWebSocketContext);
 
@@ -234,5 +244,109 @@ describe("useChargePoints", () => {
     await waitFor(() => {
       expect(mockGetChargePoints).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it("SHOULD push a warning toast WHEN a connector status transition is unexpected", async () => {
+    const chargePointWithConnector = createChargePoint({
+      id: "cp-1",
+      name: "Borne A",
+      connection: { status: "SYNCED", lastSeenAt: new Date() },
+      connectors: [
+        {
+          id: "connector-1",
+          chargePointId: "cp-1",
+          connectorId: 1,
+          status: "Faulted",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+      ],
+    });
+    mockGetChargePoints.mockResolvedValue([chargePointWithConnector]);
+
+    const { result, rerender } = renderHook(() => useChargePoints());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    mockUseWebSocketContext.mockReturnValue({
+      lastMessage: {
+        type: "CHARGE_POINT_MONITORING",
+        payload: {
+          chargePoint: {
+            ...chargePointWithConnector,
+            connectors: [{ ...chargePointWithConnector.connectors[0], status: "Charging" }],
+          },
+        },
+        timestamp: Date.now().toString(),
+      },
+      messages: [],
+      status: "CONNECTED",
+      sendMessage: vi.fn(),
+      reconnect: vi.fn(),
+      clearMessages: vi.fn(),
+    });
+
+    rerender();
+
+    await waitFor(() => {
+      expect(result.current.chargePoints[0].connectors[0].status).toBe("Charging");
+    });
+
+    expect(mockPushWarningNotification).toHaveBeenCalledTimes(1);
+  });
+
+  it("SHOULD NOT push a warning toast WHEN a connector status transition is expected", async () => {
+    const chargePointWithConnector = createChargePoint({
+      id: "cp-1",
+      name: "Borne A",
+      connection: { status: "SYNCED", lastSeenAt: new Date() },
+      connectors: [
+        {
+          id: "connector-1",
+          chargePointId: "cp-1",
+          connectorId: 1,
+          status: "Available",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+      ],
+    });
+    mockGetChargePoints.mockResolvedValue([chargePointWithConnector]);
+
+    const { result, rerender } = renderHook(() => useChargePoints());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    mockUseWebSocketContext.mockReturnValue({
+      lastMessage: {
+        type: "CHARGE_POINT_MONITORING",
+        payload: {
+          chargePoint: {
+            ...chargePointWithConnector,
+            connectors: [{ ...chargePointWithConnector.connectors[0], status: "Preparing" }],
+          },
+        },
+        timestamp: Date.now().toString(),
+      },
+      messages: [],
+      status: "CONNECTED",
+      sendMessage: vi.fn(),
+      reconnect: vi.fn(),
+      clearMessages: vi.fn(),
+    });
+
+    rerender();
+
+    await waitFor(() => {
+      expect(result.current.chargePoints[0].connectors[0].status).toBe("Preparing");
+    });
+
+    expect(mockPushWarningNotification).not.toHaveBeenCalled();
   });
 });

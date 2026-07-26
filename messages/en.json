@@ -602,6 +602,9 @@
       "emptyState": {
         "noDetected": "No detected charge points",
         "description": "Charge points will appear here once connected to the OCPP server"
+      },
+      "anomalies": {
+        "unexpectedTransition": "{chargePointName} — connector #{connectorId}: unexpected transition ({from} → {to})"
       }
     },
     "sites": {
