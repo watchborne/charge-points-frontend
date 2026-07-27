@@ -50,6 +50,7 @@ types/                  # thin re-exports of @watchborne/charge-points-types
 i18n/locale.ts          # Locale type, defaultLocale, localeForHost (edge-safe)
 i18n/request.ts         # next-intl config (locale from NEXT_LOCALE cookie)
 messages/{fr,en}.json   # translations
+emails/templates/       # Supabase auth email templates (magic-link.html, signup.html)
 ```
 
 ## Core patterns — follow these
@@ -92,7 +93,11 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   code for a session (`exchangeCodeForSession`) and redirects into
   `/app/dashboard`. Do not use the old `verifyOtp`/token-hash approach — the
   callback contract is code-exchange only.
-- `middleware.ts` runs on every request: it refreshes the Supabase session via
+- `middleware.ts` runs on every request: it redirects the retired
+  `watch-borne.fr` host permanently to `watch-borne.com` (forcing the `fr`
+  locale via `?lang=`), redirects any `/app/*` path hit on a production
+  marketing host (`watch-borne.com`, `watchborne.netlify.app`) over to its
+  `app.*` subdomain counterpart, refreshes the Supabase session via
   `lib/supabase/middleware.ts`, then gates `/app/*` and `/api/*` behind a valid
   session (redirecting to `/login`, or returning 401 for `/api/*`). It also
   rewrites `app.*` production hosts into the `/app` route tree — `/app`, `/api`,
@@ -142,10 +147,12 @@ supported locales are `fr` and `en`. `middleware.ts`'s `resolveLocale` picks the
 active locale with this precedence: an explicit `?lang=` query param (the
 footer's `LocaleSwitcher` component and shared links use this to force a
 locale) > the persisted `NEXT_LOCALE` cookie > the host's TLD on a first-time
-visit (`localeForHost`: `.fr` -> fr, `.com` -> en, else the default), so
-`watch-borne.fr` and `watch-borne.com` load the right language by default. The
-resolved locale is written back to the cookie on every request. Add keys to
-**both** `messages/fr.json` and `messages/en.json`.
+visit (`localeForHost`: `.fr` -> fr, `.com` -> en, else the default). In
+practice `watch-borne.fr` is retired and permanently redirected to
+`watch-borne.com?lang=fr` by `middleware.ts` before locale resolution runs (see
+the Authentication section above), so the TLD branch only still matters for
+`.com`/other hosts. The resolved locale is written back to the cookie on every
+request. Add keys to **both** `messages/fr.json` and `messages/en.json`.
 
 **Translation usage pattern:**
 
@@ -165,11 +172,12 @@ export NPM_TOKEN=<token>   # required to install @watchborne/* from the GH regis
 npm install
 npm run dev        # next dev on http://localhost:3001
 npm run build
-npm run lint       # eslint .
+npm run start      # next start (serves the production build)
+npm run lint       # eslint . (lint:fix to autofix)
 npm run typecheck  # tsc --noEmit
 npm test           # vitest run (test:watch to iterate)
 npm run test:ci    # vitest run
-npm run format     # prettier --write .
+npm run format     # prettier --write . (format:check to verify only)
 npm run all-checks # scripts/all-checks.sh - runs the full CI suite locally
 ```
 
