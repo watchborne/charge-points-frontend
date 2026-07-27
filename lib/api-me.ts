@@ -1,4 +1,4 @@
-import { Customer } from "@watchborne/charge-points-types";
+import { ChargePoint } from "@watchborne/charge-points-types";
 
 import { httpClient } from "./http-client";
 
@@ -7,7 +7,7 @@ import { httpClient } from "./http-client";
 // that route's schemas.ts for the same reasoning server-side).
 export type Me = {
   userId: string;
-  customers: Customer[];
+  chargePoints: ChargePoint[];
 };
 
 export const meApis = {
