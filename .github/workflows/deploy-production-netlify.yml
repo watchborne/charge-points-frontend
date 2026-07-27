@@ -22,11 +22,15 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+
+    if: github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url: https://watch-borne.com
+
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.ref }}
 
       - name: Install dependencies
         uses: ./.github/workflows/composites/install-dependencies
@@ -59,4 +63,15 @@ jobs:
             echo "|---|---|"
             echo "| Ref | \`${{ inputs.ref }}\` |"
             echo "| URL | ${{ steps.netlify.outputs.url }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Deployment summary
+        run: |
+          {
+            echo "## Production deployment"
+            echo ""
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Branch: \`${{ github.ref_name }}\`"
+            echo "- Actor: @${{ github.actor }}"
+            echo "- URL: https://watch-borne.com"
           } >> "$GITHUB_STEP_SUMMARY"
