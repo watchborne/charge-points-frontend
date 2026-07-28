@@ -1,15 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createBrowserClient, signUp } = vi.hoisted(() => {
-  const signUp = vi.fn();
-  return {
-    signUp,
-    createBrowserClient: vi.fn(() => ({ auth: { signUp } })),
-  };
-});
+const { requestAccess } = vi.hoisted(() => ({ requestAccess: vi.fn() }));
 
-vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
+vi.mock("../../../../lib/api", () => ({
+  api: { AccessRequests: { requestAccess } },
+}));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
@@ -17,8 +13,8 @@ vi.mock("next-intl", () => ({
     const translations: Record<string, string> = {
       "signupPage.form.email": "Email address",
       "signupPage.form.emailPlaceholder": "you@example.com",
-      "signupPage.form.submit": "Sign up",
-      "signupPage.confirmation.error": "Couldn't create your account. Please try again.",
+      "signupPage.form.submit": "Request access",
+      "signupPage.confirmation.error": "Couldn't submit your request. Please try again.",
     };
     return translations[key] ?? key;
   },
@@ -28,8 +24,15 @@ import { SignupForm } from "../SignupForm";
 
 const onFormSubmitted = vi.fn();
 
+const submit = () => {
+  fireEvent.change(screen.getByLabelText("Email address"), {
+    target: { value: "user@example.com" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Request access" }));
+};
+
 beforeEach(() => {
-  signUp.mockReset();
+  requestAccess.mockReset();
   onFormSubmitted.mockReset();
 });
 
@@ -38,62 +41,44 @@ afterEach(() => {
 });
 
 describe("SignupForm", () => {
-  it("SHOULD sign the user up and notify the parent WHEN the form is submitted", async () => {
-    signUp.mockResolvedValue({ error: null });
+  it("SHOULD submit the access request and notify the parent WHEN the form is submitted", async () => {
+    requestAccess.mockResolvedValue(undefined);
     render(<SignupForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "user@example.com" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
+    submit();
 
     await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
-
-    expect(signUp).toHaveBeenCalledTimes(1);
-    const call = signUp.mock.calls[0][0];
-    expect(call.email).toBe("user@example.com");
-    expect(typeof call.password).toBe("string");
-    expect(call.password.length).toBeGreaterThan(0);
-    expect(call.options).toEqual({
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
-      data: { locale: "fr" },
-    });
+    expect(requestAccess).toHaveBeenCalledWith({ email: "user@example.com", locale: "fr" });
   });
 
-  it("SHOULD show the translated error and stay on the form WHEN signUp fails", async () => {
-    signUp.mockResolvedValue({ error: { message: "boom" } });
+  it("SHOULD show the translated error and stay on the form WHEN the request fails", async () => {
+    requestAccess.mockRejectedValue(new Error("HTTP error! status: 500"));
     render(<SignupForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "user@example.com" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
+    submit();
 
     await waitFor(() =>
-      expect(screen.getByText("Couldn't create your account. Please try again.")).toBeTruthy(),
+      expect(screen.getByText("Couldn't submit your request. Please try again.")).toBeTruthy(),
     );
     expect(onFormSubmitted).not.toHaveBeenCalled();
   });
 
   it("SHOULD disable the submit button WHILE the request is in flight", async () => {
-    let resolveSignUp: (value: { error: null }) => void = () => {};
-    signUp.mockReturnValue(
+    let resolveRequest: (value: undefined) => void = () => {};
+    requestAccess.mockReturnValue(
       new Promise((resolve) => {
-        resolveSignUp = resolve;
+        resolveRequest = resolve;
       }),
     );
     render(<SignupForm onFormSubmitted={onFormSubmitted} />);
 
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "user@example.com" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
+    submit();
 
-    expect((screen.getByRole("button", { name: "Sign up" }) as HTMLButtonElement).disabled).toBe(
-      true,
-    );
+    expect(
+      (screen.getByRole("button", { name: "Request access" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
 
-    resolveSignUp({ error: null });
+    resolveRequest(undefined);
     await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
   });
 });
