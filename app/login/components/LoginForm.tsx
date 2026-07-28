@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Callout } from "@/app/app/components/common/Callout";
@@ -16,6 +16,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onFormSubmitted }: LoginFormProps) {
   const t = useTranslations("");
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<"unknown-user" | "generic" | null>(null);
@@ -35,6 +36,9 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
       options: {
         shouldCreateUser: false,
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // Read by the "Magic Link" email template (Supabase dashboard) as
+        // {{ .Data.locale }} to send the email in the user's current language.
+        data: { locale },
       },
     });
 

@@ -289,16 +289,16 @@
   "signupPage": {
     "alphaBadge": "ALPHA",
     "title": "Rejoignez l'Alpha.",
-    "subtitle": "Inscrivez-vous pour accéder à votre espace de supervision des bornes de recharge.",
+    "subtitle": "Demandez un accès à votre espace de supervision des bornes de recharge.",
     "form": {
       "email": "Adresse email",
       "emailPlaceholder": "vous@exemple.com",
-      "submit": "S'inscrire"
+      "submit": "Demander un accès"
     },
     "confirmation": {
-      "calloutTitle": "Vérifiez votre boîte mail",
-      "calloutDescription": "Un email de confirmation a été envoyé à <link>link</link>. Cliquez sur le lien pour activer votre accès Alpha.",
-      "error": "Impossible de créer votre compte. Veuillez réessayer."
+      "calloutTitle": "Demande enregistrée",
+      "calloutDescription": "Votre demande d'accès à l'Alpha pour <link>link</link> a bien été enregistrée. Nous vous contacterons par email dès qu'elle sera validée.",
+      "error": "Impossible d'enregistrer votre demande. Veuillez réessayer."
     },
     "hasAccount": {
       "text": "Vous avez déjà un accès ?",
@@ -602,6 +602,9 @@
       "emptyState": {
         "noDetected": "Aucune borne de recharge détectée",
         "description": "Les bornes de recharge apparaîtront ici une fois connectées au serveur OCPP"
+      },
+      "anomalies": {
+        "unexpectedTransition": "{chargePointName} — connecteur #{connectorId} : transition inattendue ({from} → {to})"
       }
     },
     "sites": {
