@@ -42,8 +42,8 @@ app/
   design-system/         # tokens.css (Tailwind design tokens)
   assets/                # static assets used by app/ components
 middleware.ts           # Supabase session refresh, locale resolution
-                        # (?lang= > cookie > host), app.* subdomain rewrite,
-                        # and auth guard for /app, /api, /login, /signup
+                        # (?lang= > cookie > host), and auth guard for
+                        # /app, /api, /login, /signup
 components/ui/          # shadcn/ui primitives (generated; edit via components.json)
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
@@ -95,14 +95,11 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   callback contract is code-exchange only.
 - `middleware.ts` runs on every request: it redirects the retired
   `watch-borne.fr` host permanently to `watch-borne.com` (forcing the `fr`
-  locale via `?lang=`), redirects any `/app/*` path hit on a production
-  marketing host (`watch-borne.com`, `watchborne.netlify.app`) over to its
-  `app.*` subdomain counterpart, refreshes the Supabase session via
+  locale via `?lang=`), refreshes the Supabase session via
   `lib/supabase/middleware.ts`, then gates `/app/*` and `/api/*` behind a valid
-  session (redirecting to `/login`, or returning 401 for `/api/*`). It also
-  rewrites `app.*` production hosts into the `/app` route tree — `/app`, `/api`,
-  `/login`, `/signup`, and `/auth` are excluded from that rewrite since they
-  don't live under `app/app/`.
+  session (redirecting to `/login`, or returning 401 for `/api/*`). There is no
+  `app.*` subdomain routing — `/app/*` is served at that path on the main host
+  in every environment.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
   server component, middleware). `lib/supabase/admin.ts` is the one exception:
