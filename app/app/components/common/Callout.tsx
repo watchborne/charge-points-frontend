@@ -24,9 +24,9 @@ export const Callout = ({
     if (icon) return icon;
 
     if (variant !== "default") {
-      if (variant === "error") return <AlertCircle />;
-      if (variant === "warning") return <AlertTriangle />;
-      if (variant === "success") return <CheckCircle />;
+      if (variant === "error") return <AlertCircle className="h-full w-full" />;
+      if (variant === "warning") return <AlertTriangle className="h-full w-full" />;
+      if (variant === "success") return <CheckCircle className="h-full w-full" />;
     }
 
     return undefined;
@@ -36,7 +36,7 @@ export const Callout = ({
     <aside
       className={classNames(
         className,
-        "rounded-lg border p-4",
+        "rounded-lg border px-3 py-2",
         variant === "info" &&
           "bg-status-charging-soft border-status-charging/20 text-status-charging-foreground",
         variant === "success" &&
@@ -47,12 +47,12 @@ export const Callout = ({
           "bg-status-warning-soft border-status-warning/20 text-status-warning-foreground",
       )}
     >
-      <div className="flex items-center gap-5">
-        {calloutIcon && <div className="h-5 w-5">{calloutIcon}</div>}
+      <div className="flex items-center gap-3">
+        {calloutIcon && <div className="h-4 w-4">{calloutIcon}</div>}
         {children ?? (
-          <div className="flex flex-col gap-1 content-stretch">
-            {title && <h4 className="title-m font-bold">{title}</h4>}
-            {description && <p className="body-m font-tiny">{description}</p>}
+          <div className="flex flex-col gap-0.5 content-stretch">
+            {title && <h4 className="text-m font-bold">{title}</h4>}
+            {description && <p className="text-sm">{description}</p>}
           </div>
         )}
       </div>
