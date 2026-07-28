@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type ToastNotificationType = "success" | "error";
+export type ToastNotificationType = "success" | "error" | "warning";
 
 export interface ToastNotificationOptions {
   dismissible?: boolean;
@@ -25,6 +25,11 @@ export interface ToastNotificationApi {
   ) => string | number;
 
   pushErrorNotification: (
+    content: ToastNotificationContent,
+    options?: ToastNotificationOptions,
+  ) => string | number;
+
+  pushWarningNotification: (
     content: ToastNotificationContent,
     options?: ToastNotificationOptions,
   ) => string | number;

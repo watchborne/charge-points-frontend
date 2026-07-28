@@ -289,16 +289,16 @@
   "signupPage": {
     "alphaBadge": "ALPHA",
     "title": "Join the Alpha.",
-    "subtitle": "Sign up to access your EV charge point monitoring dashboard.",
+    "subtitle": "Request access to your EV charge point monitoring dashboard.",
     "form": {
       "email": "Email address",
       "emailPlaceholder": "you@example.com",
-      "submit": "Sign up"
+      "submit": "Request access"
     },
     "confirmation": {
-      "calloutTitle": "Check your inbox",
-      "calloutDescription": "A confirmation email has been sent to <link>link</link>. Click the link to activate your Alpha access.",
-      "error": "Couldn't create your account. Please try again."
+      "calloutTitle": "Request received",
+      "calloutDescription": "Your Alpha access request for <link>link</link> has been received. We'll email you as soon as it's approved.",
+      "error": "Couldn't submit your request. Please try again."
     },
     "hasAccount": {
       "text": "Already have access?",
@@ -602,6 +602,9 @@
       "emptyState": {
         "noDetected": "No detected charge points",
         "description": "Charge points will appear here once connected to the OCPP server"
+      },
+      "anomalies": {
+        "unexpectedTransition": "{chargePointName} — connector #{connectorId}: unexpected transition ({from} → {to})"
       }
     },
     "sites": {

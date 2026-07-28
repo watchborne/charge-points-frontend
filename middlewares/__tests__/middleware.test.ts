@@ -58,6 +58,17 @@ describe("middleware auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  it("SHOULD let the public /api/access-requests route through WHEN there is no session", async () => {
+    setUser(null);
+    const { middleware } = await import("../../middleware");
+
+    const res = await middleware(request("/api/access-requests"));
+
+    // The alpha access request is submitted by an unauthenticated visitor, so
+    // this endpoint is exempt from the /api/* session gate (no 401).
+    expect(res.status).not.toBe(401);
+  });
+
   it("SHOULD redirect /app/* to /login WHEN there is no session", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
@@ -97,61 +108,33 @@ describe("middleware auth guard", () => {
   });
 });
 
-describe("app-host rewrite", () => {
-  it("SHOULD rewrite a bare path into /app/* WHEN the host is app.*", async () => {
-    setUser({ id: "user-1" });
-    const { middleware } = await import("../../middleware");
-
-    const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
-
-    expect(new URL(res.headers.get("x-middleware-rewrite")!).pathname).toBe("/app/dashboard");
-  });
-
-  it("SHOULD redirect the rewritten path to /login WHEN there is no session", async () => {
+describe(".fr host redirect", () => {
+  it("SHOULD redirect to .com WHEN the host is watch-borne.fr", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
-    const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
+    const res = await middleware(requestFromHost("watch-borne.fr", "/pricing?ref=footer"));
 
-    expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe("http://localhost:3001/login");
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("http://watch-borne.com/pricing?ref=footer&lang=fr");
   });
 
-  it("SHOULD NOT double-prefix a path WHEN it already starts with /app", async () => {
-    setUser({ id: "user-1" });
-    const { middleware } = await import("../../middleware");
-
-    const res = await middleware(requestFromHost("app.watch-borne.com", "/app/dashboard"));
-
-    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
-  });
-
-  it("SHOULD NOT rewrite /api WHEN the host is app.* (API routes live outside app/app/)", async () => {
-    setUser({ id: "user-1" });
-    const { middleware } = await import("../../middleware");
-
-    const res = await middleware(requestFromHost("app.watch-borne.com", "/api/charge-points"));
-
-    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
-    expect(res.status).not.toBe(401);
-  });
-
-  it("SHOULD NOT rewrite /login WHEN the host is app.*", async () => {
+  it("SHOULD override an existing lang param WHEN redirecting from watch-borne.fr", async () => {
     setUser(null);
     const { middleware } = await import("../../middleware");
 
-    const res = await middleware(requestFromHost("app.watch-borne.com", "/login"));
+    const res = await middleware(requestFromHost("watch-borne.fr", "/?lang=en"));
 
-    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    expect(res.headers.get("location")).toBe("http://watch-borne.com/?lang=fr");
   });
 
-  it("SHOULD NOT rewrite paths WHEN the host is not an app.* host", async () => {
+  it("SHOULD NOT redirect WHEN the host is already watch-borne.com", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
-    const res = await middleware(requestFromHost("watch-borne.com", "/dashboard"));
+    const res = await middleware(requestFromHost("watch-borne.com", "/pricing"));
 
-    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    expect(res.status).not.toBe(308);
   });
 });
 
@@ -165,29 +148,11 @@ describe("locale resolution", () => {
     expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
   });
 
-  it("SHOULD set NEXT_LOCALE to fr WHEN the host is watch-borne.fr", async () => {
-    setUser({ id: "user-1" });
-    const { middleware } = await import("../../middleware");
-
-    const res = await middleware(requestFromHost("watch-borne.fr", "/"));
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
-  });
-
   it("SHOULD set NEXT_LOCALE to en WHEN the host is watch-borne.com", async () => {
     setUser({ id: "user-1" });
     const { middleware } = await import("../../middleware");
 
     const res = await middleware(requestFromHost("watch-borne.com", "/"));
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
-  });
-
-  it("SHOULD set NEXT_LOCALE to en WHEN the host is the app.*.com subdomain", async () => {
-    setUser({ id: "user-1" });
-    const { middleware } = await import("../../middleware");
-
-    const res = await middleware(requestFromHost("app.watch-borne.com", "/dashboard"));
 
     expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
   });
