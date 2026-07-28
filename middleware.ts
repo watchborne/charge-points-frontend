@@ -5,48 +5,16 @@ import { createClient } from "@/lib/supabase/middleware";
 
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
-// Hosts that serve the authenticated dashboard at the bare path (e.g.
-// app.watch-borne.com/dashboard) instead of the /app-prefixed path used
-// everywhere else (e.g. watch-borne.com/app/dashboard, or localhost:3001/app/dashboard
-// in local dev — there is no subdomain routing locally, so this list is prod-only).
-const APP_HOSTS = ["app.watch-borne.com", "app.watchborne.netlify.app"];
-
-// Routes that must stay reachable unprefixed even on an APP_HOSTS request: API routes,
-// the login page, and the auth callback all live outside app/app/, so prefixing them
-// with /app would 404.
-const APP_REWRITE_EXCLUDED_PREFIXES = ["/app", "/api", "/login", "/signup", "/auth"];
-
 // API routes reachable without a Supabase session. The alpha access request is
 // submitted from /signup by an unauthenticated visitor, so its proxy route must
 // not be gated behind a session (it still forwards the shared API key to the
 // backend server-side).
 const PUBLIC_API_PATHS = ["/api/access-requests"];
 
-// Production marketing hosts, mapped to their app.* counterpart. Any /app/* URL hit on
-// one of these is sent over to the dashboard subdomain instead of being served at the
-// /app-prefixed path (prod-only: localhost has no subdomain routing, so it never
-// matches this map).
-const MAIN_HOST_TO_APP_HOST: Record<string, string> = {
-  "watch-borne.com": "app.watch-borne.com",
-  "watchborne.netlify.app": "app.watchborne.netlify.app",
-};
-
 // The .fr domain is retired in favor of .com with the French locale forced; visitors
 // are redirected there permanently.
 const FR_HOST = "watch-borne.fr";
 const FR_REDIRECT_HOST = "watch-borne.com";
-
-function rewriteToAppTree(request: NextRequest) {
-  const host = request.headers.get("host") ?? "";
-  const { pathname } = request.nextUrl;
-
-  if (!APP_HOSTS.includes(host)) return null;
-  if (APP_REWRITE_EXCLUDED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return null;
-
-  const url = request.nextUrl.clone();
-  url.pathname = `/app${pathname}`;
-  return url;
-}
 
 // Permanently moves .fr traffic to .com, forcing the French locale via the same
 // `?lang=` param the footer's LocaleSwitcher uses so `resolveLocale` picks it up
@@ -58,22 +26,6 @@ function redirectFrHostToCom(request: NextRequest) {
   url.host = FR_REDIRECT_HOST;
   url.port = "";
   url.searchParams.set(LOCALE_QUERY_PARAM, "fr");
-  return url;
-}
-
-// Permanently sends any /app/* path hit on a production marketing host over to the
-// matching app.* subdomain, stripping the /app prefix (the counterpart of
-// `rewriteToAppTree`, which adds it back internally once a request lands there).
-function redirectAppPathToAppHost(request: NextRequest) {
-  const appHost = MAIN_HOST_TO_APP_HOST[request.headers.get("host") ?? ""];
-  const { pathname } = request.nextUrl;
-
-  if (!appHost || !(pathname === "/app" || pathname.startsWith("/app/"))) return null;
-
-  const url = request.nextUrl.clone();
-  url.host = appHost;
-  url.port = "";
-  url.pathname = pathname.slice("/app".length) || "/";
   return url;
 }
 
@@ -96,29 +48,23 @@ function resolveLocale(request: NextRequest) {
 
 /**
  * Global middleware: redirects retired/canonical hosts, resolves the locale for
- * every matched request, rewrites requests on the app.* subdomain into the /app
- * route tree, and gates access to the authenticated surface — refreshing the
- * Supabase session as it does so.
+ * every matched request, and gates access to the authenticated surface —
+ * refreshing the Supabase session as it does so.
  *
  * The Supabase session lookup (`getUser()`, a network round-trip) runs only for
  * the authenticated surface (`/api`, `/app`, `/login`, `/signup`); public
- * marketing pages skip it and just get locale + any app-host rewrite.
+ * marketing pages skip it and just get locale resolution.
  *
  * - `watch-borne.fr` is redirected (308) to `watch-borne.com` with `?lang=fr`
- *   forced, and any `/app/*` path on a production marketing host is redirected
- *   (308) to the matching `app.*` subdomain — see `redirectFrHostToCom` /
- *   `redirectAppPathToAppHost`. Both run before anything else below.
+ *   forced — see `redirectFrHostToCom`. This runs before anything else below.
  * - The locale comes from `resolveLocale` (see above). It's set on the
  *   request's cookies too (not just the response) so this request's RSC
  *   render picks it up immediately via `i18n/request.ts` — a cookie on the
  *   response alone only applies from the next request onward. The response
  *   cookie is refreshed on every request so a `?lang=` switch (or a
  *   first-visit host guess) persists.
- * - On an app.* host, a bare path like `/dashboard` is served from `/app/dashboard`
- *   (see `APP_HOSTS` / `rewriteToAppTree`). `/api`, `/login`, and `/auth` are never
- *   rewritten since they don't live under `app/app/`.
- * - `/app/*` (after any rewrite) — requires a session; unauthenticated users are
- *   redirected to `/login`.
+ * - `/app/*` — requires a session; unauthenticated users are redirected to
+ *   `/login`.
  * - `/api/*` — requires a session; unauthenticated callers get 401. These routes
  *   proxy to the backend with the shared API key (`lib/proxy-request.ts`), so they
  *   must never be reachable without a user session.
@@ -131,9 +77,6 @@ export async function middleware(request: NextRequest) {
   const frRedirectUrl = redirectFrHostToCom(request);
   if (frRedirectUrl) return NextResponse.redirect(frRedirectUrl, 308);
 
-  const appPathRedirectUrl = redirectAppPathToAppHost(request);
-  if (appPathRedirectUrl) return NextResponse.redirect(appPathRedirectUrl, 308);
-
   const locale = resolveLocale(request);
   // Set on the request too (not just the response) so the current request's
   // RSC render picks it up immediately via `i18n/request.ts` — the cookie
@@ -141,8 +84,7 @@ export async function middleware(request: NextRequest) {
   // request onward.
   request.cookies.set(LOCALE_COOKIE_NAME, locale);
 
-  const rewrittenUrl = rewriteToAppTree(request);
-  const pathname = rewrittenUrl ? rewrittenUrl.pathname : request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
 
   const setLocaleCookie = (response: NextResponse) => {
     response.cookies.set(LOCALE_COOKIE_NAME, locale, {
@@ -170,7 +112,7 @@ export async function middleware(request: NextRequest) {
   // Only the authenticated surface needs a Supabase session lookup. Public
   // marketing pages skip `supabase.auth.getUser()` — a network round-trip to
   // Supabase that ran on *every* request, marketing pages included. They still
-  // get locale resolution and, on an app.* host, the /app rewrite.
+  // get locale resolution.
   const needsAuth =
     (pathname.startsWith("/api") && !PUBLIC_API_PATHS.includes(pathname)) ||
     pathname.startsWith("/app") ||
@@ -178,10 +120,7 @@ export async function middleware(request: NextRequest) {
     pathname === "/signup";
 
   if (!needsAuth) {
-    const response = rewrittenUrl
-      ? NextResponse.rewrite(rewrittenUrl, { request })
-      : NextResponse.next({ request });
-    return setLocaleCookie(response);
+    return setLocaleCookie(NextResponse.next({ request }));
   }
 
   const { supabase, supabaseResponse } = createClient(request);
@@ -214,10 +153,6 @@ export async function middleware(request: NextRequest) {
 
   if ((pathname === "/login" || pathname === "/signup") && user) {
     return redirectTo("/app/dashboard");
-  }
-
-  if (rewrittenUrl) {
-    return withSessionCookies(NextResponse.rewrite(rewrittenUrl, { request }));
   }
 
   return withSessionCookies(supabaseResponse);
