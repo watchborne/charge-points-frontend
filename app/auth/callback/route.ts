@@ -11,14 +11,20 @@ import { createClient } from "@/lib/supabase/server";
  *
  * Any failure falls back to /login; there's no session to guard against at that
  * point, so the middleware would bounce an unauthenticated /app/dashboard visit
- * there anyway. When the link itself is expired/already-used, Supabase's hosted
- * verify step never reaches us with a `code` — it redirects straight here with
- * `error`/`error_code`/`error_description` instead, which we forward onto /login
- * so `AuthErrorCallout` can explain the failure instead of failing silently.
+ * there anyway. Two distinct failure sources are forwarded as `error_code` so
+ * `AuthErrorCallout` can explain them instead of failing silently:
+ * - Supabase's hosted verify step rejecting an expired/already-used link never
+ *   reaches us with a `code` at all — it redirects straight here with
+ *   `error`/`error_code`/`error_description` instead, which we pass through.
+ * - `exchangeCodeForSession` itself failing (most commonly: the link was opened
+ *   in a different browser/profile than the one that requested it, so the PKCE
+ *   `code_verifier` cookie set by `signInWithOtp` isn't present) — we map that
+ *   to our own `exchange_failed` marker, distinct from Supabase's own codes.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  let errorCode = searchParams.get("error_code");
 
   if (code) {
     const supabase = await createClient();
@@ -27,10 +33,11 @@ export async function GET(request: NextRequest) {
     if (!error) {
       return NextResponse.redirect(`${origin}/app/dashboard`);
     }
+
+    errorCode = "exchange_failed";
   }
 
   const loginUrl = new URL("/login", origin);
-  const errorCode = searchParams.get("error_code");
   if (errorCode) {
     loginUrl.searchParams.set("error_code", errorCode);
   }

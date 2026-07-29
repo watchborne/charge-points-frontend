@@ -17,7 +17,9 @@ function AuthErrorCalloutContent() {
   const description =
     errorCode === "otp_expired"
       ? t("loginPage.authError.otpExpired")
-      : t("loginPage.authError.generic");
+      : errorCode === "exchange_failed"
+        ? t("loginPage.authError.exchangeFailed")
+        : t("loginPage.authError.generic");
 
   return <Callout variant="error" description={description} />;
 }
