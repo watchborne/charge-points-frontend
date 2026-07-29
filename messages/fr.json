@@ -266,6 +266,7 @@
     },
     "authError": {
       "otpExpired": "Ce lien de connexion a expiré ou a déjà été utilisé. Merci d'en demander un nouveau ci-dessous.",
+      "exchangeFailed": "Ce lien de connexion doit être ouvert dans le même navigateur que celui utilisé pour le demander. Merci d'en demander un nouveau ci-dessous.",
       "generic": "La connexion a échoué. Merci de réessayer."
     },
     "noAccount": {

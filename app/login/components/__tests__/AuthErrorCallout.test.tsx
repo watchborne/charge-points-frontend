@@ -12,6 +12,8 @@ vi.mock("next-intl", () => ({
     const translations: Record<string, string> = {
       "loginPage.authError.otpExpired":
         "This sign-in link has expired or was already used. Please request a new one below.",
+      "loginPage.authError.exchangeFailed":
+        "This sign-in link must be opened in the same browser you used to request it. Please request a new one below.",
       "loginPage.authError.generic": "Sign-in failed. Please try again.",
     };
     return translations[key] ?? key;
@@ -41,6 +43,18 @@ describe("AuthErrorCallout", () => {
     expect(
       screen.getByText(
         "This sign-in link has expired or was already used. Please request a new one below.",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("shows the same-browser message for an exchange_failed error", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("error_code=exchange_failed"));
+
+    render(<AuthErrorCallout />);
+
+    expect(
+      screen.getByText(
+        "This sign-in link must be opened in the same browser you used to request it. Please request a new one below.",
       ),
     ).toBeTruthy();
   });
