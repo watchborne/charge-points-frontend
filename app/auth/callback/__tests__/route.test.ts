@@ -46,4 +46,15 @@ describe("GET /auth/callback", () => {
     expect(exchangeCodeForSession).not.toHaveBeenCalled();
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
+
+  it("SHOULD forward error_code to /login WHEN Supabase's hosted verify step redirects here without a code", async () => {
+    const res = await GET(
+      new NextRequest(
+        "http://localhost:3001/auth/callback?error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired",
+      ),
+    );
+
+    expect(exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(res.headers.get("location")).toBe("http://localhost:3001/login?error_code=otp_expired");
+  });
 });
