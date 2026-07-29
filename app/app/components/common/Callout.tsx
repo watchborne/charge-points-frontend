@@ -24,7 +24,7 @@ export const Callout = ({
     if (icon) return icon;
 
     if (variant !== "default") {
-      if (variant === "error") return <AlertCircle className="h-[20px]] w-[20px]" />;
+      if (variant === "error") return <AlertCircle className="h-[20px] w-[20px]" />;
       if (variant === "warning") return <AlertTriangle className="h-[20px] w-[20px]" />;
       if (variant === "success") return <CheckCircle className="h-[20px] w-[20px]" />;
     }
