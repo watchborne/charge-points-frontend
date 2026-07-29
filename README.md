@@ -63,9 +63,14 @@ redirected to `/login`.
    `app/auth/callback/route.ts`, which exchanges the code for a session and
    redirects into `/app/dashboard`. Use the header's logout button to end the
    session.
-5. New users can request access from `/signup` (alpha signup page); like
-   `/login`, an already-authenticated visitor is redirected straight to
-   `/app/dashboard`.
+5. New users request access from `/signup` (like `/login`, an
+   already-authenticated visitor is redirected straight to `/app/dashboard`).
+   This does **not** create a Supabase user directly — it posts the email to
+   the public, unauthenticated `/api/access-requests` proxy route (exempted
+   from the session gate in `middleware.ts`), which the backend records
+   idempotently. An admin then invites the email from the Supabase dashboard,
+   which creates the auth user; `/login`'s `shouldCreateUser: false` admits
+   only invited users from then on.
 
 ### Skipping the magic-link email in local dev
 
@@ -105,8 +110,10 @@ only when:
 Production deploys are **manual and on-demand**, not triggered by pushes to
 `main`. Run the
 [`deploy-production-netlify`](.github/workflows/deploy-production-netlify.yml)
-workflow via **Actions → Deploy Frontend to Production (manual) → Run workflow**,
-optionally overriding the `ref` to deploy (defaults to `main`).
+workflow via **Actions → Deploy Frontend to Production (manual) → Run workflow**.
+The job only runs when triggered against `main` (`if: github.ref ==
+'refs/heads/main'`); the `ref` input is used only in the deploy message/summary
+text, not to check out a different ref — the workflow always builds `main`.
 
 - In the Netlify UI, **disable automatic production deploys** so `main` pushes
   don't also trigger a separate deploy outside this workflow.
