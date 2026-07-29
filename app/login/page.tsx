@@ -73,7 +73,7 @@ export default function LoginPage() {
             <LoginForm onFormSubmitted={(email) => setUserEmail(email)} />
           ) : (
             <Callout variant="success" title={t("loginPage.magicLink.calloutTitle")}>
-              <div className="block">
+              <div className="block text-sm">
                 {t.rich("loginPage.magicLink.calloutDescription", {
                   link: () => (
                     <a className="font-bold" href={`mailto:${userEmail}`}>
