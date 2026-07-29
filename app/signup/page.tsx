@@ -47,7 +47,7 @@ export default function SignupPage() {
       </div>
 
       <div className="flex items-center justify-center min-h-screen lg:min-h-0 p-8 bg-background">
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm flex flex-col gap-4">
           {/* Mobile brand */}
           <Link
             href="/"
@@ -56,8 +56,8 @@ export default function SignupPage() {
             {t("appName")}
           </Link>
 
-          <div className="mb-8">
-            <Badge variant="secondary" className="mb-4">
+          <div className="flex flex-col gap-2">
+            <Badge variant="secondary" className="w-fit">
               {t("signupPage.alphaBadge")}
             </Badge>
 
@@ -70,7 +70,7 @@ export default function SignupPage() {
             <SignupForm onFormSubmitted={(email) => setUserEmail(email)} />
           ) : (
             <Callout variant="success" title={t("signupPage.confirmation.calloutTitle")}>
-              <div className="block">
+              <div className="block text-sm">
                 {t.rich("signupPage.confirmation.calloutDescription", {
                   link: () => (
                     <a className="font-bold" href={`mailto:${userEmail}`}>
@@ -82,7 +82,7 @@ export default function SignupPage() {
             </Callout>
           )}
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t("signupPage.hasAccount.text")}{" "}
             <Link
               href="/login"

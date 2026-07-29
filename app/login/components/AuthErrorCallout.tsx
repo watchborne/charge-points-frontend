@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense } from "react";
+
+import { Callout } from "@/app/app/components/common/Callout";
 
 function AuthErrorCalloutContent() {
   const t = useTranslations("");
@@ -11,21 +12,14 @@ function AuthErrorCalloutContent() {
 
   const errorCode = searchParams.get("error_code");
 
-  if (!errorCode) {
-    return null;
-  }
+  if (!errorCode) return null;
 
   const description =
     errorCode === "otp_expired"
       ? t("loginPage.authError.otpExpired")
       : t("loginPage.authError.generic");
 
-  return (
-    <div className="mb-6 flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-      <p className="text-sm">{description}</p>
-    </div>
-  );
+  return <Callout variant="error" description={description} />;
 }
 
 export function AuthErrorCallout() {
