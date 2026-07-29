@@ -94,21 +94,6 @@ export async function middleware(request: NextRequest) {
     return response;
   };
 
-  // A PKCE `code` param is only meaningful to the /auth/callback route, which
-  // exchanges it for a session and then redirects to a clean URL. A magic link
-  // can still deposit it elsewhere — e.g. Supabase falling back to the Site URL
-  // when /auth/callback isn't an allowed redirect, or a stray query param on a
-  // marketing page — where it would otherwise linger in the address bar across
-  // navigations. Route any stray code through the callback so the session is
-  // established and the code never persists in a user-visible URL. Checked
-  // ahead of `needsAuth` so it applies even on public pages, which skip the
-  // Supabase session lookup below.
-  if (request.nextUrl.searchParams.has("code") && request.nextUrl.pathname !== "/auth/callback") {
-    const callbackUrl = request.nextUrl.clone();
-    callbackUrl.pathname = "/auth/callback";
-    return setLocaleCookie(NextResponse.redirect(callbackUrl));
-  }
-
   // Only the authenticated surface needs a Supabase session lookup. Public
   // marketing pages skip `supabase.auth.getUser()` — a network round-trip to
   // Supabase that ran on *every* request, marketing pages included. They still
