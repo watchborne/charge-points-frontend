@@ -110,11 +110,8 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   reachable by unauthenticated visitors from `/signup`). The Supabase session
   lookup (`getUser()`, a network round trip) only runs for the authenticated
   surface (`/api`, `/app`, `/login`, `/signup`); public marketing pages skip it
-  and get locale resolution only. Any request carrying a stray `?code=` param
-  (a PKCE code meant for `/auth/callback`) is redirected there first, even on
-  public pages, so it never lingers in a user-visible URL. There is no
-  `app.*` subdomain routing — `/app/*` is served at that path on the main host
-  in every environment.
+  and get locale resolution only. There is no `app.*` subdomain routing —
+  `/app/*` is served at that path on the main host in every environment.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
   server component, middleware). `lib/supabase/admin.ts` is the one exception:

@@ -32,12 +32,14 @@ describe("GET /auth/callback", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/app/dashboard");
   });
 
-  it("SHOULD redirect to /login WHEN the token verification fails", async () => {
+  it("SHOULD redirect to /login with an exchange_failed error_code WHEN the token verification fails", async () => {
     exchangeCodeForSession.mockResolvedValue({ error: { message: "expired" } });
 
     const res = await GET(new NextRequest("http://localhost:3001/auth/callback?code=stale"));
 
-    expect(res.headers.get("location")).toBe("http://localhost:3001/login");
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3001/login?error_code=exchange_failed",
+    );
   });
 
   it("SHOULD redirect to /login WHEN the code is missing", async () => {
