@@ -35,7 +35,7 @@ app/
   404/                   # top-level not-found page
   api/                   # Next route handlers that PROXY to the backend
   login/                 # login page (magic-link sign-in)
-  signup/                # alpha signup page
+  signup/                # alpha access-request page (gated, admin-approved)
   auth/callback/         # Supabase magic-link code-exchange handler
   auth/components/       # LogoutButton, shared by Header and marketing Navbar
   auth/dev-login/        # local-dev-only magic-link shortcut route
@@ -60,7 +60,12 @@ emails/templates/       # Supabase auth email templates (magic-link.html, signup
 The browser never calls `charge-points-server` directly. It calls same-origin
 `/api/*` route handlers (`app/api/**`), which forward to the backend via
 `lib/proxy-request.ts`. That proxy injects the `x-api-key` header from
-`API_SECRET_KEY` — a **server-side-only** secret.
+`API_SECRET_KEY` — a **server-side-only** secret — and, when a Supabase session
+exists, also forwards the caller's access token as `Authorization: Bearer
+<token>` (via `createClient().auth.getSession()`) so the backend can resolve
+the caller's per-user `AccessScope` (see `charge-points-server`'s ADR 0002).
+Routes exempted from the session gate (e.g. `/api/access-requests`, see
+`PUBLIC_API_PATHS` in `middleware.ts`) simply have no token to attach.
 
 - `API_SECRET_KEY` must **never** get a `NEXT_PUBLIC_` prefix, or it leaks into
   the client bundle.
@@ -73,7 +78,10 @@ The browser never calls `charge-points-server` directly. It calls same-origin
 - `lib/http-client.ts` — thin `fetch` wrapper (`get/post/patch/delete`), throws on
   non-2xx.
 - `lib/api-charge-points.ts`, `lib/api-sites.ts` — typed API methods, aggregated
-  in `lib/api.ts` as `api.ChargePoints` / `api.Sites`.
+  in `lib/api.ts` as `api.ChargePoints` / `api.Sites`. `lib/api-me.ts`
+  (`api.Me.getMe()`) fetches the caller's own scoped charge points via
+  `GET /api/me`; `lib/api-access-requests.ts` (`api.AccessRequests.requestAccess`)
+  posts an alpha access request from `/signup` (see Authentication below).
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 
@@ -97,7 +105,14 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   `watch-borne.fr` host permanently to `watch-borne.com` (forcing the `fr`
   locale via `?lang=`), refreshes the Supabase session via
   `lib/supabase/middleware.ts`, then gates `/app/*` and `/api/*` behind a valid
-  session (redirecting to `/login`, or returning 401 for `/api/*`). There is no
+  session (redirecting to `/login`, or returning 401 for `/api/*`) — except the
+  paths listed in `PUBLIC_API_PATHS` (currently just `/api/access-requests`,
+  reachable by unauthenticated visitors from `/signup`). The Supabase session
+  lookup (`getUser()`, a network round trip) only runs for the authenticated
+  surface (`/api`, `/app`, `/login`, `/signup`); public marketing pages skip it
+  and get locale resolution only. Any request carrying a stray `?code=` param
+  (a PKCE code meant for `/auth/callback`) is redirected there first, even on
+  public pages, so it never lingers in a user-visible URL. There is no
   `app.*` subdomain routing — `/app/*` is served at that path on the main host
   in every environment.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
@@ -120,8 +135,14 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   can't consume it. Verifying the `token_hash` directly is the dev-only
   route's own, separate mechanism — it doesn't touch or duplicate the
   callback's code-exchange-only contract for real magic links.
-- `app/signup/` is a public alpha-signup page alongside `/login`; like `/login`,
-  an already-authenticated visitor is redirected to `/app/dashboard`.
+- `app/signup/` is a public alpha-access-request page alongside `/login`; like
+  `/login`, an already-authenticated visitor is redirected to `/app/dashboard`.
+  It does **not** create a Supabase user directly — it POSTs the visitor's
+  email via `api.AccessRequests.requestAccess` to the public, unauthenticated
+  `app/api/access-requests/route.ts` proxy (idempotent on email backend-side).
+  Approval happens out-of-band: an admin invites the email from the Supabase
+  dashboard, which is what actually creates the auth user — `/login`'s
+  `shouldCreateUser: false` then naturally admits only invited users.
 
 ### UI
 
