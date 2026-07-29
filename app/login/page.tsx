@@ -48,7 +48,7 @@ export default function LoginPage() {
       </div>
 
       <div className="flex items-center justify-center min-h-screen lg:min-h-0 p-8 bg-background">
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm flex flex-col gap-4">
           {/* Mobile brand */}
           <Link
             href="/"
@@ -57,8 +57,8 @@ export default function LoginPage() {
             {t("appName")}
           </Link>
 
-          <div className="mb-8">
-            <Badge variant="secondary" className="mb-4">
+          <div className="flex flex-col gap-2">
+            <Badge variant="secondary" className="w-fit">
               {t("loginPage.alphaBadge")}
             </Badge>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
 
           {process.env.NODE_ENV !== "production" && <DevLoginShortcut />}
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t("loginPage.noAccount.text")}{" "}
             <Link
               href="/signup"

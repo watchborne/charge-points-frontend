@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
  */
 export function DevLoginShortcut() {
   return (
-    <div className="mt-6 rounded-lg border border-dashed p-4 space-y-2">
+    <div className="rounded-lg border border-dashed p-4 space-y-2">
       <p className="text-xs font-medium text-muted-foreground">
         Dev only — signs in instantly, skips the magic-link email
       </p>
