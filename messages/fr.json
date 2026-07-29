@@ -402,7 +402,27 @@
       "noChargePoints": "Aucune borne de recharge",
       "uptime": "Uptime",
       "uptimeOnline": "En ligne depuis {time}",
-      "uptimeOffline": "Hors ligne depuis {time}"
+      "uptimeOffline": "Hors ligne depuis {time}",
+      "onboarding": {
+        "title": "Bienvenue sur Watchborne",
+        "description": "Suivez ces étapes pour démarrer la supervision de votre parc de bornes.",
+        "steps": {
+          "connect": {
+            "title": "Connectez votre première borne",
+            "description": "Configurez votre borne pour qu'elle se connecte au serveur OCPP.",
+            "link": "Aller à la configuration"
+          },
+          "sites": {
+            "title": "Définissez vos sites",
+            "description": "Créez les sites sur lesquels vos bornes seront installées.",
+            "link": "Gérer les sites"
+          },
+          "success": {
+            "title": "Votre dashboard sera bientôt disponible",
+            "description": "Une fois votre borne connectée, son état apparaîtra ici en temps réel."
+          }
+        }
+      }
     },
     "chargePoints": {
       "page": {
@@ -599,10 +619,6 @@
         "site": "Site:",
         "lastSeen": "Dernière vue",
         "neverSeen": "Jamais vue"
-      },
-      "emptyState": {
-        "noDetected": "Aucune borne de recharge détectée",
-        "description": "Les bornes de recharge apparaîtront ici une fois connectées au serveur OCPP"
       },
       "anomalies": {
         "unexpectedTransition": "{chargePointName} — connecteur #{connectorId} : transition inattendue ({from} → {to})"

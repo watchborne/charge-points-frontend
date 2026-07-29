@@ -6,8 +6,8 @@ import { useMemo } from "react";
 import { CommissioningQueue } from "../charge-points/components/CommissioningQueue";
 import { ChargePointStats } from "../components/charge-points/ChargePointStats";
 import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePointStatsSkeleton";
-import { EmptyStateChargePoints } from "../components/charge-points/EmptyStateChargePoints";
 import { Callout } from "../components/common/Callout";
+import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
 import { useChargePoints } from "../hooks/useChargePoints";
@@ -49,7 +49,7 @@ export default function DashboardPage() {
           />
 
           {chargePoints.length === 0 ? (
-            <EmptyStateChargePoints />
+            <DashboardOnboarding hasSites={sites.length > 0} />
           ) : (
             <FleetOverviewPanel chargePoints={chargePoints} sites={sites} />
           )}
