@@ -50,7 +50,7 @@ dial into, shown as-is on the in-app Configuration page — distinct from
 ## 🔐 Authentication
 
 The dashboard (`/app/*`) and its API proxy routes (`/api/*`) are gated behind a
-Supabase-backed session (`middleware.ts`); unauthenticated requests are
+Supabase-backed session (`proxy.ts`); unauthenticated requests are
 redirected to `/login`.
 
 1. Create a Supabase project and grab the URL/anon key from
@@ -67,7 +67,7 @@ redirected to `/login`.
    already-authenticated visitor is redirected straight to `/app/dashboard`).
    This does **not** create a Supabase user directly — it posts the email to
    the public, unauthenticated `/api/access-requests` proxy route (exempted
-   from the session gate in `middleware.ts`), which the backend records
+   from the session gate in `proxy.ts`), which the backend records
    idempotently. An admin then invites the email from the Supabase dashboard,
    which creates the auth user; `/login`'s `shouldCreateUser: false` admits
    only invited users from then on.
