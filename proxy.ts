@@ -47,8 +47,11 @@ function resolveLocale(request: NextRequest) {
 }
 
 /**
- * Global middleware: redirects retired/canonical hosts, resolves the locale for
- * every matched request, and gates access to the authenticated surface —
+ * Global proxy (Next's renamed `middleware.ts` file convention as of Next 16 —
+ * see https://nextjs.org/docs/messages/middleware-to-proxy; the helper this
+ * calls into is still `lib/supabase/middleware.ts`, unrelated to the file
+ * convention rename): redirects retired/canonical hosts, resolves the locale
+ * for every matched request, and gates access to the authenticated surface —
  * refreshing the Supabase session as it does so.
  *
  * The Supabase session lookup (`getUser()`, a network round-trip) runs only for
@@ -73,7 +76,7 @@ function resolveLocale(request: NextRequest) {
  * Any response we return in place of `supabaseResponse` must carry the refreshed
  * session cookies, otherwise a token rotated during `getUser()` is lost.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const frRedirectUrl = redirectFrHostToCom(request);
   if (frRedirectUrl) return NextResponse.redirect(frRedirectUrl, 308);
 
