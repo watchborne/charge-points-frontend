@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 /**
  * Only rendered by `LoginPage` when `NODE_ENV !== "production"` (see
  * `app/login/page.tsx`). Posts straight to `/auth/dev-login`, which is
- * itself gated the same way plus behind `SUPABASE_SERVICE_ROLE_KEY` — this
- * component is a convenience shortcut, not the security boundary.
+ * itself gated the same way plus behind `ENABLE_DEV_LOGIN=true` and
+ * `SUPABASE_SERVICE_ROLE_KEY` — this component is a convenience shortcut, not
+ * the security boundary. Submitting without those set on the server just
+ * gets a 404 from the route.
  */
 export function DevLoginShortcut() {
   return (
