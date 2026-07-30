@@ -16,12 +16,21 @@ import { createClient } from "@/lib/supabase/server";
  * outside this dev-only route, so it doesn't affect the callback's
  * code-exchange-only contract for real magic links.
  *
- * Disabled outside development and whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
- * set (which it never is in a deployed environment), so this can't activate
- * by accident outside a developer's machine.
+ * Disabled outside development, whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
+ * set (which it never is in a deployed environment), and unless
+ * `ENABLE_DEV_LOGIN=true` is explicitly set. The extra opt-in flag means a
+ * misconfigured non-production deployment that happens to have the
+ * service-role key set (e.g. a preview/staging environment) still can't
+ * mint a session for an arbitrary email — a second, deliberate flag has to
+ * be set too, so this can't activate by accident outside a developer's
+ * machine.
  */
 export async function GET(request: NextRequest) {
-  if (process.env.NODE_ENV === "production" || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (
+    process.env.NODE_ENV === "production" ||
+    process.env.ENABLE_DEV_LOGIN !== "true" ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
