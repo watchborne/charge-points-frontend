@@ -9,6 +9,8 @@ type Listener = (state: {
 }) => void;
 
 class WebSocketManager {
+  private static readonly MAX_RECONNECT_ATTEMPTS = 10;
+
   private socket: WebSocket | null = null;
   private status: WebSocketStatus = "DISCONNECTED";
   private lastMessage: MessageEvent | null = null;
@@ -160,9 +162,30 @@ class WebSocketManager {
   }
 
   private scheduleReconnect() {
-    const delay = Math.min(1_000 * 2 ** this.reconnectAttempt, 30_000);
+    if (this.reconnectAttempt >= WebSocketManager.MAX_RECONNECT_ATTEMPTS) {
+      // Give up after too many consecutive failures instead of retrying
+      // forever, and surface a terminal error state so the UI can reflect
+      // it. A fresh subscriber (subscribe()) or a manual reconnect() call
+      // both reset reconnectAttempt and can bring the connection back.
+      this.shouldAutoReconnect = false;
+      this.status = "ERROR";
+      this.emit();
+      return;
+    }
+
+    const delay = this.nextReconnectDelay();
     this.reconnectAttempt++;
     this.reconnectTimeout = setTimeout(() => void this.connect(), delay);
+  }
+
+  // Equal jitter: half the exponential backoff is guaranteed, the other half
+  // is randomized. Without jitter, every dashboard reconnects in lockstep
+  // after a shared server blip (thundering herd); the guaranteed half keeps
+  // a sane minimum wait instead of letting jitter alone allow near-instant
+  // retries.
+  private nextReconnectDelay() {
+    const exponential = Math.min(1_000 * 2 ** this.reconnectAttempt, 30_000);
+    return exponential / 2 + Math.random() * (exponential / 2);
   }
 
   disconnect() {
