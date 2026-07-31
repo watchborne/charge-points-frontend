@@ -630,6 +630,11 @@
             "actions": "Actions"
           },
           "empty": "Aucune correspondance trouvée."
+        },
+        "card": {
+          "chargePointsWithCount": "{count, plural, =0 {0 borne de recharge} =1 {1 borne de recharge} other {# bornes de recharge}}",
+          "online": "{count} en ligne",
+          "offline": "{count} hors ligne"
         }
       },
       "form": {
