@@ -7,7 +7,7 @@ export const Footer = () => {
   const t = useTranslations("");
 
   return (
-    <footer className="border-t">
+    <footer className="border-t bg-background/80 backdrop-blur">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 px-4 py-4 text-sm text-muted-foreground sm:px-6 lg:px-8">
         <span>{t("layout.footer.copyright", { year: new Date().getFullYear() })}</span>
 
