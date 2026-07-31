@@ -28,9 +28,10 @@ export async function proxyToBackend(
   // multi-tenant access control). middleware.ts already guarantees a session
   // exists for every /api/* request; the optional chaining just avoids a
   // crash on the theoretical race of a token expiring between the two.
+  const supabase = await createClient();
   const {
     data: { session },
-  } = await createClient().auth.getSession();
+  } = await supabase.auth.getSession();
   if (session?.access_token) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
   }

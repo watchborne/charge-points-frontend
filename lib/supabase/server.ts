@@ -12,8 +12,8 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/constants";
  * responsible for refreshing the session cookie on each request, so swallowing
  * that error here is safe.
  */
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
