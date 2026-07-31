@@ -29,6 +29,7 @@ beforeEach(() => {
   generateLink.mockReset();
   verifyOtp.mockReset();
   vi.stubEnv("NODE_ENV", "development");
+  vi.stubEnv("ENABLE_DEV_LOGIN", "true");
   vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key");
 });
 
@@ -48,6 +49,15 @@ describe("GET /auth/dev-login", () => {
 
   it("SHOULD return 404 WHEN SUPABASE_SERVICE_ROLE_KEY is not set", async () => {
     vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+
+    const res = await GET(new NextRequest("http://localhost:3001/auth/dev-login?email=a@b.com"));
+
+    expect(res.status).toBe(404);
+    expect(generateLink).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD return 404 WHEN ENABLE_DEV_LOGIN is not set to true", async () => {
+    vi.stubEnv("ENABLE_DEV_LOGIN", "");
 
     const res = await GET(new NextRequest("http://localhost:3001/auth/dev-login?email=a@b.com"));
 

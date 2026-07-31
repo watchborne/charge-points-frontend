@@ -4,11 +4,11 @@ Guidance for AI coding agents working in this repository.
 
 ## What this is
 
-`ev-charging-frontend` — the **Next.js 14 dashboard** for the watchborne EV
+`ev-charging-frontend` — the **Next.js 16 dashboard** for the watchborne EV
 charge-point platform. It renders a marketing site and an authenticated app that
 shows charge points and sites in real time, backed by `charge-points-server`.
 
-Stack: **Next.js 14 (App Router)**, React 18, TypeScript (strict),
+Stack: **Next.js 16 (App Router, Turbopack)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `next-intl` for i18n, `sonner` for toast notifications. Dev server runs on
 **port 3001**. Domain types come from `@watchborne/charge-points-types`.
@@ -41,9 +41,10 @@ app/
   auth/dev-login/        # local-dev-only magic-link shortcut route
   design-system/         # tokens.css (Tailwind design tokens)
   assets/                # static assets used by app/ components
-middleware.ts           # Supabase session refresh, locale resolution
+proxy.ts                # Supabase session refresh, locale resolution
                         # (?lang= > cookie > host), and auth guard for
-                        # /app, /api, /login, /signup
+                        # /app, /api, /login, /signup (Next's renamed
+                        # middleware.ts file convention as of Next 16)
 components/ui/          # shadcn/ui primitives (generated; edit via components.json)
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
@@ -62,10 +63,10 @@ The browser never calls `charge-points-server` directly. It calls same-origin
 `lib/proxy-request.ts`. That proxy injects the `x-api-key` header from
 `API_SECRET_KEY` — a **server-side-only** secret — and, when a Supabase session
 exists, also forwards the caller's access token as `Authorization: Bearer
-<token>` (via `createClient().auth.getSession()`) so the backend can resolve
-the caller's per-user `AccessScope` (see `charge-points-server`'s ADR 0002).
-Routes exempted from the session gate (e.g. `/api/access-requests`, see
-`PUBLIC_API_PATHS` in `middleware.ts`) simply have no token to attach.
+<token>` (via `(await createClient()).auth.getSession()`) so the backend can
+resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
+0002). Routes exempted from the session gate (e.g. `/api/access-requests`, see
+`PUBLIC_API_PATHS` in `proxy.ts`) simply have no token to attach.
 
 - `API_SECRET_KEY` must **never** get a `NEXT_PUBLIC_` prefix, or it leaks into
   the client bundle.
@@ -101,10 +102,12 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   code for a session (`exchangeCodeForSession`) and redirects into
   `/app/dashboard`. Do not use the old `verifyOtp`/token-hash approach — the
   callback contract is code-exchange only.
-- `middleware.ts` runs on every request: it redirects the retired
-  `watch-borne.fr` host permanently to `watch-borne.com` (forcing the `fr`
-  locale via `?lang=`), refreshes the Supabase session via
-  `lib/supabase/middleware.ts`, then gates `/app/*` and `/api/*` behind a valid
+- `proxy.ts` (Next's renamed `middleware.ts` file convention as of Next 16)
+  runs on every request: it redirects the retired `watch-borne.fr` host
+  permanently to `watch-borne.com` (forcing the `fr` locale via `?lang=`),
+  refreshes the Supabase session via `lib/supabase/middleware.ts` (that
+  helper's filename is unrelated to the file-convention rename), then gates
+  `/app/*` and `/api/*` behind a valid
   session (redirecting to `/login`, or returning 401 for `/api/*`) — except the
   paths listed in `PUBLIC_API_PATHS` (currently just `/api/access-requests`,
   reachable by unauthenticated visitors from `/signup`). The Supabase session
@@ -124,8 +127,11 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   server-side (`supabase.auth.verifyOtp`), skipping the email round-trip;
   `app/login/components/DevLoginShortcut.tsx` renders its form on `/login`,
   only when `NODE_ENV !== "production"`. The route itself re-checks
-  `NODE_ENV` and requires `SUPABASE_SERVICE_ROLE_KEY` to be set — never set
-  that key outside a local `.env`. It deliberately does **not** go through
+  `NODE_ENV`, requires the explicit opt-in flag `ENABLE_DEV_LOGIN=true`, and
+  requires `SUPABASE_SERVICE_ROLE_KEY` to be set — never set either outside
+  a local `.env`. The extra flag exists so a preview/staging environment
+  that accidentally has the service-role key set still can't be used to sign
+  in as an arbitrary email. It deliberately does **not** go through
   `/auth/callback`: a real magic link works because the browser's own
   `signInWithOtp` call stores a PKCE code_verifier before the link is
   clicked, which an admin-generated link never has, so `exchangeCodeForSession`
@@ -158,13 +164,13 @@ the tokens in `app/design-system/tokens.css`.
 ### i18n
 
 All user-facing strings go through `next-intl`. Default locale is **`fr`**;
-supported locales are `fr` and `en`. `middleware.ts`'s `resolveLocale` picks the
+supported locales are `fr` and `en`. `proxy.ts`'s `resolveLocale` picks the
 active locale with this precedence: an explicit `?lang=` query param (the
 footer's `LocaleSwitcher` component and shared links use this to force a
 locale) > the persisted `NEXT_LOCALE` cookie > the host's TLD on a first-time
 visit (`localeForHost`: `.fr` -> fr, `.com` -> en, else the default). In
 practice `watch-borne.fr` is retired and permanently redirected to
-`watch-borne.com?lang=fr` by `middleware.ts` before locale resolution runs (see
+`watch-borne.com?lang=fr` by `proxy.ts` before locale resolution runs (see
 the Authentication section above), so the TLD branch only still matters for
 `.com`/other hosts. The resolved locale is written back to the cookie on every
 request. Add keys to **both** `messages/fr.json` and `messages/en.json`.
@@ -215,6 +221,7 @@ NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp  # public OCPP endpoint (Co
 API_SECRET_KEY=<shared secret>                    # SERVER-SIDE ONLY (x-api-key)
 NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)
+ENABLE_DEV_LOGIN=                                 # optional, LOCAL DEV ONLY (dev-login shortcut opt-in)
 SUPABASE_SERVICE_ROLE_KEY=                        # optional, LOCAL DEV ONLY (dev-login shortcut)
 ```
 
