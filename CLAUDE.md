@@ -127,8 +127,11 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   server-side (`supabase.auth.verifyOtp`), skipping the email round-trip;
   `app/login/components/DevLoginShortcut.tsx` renders its form on `/login`,
   only when `NODE_ENV !== "production"`. The route itself re-checks
-  `NODE_ENV` and requires `SUPABASE_SERVICE_ROLE_KEY` to be set — never set
-  that key outside a local `.env`. It deliberately does **not** go through
+  `NODE_ENV`, requires the explicit opt-in flag `ENABLE_DEV_LOGIN=true`, and
+  requires `SUPABASE_SERVICE_ROLE_KEY` to be set — never set either outside
+  a local `.env`. The extra flag exists so a preview/staging environment
+  that accidentally has the service-role key set still can't be used to sign
+  in as an arbitrary email. It deliberately does **not** go through
   `/auth/callback`: a real magic link works because the browser's own
   `signInWithOtp` call stores a PKCE code_verifier before the link is
   clicked, which an admin-generated link never has, so `exchangeCodeForSession`
@@ -218,6 +221,7 @@ NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp  # public OCPP endpoint (Co
 API_SECRET_KEY=<shared secret>                    # SERVER-SIDE ONLY (x-api-key)
 NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)
+ENABLE_DEV_LOGIN=                                 # optional, LOCAL DEV ONLY (dev-login shortcut opt-in)
 SUPABASE_SERVICE_ROLE_KEY=                        # optional, LOCAL DEV ONLY (dev-login shortcut)
 ```
 
