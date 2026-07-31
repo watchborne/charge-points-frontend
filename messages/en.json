@@ -402,7 +402,27 @@
       "noChargePoints": "No charge points",
       "uptime": "Uptime",
       "uptimeOnline": "Online for {time}",
-      "uptimeOffline": "Offline for {time}"
+      "uptimeOffline": "Offline for {time}",
+      "onboarding": {
+        "title": "Welcome to Watchborne",
+        "description": "Follow these steps to start monitoring your charge point fleet.",
+        "steps": {
+          "connect": {
+            "title": "Connect your first charge point",
+            "description": "Configure your charge point so it connects to the OCPP server.",
+            "link": "Go to configuration"
+          },
+          "sites": {
+            "title": "Define your sites",
+            "description": "Create the sites where your charge points will be installed.",
+            "link": "Manage sites"
+          },
+          "success": {
+            "title": "Your dashboard will be available soon",
+            "description": "Once your charge point connects, its status will appear here in real time."
+          }
+        }
+      }
     },
     "chargePoints": {
       "page": {
@@ -599,10 +619,6 @@
         "site": "Site:",
         "lastSeen": "Last seen",
         "neverSeen": "Never seen"
-      },
-      "emptyState": {
-        "noDetected": "No detected charge points",
-        "description": "Charge points will appear here once connected to the OCPP server"
       },
       "anomalies": {
         "unexpectedTransition": "{chargePointName} — connector #{connectorId}: unexpected transition ({from} → {to})"
