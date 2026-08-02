@@ -14,7 +14,6 @@ on:
 permissions:
   contents: read
 
-# Only one production deploy at a time; never cancel one mid-flight.
 concurrency:
   group: netlify-production
   cancel-in-progress: false
@@ -37,11 +36,6 @@ jobs:
         with:
           npm-token: ${{ secrets.NPM_TOKEN }}
 
-      # Build and deploy are split into two steps on purpose. Running the build
-      # separately (without --json) streams the full @netlify/build log to the
-      # Actions console, so a build failure shows the real error instead of a
-      # bare "exit code 2" — `deploy --build --json` buffers and discards those
-      # logs on failure, which hid the cause of a previous failed run.
       - name: Build with Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -50,10 +44,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          # netlify-cli@27 (not @17): the old CLI shipped an @netlify/edge-bundler
-          # that fails to bundle the Next.js middleware into an edge function on
-          # Node 24 ("(0 , _module.findSourceMap) is not a function"), which broke
-          # the production deploy after the upgrade to Next 16.
           npx --yes netlify-cli@27 build
 
       - name: Deploy to Netlify
@@ -64,8 +54,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          # --no-build: reuse the artifacts from the "Build with Netlify" step
-          # above so we don't build twice.
           npx --yes netlify-cli@27 deploy \
             --no-build \
             --prod \
