@@ -50,7 +50,11 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          npx --yes netlify-cli@17 build
+          # netlify-cli@27 (not @17): the old CLI shipped an @netlify/edge-bundler
+          # that fails to bundle the Next.js middleware into an edge function on
+          # Node 24 ("(0 , _module.findSourceMap) is not a function"), which broke
+          # the production deploy after the upgrade to Next 16.
+          npx --yes netlify-cli@27 build
 
       - name: Deploy to Netlify
         id: netlify
@@ -62,7 +66,7 @@ jobs:
           set -euo pipefail
           # --no-build: reuse the artifacts from the "Build with Netlify" step
           # above so we don't build twice.
-          npx --yes netlify-cli@17 deploy \
+          npx --yes netlify-cli@27 deploy \
             --no-build \
             --prod \
             --message "Manual production deploy @ ${{ inputs.ref }} (${{ github.sha }})" \
