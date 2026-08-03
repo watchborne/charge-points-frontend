@@ -40,6 +40,7 @@ NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp
 API_SECRET_KEY=<shared secret, must match the backend's APP_API_KEY>
 NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon key>
+ENABLE_DEV_LOGIN=<optional, local dev only — see below>
 SUPABASE_SERVICE_ROLE_KEY=<optional, local dev only — see below>
 ```
 
@@ -74,17 +75,21 @@ redirected to `/login`.
 
 ### Skipping the magic-link email in local dev
 
-Set `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API → `service_role`) in
-your local `.env` to get a "Dev only" sign-in box on `/login`: it mints a
-magic link via the Supabase admin API and verifies it server-side, so you
-don't have to check your inbox on every sign-in while developing. It does
-**not** go through `/auth/callback` — an admin-generated link has no matching
-PKCE code_verifier for that route's `exchangeCodeForSession` to consume, so
-the dev route verifies the link's `token_hash` directly instead.
+Set **both** `ENABLE_DEV_LOGIN=true` and `SUPABASE_SERVICE_ROLE_KEY` (Project
+Settings → API → `service_role`) in your local `.env` to get a "Dev only"
+sign-in box on `/login`: it mints a magic link via the Supabase admin API and
+verifies it server-side, so you don't have to check your inbox on every
+sign-in while developing. It does **not** go through `/auth/callback` — an
+admin-generated link has no matching PKCE code_verifier for that route's
+`exchangeCodeForSession` to consume, so the dev route verifies the link's
+`token_hash` directly instead.
 
-This is disabled outside `npm run dev` and whenever
-`SUPABASE_SERVICE_ROLE_KEY` isn't set, so **never** set that variable outside
-your local `.env` — it bypasses Row Level Security.
+This is disabled in production and unless **both** `ENABLE_DEV_LOGIN=true` and
+`SUPABASE_SERVICE_ROLE_KEY` are set, so **never** set either variable outside
+your local `.env` — the service-role key bypasses Row Level Security, and the
+explicit opt-in flag exists so a preview/staging environment that accidentally
+has the service-role key set still can't be used to sign in as an arbitrary
+email.
 
 ## 🌐 Netlify deploy previews
 

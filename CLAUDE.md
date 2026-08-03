@@ -22,7 +22,8 @@ app/
     dashboard/ sites/ configuration/   # pages (no local components/ subfolder)
     charge-points/       # page + its own components/ (commissioning dialog/queue/
                          #   checklist, fleet panel, config dialog, trigger message)
-    sites/components/    # page-scoped components: SiteFormDialog, SiteTable, ...
+    sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
+                         #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
     components/         # shared feature + common + layout components
                         #   (common/Callout.tsx: default/info/error/warning/success)
     404/                 # dashboard-scoped not-found page
