@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { OCPP_SERVER_URL } from "@/lib/constants";
 
+import { CommissioningTokenPanel } from "./components/CommissioningTokenPanel";
+
 export default function ConfigurationPage() {
   const t = useTranslations("");
   const exampleUrl = `${OCPP_SERVER_URL}/CP-001`;
@@ -61,6 +63,8 @@ export default function ConfigurationPage() {
           </ol>
         </div>
       </section>
+
+      <CommissioningTokenPanel />
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">

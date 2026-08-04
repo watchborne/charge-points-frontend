@@ -705,6 +705,20 @@
           "restart": "Enregistrez puis redémarrez la borne : elle apparaîtra dans Watchborne dès sa première connexion."
         }
       },
+      "commissioningToken": {
+        "title": "Jeton de commissioning personnel",
+        "description": "Générez un jeton personnel et ajoutez-le en paramètre `token` à l'adresse du serveur OCPP configurée sur vos bornes. Toute borne qui se connecte pour la première fois avec ce jeton vous est automatiquement associée, sans étape manuelle supplémentaire.",
+        "generateCta": "Générer mon jeton",
+        "regenerateCta": "Régénérer",
+        "copyCta": "Copier le jeton",
+        "exampleLabel": "Exemple d'adresse avec votre jeton",
+        "createdAtLabel": "Jeton généré le {date}",
+        "revealedWarning": "Copiez ce jeton maintenant : il ne sera plus jamais affiché en clair.",
+        "regenerateConfirm": {
+          "title": "Régénérer le jeton ?",
+          "description": "Le jeton actuel cessera immédiatement de fonctionner. Les bornes déjà mises en service ne sont pas affectées ; seule la mise en service automatique de nouvelles bornes avec l'ancien jeton cessera de fonctionner."
+        }
+      },
       "association": {
         "title": "Mettre en service une borne",
         "description": "Une borne qui se connecte pour la première fois est automatiquement découverte et apparaît dans la file « À mettre en service » en haut de la page « Bornes de recharge ». Cliquez sur « Mettre en service » pour la renommer et l'associer à un site en une seule étape. Vous pouvez aussi modifier cette association plus tard depuis la fiche de la borne. Une borne ne peut être rattachée qu'à un seul site à la fois.",
