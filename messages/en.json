@@ -705,6 +705,20 @@
           "restart": "Save and restart the charge point: it will appear in Watchborne as soon as it first connects."
         }
       },
+      "commissioningToken": {
+        "title": "Personal commissioning token",
+        "description": "Generate a personal token and add it as a `token` query parameter to the OCPP server address configured on your charge points. Any charge point that connects for the first time with this token is automatically linked to your account, with no extra manual step.",
+        "generateCta": "Generate my token",
+        "regenerateCta": "Regenerate",
+        "copyCta": "Copy token",
+        "exampleLabel": "Example address with your token",
+        "createdAtLabel": "Token generated on {date}",
+        "revealedWarning": "Copy this token now — it will never be shown in full again.",
+        "regenerateConfirm": {
+          "title": "Regenerate the token?",
+          "description": "The current token will stop working immediately. Charge points already commissioned aren't affected; only auto-commissioning new charge points with the old token will stop working."
+        }
+      },
       "association": {
         "title": "Commission a charge point",
         "description": "A charge point connecting for the first time is automatically discovered and appears in the \"Awaiting commissioning\" queue at the top of the \"Charge Points\" page. Click \"Commission\" to rename it and attach it to a site in one step. You can also change this association later from the charge point's form. A charge point can only be attached to one site at a time.",
