@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repository.
 
 ## What this is
 
-`ev-charging-frontend` — the **Next.js 16 dashboard** for the watchborne EV
+`charge-points-frontend` — the **Next.js 16 dashboard** for the watchborne EV
 charge-point platform. It renders a marketing site and an authenticated app that
 shows charge points and sites in real time, backed by `charge-points-server`.
 
