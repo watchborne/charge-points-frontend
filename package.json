@@ -1,5 +1,5 @@
 {
-  "name": "ev-charging-frontend",
+  "name": "charge-points-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
