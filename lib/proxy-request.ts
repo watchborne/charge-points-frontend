@@ -35,22 +35,25 @@ export async function proxyToBackend(
   } = await supabase.auth.getSession();
   if (session?.access_token) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
-  } else {
-    // TEMPORARY DIAGNOSTIC — investigating a production 401 on scoped backend
-    // routes (e.g. /api/ws-token) where getSession() returns no session here
-    // even though proxy.ts's middleware (a separate Supabase client, via
-    // getUser()) already let the request through. Logs presence only, never
-    // cookie/token values. Remove once resolved.
-    const cookieStore = await cookies();
-    const sbCookieNames = cookieStore
-      .getAll()
-      .map((c) => c.name)
-      .filter((name) => name.startsWith("sb-"));
-    console.error("[ws-token-debug] no session in proxyToBackend", {
-      backendPath,
-      sbCookieNames,
-    });
   }
+
+  // TEMPORARY DIAGNOSTIC — investigating a production 401 on scoped backend
+  // routes (e.g. /api/ws-token): getSession() sometimes returns no session in
+  // this route handler even though proxy.ts's middleware (a separate
+  // Supabase client, via getUser()) already let the request through. Surfaced
+  // as response headers (not logs, which turned out hard to locate) — visible
+  // directly in the browser's Network tab. Never carries cookie/token values.
+  // Remove once resolved.
+  const cookieStore = await cookies();
+  const sbCookieNames = cookieStore
+    .getAll()
+    .map((c) => c.name)
+    .filter((name) => name.startsWith("sb-"));
+  const debugHeaders: Record<string, string> = {
+    "x-debug-had-session": session?.access_token ? "1" : "0",
+    "x-debug-sb-cookie-count": String(sbCookieNames.length),
+    "x-debug-sb-cookie-names": sbCookieNames.join(","),
+  };
 
   const init: RequestInit = { method: request.method, headers };
 
@@ -63,6 +66,6 @@ export async function proxyToBackend(
 
   return new NextResponse(body, {
     status: backendResponse.status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...debugHeaders },
   });
 }
