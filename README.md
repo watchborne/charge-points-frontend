@@ -48,6 +48,13 @@ SUPABASE_SERVICE_ROLE_KEY=<optional, local dev only — see below>
 dial into, shown as-is on the in-app Configuration page — distinct from
 `NEXT_PUBLIC_WS_URL`, which is the dashboard's own status websocket.
 
+The Configuration page also lets an installer self-generate a personal
+**commissioning token**: appended as `?token=...` to a charge point's OCPP
+connection URL, it lets the backend auto-grant the installer membership on
+any unclaimed charge point that connects with it. The plaintext token is
+only ever shown once, right after it's (re)generated, and isn't persisted
+client-side — losing it means generating a new one.
+
 ## 🔐 Authentication
 
 The dashboard (`/app/*`) and its API proxy routes (`/api/*`) are gated behind a

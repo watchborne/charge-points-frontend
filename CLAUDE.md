@@ -8,10 +8,13 @@ Guidance for AI coding agents working in this repository.
 charge-point platform. It renders a marketing site and an authenticated app that
 shows charge points and sites in real time, backed by `charge-points-server`.
 
-Stack: **Next.js 16 (App Router, Turbopack)**, React 18, TypeScript (strict),
+Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `next-intl` for i18n, `sonner` for toast notifications. Dev server runs on
 **port 3001**. Domain types come from `@watchborne/charge-points-types`.
+Production builds run with `next build --webpack` (see Commands below) — a
+Turbopack/Netlify tracing bug forces webpack for `next build` specifically;
+`next dev` still uses Turbopack.
 
 ## Layout
 
@@ -19,7 +22,9 @@ Stack: **Next.js 16 (App Router, Turbopack)**, React 18, TypeScript (strict),
 app/
   (marketing)/          # public site (route group): home, pricing, contact, features
   app/                  # authenticated dashboard
-    dashboard/ sites/ configuration/   # pages (no local components/ subfolder)
+    dashboard/ sites/    # pages (no local components/ subfolder)
+    configuration/       # page + its own components/ (CommissioningTokenPanel:
+                         #   installer self-service OCPP commissioning token)
     charge-points/       # page + its own components/ (commissioning dialog/queue/
                          #   checklist, fleet panel, config dialog, trigger message)
     sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
@@ -84,6 +89,11 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   (`api.Me.getMe()`) fetches the caller's own scoped charge points via
   `GET /api/me`; `lib/api-access-requests.ts` (`api.AccessRequests.requestAccess`)
   posts an alpha access request from `/signup` (see Authentication below).
+  `lib/api-commissioning-token.ts` (`api.CommissioningToken`) proxies
+  `GET`/`POST` `/api/me/commissioning-token` for the installer
+  self-service commissioning-token flow on `/app/configuration`
+  (`CommissioningTokenPanel`) — the plaintext token is only ever returned
+  once, on issue, and is never persisted client-side.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 
@@ -193,7 +203,8 @@ request. Add keys to **both** `messages/fr.json` and `messages/en.json`.
 export NPM_TOKEN=<token>   # required to install @watchborne/* from the GH registry
 npm install
 npm run dev        # next dev on http://localhost:3001
-npm run build
+npm run build       # next build --webpack (forced webpack: Turbopack has a
+                    #   Netlify tracing bug on this project, see #199)
 npm run start      # next start (serves the production build)
 npm run lint       # eslint . (lint:fix to autofix)
 npm run typecheck  # tsc --noEmit
