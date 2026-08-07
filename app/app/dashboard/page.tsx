@@ -1,12 +1,12 @@
 "use client";
 
+import { Callout } from "@watchborne/electrons";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 import { CommissioningQueue } from "../charge-points/components/CommissioningQueue";
 import { ChargePointStats } from "../components/charge-points/ChargePointStats";
 import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePointStatsSkeleton";
-import { Callout } from "../components/common/Callout";
 import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";

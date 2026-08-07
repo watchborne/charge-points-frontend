@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Input } from "@watchborne/electrons";
 import { Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
-import { Button } from "@/components/ui/button";
 import { Datepicker } from "@/components/ui/datepicker";
 import {
   DialogHeader,
@@ -23,7 +23,6 @@ import {
   FormMessage,
   Form,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 
 const siteFormSchema = z.object({
   name: z.string(),

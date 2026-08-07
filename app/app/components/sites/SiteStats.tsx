@@ -1,10 +1,9 @@
 import { Site } from "@watchborne/charge-points-types";
+import { StatCard } from "@watchborne/electrons";
 import { Battery, MapPin, PlugZap, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
-
-import { StatCard } from "../common/StatCard";
 
 export const SiteStats = ({
   sites,

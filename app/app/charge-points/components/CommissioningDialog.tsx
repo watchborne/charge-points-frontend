@@ -2,13 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Site } from "@watchborne/charge-points-types";
+import { Button, Input } from "@watchborne/electrons";
 import { PlugZap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { CommissioningChecklist } from "./CommissioningChecklist";

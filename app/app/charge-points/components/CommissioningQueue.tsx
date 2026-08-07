@@ -1,8 +1,7 @@
+import { Badge, Button } from "@watchborne/electrons";
 import { ArrowRight, PlugZap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { StatusBadge } from "../../components/charge-points/StatusBadge";

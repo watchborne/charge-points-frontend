@@ -1,3 +1,4 @@
+import { Badge, Button } from "@watchborne/electrons";
 import {
   ArrowRight,
   Activity,
@@ -9,9 +10,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   const t = useTranslations("");

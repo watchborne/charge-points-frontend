@@ -1,11 +1,11 @@
 "use client";
 
 import { TRIGGER_MESSAGE_TYPES, TriggerMessageType } from "@watchborne/charge-points-types";
+import { Button, Callout } from "@watchborne/electrons";
 import { CheckCircle2, ChevronDown, Loader2, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +15,6 @@ import {
 import { api } from "@/lib/api";
 import { TriggerMessageOutcome } from "@/lib/api-charge-points";
 import { ChargePoint } from "@/types/charge-point";
-
-import { Callout } from "../../components/common/Callout";
 
 type TriggerState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: TriggerMessageOutcome };

@@ -1,13 +1,10 @@
 "use client";
 
+import { Callout, Button, Input, Label } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Callout } from "@/app/app/components/common/Callout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 interface LoginFormProps {

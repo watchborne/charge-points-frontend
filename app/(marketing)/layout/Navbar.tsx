@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@watchborne/electrons";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { LogoutButton } from "@/app/auth/components/LogoutButton";
 import { Navbar as LayoutNavbar, NavbarLink } from "@/app/components/layout/Navbar";
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {

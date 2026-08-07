@@ -1,19 +1,17 @@
 "use client";
 
 import { Site } from "@watchborne/charge-points-types";
+import { Button, Input, Callout } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 
 import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
 import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteGrid } from "./components/SiteGrid";
 import { SiteGridSkeleton } from "./components/SiteGridSkeleton";
-import { Callout } from "../components/common/Callout";
 import { SiteStats } from "../components/sites/SiteStats";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";

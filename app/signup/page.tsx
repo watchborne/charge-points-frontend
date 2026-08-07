@@ -1,14 +1,12 @@
 "use client";
 
+import { Badge, Callout } from "@watchborne/electrons";
 import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-
 import { SignupForm } from "./components/SignupForm";
-import { Callout } from "../app/components/common/Callout";
 
 export default function SignupPage() {
   const t = useTranslations("");

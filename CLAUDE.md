@@ -30,7 +30,10 @@ app/
     sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
                          #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
     components/         # shared feature + common + layout components
-                        #   (common/Callout.tsx: default/info/error/warning/success)
+                        #   (common/: ConnectorStatusIcon, WsStatusBadge —
+                        #   app-specific, tied to domain types/state; the
+                        #   generic display primitives that used to live here
+                        #   moved to @watchborne/electrons)
     404/                 # dashboard-scoped not-found page
     hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
@@ -45,13 +48,16 @@ app/
   auth/callback/         # Supabase magic-link code-exchange handler
   auth/components/       # LogoutButton, shared by Header and marketing Navbar
   auth/dev-login/        # local-dev-only magic-link shortcut route
-  design-system/         # tokens.css (Tailwind design tokens)
   assets/                # static assets used by app/ components
 proxy.ts                # Supabase session refresh, locale resolution
                         # (?lang= > cookie > host), and auth guard for
                         # /app, /api, /login, /signup (Next's renamed
                         # middleware.ts file convention as of Next 16)
-components/ui/          # shadcn/ui primitives (generated; edit via components.json)
+components/ui/          # shadcn/ui primitives not yet promoted to
+                        #   @watchborne/electrons (generated; edit via
+                        #   components.json) — Dialog, AlertDialog, Popover,
+                        #   DropdownMenu, Select, Command, Calendar,
+                        #   Datepicker, Form
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
 i18n/locale.ts          # Locale type, defaultLocale, localeForHost (edge-safe)
@@ -160,15 +166,23 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
 
 ### UI
 
-Use the existing `components/ui/*` shadcn primitives and `lib` helpers
-(`cn`, etc.). shadcn config is in `components.json`; regenerate primitives with
-the shadcn CLI rather than hand-editing generated files. Style with Tailwind and
-the tokens in `app/design-system/tokens.css`.
+Most UI primitives (`Button`, `Badge`, `Input`, `Label`, `Switch`, `Tabs`,
+`Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`)
+come from `@watchborne/electrons`, the shared watchborne component library —
+import them from there rather than redefining or re-copying them locally.
+The remaining, more composite or app-specific shadcn primitives
+(`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`,
+`Calendar`, `Datepicker`, `Form`) still live in `components/ui/*`; shadcn
+config is in `components.json`, regenerate with the shadcn CLI rather than
+hand-editing generated files. Style with Tailwind and the tokens from
+`@watchborne/electrons/tokens.css` (imported once in `app/globals.css`) and
+`@watchborne/electrons/tailwind-preset` (plugged into `tailwind.config.js`
+via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.
 
 - `app/components/ToastNotification/` wraps `sonner`'s `Toaster` into the
   dashboard-wide stackable toast system (bottom-center, 15s, dismissible,
   `richColors`) — use it instead of adding another notification mechanism.
-- `app/app/components/common/Callout.tsx` is the shared inline-message
+- `Callout` (from `@watchborne/electrons`) is the shared inline-message
   component (`default` / `info` / `error` / `warning` / `success` variants),
   used both in the dashboard and on `/login` (e.g. `AuthErrorCallout`).
 

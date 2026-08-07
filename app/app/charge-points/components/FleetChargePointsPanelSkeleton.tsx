@@ -1,6 +1,5 @@
+import { Skeleton } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
-
-import { Skeleton } from "../../components/common/Skeleton";
 
 export const FleetChargePointsPanelSkeleton = () => {
   const t = useTranslations("");

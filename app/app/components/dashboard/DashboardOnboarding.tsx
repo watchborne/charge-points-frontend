@@ -1,11 +1,8 @@
+import { Button, Callout } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Check, MapPin, PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-
-import { Button } from "@/components/ui/button";
-
-import { Callout } from "../common/Callout";
 
 type DashboardOnboardingProps = {
   /** Whether at least one site has already been created. */
