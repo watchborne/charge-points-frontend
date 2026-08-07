@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -34,6 +35,21 @@ export async function proxyToBackend(
   } = await supabase.auth.getSession();
   if (session?.access_token) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
+  } else {
+    // TEMPORARY DIAGNOSTIC — investigating a production 401 on scoped backend
+    // routes (e.g. /api/ws-token) where getSession() returns no session here
+    // even though proxy.ts's middleware (a separate Supabase client, via
+    // getUser()) already let the request through. Logs presence only, never
+    // cookie/token values. Remove once resolved.
+    const cookieStore = await cookies();
+    const sbCookieNames = cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .filter((name) => name.startsWith("sb-"));
+    console.error("[ws-token-debug] no session in proxyToBackend", {
+      backendPath,
+      sbCookieNames,
+    });
   }
 
   const init: RequestInit = { method: request.method, headers };
