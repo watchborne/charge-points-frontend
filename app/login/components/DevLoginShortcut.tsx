@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button, Input } from "@watchborne/electrons";
 
 /**
  * Only rendered by `LoginPage` when `NODE_ENV !== "production"` (see

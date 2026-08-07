@@ -1,11 +1,10 @@
 "use client";
 
+import { Badge, Button, Input, Callout } from "@watchborne/electrons";
 import { CheckCircle2, Loader2, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,12 +13,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { ChangeConfigurationOutcome, GetConfigurationOutcome } from "@/lib/api-charge-points";
 import { ChargePoint } from "@/types/charge-point";
-
-import { Callout } from "../../components/common/Callout";
 
 type FetchState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetConfigurationOutcome };

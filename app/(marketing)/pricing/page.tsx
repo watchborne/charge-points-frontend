@@ -1,8 +1,6 @@
+import { Badge, Button } from "@watchborne/electrons";
 import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export default function PricingPage() {
   const t = useTranslations("");

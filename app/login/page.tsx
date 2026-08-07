@@ -1,16 +1,14 @@
 "use client";
 
+import { Badge, Callout } from "@watchborne/electrons";
 import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-
 import { AuthErrorCallout } from "./components/AuthErrorCallout";
 import { DevLoginShortcut } from "./components/DevLoginShortcut";
 import { LoginForm } from "./components/LoginForm";
-import { Callout } from "../app/components/common/Callout";
 
 export default function LoginPage() {
   const t = useTranslations("");

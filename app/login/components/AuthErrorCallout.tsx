@@ -1,10 +1,9 @@
 "use client";
 
+import { Callout } from "@watchborne/electrons";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense } from "react";
-
-import { Callout } from "@/app/app/components/common/Callout";
 
 function AuthErrorCalloutContent() {
   const t = useTranslations("");

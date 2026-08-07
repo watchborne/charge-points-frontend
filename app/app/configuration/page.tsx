@@ -1,11 +1,10 @@
 "use client";
 
+import { Badge, Button } from "@watchborne/electrons";
 import { ArrowRight, PlugZap, Server, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { OCPP_SERVER_URL } from "@/lib/constants";
 
 import { CommissioningTokenPanel } from "./components/CommissioningTokenPanel";

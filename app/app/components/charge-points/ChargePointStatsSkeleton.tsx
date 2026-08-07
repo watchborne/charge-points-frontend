@@ -1,4 +1,4 @@
-import { Skeleton } from "../common/Skeleton";
+import { Skeleton } from "@watchborne/electrons";
 
 export const ChargePointStatsSkeleton = () => {
   return (

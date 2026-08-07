@@ -1,9 +1,9 @@
 import { Site } from "@watchborne/charge-points-types";
+import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Battery, Calendar, MapPin, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,

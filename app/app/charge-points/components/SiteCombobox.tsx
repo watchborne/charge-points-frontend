@@ -1,10 +1,10 @@
 import { Site } from "@watchborne/charge-points-types";
+import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,

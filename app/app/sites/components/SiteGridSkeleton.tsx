@@ -1,4 +1,4 @@
-import { Skeleton } from "../../components/common/Skeleton";
+import { Skeleton } from "@watchborne/electrons";
 
 export const SiteGridSkeleton = () => {
   return (

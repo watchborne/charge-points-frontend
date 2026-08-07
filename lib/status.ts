@@ -5,7 +5,7 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  *
  * Both the network connection status and the OCPP connector status collapse
  * onto a shared, finite set of visual "tones". Each tone is backed by the
- * `--status-*` CSS variables (see `app/design-system/tokens.css`) and exposed
+ * `--status-*` CSS variables (see `@watchborne/electrons`'s `tokens.css`) and exposed
  * through Tailwind's `status-<tone>` colour family. Components must colour
  * statuses through the class maps below rather than hardcoding raw colours, so
  * the marketing site and the app stay in sync.
