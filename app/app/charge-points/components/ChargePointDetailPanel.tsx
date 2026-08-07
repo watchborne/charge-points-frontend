@@ -196,7 +196,8 @@ export const ChargePointDetailPanel = ({
               </span>
             )}
           </h4>
-          <div className="mt-2">
+          <div className="mt-2 flex items-center gap-2">
+            <Badge>OCPP {chargePoint.ocppVersion}</Badge>
             <StatusBadge status={chargePoint.connection.status} />
           </div>
         </div>
