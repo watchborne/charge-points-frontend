@@ -1,8 +1,8 @@
+import { Button } from "@watchborne/electrons";
 import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
 export const LogoutButton = () => {

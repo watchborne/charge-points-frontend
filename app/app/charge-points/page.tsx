@@ -1,12 +1,11 @@
 "use client";
 
+import { Button, Input, Callout, Skeleton } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -15,8 +14,6 @@ import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { CommissioningDialog } from "./components/CommissioningDialog";
 import { CommissioningQueue } from "./components/CommissioningQueue";
-import { Callout } from "../components/common/Callout";
-import { Skeleton } from "../components/common/Skeleton";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 import { FleetChargePointsPanelSkeleton } from "./components/FleetChargePointsPanelSkeleton";

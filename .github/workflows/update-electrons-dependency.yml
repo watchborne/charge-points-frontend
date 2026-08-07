@@ -1,0 +1,57 @@
+name: Update Electrons Dependency
+
+on:
+  repository_dispatch:
+    types: [electrons-released]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Package version"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  package_version: ${{ github.event.client_payload.version || inputs.ref }}
+
+jobs:
+  update-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Install dependencies
+        uses: ./.github/workflows/composites/install-dependencies
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
+          registry-url: https://npm.pkg.github.com
+          scope: "@watchborne"
+
+      - name: Update @watchborne/electrons
+        run: |
+          npm install --save "@watchborne/electrons@${{ env.package_version }}"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          commit-message: "chore(deps): bump @watchborne/electrons to ${{ env.package_version }}"
+          title: "chore(deps): bump @watchborne/electrons to ${{ env.package_version }}"
+          body: |
+            Automated dependency bump from electrons package release.
+
+            **Release:** [`${{ env.package_version }}`](https://github.com/watchborne/electrons/releases/tag/${{ env.package_version }})
+
+            **Changes:**
+            - Updates `@watchborne/electrons` to `${{ env.package_version }}`
+
+            Please review the [electrons release notes](https://github.com/watchborne/electrons/releases/tag/${{ env.package_version }}) for any breaking changes.
+          branch: chore/bump-electrons-${{ env.package_version }}
+          delete-branch: true

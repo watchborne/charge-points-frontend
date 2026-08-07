@@ -1,5 +1,5 @@
 {
-  "name": "ev-charging-frontend",
+  "name": "charge-points-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -40,11 +40,12 @@
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.110.0",
     "@watchborne/charge-points-types": "^0.17.0",
+    "@watchborne/electrons": "^0.1.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "date-fns": "^3.6.0",
+    "date-fns": "^4.4.0",
     "lucide-react": "^1.28.0",
     "next": "^16.2.12",
     "next-intl": "^4.13.0",

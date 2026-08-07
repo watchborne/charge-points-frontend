@@ -4,14 +4,17 @@ Guidance for AI coding agents working in this repository.
 
 ## What this is
 
-`ev-charging-frontend` — the **Next.js 16 dashboard** for the watchborne EV
+`charge-points-frontend` — the **Next.js 16 dashboard** for the watchborne EV
 charge-point platform. It renders a marketing site and an authenticated app that
 shows charge points and sites in real time, backed by `charge-points-server`.
 
-Stack: **Next.js 16 (App Router, Turbopack)**, React 18, TypeScript (strict),
+Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `next-intl` for i18n, `sonner` for toast notifications. Dev server runs on
 **port 3001**. Domain types come from `@watchborne/charge-points-types`.
+Production builds run with `next build --webpack` (see Commands below) — a
+Turbopack/Netlify tracing bug forces webpack for `next build` specifically;
+`next dev` still uses Turbopack.
 
 ## Layout
 
@@ -19,13 +22,18 @@ Stack: **Next.js 16 (App Router, Turbopack)**, React 18, TypeScript (strict),
 app/
   (marketing)/          # public site (route group): home, pricing, contact, features
   app/                  # authenticated dashboard
-    dashboard/ sites/ configuration/   # pages (no local components/ subfolder)
+    dashboard/ sites/    # pages (no local components/ subfolder)
+    configuration/       # page + its own components/ (CommissioningTokenPanel:
+                         #   installer self-service OCPP commissioning token)
     charge-points/       # page + its own components/ (commissioning dialog/queue/
                          #   checklist, fleet panel, config dialog, trigger message)
     sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
                          #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
     components/         # shared feature + common + layout components
-                        #   (common/Callout.tsx: default/info/error/warning/success)
+                        #   (common/: ConnectorStatusIcon, WsStatusBadge —
+                        #   app-specific, tied to domain types/state; the
+                        #   generic display primitives that used to live here
+                        #   moved to @watchborne/electrons)
     404/                 # dashboard-scoped not-found page
     hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
     ws/ws-manager.ts    # singleton WebSocket manager (see below)
@@ -40,13 +48,16 @@ app/
   auth/callback/         # Supabase magic-link code-exchange handler
   auth/components/       # LogoutButton, shared by Header and marketing Navbar
   auth/dev-login/        # local-dev-only magic-link shortcut route
-  design-system/         # tokens.css (Tailwind design tokens)
   assets/                # static assets used by app/ components
 proxy.ts                # Supabase session refresh, locale resolution
                         # (?lang= > cookie > host), and auth guard for
                         # /app, /api, /login, /signup (Next's renamed
                         # middleware.ts file convention as of Next 16)
-components/ui/          # shadcn/ui primitives (generated; edit via components.json)
+components/ui/          # shadcn/ui primitives not yet promoted to
+                        #   @watchborne/electrons (generated; edit via
+                        #   components.json) — Dialog, AlertDialog, Popover,
+                        #   DropdownMenu, Select, Command, Calendar,
+                        #   Datepicker, Form
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
 i18n/locale.ts          # Locale type, defaultLocale, localeForHost (edge-safe)
@@ -84,6 +95,11 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   (`api.Me.getMe()`) fetches the caller's own scoped charge points via
   `GET /api/me`; `lib/api-access-requests.ts` (`api.AccessRequests.requestAccess`)
   posts an alpha access request from `/signup` (see Authentication below).
+  `lib/api-commissioning-token.ts` (`api.CommissioningToken`) proxies
+  `GET`/`POST` `/api/me/commissioning-token` for the installer
+  self-service commissioning-token flow on `/app/configuration`
+  (`CommissioningTokenPanel`) — the plaintext token is only ever returned
+  once, on issue, and is never persisted client-side.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 
@@ -150,15 +166,23 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
 
 ### UI
 
-Use the existing `components/ui/*` shadcn primitives and `lib` helpers
-(`cn`, etc.). shadcn config is in `components.json`; regenerate primitives with
-the shadcn CLI rather than hand-editing generated files. Style with Tailwind and
-the tokens in `app/design-system/tokens.css`.
+Most UI primitives (`Button`, `Badge`, `Input`, `Label`, `Switch`, `Tabs`,
+`Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`)
+come from `@watchborne/electrons`, the shared watchborne component library —
+import them from there rather than redefining or re-copying them locally.
+The remaining, more composite or app-specific shadcn primitives
+(`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`,
+`Calendar`, `Datepicker`, `Form`) still live in `components/ui/*`; shadcn
+config is in `components.json`, regenerate with the shadcn CLI rather than
+hand-editing generated files. Style with Tailwind and the tokens from
+`@watchborne/electrons/tokens.css` (imported once in `app/globals.css`) and
+`@watchborne/electrons/tailwind-preset` (plugged into `tailwind.config.js`
+via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.
 
 - `app/components/ToastNotification/` wraps `sonner`'s `Toaster` into the
   dashboard-wide stackable toast system (bottom-center, 15s, dismissible,
   `richColors`) — use it instead of adding another notification mechanism.
-- `app/app/components/common/Callout.tsx` is the shared inline-message
+- `Callout` (from `@watchborne/electrons`) is the shared inline-message
   component (`default` / `info` / `error` / `warning` / `success` variants),
   used both in the dashboard and on `/login` (e.g. `AuthErrorCallout`).
 
@@ -193,7 +217,8 @@ request. Add keys to **both** `messages/fr.json` and `messages/en.json`.
 export NPM_TOKEN=<token>   # required to install @watchborne/* from the GH registry
 npm install
 npm run dev        # next dev on http://localhost:3001
-npm run build
+npm run build       # next build --webpack (forced webpack: Turbopack has a
+                    #   Netlify tracing bug on this project, see #199)
 npm run start      # next start (serves the production build)
 npm run lint       # eslint . (lint:fix to autofix)
 npm run typecheck  # tsc --noEmit

@@ -1,8 +1,7 @@
+import { Button } from "@watchborne/electrons";
 import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-
-import { Button } from "@/components/ui/button";
 
 export const NotFoundContent = () => {
   const t = useTranslations("");

@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, Callout } from "@watchborne/electrons";
 import { Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -14,11 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { OCPP_SERVER_URL } from "@/lib/constants";
-
-import { Callout } from "../../components/common/Callout";
 
 /**
  * Lets an installer generate their personal commissioning token: appended as

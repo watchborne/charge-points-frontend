@@ -1,10 +1,9 @@
 import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
+import { Badge, Tabs, TabsList, TabsTrigger, Tag } from "@watchborne/electrons";
 import classNames from "classnames";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChangeAvailabilityOutcome,
   ResetChargePointOutcome,
@@ -14,7 +13,6 @@ import { connectionStatusTone, toneDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDetailPanel } from "./ChargePointDetailPanel";
-import { Tag } from "../../components/common/Tag";
 import { useFlipReorder } from "../../hooks/useFlipReorder";
 
 type GroupBy = "site" | "vendor";

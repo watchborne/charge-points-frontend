@@ -1,4 +1,5 @@
 import { AvailabilityType, ResetType, SampledValue, Site } from "@watchborne/charge-points-types";
+import { Badge, Button, Switch, Callout, Tag } from "@watchborne/electrons";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import {
@@ -17,15 +18,12 @@ import {
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
 import {
   ChangeAvailabilityOutcome,
   ResetChargePointOutcome,
@@ -36,9 +34,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
-import { Callout } from "../../components/common/Callout";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
-import { Tag } from "../../components/common/Tag";
 
 type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };
