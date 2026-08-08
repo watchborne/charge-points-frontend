@@ -1,16 +1,18 @@
 "use client";
 
-import { Button } from "@watchborne/electrons";
+import { Button, ThemeSwitcher } from "@watchborne/electrons";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { LogoutButton } from "@/app/auth/components/LogoutButton";
+import { useTheme } from "@/app/components/ThemeProvider";
 import { Navbar as LayoutNavbar, NavbarLink } from "@/app/components/layout/Navbar";
 import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const t = useTranslations("");
+  const { theme, setTheme } = useTheme();
 
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +38,7 @@ export function Navbar() {
 
   return (
     <LayoutNavbar links={links}>
+      <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
       {!isLoading && user ? (
         <>
           <Button variant="info" size="sm" asChild>
