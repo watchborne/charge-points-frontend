@@ -8,6 +8,9 @@ import { Navbar } from "../(marketing)/layout/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// See app/(marketing)/layout.tsx for why this is set on every root layout.
+export const runtime = "edge";
+
 export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
