@@ -11,6 +11,11 @@ import { WebSocketDataProvider } from "./hooks/useWebSocketContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// See app/(marketing)/layout.tsx for why this is set on every root layout:
+// the cookie-based locale (i18n/request.ts) forces dynamic rendering, and
+// edge runtime avoids Node.js serverless cold starts for that dynamic render.
+export const runtime = "edge";
+
 export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 
+// Edge runtime avoids Node.js serverless cold starts on this hop.
+export const runtime = "edge";
+
 /**
  * Magic-link redirect target: the email template (emails/templates/magic-link.html)
  * links to Supabase's hosted `{{ .ConfirmationURL }}` (/auth/v1/verify), which
