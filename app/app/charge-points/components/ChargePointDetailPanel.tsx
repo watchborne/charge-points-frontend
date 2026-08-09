@@ -32,6 +32,7 @@ import {
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
+import { FirmwarePanel } from "./FirmwarePanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
@@ -412,6 +413,11 @@ export const ChargePointDetailPanel = ({
           )}
         </div>
       )}
+
+      <FirmwarePanel
+        chargePointId={chargePoint.id}
+        firmwareVersion={chargePoint.meta?.firmwareVersion}
+      />
 
       <div className="mt-auto flex flex-col gap-2">
         <div className="flex items-stretch gap-4">

@@ -556,6 +556,43 @@
           "genericError": "La demande de déverrouillage a échoué. Veuillez réessayer."
         }
       },
+      "firmware": {
+        "title": "Firmware",
+        "unknownVersion": "Version inconnue",
+        "loading": "Chargement de l'état firmware…",
+        "loadError": "Impossible de charger l'état firmware de cette borne.",
+        "inProgress": "Mise à jour en cours",
+        "lastUpdate": "Dernière mise à jour",
+        "neverUpdated": "Aucune mise à jour enregistrée",
+        "timeline": "Étapes de la mise à jour firmware",
+        "stalled": "Aucune progression signalée depuis un moment — la borne est peut-être bloquée.",
+        "phases": {
+          "DOWNLOAD": "Téléchargement",
+          "SIGNATURE": "Signature",
+          "INSTALL": "Installation",
+          "REBOOT": "Redémarrage"
+        },
+        "origins": {
+          "INSTALLER": "Déclenchée depuis le superviseur",
+          "EXTERNAL": "Déclenchée en externe"
+        },
+        "statuses": {
+          "Downloaded": "Téléchargé",
+          "DownloadFailed": "Échec du téléchargement",
+          "Downloading": "Téléchargement en cours",
+          "DownloadScheduled": "Téléchargement planifié",
+          "DownloadPaused": "Téléchargement en pause",
+          "Idle": "Inactif",
+          "InstallationFailed": "Échec de l'installation",
+          "Installing": "Installation en cours",
+          "Installed": "Installé",
+          "InstallRebooting": "Redémarrage pour appliquer",
+          "InstallScheduled": "Installation planifiée",
+          "InstallVerificationFailed": "Échec de la vérification après installation",
+          "InvalidSignature": "Signature invalide",
+          "SignatureVerified": "Signature vérifiée"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",

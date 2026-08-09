@@ -556,6 +556,43 @@
           "genericError": "The unlock request failed. Please try again."
         }
       },
+      "firmware": {
+        "title": "Firmware",
+        "unknownVersion": "Unknown version",
+        "loading": "Loading firmware state…",
+        "loadError": "Could not load this charge point's firmware state.",
+        "inProgress": "Update in progress",
+        "lastUpdate": "Last update",
+        "neverUpdated": "No update on record",
+        "timeline": "Firmware update stages",
+        "stalled": "No progress reported for a while — the station may be stuck.",
+        "phases": {
+          "DOWNLOAD": "Download",
+          "SIGNATURE": "Signature",
+          "INSTALL": "Install",
+          "REBOOT": "Reboot"
+        },
+        "origins": {
+          "INSTALLER": "Triggered from the supervisor",
+          "EXTERNAL": "Triggered externally"
+        },
+        "statuses": {
+          "Downloaded": "Downloaded",
+          "DownloadFailed": "Download failed",
+          "Downloading": "Downloading",
+          "DownloadScheduled": "Download scheduled",
+          "DownloadPaused": "Download paused",
+          "Idle": "Idle",
+          "InstallationFailed": "Installation failed",
+          "Installing": "Installing",
+          "Installed": "Installed",
+          "InstallRebooting": "Rebooting to apply",
+          "InstallScheduled": "Installation scheduled",
+          "InstallVerificationFailed": "Post-install verification failed",
+          "InvalidSignature": "Invalid signature",
+          "SignatureVerified": "Signature verified"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
