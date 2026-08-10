@@ -401,23 +401,12 @@ export const ChargePointDetailPanel = ({
               <span className="font-mono text-sm">{chargePoint.meta.serialNumber}</span>
             </div>
           )}
-          {chargePoint.meta.firmwareVersion && (
-            <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-sm text-muted-foreground">
-                {t("appPage.chargePoints.form.fields.firmware")}
-              </span>
-              <Badge variant="outline" className="font-mono text-xs">
-                v{chargePoint.meta.firmwareVersion}
-              </Badge>
-            </div>
-          )}
+          <FirmwarePanel
+            chargePointId={chargePoint.id}
+            firmwareVersion={chargePoint.meta?.firmwareVersion}
+          />
         </div>
       )}
-
-      <FirmwarePanel
-        chargePointId={chargePoint.id}
-        firmwareVersion={chargePoint.meta?.firmwareVersion}
-      />
 
       <div className="mt-auto flex flex-col gap-2">
         <div className="flex items-stretch gap-4">

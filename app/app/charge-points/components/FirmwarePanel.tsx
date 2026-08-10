@@ -83,7 +83,7 @@ export const FirmwarePanel = ({ chargePointId, firmwareVersion }: FirmwarePanelP
     );
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border p-3">
+    <div className="flex flex-col gap-3 p-3">
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
           {t("appPage.chargePoints.firmware.title")}
