@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuthErrorCallout } from "./components/AuthErrorCallout";
 import { DevLoginShortcut } from "./components/DevLoginShortcut";
 import { LoginForm } from "./components/LoginForm";
 import { VerifyOtpForm } from "./components/VerifyOtpForm";
@@ -65,8 +64,6 @@ export default function LoginPage() {
 
             <p className="mt-2 text-sm text-muted-foreground">{t("loginPage.subtitle")}</p>
           </div>
-
-          <AuthErrorCallout />
 
           {!userEmail ? (
             <LoginForm onFormSubmitted={(email) => setUserEmail(email)} />

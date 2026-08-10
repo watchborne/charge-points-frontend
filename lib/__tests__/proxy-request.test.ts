@@ -14,7 +14,7 @@ const { getSession, createServerClient } = vi.hoisted(() => {
 
 // Both mocked specifiers are external/bare (@supabase/ssr, next/headers), not path
 // aliases — those are reliably intercepted, unlike "@/..." aliased mocks (see
-// app/auth/callback/__tests__/route.test.ts for the same pattern).
+// proxy/__tests__/proxy.test.ts for the same pattern).
 vi.mock("@supabase/ssr", () => ({ createServerClient }));
 vi.mock("next/headers", () => ({
   cookies: () => ({ getAll: () => [], set: vi.fn() }),
