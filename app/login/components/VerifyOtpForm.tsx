@@ -12,6 +12,11 @@ const RESEND_COOLDOWN_SECONDS = 30;
 interface VerifyOtpFormProps {
   email: string;
   onBack: () => void;
+  // Dev-only: pre-fills the code from `/auth/dev-login` and submits it
+  // immediately, so `DevLoginShortcut` still signs in in one click while
+  // running through this component's real `verifyOtp` call instead of
+  // bypassing it server-side. Never set outside `DevLoginShortcut`.
+  initialCode?: string;
 }
 
 /**
@@ -22,10 +27,10 @@ interface VerifyOtpFormProps {
  * can't fail just because the user is on a different browser/device than the
  * one that requested the code (see ADR 0005 in charge-points-server).
  */
-export function VerifyOtpForm({ email, onBack }: VerifyOtpFormProps) {
+export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps) {
   const t = useTranslations("");
   const locale = useLocale();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(initialCode ?? "");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<"invalid" | "generic" | null>(null);
@@ -37,15 +42,14 @@ export function VerifyOtpForm({ email, onBack }: VerifyOtpFormProps) {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const verify = async (token: string) => {
     setIsVerifying(true);
     setError(null);
 
     const supabase = createClient();
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
-      token: code,
+      token,
       type: "email",
     });
 
@@ -63,6 +67,19 @@ export function VerifyOtpForm({ email, onBack }: VerifyOtpFormProps) {
     // resolve session state once on mount, so a hard reload is what reliably
     // picks up the session verifyOtp just created.
     window.location.assign("/app/dashboard");
+  };
+
+  useEffect(() => {
+    // Only ever set by DevLoginShortcut with a fresh code for a freshly
+    // mounted form, so firing once on mount (rather than tracking initialCode
+    // as a dependency) is exactly the intended one-shot auto-submit.
+    if (initialCode) void verify(initialCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await verify(code);
   };
 
   const handleResend = async () => {

@@ -9,25 +9,12 @@ const { createClient: createAdminSupabaseClient, generateLink } = vi.hoisted(() 
   };
 });
 
-const { createServerClient, verifyOtp } = vi.hoisted(() => {
-  const verifyOtp = vi.fn();
-  return {
-    verifyOtp,
-    createServerClient: vi.fn(() => ({ auth: { verifyOtp } })),
-  };
-});
-
 vi.mock("@supabase/supabase-js", () => ({ createClient: createAdminSupabaseClient }));
-vi.mock("@supabase/ssr", () => ({ createServerClient }));
-vi.mock("next/headers", () => ({
-  cookies: () => ({ getAll: () => [], set: vi.fn() }),
-}));
 
 import { GET } from "../route";
 
 beforeEach(() => {
   generateLink.mockReset();
-  verifyOtp.mockReset();
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("ENABLE_DEV_LOGIN", "true");
   vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key");
@@ -79,35 +66,28 @@ describe("GET /auth/dev-login", () => {
 
     expect(res.status).toBe(400);
     expect((await res.json()).error).toBe("user not found");
-    expect(verifyOtp).not.toHaveBeenCalled();
   });
 
-  it("SHOULD return 400 WHEN verifyOtp fails", async () => {
-    generateLink.mockResolvedValue({
-      data: { properties: { hashed_token: "hashed-token" } },
-      error: null,
-    });
-    verifyOtp.mockResolvedValue({ error: { message: "invalid token" } });
+  it("SHOULD return 400 WHEN generateLink succeeds but carries no email_otp", async () => {
+    generateLink.mockResolvedValue({ data: { properties: {} }, error: null });
 
     const res = await GET(new NextRequest("http://localhost:3001/auth/dev-login?email=a@b.com"));
 
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toBe("invalid token");
   });
 
-  it("SHOULD verify the token and redirect to the dashboard WHEN sign-in succeeds", async () => {
+  it("SHOULD return the OTP code WHEN generateLink succeeds", async () => {
     generateLink.mockResolvedValue({
-      data: { properties: { hashed_token: "hashed-token" } },
+      data: { properties: { email_otp: "654321", hashed_token: "hashed-token" } },
       error: null,
     });
-    verifyOtp.mockResolvedValue({ error: null });
 
     const res = await GET(
       new NextRequest("http://localhost:3001/auth/dev-login?email=dev@example.com"),
     );
 
     expect(generateLink).toHaveBeenCalledWith({ type: "magiclink", email: "dev@example.com" });
-    expect(verifyOtp).toHaveBeenCalledWith({ type: "magiclink", token_hash: "hashed-token" });
-    expect(res.headers.get("location")).toBe("http://localhost:3001/app/dashboard");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ code: "654321" });
   });
 });

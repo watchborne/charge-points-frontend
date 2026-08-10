@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 /**
- * Local-dev-only shortcut around the magic-link email round-trip.
+ * Local-dev-only shortcut around the real OTP-code email round-trip.
  *
- * A real magic link works because the browser's own `signInWithOtp` call
- * stores a PKCE code_verifier before the link is ever clicked, so
- * `/auth/callback`'s `exchangeCodeForSession` has something to match the
- * returned code against. The admin API has no such browser-side step, so an
- * admin-generated confirmation link can't be exchanged the same way — hence
- * verifying its `token_hash` directly here (server-side, via the anon-key
- * client) instead of redirecting through `/auth/callback`. This never runs
- * outside this dev-only route, so it doesn't affect the callback's
- * code-exchange-only contract for real magic links.
+ * Returns the code itself (`properties.email_otp` from the admin API)
+ * instead of creating a session server-side: `DevLoginShortcut` feeds it into
+ * `VerifyOtpForm`, which runs the exact same client-side
+ * `supabase.auth.verifyOtp` call a real user's browser would after reading
+ * the code from their inbox. Local dev still skips the real email, but now
+ * exercises the actual sign-in path instead of a server-side shortcut around
+ * it — unlike this route's magic-link-era version, which had to verify a
+ * `token_hash` server-side because a real magic link's PKCE exchange can
+ * only ever be driven by the browser that requested it (see ADR 0005,
+ * charge-points-server).
  *
  * Disabled outside development, whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
  * set (which it never is in a deployed environment), and unless
  * `ENABLE_DEV_LOGIN=true` is explicitly set. The extra opt-in flag means a
  * misconfigured non-production deployment that happens to have the
  * service-role key set (e.g. a preview/staging environment) still can't
- * mint a session for an arbitrary email — a second, deliberate flag has to
- * be set too, so this can't activate by accident outside a developer's
+ * mint a code for an arbitrary email — a second, deliberate flag has to be
+ * set too, so this can't activate by accident outside a developer's
  * machine.
  */
 export async function GET(request: NextRequest) {
@@ -44,22 +44,12 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email });
 
-  if (error || !data?.properties?.hashed_token) {
+  if (error || !data?.properties?.email_otp) {
     return NextResponse.json(
-      { error: error?.message ?? "Could not generate a sign-in link" },
+      { error: error?.message ?? "Could not generate a code" },
       { status: 400 },
     );
   }
 
-  const supabase = await createClient();
-  const { error: verifyError } = await supabase.auth.verifyOtp({
-    type: "magiclink",
-    token_hash: data.properties.hashed_token,
-  });
-
-  if (verifyError) {
-    return NextResponse.json({ error: verifyError.message }, { status: 400 });
-  }
-
-  return NextResponse.redirect(new URL("/app/dashboard", request.url));
+  return NextResponse.json({ code: data.properties.email_otp });
 }

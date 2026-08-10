@@ -77,6 +77,18 @@ describe("VerifyOtpForm", () => {
     });
   });
 
+  it("SHOULD auto-submit WHEN rendered with an initialCode (dev-login shortcut)", async () => {
+    verifyOtp.mockResolvedValue({ error: null });
+    render(<VerifyOtpForm email="dev@example.com" onBack={onBack} initialCode="999888" />);
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith("/app/dashboard"));
+    expect(verifyOtp).toHaveBeenCalledWith({
+      email: "dev@example.com",
+      token: "999888",
+      type: "email",
+    });
+  });
+
   it("SHOULD strip non-digit characters and cap the code at 6 digits WHILE typing", () => {
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
