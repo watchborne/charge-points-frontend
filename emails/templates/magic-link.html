@@ -119,37 +119,34 @@
                   account{{end}}
                 </p>
                 <p style="margin: 0 0 32px; font-size: 15px; color: #64748b; line-height: 1.6">
-                  {{if eq .Data.locale "fr"}}Cliquez sur le bouton ci-dessous pour vous connecter en
-                  toute sécurité à votre tableau de bord Watchborne. Ce lien est valable pendant
+                  {{if eq .Data.locale "fr"}}Utilisez le code ci-dessous pour vous connecter en
+                  toute sécurité à votre tableau de bord Watchborne. Ce code est valable pendant
                   <strong style="color: #0f172a">1 heure</strong> et ne peut être utilisé qu'une
-                  seule fois.{{else}}Click the button below to securely sign in to your Watchborne
-                  dashboard. This link is valid for <strong style="color: #0f172a">1 hour</strong>
+                  seule fois.{{else}}Use the code below to securely sign in to your Watchborne
+                  dashboard. This code is valid for <strong style="color: #0f172a">1 hour</strong>
                   and can only be used once.{{end}}
                 </p>
 
-                <!-- CTA Button -->
+                <!-- OTP Code -->
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                   <tr>
                     <td align="center" style="padding: 8px 0 36px">
-                      <a
-                        href="{{ .ConfirmationURL }}"
+                      <div
                         style="
                           display: inline-block;
-                          background-color: #f59e0b;
+                          background-color: #fef3c7;
+                          border: 1px solid #fde68a;
                           color: #451a03;
-                          font-family: &quot;Inter&quot;, Arial, sans-serif;
-                          font-size: 16px;
-                          font-weight: 600;
-                          text-decoration: none;
-                          padding: 14px 44px;
+                          font-family: &quot;Space Grotesk&quot;, Arial, sans-serif;
+                          font-size: 36px;
+                          font-weight: 700;
+                          letter-spacing: 0.3em;
+                          padding: 18px 28px;
                           border-radius: 8px;
-                          letter-spacing: 0.01em;
-                          box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
                         "
                       >
-                        {{if eq .Data.locale "fr"}}Se connecter à Watchborne{{else}}Sign in to
-                        Watchborne{{end}}
-                      </a>
+                        {{ .Token }}
+                      </div>
                     </td>
                   </tr>
                 </table>
@@ -193,28 +190,14 @@
                             </svg>
                           </td>
                           <td style="font-size: 13px; color: #64748b; line-height: 1.6">
-                            {{if eq .Data.locale "fr"}}Si vous n'avez pas demandé ce lien, vous
+                            {{if eq .Data.locale "fr"}}Si vous n'avez pas demandé ce code, vous
                             pouvez ignorer cet email en toute sécurité. Votre compte reste protégé
                             et aucune action n'est nécessaire.{{else}}If you didn't request this
-                            link, you can safely ignore this email. Your account remains secure and
+                            code, you can safely ignore this email. Your account remains secure and
                             no action is needed.{{end}}
                           </td>
                         </tr>
                       </table>
-
-                      <!-- Fallback URL -->
-                      <p
-                        style="margin: 20px 0 0; font-size: 12px; color: #94a3b8; line-height: 1.6"
-                      >
-                        {{if eq .Data.locale "fr"}}Le bouton ne fonctionne pas ? Copiez-collez ce
-                        lien dans votre navigateur :{{else}}Button not working? Copy and paste this
-                        link into your browser:{{end}}<br />
-                        <a
-                          href="{{ .ConfirmationURL }}"
-                          style="color: #b45309; word-break: break-all; text-decoration: none"
-                          >{{ .ConfirmationURL }}</a
-                        >
-                      </p>
                     </td>
                   </tr>
                 </table>

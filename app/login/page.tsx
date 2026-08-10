@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Callout } from "@watchborne/electrons";
+import { Badge } from "@watchborne/electrons";
 import { PlugZap } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -9,6 +9,7 @@ import { useState } from "react";
 import { AuthErrorCallout } from "./components/AuthErrorCallout";
 import { DevLoginShortcut } from "./components/DevLoginShortcut";
 import { LoginForm } from "./components/LoginForm";
+import { VerifyOtpForm } from "./components/VerifyOtpForm";
 
 export default function LoginPage() {
   const t = useTranslations("");
@@ -70,17 +71,7 @@ export default function LoginPage() {
           {!userEmail ? (
             <LoginForm onFormSubmitted={(email) => setUserEmail(email)} />
           ) : (
-            <Callout variant="success" title={t("loginPage.magicLink.calloutTitle")}>
-              <div className="block text-sm">
-                {t.rich("loginPage.magicLink.calloutDescription", {
-                  link: () => (
-                    <a className="font-bold" href={`mailto:${userEmail}`}>
-                      {userEmail}
-                    </a>
-                  ),
-                })}
-              </div>
-            </Callout>
+            <VerifyOtpForm email={userEmail} onBack={() => setUserEmail(undefined)} />
           )}
 
           {process.env.NODE_ENV !== "production" && <DevLoginShortcut />}

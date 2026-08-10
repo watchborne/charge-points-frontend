@@ -27,14 +27,16 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     // shouldCreateUser: false makes Supabase verify the email belongs to an
     // existing user before sending anything — unknown emails get an
     // "otp_disabled" error instead of silently creating an account and
-    // sending a link.
+    // sending a code. No emailRedirectTo: the "Magic Link" email template
+    // (Supabase dashboard) now renders {{ .Token }}, a 6-digit code the user
+    // types into VerifyOtpForm — there's no link to redirect from anymore
+    // (ADR 0005, charge-points-server).
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: false,
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        // Read by the "Magic Link" email template (Supabase dashboard) as
-        // {{ .Data.locale }} to send the email in the user's current language.
+        // Read by the email template as {{ .Data.locale }} to send the email
+        // in the user's current language.
         data: { locale },
       },
     });
@@ -73,8 +75,8 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
           variant="error"
           description={
             error === "unknown-user"
-              ? t("loginPage.magicLink.unknownUser")
-              : t("loginPage.magicLink.error")
+              ? t("loginPage.sendCode.unknownUser")
+              : t("loginPage.sendCode.error")
           }
         />
       )}

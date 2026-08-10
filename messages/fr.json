@@ -256,12 +256,10 @@
     "form": {
       "email": "Adresse email",
       "emailPlaceholder": "vous@exemple.com",
-      "submit": "Envoyer le lien de connexion"
+      "submit": "Envoyer le code"
     },
-    "magicLink": {
-      "calloutTitle": "Vérifiez votre boîte mail",
-      "calloutDescription": "Un lien de connexion a été envoyé à <link>link</link>. Cliquez dessus pour accéder à votre espace.",
-      "error": "Impossible d'envoyer le lien de connexion. Veuillez réessayer.",
+    "sendCode": {
+      "error": "Impossible d'envoyer le code. Veuillez réessayer.",
       "unknownUser": "Aucun compte n'est associé à cette adresse email. Demandez un accès Alpha pour en créer un."
     },
     "otp": {
