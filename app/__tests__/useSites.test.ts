@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createSite } from "./fixtures/site";
 import { api } from "../../lib/api";
-import { useSites } from "../app/hooks/useSites";
+import { useSites } from "../[locale]/app/hooks/useSites";
 
 vi.mock("../../lib/api", () => ({
   api: {

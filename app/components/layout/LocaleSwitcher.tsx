@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import {
@@ -10,20 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isLocale, locales, withLocaleParam } from "@/i18n/locale";
+import { isLocale, locales } from "@/i18n/locale";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 export function LocaleSwitcher() {
   const t = useTranslations("");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   function handleChange(nextLocale: string) {
     if (!isLocale(nextLocale)) return;
 
-    router.replace(withLocaleParam(pathname, searchParams.toString(), nextLocale));
-    router.refresh();
+    // usePathname()/router here are the locale-aware versions from
+    // i18n/navigation.ts: `pathname` already has any locale prefix
+    // stripped, and passing `locale` re-navigates to the same page under
+    // the new locale's URL (prefixed or not — see i18n/routing.ts).
+    router.replace(pathname, { locale: nextLocale });
   }
 
   return (

@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createChargePoint } from "./fixtures/charge-point";
 import { api } from "../../lib/api";
-import { useChargePoints } from "../app/hooks/useChargePoints";
-import { useWebSocketContext } from "../app/hooks/useWebSocketContext";
+import { useChargePoints } from "../[locale]/app/hooks/useChargePoints";
+import { useWebSocketContext } from "../[locale]/app/hooks/useWebSocketContext";
 
 // Mock the api module
 vi.mock("../../lib/api", () => ({
@@ -19,7 +19,7 @@ vi.mock("../../lib/api", () => ({
 }));
 
 // Mock useWebSocketContext
-vi.mock("../app/hooks/useWebSocketContext", () => ({
+vi.mock("../[locale]/app/hooks/useWebSocketContext", () => ({
   useWebSocketContext: vi.fn(() => ({
     lastMessage: null,
     messages: [],

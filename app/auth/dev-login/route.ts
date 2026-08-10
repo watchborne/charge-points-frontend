@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { defaultLocale, isLocale, LOCALE_COOKIE_NAME, localizedPath } from "@/i18n/locale";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
