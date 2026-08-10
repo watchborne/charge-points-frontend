@@ -41,6 +41,10 @@ app/
                                  #   Navbar and the dashboard Header
   components/ToastNotification/  # stackable toast system (wraps sonner's Toaster;
                                   #   bottom-center, 15s, dismissible, richColors)
+  components/ThemeProvider.tsx   # dark-mode theme context + localStorage
+                                  #   persistence (see UI below)
+  components/ThemeInitScript.tsx # inline <head> script that applies the
+                                  #   stored theme before hydration (no FOUC)
   404/                   # top-level not-found page
   api/                   # Next route handlers that PROXY to the backend
   login/                 # login page (magic-link sign-in)
@@ -185,6 +189,18 @@ via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.
 - `Callout` (from `@watchborne/electrons`) is the shared inline-message
   component (`default` / `info` / `error` / `warning` / `success` variants),
   used both in the dashboard and on `/login` (e.g. `AuthErrorCallout`).
+- Dark mode is a client-side theme system, not Tailwind's OS-only
+  `dark:` media strategy: `app/components/ThemeProvider.tsx` holds a
+  `"light" | "dark" | "system"` `Theme` (the type comes from
+  `@watchborne/electrons`) in React context, persists it to
+  `localStorage["theme-preference"]`, and toggles the `dark` class on
+  `<html>`. Read/write it via the `useTheme()` hook it exports — never touch
+  `localStorage` or the `dark` class directly. `app/components/
+  ThemeInitScript.tsx` is inlined into `<head>` by `app/layout.tsx` (alongside
+  `<html suppressHydrationWarning>`) to apply the stored theme before React
+  hydrates, avoiding a light-mode flash on load. The visible toggle is the
+  `ThemeSwitcher` component from `@watchborne/electrons`, wired to
+  `useTheme()` in the marketing `Navbar` and the dashboard `Header`.
 
 ### i18n
 
