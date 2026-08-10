@@ -404,6 +404,7 @@ export const ChargePointDetailPanel = ({
           <FirmwarePanel
             chargePointId={chargePoint.id}
             firmwareVersion={chargePoint.meta?.firmwareVersion}
+            ocppVersion={chargePoint.ocppVersion}
           />
         </div>
       )}

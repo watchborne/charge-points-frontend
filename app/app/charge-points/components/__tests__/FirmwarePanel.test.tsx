@@ -76,7 +76,10 @@ beforeEach(() => {
 // exercise the no-version-reported branch.
 const renderPanel = (
   { firmwareVersion }: { firmwareVersion?: string } = { firmwareVersion: "2.4.1" },
-) => render(<FirmwarePanel chargePointId={CP_ID} firmwareVersion={firmwareVersion} />);
+) =>
+  render(
+    <FirmwarePanel chargePointId={CP_ID} firmwareVersion={firmwareVersion} ocppVersion="2.0.1" />,
+  );
 
 describe("FirmwarePanel", () => {
   it("SHOULD show the version the station reported", async () => {
@@ -177,7 +180,7 @@ describe("FirmwarePanel", () => {
         payload: { firmwareUpdate: buildUpdate() },
       },
     });
-    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" />);
+    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />);
 
     // Refetched rather than patched from the payload: a terminal status moves the
     // update from `active` to `lastCompleted`, which the broadcast alone doesn't say.
@@ -194,7 +197,7 @@ describe("FirmwarePanel", () => {
         payload: { firmwareUpdate: buildUpdate({ chargePointId: "cp-other" }) },
       },
     });
-    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" />);
+    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />);
 
     await waitFor(() => expect(getFirmware).toHaveBeenCalledTimes(1));
   });
@@ -206,16 +209,40 @@ describe("FirmwarePanel", () => {
     useWebSocketContext.mockReturnValue({
       lastMessage: { type: "CHARGE_POINT_MONITORING", payload: {} },
     });
-    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" />);
+    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />);
 
     await waitFor(() => expect(getFirmware).toHaveBeenCalledTimes(1));
+  });
+
+  it("SHOULD disable the update trigger WHILE an update is in flight", async () => {
+    resolveWith({ active: buildUpdate(), lastCompleted: null });
+
+    renderPanel();
+
+    // The backend refuses a second concurrent update; saying so upfront beats
+    // letting the installer fill a form that would be rejected.
+    const trigger = (
+      await screen.findByText("appPage.chargePoints.firmware.update.button")
+    ).closest("button");
+    expect(trigger?.hasAttribute("disabled")).toBe(true);
+  });
+
+  it("SHOULD enable the update trigger WHEN nothing is in flight", async () => {
+    resolveWith({ active: null, lastCompleted: HISTORIZED });
+
+    renderPanel();
+
+    const trigger = (
+      await screen.findByText("appPage.chargePoints.firmware.update.button")
+    ).closest("button");
+    expect(trigger?.hasAttribute("disabled")).toBe(false);
   });
 
   it("SHOULD refetch WHEN a different charge point is opened", async () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(getFirmware).toHaveBeenCalledWith(CP_ID));
 
-    rerender(<FirmwarePanel chargePointId="cp-2" firmwareVersion="1.0.0" />);
+    rerender(<FirmwarePanel chargePointId="cp-2" firmwareVersion="1.0.0" ocppVersion="2.0.1" />);
 
     await waitFor(() => expect(getFirmware).toHaveBeenCalledWith("cp-2"));
   });
