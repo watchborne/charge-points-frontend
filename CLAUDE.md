@@ -43,11 +43,10 @@ app/
                                   #   bottom-center, 15s, dismissible, richColors)
   404/                   # top-level not-found page
   api/                   # Next route handlers that PROXY to the backend
-  login/                 # login page (magic-link sign-in)
+  login/                 # login page (OTP-code sign-in)
   signup/                # alpha access-request page (gated, admin-approved)
-  auth/callback/         # Supabase magic-link code-exchange handler
   auth/components/       # LogoutButton, shared by Header and marketing Navbar
-  auth/dev-login/        # local-dev-only magic-link shortcut route
+  auth/dev-login/        # local-dev-only OTP-code shortcut route
   assets/                # static assets used by app/ components
 proxy.ts                # Supabase session refresh, locale resolution
                         # (?lang= > cookie > host), and auth guard for
@@ -111,14 +110,22 @@ exponential-backoff auto-reconnect. Components consume it through the
 `useWebSocket(url)` hook — do not construct `new WebSocket` directly in
 components. Prefer `useWebSocketContext` for shared dashboard state.
 
-### Authentication (Supabase magic link)
+### Authentication (Supabase OTP)
 
-- Sign-in is passwordless: `/login` calls `supabase.auth.signInWithOtp` to email
-  a magic link; there is no password flow.
-- The link points at `app/auth/callback/route.ts`, which exchanges the auth
-  code for a session (`exchangeCodeForSession`) and redirects into
-  `/app/dashboard`. Do not use the old `verifyOtp`/token-hash approach — the
-  callback contract is code-exchange only.
+- Sign-in is passwordless: `/login` calls `supabase.auth.signInWithOtp` to
+  email a 6-digit code; there is no password flow and no magic link.
+  `LoginForm` sends the code; once that succeeds, `app/login/page.tsx` renders
+  `VerifyOtpForm`, which verifies it client-side
+  (`supabase.auth.verifyOtp({ email, token, type: "email" })`) and
+  hard-redirects to `/app/dashboard` on success — a full-page navigation, not
+  a router push, for the same reason as `LogoutButton` below (session state
+  elsewhere is resolved once on mount, so a hard reload is what reliably
+  picks it up). See `charge-points-server`'s ADR 0005 for why this replaced
+  an earlier magic-link flow: a magic link's PKCE exchange only works in the
+  browser that requested it, which broke whenever the link was opened in a
+  different browser, device, or in-app mail browser. An OTP code has no such
+  dependency, and there is no `/auth/callback` route anymore — sign-in never
+  redirects through Supabase's hosted domain.
 - `proxy.ts` (Next's renamed `middleware.ts` file convention as of Next 16)
   runs on every request: it redirects the retired `watch-borne.fr` host
   permanently to `watch-borne.com` (forcing the `fr` locale via `?lang=`),
@@ -139,22 +146,23 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
 - Log out via the shared `LogoutButton` (`app/auth/components/LogoutButton.tsx`), used
   by both the app `Header` and the marketing `Navbar`, which calls
   `supabase.auth.signOut()` then redirects to the marketing homepage (`/`).
-- `app/auth/dev-login/route.ts` is a **local-dev-only** shortcut that mints a
-  magic link through the Supabase admin API and verifies its `token_hash`
-  server-side (`supabase.auth.verifyOtp`), skipping the email round-trip;
-  `app/login/components/DevLoginShortcut.tsx` renders its form on `/login`,
+- `app/auth/dev-login/route.ts` is a **local-dev-only** shortcut that mints an
+  OTP code through the Supabase admin API (`generateLink`'s
+  `properties.email_otp`) and returns it as JSON, skipping the email
+  round-trip; `app/login/components/DevLoginShortcut.tsx` fetches it and
+  passes it to `VerifyOtpForm` as `initialCode`, which auto-submits on mount.
+  Local dev still signs in in one click, but by running the exact same
+  client-side `verifyOtp` call a real user's browser would, not a
+  server-side shortcut around it — unlike the magic-link-era version of this
+  route, which had to verify a `token_hash` server-side, because a real
+  magic link's PKCE exchange can only be driven by the browser that
+  requested it (see ADR 0005 above). `DevLoginShortcut` renders on `/login`
   only when `NODE_ENV !== "production"`. The route itself re-checks
   `NODE_ENV`, requires the explicit opt-in flag `ENABLE_DEV_LOGIN=true`, and
   requires `SUPABASE_SERVICE_ROLE_KEY` to be set — never set either outside
   a local `.env`. The extra flag exists so a preview/staging environment
-  that accidentally has the service-role key set still can't be used to sign
-  in as an arbitrary email. It deliberately does **not** go through
-  `/auth/callback`: a real magic link works because the browser's own
-  `signInWithOtp` call stores a PKCE code_verifier before the link is
-  clicked, which an admin-generated link never has, so `exchangeCodeForSession`
-  can't consume it. Verifying the `token_hash` directly is the dev-only
-  route's own, separate mechanism — it doesn't touch or duplicate the
-  callback's code-exchange-only contract for real magic links.
+  that accidentally has the service-role key set still can't be used to
+  fetch a code for an arbitrary email.
 - `app/signup/` is a public alpha-access-request page alongside `/login`; like
   `/login`, an already-authenticated visitor is redirected to `/app/dashboard`.
   It does **not** create a Supabase user directly — it POSTs the visitor's
@@ -184,7 +192,8 @@ via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.
   `richColors`) — use it instead of adding another notification mechanism.
 - `Callout` (from `@watchborne/electrons`) is the shared inline-message
   component (`default` / `info` / `error` / `warning` / `success` variants),
-  used both in the dashboard and on `/login` (e.g. `AuthErrorCallout`).
+  used both in the dashboard and on `/login` (e.g. `VerifyOtpForm`'s inline
+  error state).
 
 ### i18n
 
