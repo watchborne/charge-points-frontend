@@ -13,6 +13,8 @@ import type {
   UnlockConnectorStatus,
 } from "@watchborne/charge-points-types";
 
+import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
+
 import { httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive">;
@@ -238,6 +240,40 @@ export const chargePointApis = {
     } catch (error) {
       console.error(`Failed to change configuration of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
+    }
+  },
+  /**
+   * The charge point's firmware picture: the update in flight and the last
+   * finished one.
+   *
+   * A plain read, so it goes through `httpClient` like the other GETs — unlike
+   * the OCPP commands above, there is no per-outcome HTTP status to
+   * discriminate. The backend answers 200 even for a charge point outside the
+   * caller's scope (both fields `null`), so there is no 404 to handle either.
+   */
+  getFirmware: async function (chargePointId: ChargePoint["id"]): Promise<ChargePointFirmware> {
+    try {
+      return await httpClient.get<ChargePointFirmware>(
+        `/api/charge-points/${chargePointId}/firmware`,
+      );
+    } catch (error) {
+      console.error(`Failed to fetch firmware state of charge point ${chargePointId}`, error);
+      throw error;
+    }
+  },
+  /** The charge point's firmware update history, newest start first. */
+  listFirmwareUpdates: async function (
+    chargePointId: ChargePoint["id"],
+    limit?: number,
+  ): Promise<FirmwareUpdateView[]> {
+    try {
+      const query = limit === undefined ? "" : `?limit=${limit}`;
+      return await httpClient.get<FirmwareUpdateView[]>(
+        `/api/charge-points/${chargePointId}/firmware-updates${query}`,
+      );
+    } catch (error) {
+      console.error(`Failed to fetch firmware history of charge point ${chargePointId}`, error);
+      throw error;
     }
   },
   triggerMessage: async function (

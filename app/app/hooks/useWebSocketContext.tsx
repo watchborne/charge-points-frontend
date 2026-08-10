@@ -14,7 +14,12 @@ export interface WebSocketMessage {
     | "CONNECTION_ERROR"
     | "PONG"
     | "SUBSCRIPTION_ACK"
-    | "CHARGE_POINT_MONITORING";
+    | "CHARGE_POINT_MONITORING"
+    // Firmware update progress. A dedicated message rather than part of
+    // CHARGE_POINT_MONITORING: the backend rebuilds that projection after every
+    // inbound OCPP frame, so carrying the firmware update there would cost a
+    // read per heartbeat for something that changes a few times per update.
+    | "CHARGE_POINT_FIRMWARE_UPDATE";
   payload: Record<string, unknown>;
   timestamp: string;
 }

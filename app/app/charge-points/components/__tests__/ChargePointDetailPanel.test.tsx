@@ -17,6 +17,13 @@ vi.mock("next-intl", () => ({
   },
 }));
 
+// Stubbed out: it fetches its own firmware state and subscribes to the dashboard
+// WebSocket context, neither of which this suite is about. Its own behaviour is
+// covered by FirmwarePanel.test.tsx.
+vi.mock("../FirmwarePanel", () => ({
+  FirmwarePanel: () => null,
+}));
+
 import { ChargePointDetailPanel } from "../ChargePointDetailPanel";
 
 beforeAll(() => {
