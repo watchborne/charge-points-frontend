@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, act, waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createSite } from "./fixtures/site";
@@ -24,6 +26,16 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+function renderUseSites() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
+
+  return renderHook(() => useSites(), { wrapper });
+}
+
 describe("useSites", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,7 +44,7 @@ describe("useSites", () => {
   it("SHOULD load sites WHEN mounted", async () => {
     mockGetSites.mockResolvedValue(mockSites);
 
-    const { result } = renderHook(() => useSites());
+    const { result } = renderUseSites();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -50,7 +62,7 @@ describe("useSites", () => {
     });
     mockGetSites.mockReturnValue(pendingPromise);
 
-    const { result } = renderHook(() => useSites());
+    const { result } = renderUseSites();
 
     // Initially loading
     expect(result.current.loading).toBe(true);
@@ -70,7 +82,7 @@ describe("useSites", () => {
   it("SHOULD expose an error WHEN the API call fails", async () => {
     mockGetSites.mockRejectedValue(new Error("Network error"));
 
-    const { result } = renderHook(() => useSites());
+    const { result } = renderUseSites();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -84,7 +96,7 @@ describe("useSites", () => {
   it("SHOULD reload the data WHEN refetch is called", async () => {
     mockGetSites.mockResolvedValue(mockSites);
 
-    const { result } = renderHook(() => useSites());
+    const { result } = renderUseSites();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -100,13 +112,15 @@ describe("useSites", () => {
     });
 
     expect(mockGetSites.mock.calls.length).toBeGreaterThan(callCountAfterMount);
-    expect(result.current.sites).toEqual(newSites);
+    await waitFor(() => {
+      expect(result.current.sites).toEqual(newSites);
+    });
   });
 
   it("SHOULD clear the error WHEN a refetch succeeds", async () => {
     mockGetSites.mockRejectedValue(new Error("Erreur réseau"));
 
-    const { result } = renderHook(() => useSites());
+    const { result } = renderUseSites();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);

@@ -1,6 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 
 import { api } from "@/lib/api";
 
@@ -14,33 +15,22 @@ export interface UseSitesReturn {
 export function useSites(): UseSitesReturn {
   const t = useTranslations("");
 
-  const [sites, setSites] = useState<Site[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadSites = useCallback(async () => {
-    try {
-      setError(null);
-      setLoading(true);
-      const data = await api.Sites.getSites();
-      setSites(data);
-    } catch (err) {
-      setError(t("errors.loadingSites"));
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["sites"],
+    queryFn: api.Sites.getSites,
+    retry: false,
+  });
 
   useEffect(() => {
-    loadSites();
-  }, [loadSites]);
+    if (error) console.error(error);
+  }, [error]);
 
   return {
-    sites,
-    loading,
-    error,
-    refetch: loadSites,
+    sites: data ?? [],
+    loading: isLoading,
+    error: isError ? t("errors.loadingSites") : null,
+    refetch: async () => {
+      await refetch();
+    },
   };
 }
