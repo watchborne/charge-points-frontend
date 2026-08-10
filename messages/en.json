@@ -256,12 +256,10 @@
     "form": {
       "email": "Email address",
       "emailPlaceholder": "you@example.com",
-      "submit": "Send magic link"
+      "submit": "Send code"
     },
-    "magicLink": {
-      "calloutTitle": "Check your inbox",
-      "calloutDescription": "A sign-in link has been sent to <link>link</link>. Click it to access your dashboard.",
-      "error": "Couldn't send the sign-in link. Please try again.",
+    "sendCode": {
+      "error": "Couldn't send the code. Please try again.",
       "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
     },
     "otp": {
