@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 
 import "../../globals.css";
 
+import { ThemeProvider } from "@/app/components/ThemeProvider";
 import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
 import type { Locale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
@@ -37,14 +38,16 @@ export default async function RootLayout({ children, params }: Props) {
 
   return (
     <>
-      <NextIntlClientProvider>
-        <main className="max-w-7xl">
-          <div className="min-h-screen lg:grid lg:grid-cols-2">{children}</div>
-        </main>
+      <ThemeProvider>
+        <NextIntlClientProvider>
+          <main className="max-w-7xl">
+            <div className="min-h-screen lg:grid lg:grid-cols-2">{children}</div>
+          </main>
 
-        <Footer />
-        <ToastNotification />
-      </NextIntlClientProvider>
+          <Footer />
+          <ToastNotification />
+        </NextIntlClientProvider>
+      </ThemeProvider>
     </>
   );
 }
