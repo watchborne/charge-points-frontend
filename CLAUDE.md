@@ -10,7 +10,7 @@ shows charge points and sites in real time, backed by `charge-points-server`.
 
 Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
-`next-intl` for i18n, `sonner` for toast notifications. Dev server runs on
+`next-intl` for i18n, `sonner` for toast notifications, `recharts` for charts. Dev server runs on
 **port 3001**. Domain types come from `@watchborne/charge-points-types`.
 Production builds run with `next build --webpack` (see Commands below) — a
 Turbopack/Netlify tracing bug forces webpack for `next build` specifically;
@@ -133,8 +133,16 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   self-service commissioning-token flow on `/app/configuration`
   (`CommissioningTokenPanel`) — the plaintext token is only ever returned
   once, on issue, and is never persisted client-side.
+  `lib/api-metering.ts` (`api.Metering`) reads the metering history —
+  `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
+  per connector/measurand/unit). Its response types are declared locally, like
+  `Me`: the backend keeps `MeterSample` server-local (its ADR 0004), so these
+  response contracts are the shared surface.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
+- `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
+  a repeated one survives the hop (`?measurand=A&measurand=B` is how the metering
+  reads ask for two series). Keep it that way.
 
 ### Real-time WebSocket
 
@@ -220,6 +228,34 @@ hand-editing generated files. Style with Tailwind and the tokens from
 `@watchborne/electrons/tokens.css` (imported once in `app/globals.css`) and
 `@watchborne/electrons/tailwind-preset` (plugged into `tailwind.config.js`
 via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.
+
+### Charts
+
+Charts are **recharts**, and the categorical series colours are the
+`--series-1..3` custom properties defined in `app/globals.css` (not in
+`@watchborne/electrons/tokens.css`: that package ships semantic UI, brand and
+_status_ tones, and status tones are reserved — reusing one as "series 2" would
+tell a reader a connector is faulted because it is third in a legend).
+
+Rules that are not stylistic preferences:
+
+- **Never a second y-axis.** Two measures of different scale (Wh and W) get two
+  charts or a selector that shows one at a time — aligning two scales on one plot
+  invents a correlation the data does not contain.
+  `ChargePointConsumptionPanel` is the worked example: a measurand selector, built
+  from what the station actually reported, keeps the plot to one unit.
+- **Three series maximum.** Overlaid lines can sit beside any other line, so the
+  palette must clear the colour-blindness floors on _every_ pair, and past three
+  hues no ordering does. Beyond three, say what was left out (see
+  `CHARTABLE_CONNECTORS`) — never silently truncate.
+- **Text never wears the series colour.** Legends, axis ticks, tooltip labels and
+  values use ink tokens; a line key or dot beside them carries identity. Recharts
+  colours legend text by series by default — override it with `formatter`.
+- **Ship the hover layer and a table view.** A crosshair tooltip listing every
+  series at that x, and a table of the same values, so nothing is reachable only
+  by hovering.
+- Changing a series colour means re-running the palette validator for **both**
+  modes and all pairs, not eyeballing it.
 
 - `app/components/ToastNotification/` wraps `sonner`'s `Toaster` into the
   dashboard-wide stackable toast system (bottom-center, 15s, dismissible,
