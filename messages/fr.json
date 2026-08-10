@@ -591,6 +591,33 @@
           "InstallVerificationFailed": "Échec de la vérification après installation",
           "InvalidSignature": "Signature invalide",
           "SignatureVerified": "Signature vérifiée"
+        },
+        "update": {
+          "button": "Mettre à jour",
+          "title": "Mettre à jour le firmware",
+          "description": "La borne téléchargera l'image depuis l'URL indiquée puis l'installera. Le superviseur ne télécharge rien lui-même.",
+          "submit": "Lancer la mise à jour",
+          "close": "Fermer",
+          "unsignedDialect": "Cette borne parle OCPP 1.6, qui ne gère pas le firmware signé : l'étape de vérification de signature sera absente de la timeline.",
+          "fields": {
+            "location": "URL de l'image firmware",
+            "locationInvalid": "L'URL doit être absolue, en http(s) ou ftp(s).",
+            "retrieveDateTime": "À télécharger à partir de",
+            "retries": "Tentatives",
+            "retryInterval": "Intervalle entre tentatives (s)",
+            "signingCertificate": "Certificat de signature (OCPP 2.0.1)",
+            "signature": "Signature (OCPP 2.0.1)"
+          },
+          "result": {
+            "accepted": "Mise à jour acceptée par la borne.",
+            "requested": "Mise à jour demandée. Cette borne (OCPP 1.6) n'indique pas si elle l'accepte : suivez la timeline.",
+            "invalidRequest": "Requête invalide — vérifiez l'URL et la date de téléchargement.",
+            "notFound": "Borne inconnue.",
+            "notConnectedOrRejected": "Borne non connectée, mise à jour déjà en cours, ou refusée par la borne.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "La mise à jour n'a pas pu être lancée."
+          }
         }
       },
       "configuration": {

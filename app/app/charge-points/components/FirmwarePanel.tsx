@@ -11,6 +11,7 @@ import { api } from "@/lib/api";
 import type { ChargePoint, ChargePointMeta } from "@/types/charge-point";
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 
+import { UpdateFirmwareDialog } from "./UpdateFirmwareDialog";
 import { FirmwareTimeline } from "../../components/charge-points/FirmwareTimeline";
 import { useWebSocketContext } from "../../hooks/useWebSocketContext";
 
@@ -18,6 +19,8 @@ type FirmwarePanelProps = {
   chargePointId: ChargePoint["id"];
   /** The version the station itself last reported, via BootNotification. */
   firmwareVersion: ChargePointMeta["firmwareVersion"];
+  /** Gates the signed-firmware fields in the trigger dialog. */
+  ocppVersion: ChargePoint["ocppVersion"];
 };
 
 const EMPTY: ChargePointFirmware = { active: null, lastCompleted: null };
@@ -31,7 +34,11 @@ const EMPTY: ChargePointFirmware = { active: null, lastCompleted: null };
  * fourth concern. It refreshes on `CHARGE_POINT_FIRMWARE_UPDATE`, the dedicated
  * broadcast the backend emits only from the FirmwareStatusNotification handler.
  */
-export const FirmwarePanel = ({ chargePointId, firmwareVersion }: FirmwarePanelProps) => {
+export const FirmwarePanel = ({
+  chargePointId,
+  firmwareVersion,
+  ocppVersion,
+}: FirmwarePanelProps) => {
   const t = useTranslations("");
   const { lastMessage } = useWebSocketContext();
 
@@ -163,6 +170,16 @@ export const FirmwarePanel = ({ chargePointId, firmwareVersion }: FirmwarePanelP
               variant="error"
             />
           )}
+
+          <UpdateFirmwareDialog
+            chargePointId={chargePointId}
+            ocppVersion={ocppVersion}
+            // The backend refuses a second concurrent update (at most one may be
+            // unfinished per charge point); disabling the trigger says so before
+            // the installer fills a form that would be rejected.
+            updateInProgress={firmware.active !== null}
+            onStarted={() => void load(false)}
+          />
         </>
       )}
     </div>

@@ -11,6 +11,7 @@ import type {
   TriggerMessageStatus,
   TriggerMessageType,
   UnlockConnectorStatus,
+  UpdateFirmwareStatusV201,
 } from "@watchborne/charge-points-types";
 
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
@@ -73,6 +74,30 @@ export type ChangeConfigurationOutcome =
  */
 export type TriggerMessageOutcome =
   { ok: true; status: TriggerMessageStatus } | { ok: false; httpStatus: number };
+
+/**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, plus one wrinkle
+ * the other commands don't have: **`status` is `null` for an OCPP 1.6 station**.
+ *
+ * 1.6's `UpdateFirmware.conf` is an empty payload, so the station acknowledges
+ * the frame without saying whether it will comply — the backend answers `202`
+ * rather than `200` for exactly that reason. A `null` status therefore means
+ * "requested, outcome unknown until the station reports", not "failed".
+ */
+export type StartFirmwareUpdateOutcome =
+  | { ok: true; status: UpdateFirmwareStatusV201 | null; update: FirmwareUpdateView }
+  | { ok: false; httpStatus: number };
+
+/** What an installer fills in to start an update, before dialect translation. */
+export type StartFirmwareUpdateBody = {
+  location: string;
+  retrieveDateTime: string;
+  retries?: number;
+  retryInterval?: number;
+  /** OCPP 2.0.1 only — dropped for a 1.6 station, which has nowhere to put it. */
+  signingCertificate?: string;
+  signature?: string;
+};
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
@@ -274,6 +299,37 @@ export const chargePointApis = {
     } catch (error) {
       console.error(`Failed to fetch firmware history of charge point ${chargePointId}`, error);
       throw error;
+    }
+  },
+  /**
+   * Starts a firmware update. Like the other OCPP commands this reads the raw HTTP
+   * status rather than going through `httpClient`, because the caller needs the
+   * specific outcome — and here also needs to tell `200` (station answered) from
+   * `202` (1.6 station acknowledged and said nothing).
+   */
+  startFirmwareUpdate: async function (
+    chargePointId: ChargePoint["id"],
+    body: StartFirmwareUpdateBody,
+  ): Promise<StartFirmwareUpdateOutcome> {
+    try {
+      const response = await fetch(`/api/charge-points/${chargePointId}/firmware`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        const { status, update } = (await response.json()) as {
+          status: UpdateFirmwareStatusV201 | null;
+          update: FirmwareUpdateView;
+        };
+        return { ok: true, status, update };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    } catch (error) {
+      console.error(`Failed to start a firmware update on charge point ${chargePointId}`, error);
+      return { ok: false, httpStatus: 0 };
     }
   },
   triggerMessage: async function (

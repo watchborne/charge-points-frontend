@@ -591,6 +591,33 @@
           "InstallVerificationFailed": "Post-install verification failed",
           "InvalidSignature": "Invalid signature",
           "SignatureVerified": "Signature verified"
+        },
+        "update": {
+          "button": "Update",
+          "title": "Update firmware",
+          "description": "The station downloads the image from the URL you give and installs it. The supervisor never downloads anything itself.",
+          "submit": "Start update",
+          "close": "Close",
+          "unsignedDialect": "This station speaks OCPP 1.6, which has no signed-firmware support: the signature-verification step will be absent from the timeline.",
+          "fields": {
+            "location": "Firmware image URL",
+            "locationInvalid": "The URL must be absolute, over http(s) or ftp(s).",
+            "retrieveDateTime": "Fetch no earlier than",
+            "retries": "Retries",
+            "retryInterval": "Retry interval (s)",
+            "signingCertificate": "Signing certificate (OCPP 2.0.1)",
+            "signature": "Signature (OCPP 2.0.1)"
+          },
+          "result": {
+            "accepted": "Update accepted by the station.",
+            "requested": "Update requested. This station (OCPP 1.6) does not report whether it accepted — follow the timeline.",
+            "invalidRequest": "Invalid request — check the URL and the retrieve date.",
+            "notFound": "Unknown charge point.",
+            "notConnectedOrRejected": "Station not connected, an update is already in progress, or the station refused.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The update could not be started."
+          }
         }
       },
       "configuration": {
