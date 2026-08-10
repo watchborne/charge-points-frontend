@@ -264,6 +264,19 @@
       "error": "Couldn't send the sign-in link. Please try again.",
       "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
     },
+    "otp": {
+      "description": "A 6-digit code has been sent to {email}. It expires in 1 hour.",
+      "codeLabel": "Verification code",
+      "codePlaceholder": "123456",
+      "submit": "Verify",
+      "changeEmail": "Use a different address",
+      "resend": "Resend code",
+      "resendCooldown": "Resend code ({seconds}s)",
+      "error": {
+        "invalid": "This code is invalid or has expired. Request a new one below.",
+        "generic": "Verification failed. Please try again."
+      }
+    },
     "authError": {
       "otpExpired": "This sign-in link has expired or was already used. Please request a new one below.",
       "exchangeFailed": "This sign-in link must be opened in the same browser you used to request it. Please request a new one below.",
