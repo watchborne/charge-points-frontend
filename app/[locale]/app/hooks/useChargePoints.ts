@@ -1,5 +1,6 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 
 import { useToastNotification } from "@/app/components/ToastNotification";
 import { api } from "@/lib/api";
@@ -14,16 +15,14 @@ export interface UseChargePointsReturn {
   refetch: () => Promise<void>;
 }
 
+const CHARGE_POINTS_QUERY_KEY = ["chargePoints"];
+
 export function useChargePoints(): UseChargePointsReturn {
   const t = useTranslations("");
-  const [chargePoints, setChargePoints] = useState<ChargePointWithConnectors[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const queryClient = useQueryClient();
   const { lastMessage, status } = useWebSocketContext();
   const { pushWarningNotification } = useToastNotification();
   const hasConnectedRef = useRef(false);
-  const chargePointsRef = useRef<ChargePointWithConnectors[]>([]);
   // Read through refs (rather than as effect dependencies) below: `t` from
   // `useTranslations` and `pushWarningNotification` are not guaranteed to be
   // referentially stable across renders, and this effect must only re-run
@@ -33,40 +32,43 @@ export function useChargePoints(): UseChargePointsReturn {
   const pushWarningNotificationRef = useRef(pushWarningNotification);
   pushWarningNotificationRef.current = pushWarningNotification;
 
-  const loadChargePoints = useCallback(async () => {
-    try {
-      setError(null);
-      setLoading(true);
-      const data = await api.ChargePoints.getChargePoints();
-      setChargePoints(data);
-    } catch (err) {
-      setError(t("errors.loadingChargePoints"));
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const {
+    data: chargePoints,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: CHARGE_POINTS_QUERY_KEY,
+    queryFn: api.ChargePoints.getChargePoints,
+    retry: false,
+  });
 
+  useEffect(() => {
+    if (error) console.error(error);
+  }, [error]);
+
+  // Same shape as loadChargePoints below, but doesn't touch the query's
+  // loading/error state: used when resyncing after a WebSocket reconnection,
+  // where showing a loading spinner or an error banner would just be visual
+  // flicker over data that's already on screen.
   const refetchSilently = useCallback(async () => {
     try {
-      const data = await api.ChargePoints.getChargePoints();
-      setChargePoints(data);
+      const freshData = await api.ChargePoints.getChargePoints();
+      queryClient.setQueryData<ChargePointWithConnectors[]>(CHARGE_POINTS_QUERY_KEY, freshData);
     } catch (err) {
       console.error("Failed to refetch charge points:", err);
     }
-  }, []);
-
-  useEffect(() => {
-    chargePointsRef.current = chargePoints;
-  }, [chargePoints]);
+  }, [queryClient]);
 
   useEffect(() => {
     if (lastMessage?.type !== "CHARGE_POINT_MONITORING") return;
     const incoming = lastMessage.payload?.chargePoint as ChargePointWithConnectors | undefined;
     if (!incoming) return;
 
-    const previous = chargePointsRef.current.find((cp) => cp.id === incoming.id);
+    const previousChargePoints =
+      queryClient.getQueryData<ChargePointWithConnectors[]>(CHARGE_POINTS_QUERY_KEY) ?? [];
+    const previous = previousChargePoints.find((cp) => cp.id === incoming.id);
     if (previous) {
       for (const connector of incoming.connectors ?? []) {
         const previousConnector = (previous.connectors ?? []).find(
@@ -88,24 +90,20 @@ export function useChargePoints(): UseChargePointsReturn {
       }
     }
 
-    setChargePoints((prev) => {
+    queryClient.setQueryData<ChargePointWithConnectors[]>(CHARGE_POINTS_QUERY_KEY, (prev = []) => {
       const idx = prev.findIndex((cp) => cp.id === incoming.id);
       if (idx === -1) return [...prev, incoming];
       const next = [...prev];
       next[idx] = incoming;
       return next;
     });
-  }, [lastMessage]);
-
-  useEffect(() => {
-    loadChargePoints();
-  }, [loadChargePoints]);
+  }, [lastMessage, queryClient]);
 
   // Le WebSocket ne rejoue pas les événements manqués pendant une coupure : on
   // resynchronise via un refetch REST à chaque reconnexion (mais pas à la
   // toute première connexion, déjà couverte par le fetch initial ci-dessus).
-  // Use refetchSilently instead of loadChargePoints to avoid showing the loading
-  // state, which causes visual flicker on dashboard reconnections.
+  // Use refetchSilently instead of a tracked refetch to avoid showing the
+  // loading state, which causes visual flicker on dashboard reconnections.
   useEffect(() => {
     if (status !== "CONNECTED") return;
     if (hasConnectedRef.current) {
@@ -115,9 +113,11 @@ export function useChargePoints(): UseChargePointsReturn {
   }, [status, refetchSilently]);
 
   return {
-    chargePoints,
-    loading,
-    error,
-    refetch: loadChargePoints,
+    chargePoints: chargePoints ?? [],
+    loading: isLoading,
+    error: isError ? t("errors.loadingChargePoints") : null,
+    refetch: async () => {
+      await refetch();
+    },
   };
 }
