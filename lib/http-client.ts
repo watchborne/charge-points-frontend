@@ -2,11 +2,33 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
+/**
+ * Thrown by `makeRequest` for a non-2xx response. `status` and `body` (the
+ * response's parsed JSON, when it had any) are exposed so a caller that needs
+ * to branch on more than "it failed" — e.g. a backend error `code` — doesn't
+ * need its own fetch/parsing logic; most callers still just let it propagate
+ * as a generic failure, unchanged from before this existed.
+ */
+export class HttpError extends Error {
+  readonly status: number;
+  readonly body: unknown;
+
+  constructor(status: number, body: unknown) {
+    super(`HTTP error! status: ${status}`);
+    this.name = "HttpError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
 const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> => {
   const response = await fetch(url, options);
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    // Best-effort: an empty or non-JSON error body must not stop the failure
+    // itself from surfacing.
+    const body = await response.json().catch(() => null);
+    throw new HttpError(response.status, body);
   }
 
   return response.json() as Promise<T>;

@@ -260,7 +260,8 @@
     },
     "sendCode": {
       "error": "Couldn't send the code. Please try again.",
-      "unknownUser": "No account is associated with this email address. Request Alpha access to create one."
+      "unknownUser": "No account is associated with this email address. Request Alpha access to create one.",
+      "pending": "Your Alpha access request is still under review. You'll get an email once it's approved."
     },
     "otp": {
       "description": "A 6-digit code has been sent to {email}. It expires in 1 hour.",
