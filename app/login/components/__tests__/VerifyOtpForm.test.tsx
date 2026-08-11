@@ -19,7 +19,7 @@ vi.mock("next-intl", () => ({
     const translations: Record<string, string> = {
       "loginPage.otp.description": "A 6-digit code has been sent to {email}.",
       "loginPage.otp.codeLabel": "Verification code",
-      "loginPage.otp.codePlaceholder": "123456",
+      "loginPage.otp.codePlaceholder": "12345678",
       "loginPage.otp.submit": "Verify",
       "loginPage.otp.changeEmail": "Use a different address",
       "loginPage.otp.resend": "Resend code",
@@ -66,25 +66,25 @@ describe("VerifyOtpForm", () => {
     verifyOtp.mockResolvedValue({ error: null });
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    typeCode("123456");
+    typeCode("12345678");
     fireEvent.click(screen.getByRole("button", { name: "Verify" }));
 
     await waitFor(() => expect(assign).toHaveBeenCalledWith("/app/dashboard"));
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "user@example.com",
-      token: "123456",
+      token: "12345678",
       type: "email",
     });
   });
 
   it("SHOULD auto-submit WHEN rendered with an initialCode (dev-login shortcut)", async () => {
     verifyOtp.mockResolvedValue({ error: null });
-    render(<VerifyOtpForm email="dev@example.com" onBack={onBack} initialCode="999888" />);
+    render(<VerifyOtpForm email="dev@example.com" onBack={onBack} initialCode="99988877" />);
 
     await waitFor(() => expect(assign).toHaveBeenCalledWith("/app/dashboard"));
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "dev@example.com",
-      token: "999888",
+      token: "99988877",
       type: "email",
     });
   });
@@ -94,14 +94,14 @@ describe("VerifyOtpForm", () => {
 
     typeCode("12a3-45–6789");
 
-    expect((screen.getByLabelText("Verification code") as HTMLInputElement).value).toBe("123456");
+    expect((screen.getByLabelText("Verification code") as HTMLInputElement).value).toBe("12345678");
   });
 
   it("SHOULD show the invalid-code error WHEN verifyOtp fails with otp_expired", async () => {
     verifyOtp.mockResolvedValue({ error: { message: "boom", code: "otp_expired" } });
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    typeCode("000000");
+    typeCode("00000000");
     fireEvent.click(screen.getByRole("button", { name: "Verify" }));
 
     await waitFor(() =>
@@ -114,7 +114,7 @@ describe("VerifyOtpForm", () => {
     verifyOtp.mockResolvedValue({ error: { message: "boom", code: "unexpected_failure" } });
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    typeCode("000000");
+    typeCode("00000000");
     fireEvent.click(screen.getByRole("button", { name: "Verify" }));
 
     await waitFor(() =>
@@ -132,7 +132,7 @@ describe("VerifyOtpForm", () => {
     );
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    typeCode("123456");
+    typeCode("12345678");
     fireEvent.click(screen.getByRole("button", { name: "Verify" }));
 
     expect((screen.getByRole("button", { name: "Verify" }) as HTMLButtonElement).disabled).toBe(

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const RESEND_COOLDOWN_SECONDS = 30;
+const OTP_CODE_LENGTH = 8;
 
 interface VerifyOtpFormProps {
   email: string;
@@ -20,7 +21,7 @@ interface VerifyOtpFormProps {
 }
 
 /**
- * Step 2 of sign-in: verifies the 6-digit code `LoginForm`'s `signInWithOtp`
+ * Step 2 of sign-in: verifies the 8-digit code `LoginForm`'s `signInWithOtp`
  * call emailed to `email`. Unlike the magic-link code-exchange it replaces,
  * `verifyOtp` runs entirely client-side against the anon client — no redirect
  * through Supabase's hosted domain, no PKCE `code_verifier` cookie — so it
@@ -33,7 +34,9 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
   const [code, setCode] = useState(initialCode ?? "");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [error, setError] = useState<"invalid" | "generic" | null>(null);
+  const [error, setError] = useState<"over_email_send_rate_limit" | "invalid" | "generic" | null>(
+    null,
+  );
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -99,7 +102,11 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
 
     if (resendError) {
       console.error("resend signInWithOtp failed:", resendError.message);
-      setError("generic");
+      setError(
+        resendError.code === "over_email_send_rate_limit"
+          ? "over_email_send_rate_limit"
+          : "generic",
+      );
       return;
     }
 
@@ -118,12 +125,12 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
             inputMode="numeric"
             autoComplete="one-time-code"
             pattern="[0-9]*"
-            maxLength={6}
+            maxLength={OTP_CODE_LENGTH}
             placeholder={t("loginPage.otp.codePlaceholder")}
             required
             disabled={isVerifying}
             value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, OTP_CODE_LENGTH))}
           />
         </div>
 

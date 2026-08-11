@@ -265,12 +265,13 @@
     "otp": {
       "description": "Un code à 6 chiffres a été envoyé à {email}. Il expire dans 1 heure.",
       "codeLabel": "Code de vérification",
-      "codePlaceholder": "123456",
+      "codePlaceholder": "12345678",
       "submit": "Vérifier",
       "changeEmail": "Utiliser une autre adresse",
       "resend": "Renvoyer le code",
       "resendCooldown": "Renvoyer le code ({seconds}s)",
       "error": {
+        "over_email_send_rate_limit": "Veuillez patienter 1 minute avant de demander un novueau code",
         "invalid": "Ce code est invalide ou a expiré. Demandez-en un nouveau ci-dessous.",
         "generic": "La vérification a échoué. Merci de réessayer."
       }
