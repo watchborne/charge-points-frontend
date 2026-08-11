@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Your Watchborne Alpha access is approved</title>
+    <!--[if mso]>
+      <noscript>
+        <xml>
+          <o:OfficeDocumentSettings>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+        </xml>
+      </noscript>
+    <![endif]-->
+    <!--[if !mso]><!-->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!--<![endif]-->
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f8fafc;
+      font-family: &quot;Inter&quot;, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    "
+  >
+    <table
+      role="presentation"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      width="100%"
+      style="background-color: #f8fafc"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 16px">
+          <!-- Email card -->
+          <table
+            role="presentation"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            width="560"
+            style="
+              max-width: 560px;
+              width: 100%;
+              background-color: #ffffff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow:
+                0 1px 2px rgba(16, 24, 38, 0.04),
+                0 1px 8px rgba(16, 24, 38, 0.04);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td style="background-color: #ffffff; padding: 40px 48px 28px; text-align: center">
+                <span
+                  style="
+                    display: block;
+                    font-family: &quot;Space Grotesk&quot;, Arial, sans-serif;
+                    font-size: 24px;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    color: #0f172a;
+                    text-transform: uppercase;
+                    line-height: 1;
+                  "
+                  >Watchborne</span
+                >
+                <span
+                  style="
+                    display: block;
+                    font-size: 11px;
+                    font-weight: 400;
+                    letter-spacing: 0.12em;
+                    color: #94a3b8;
+                    text-transform: uppercase;
+                    margin-top: 6px;
+                  "
+                  >{{if eq .Data.locale "fr"}}Supervision de bornes de recharge{{else}}EV Charge
+                  Point Monitoring{{end}}</span
+                >
+              </td>
+            </tr>
+
+            <!-- Thin accent bar -->
+            <tr>
+              <td
+                style="
+                  height: 4px;
+                  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+                "
+              ></td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 44px 48px 40px">
+                <!-- Badge -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td
+                      style="
+                        background-color: #ecfdf5;
+                        border: 1px solid #a7f3d0;
+                        border-radius: 999px;
+                        padding: 5px 14px;
+                        font-size: 11px;
+                        font-weight: 600;
+                        letter-spacing: 0.06em;
+                        text-transform: uppercase;
+                        color: #047857;
+                      "
+                    >
+                      {{if eq .Data.locale "fr"}}Accès approuvé{{else}}Access approved{{end}}
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Greeting -->
+                <p
+                  style="
+                    margin: 18px 0 8px;
+                    font-family: &quot;Space Grotesk&quot;, Arial, sans-serif;
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    line-height: 1.3;
+                  "
+                >
+                  {{if eq .Data.locale "fr"}}Vous êtes accepté(e) dans l'Alpha{{else}}You're in the
+                  Alpha{{end}}
+                </p>
+                <p style="margin: 0 0 32px; font-size: 15px; color: #64748b; line-height: 1.6">
+                  {{if eq .Data.locale "fr"}}Bonne nouvelle : votre demande d'accès à l'Alpha
+                  Watchborne a été approuvée. Vous pouvez dès maintenant vous connecter avec cette
+                  adresse email — aucun mot de passe n'est nécessaire, un code de vérification vous
+                  sera envoyé à chaque connexion.{{else}}Good news — your request to join the
+                  Watchborne Alpha has been approved. You can sign in with this email address right
+                  away — no password needed, you'll get a one-time verification code each time you
+                  sign in.{{end}}
+                </p>
+
+                <!-- CTA Button -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td align="center" style="padding: 8px 0 36px">
+                      <a
+                        href='{{if eq .Data.locale "fr"}}{{ .SiteURL }}/login?lang=fr{{else}}{{ .SiteURL }}/login{{end}}'
+                        style="
+                          display: inline-block;
+                          background-color: #f59e0b;
+                          color: #451a03;
+                          font-family: &quot;Inter&quot;, Arial, sans-serif;
+                          font-size: 16px;
+                          font-weight: 600;
+                          text-decoration: none;
+                          padding: 14px 44px;
+                          border-radius: 8px;
+                          letter-spacing: 0.01em;
+                          box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+                        "
+                      >
+                        {{if eq .Data.locale "fr"}}Me connecter{{else}}Sign in{{end}}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Divider -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="border-top: 1px solid #e2e8f0; padding-top: 28px">
+                      <!-- Security note -->
+                      <table
+                        role="presentation"
+                        cellspacing="0"
+                        cellpadding="0"
+                        border="0"
+                        width="100%"
+                      >
+                        <tr>
+                          <td width="36" valign="top" style="padding-top: 2px">
+                            <!-- Shield icon -->
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 2L4 6V12C4 16.418 7.582 20.418 12 22C16.418 20.418 20 16.418 20 12V6L12 2Z"
+                                stroke="#d97706"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                              <path
+                                d="M9 12L11 14L15 10"
+                                stroke="#d97706"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          </td>
+                          <td style="font-size: 13px; color: #64748b; line-height: 1.6">
+                            {{if eq .Data.locale "fr"}}Cet email confirme la création d'un compte
+                            pour cette adresse suite à une demande d'accès approuvée. Si vous n'êtes
+                            pas à l'origine de cette demande, vous pouvez ignorer cet email en toute
+                            sécurité.{{else}}This email confirms an account was created for this
+                            address following an approved access request. If you didn't request
+                            this, you can safely ignore this email.{{end}}
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Fallback URL -->
+                      <p
+                        style="margin: 20px 0 0; font-size: 12px; color: #94a3b8; line-height: 1.6"
+                      >
+                        {{if eq .Data.locale "fr"}}Le bouton ne fonctionne pas ? Copiez-collez ce
+                        lien dans votre navigateur :{{else}}Button not working? Copy and paste this
+                        link into your browser:{{end}}<br />
+                        <a
+                          href='{{if eq .Data.locale "fr"}}{{ .SiteURL }}/login?lang=fr{{else}}{{ .SiteURL }}/login{{end}}'
+                          style="color: #b45309; word-break: break-all; text-decoration: none"
+                          >{{ .SiteURL }}/login{{if eq .Data.locale "fr"}}?lang=fr{{end}}</a
+                        >
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background-color: #f8fafc;
+                  border-top: 1px solid #e2e8f0;
+                  padding: 24px 48px;
+                  border-radius: 0 0 12px 12px;
+                "
+              >
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="text-align: center">
+                      <p
+                        style="
+                          margin: 0 0 6px;
+                          font-family: &quot;Space Grotesk&quot;, Arial, sans-serif;
+                          font-size: 12px;
+                          font-weight: 700;
+                          letter-spacing: 0.08em;
+                          text-transform: uppercase;
+                          color: #0f172a;
+                        "
+                      >
+                        Watchborne
+                      </p>
+                      <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.6">
+                        {{if eq .Data.locale "fr"}}Ceci est un message automatique — merci de ne pas
+                        répondre à cet email.{{else}}This is an automated message — please do not
+                        reply to this email.{{end}}<br />
+                        &copy; 2026 Watchborne. {{if eq .Data.locale "fr"}}Tous droits
+                        réservés.{{else}}All rights reserved.{{end}}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <!-- /Email card -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
