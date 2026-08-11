@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { verifyEmail } = vi.hoisted(() => ({ verifyEmail: vi.fn() }));
 
-vi.mock("../../../../lib/api", () => ({
+vi.mock("../../../../../lib/api", () => ({
   api: { AccessRequests: { verifyEmail } },
 }));
 
