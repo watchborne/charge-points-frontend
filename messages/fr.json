@@ -305,9 +305,19 @@
       "submit": "Demander un accès"
     },
     "confirmation": {
-      "calloutTitle": "Demande enregistrée",
-      "calloutDescription": "Votre demande d'accès à l'Alpha pour <link>link</link> a bien été enregistrée. Nous vous contacterons par email dès qu'elle sera validée.",
+      "calloutTitle": "Confirmez votre email",
+      "calloutDescription": "Nous avons envoyé un lien de confirmation à <link>link</link>. Cliquez-y pour confirmer votre adresse — nous examinerons ensuite votre demande et vous préviendrons par email dès qu'elle sera approuvée.",
       "error": "Impossible d'enregistrer votre demande. Veuillez réessayer."
+    },
+    "verify": {
+      "verifying": "Confirmation de votre email…",
+      "successTitle": "Email confirmé",
+      "successDescription": "Votre email a été confirmé. Nous allons examiner votre demande et vous préviendrons par email dès qu'elle sera approuvée.",
+      "invalidTitle": "Lien invalide",
+      "invalidDescription": "Ce lien de confirmation est invalide. Merci de refaire une demande d'accès pour en obtenir un nouveau.",
+      "expiredTitle": "Lien expiré",
+      "expiredDescription": "Ce lien de confirmation a expiré. Merci de refaire une demande d'accès pour en obtenir un nouveau.",
+      "backToSignup": "Retour à l'inscription"
     },
     "hasAccount": {
       "text": "Vous avez déjà un accès ?",

@@ -99,6 +99,17 @@ describe("proxy auth guard", () => {
     expect(res.status).not.toBe(401);
   });
 
+  it("SHOULD let the public /api/access-requests/verify-email route through WHEN there is no session", async () => {
+    setUser(null);
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/api/access-requests/verify-email"));
+
+    // The confirmation link's destination, reachable before approval, let
+    // alone a session (charge-points-server ADR 0007).
+    expect(res.status).not.toBe(401);
+  });
+
   it("SHOULD redirect /app/* to /login WHEN there is no session", async () => {
     setUser(null);
     const { proxy } = await import("../../proxy");

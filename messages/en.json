@@ -305,9 +305,19 @@
       "submit": "Request access"
     },
     "confirmation": {
-      "calloutTitle": "Request received",
-      "calloutDescription": "Your Alpha access request for <link>link</link> has been received. We'll email you as soon as it's approved.",
+      "calloutTitle": "Confirm your email",
+      "calloutDescription": "We've sent a confirmation link to <link>link</link>. Click it to confirm your address — we'll then review your request and email you once it's approved.",
       "error": "Couldn't submit your request. Please try again."
+    },
+    "verify": {
+      "verifying": "Confirming your email…",
+      "successTitle": "Email confirmed",
+      "successDescription": "Your email has been confirmed. We'll review your request and email you once it's approved.",
+      "invalidTitle": "Invalid link",
+      "invalidDescription": "This confirmation link is invalid. Please request access again to get a new one.",
+      "expiredTitle": "Link expired",
+      "expiredDescription": "This confirmation link has expired. Please request access again to get a new one.",
+      "backToSignup": "Back to sign-up"
     },
     "hasAccount": {
       "text": "Already have access?",
