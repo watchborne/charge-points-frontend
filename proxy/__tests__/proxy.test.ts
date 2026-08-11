@@ -69,6 +69,18 @@ describe("proxy auth guard", () => {
     expect(res.status).not.toBe(401);
   });
 
+  it("SHOULD let the public /api/access-requests/check-login route through WHEN there is no session", async () => {
+    setUser(null);
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/api/access-requests/check-login"));
+
+    // LoginForm calls this before the visitor has a session — that's the
+    // whole point of it — so it must be exempt too (charge-points-server ADR
+    // 0006).
+    expect(res.status).not.toBe(401);
+  });
+
   it("SHOULD redirect /app/* to /login WHEN there is no session", async () => {
     setUser(null);
     const { proxy } = await import("../../proxy");

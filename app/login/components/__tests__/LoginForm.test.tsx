@@ -1,15 +1,21 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createBrowserClient, signInWithOtp } = vi.hoisted(() => {
+const { createBrowserClient, signInWithOtp, checkLoginAccess } = vi.hoisted(() => {
   const signInWithOtp = vi.fn();
+  const checkLoginAccess = vi.fn();
   return {
     signInWithOtp,
+    checkLoginAccess,
     createBrowserClient: vi.fn(() => ({ auth: { signInWithOtp } })),
   };
 });
 
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
+
+vi.mock("../../../../lib/api", () => ({
+  api: { AccessRequests: { checkLoginAccess } },
+}));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
@@ -21,6 +27,8 @@ vi.mock("next-intl", () => ({
       "loginPage.sendCode.error": "Couldn't send the code. Please try again.",
       "loginPage.sendCode.unknownUser":
         "No account is associated with this email address. Request Alpha access to create one.",
+      "loginPage.sendCode.pending":
+        "Your Alpha access request is still under review. You'll get an email once it's approved.",
     };
     return translations[key] ?? key;
   },
@@ -33,6 +41,10 @@ const onFormSubmitted = vi.fn();
 beforeEach(() => {
   signInWithOtp.mockReset();
   onFormSubmitted.mockReset();
+  checkLoginAccess.mockReset();
+  // Most tests exercise what happens once the gate lets the email through;
+  // the gate's own denial paths get their own tests below.
+  checkLoginAccess.mockResolvedValue({ allowed: true });
 });
 
 afterEach(() => {
@@ -95,6 +107,59 @@ describe("LoginForm", () => {
     );
     expect(screen.queryByText("Couldn't send the code. Please try again.")).toBeNull();
     expect(onFormSubmitted).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD show the pending message and NOT call signInWithOtp WHEN the access request is still pending", async () => {
+    checkLoginAccess.mockResolvedValue({ allowed: false, code: "ACCESS_PENDING" });
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
+
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: "pending@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send code" }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          "Your Alpha access request is still under review. You'll get an email once it's approved.",
+        ),
+      ).toBeTruthy(),
+    );
+    expect(signInWithOtp).not.toHaveBeenCalled();
+    expect(onFormSubmitted).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD show the unknown-user message and NOT call signInWithOtp WHEN the gate denies the email", async () => {
+    checkLoginAccess.mockResolvedValue({ allowed: false, code: "NOT_INVITED" });
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
+
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: "denied@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send code" }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          "No account is associated with this email address. Request Alpha access to create one.",
+        ),
+      ).toBeTruthy(),
+    );
+    expect(signInWithOtp).not.toHaveBeenCalled();
+    expect(onFormSubmitted).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD still attempt signInWithOtp WHEN the gate itself fails (transport error)", async () => {
+    checkLoginAccess.mockRejectedValue(new Error("network down"));
+    signInWithOtp.mockResolvedValue({ error: null });
+    render(<LoginForm onFormSubmitted={onFormSubmitted} />);
+
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: "user@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send code" }));
+
+    await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
   });
 
   it("SHOULD disable the submit button WHILE the request is in flight", async () => {

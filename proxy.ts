@@ -8,8 +8,10 @@ const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 // API routes reachable without a Supabase session. The alpha access request is
 // submitted from /signup by an unauthenticated visitor, so its proxy route must
 // not be gated behind a session (it still forwards the shared API key to the
-// backend server-side).
-const PUBLIC_API_PATHS = ["/api/access-requests"];
+// backend server-side). check-login is the same story from /login: LoginForm
+// calls it to decide whether the visitor may even attempt to sign in, so it
+// must be reachable before any session exists (charge-points-server ADR 0006).
+const PUBLIC_API_PATHS = ["/api/access-requests", "/api/access-requests/check-login"];
 
 // The .fr domain is retired in favor of .com with the French locale forced; visitors
 // are redirected there permanently.
