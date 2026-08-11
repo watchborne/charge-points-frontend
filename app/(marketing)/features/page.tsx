@@ -122,11 +122,11 @@ export default function FeaturesPage() {
 
       {/* CTA */}
       <section className="container mx-auto px-6 pb-24">
-        <div className="rounded-3xl border bg-muted px-8 py-16 text-primary">
+        <div className="rounded-3xl border bg-muted px-8 py-16">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-4xl font-bold">{t("featuresPage.cta.title")}</h2>
+            <h2 className="text-4xl font-bold text-primary">{t("featuresPage.cta.title")}</h2>
 
-            <p className="mt-4 text-lg opacity-90">{t("featuresPage.cta.subtitle")}</p>
+            <p className="mt-4 text-lg opacity-90 text-primary">{t("featuresPage.cta.subtitle")}</p>
 
             <Button size="lg" variant="charge" className="mt-8" asChild>
               <Link href="/signup">{t("featuresPage.cta.button")}</Link>
