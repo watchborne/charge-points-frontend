@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
 
-import { isLocale, LOCALE_COOKIE_NAME, LOCALE_QUERY_PARAM, localeForHost } from "@/i18n/locale";
+import { defaultLocale, localizedPath, locales, type Locale } from "@/i18n/locale";
+import { routing } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/middleware";
-
-const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 // API routes reachable without a Supabase session. The alpha access request is
 // submitted from /signup by an unauthenticated visitor, so its proxy route must
@@ -13,139 +13,140 @@ const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 // must be reachable before any session exists (charge-points-server ADR 0006).
 const PUBLIC_API_PATHS = ["/api/access-requests", "/api/access-requests/check-login"];
 
-// The .fr domain is retired in favor of .com with the French locale forced; visitors
-// are redirected there permanently.
+// The .fr domain is retired in favor of .com; visitors are redirected there
+// permanently. Unlike before URL-based locale routing, no `?lang=` is needed
+// any more: an unprefixed path on .com already means fr, the default locale.
 const FR_HOST = "watch-borne.fr";
 const FR_REDIRECT_HOST = "watch-borne.com";
 
-// Permanently moves .fr traffic to .com, forcing the French locale via the same
-// `?lang=` param the footer's LocaleSwitcher uses so `resolveLocale` picks it up
-// immediately and persists it to the NEXT_LOCALE cookie on the redirected request.
 function redirectFrHostToCom(request: NextRequest) {
   if ((request.headers.get("host") ?? "") !== FR_HOST) return null;
 
   const url = request.nextUrl.clone();
   url.host = FR_REDIRECT_HOST;
   url.port = "";
-  url.searchParams.set(LOCALE_QUERY_PARAM, "fr");
   return url;
 }
 
-/**
- * Resolves the active locale for this request: an explicit `?lang=` query
- * param always wins (so a shared link or the footer switcher can force a
- * locale), then the persisted `NEXT_LOCALE` cookie, then a first-time
- * visitor's host TLD (`localeForHost`: `.fr` -> fr, `.com` -> en, else the
- * default locale).
- */
-function resolveLocale(request: NextRequest) {
-  const queryLocale = request.nextUrl.searchParams.get(LOCALE_QUERY_PARAM);
-  if (isLocale(queryLocale)) return queryLocale;
+const handleI18nRouting = createIntlMiddleware(routing);
 
-  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
-  if (isLocale(cookieLocale)) return cookieLocale;
+// /api/* and /auth/* live outside the `[locale]` segment (no locale prefix —
+// see i18n/routing.ts) — next-intl's routing has nothing to do there.
+function isLocaleRoutedPath(pathname: string) {
+  return !pathname.startsWith("/api") && !pathname.startsWith("/auth");
+}
 
-  return localeForHost(request.headers.get("host") ?? "");
+// A redirect from next-intl only normalizes the URL (missing/extra locale
+// prefix) — no page content is served, so it's always safe to return
+// immediately without checking auth. The browser refetches with the
+// corrected URL, and auth gating below applies on that follow-up request.
+function isRedirect(response: NextResponse) {
+  return response.headers.has("location");
+}
+
+// Splits a locale-routed pathname into the active locale and the path with
+// its prefix removed, e.g. "/en/app/dashboard" -> { locale: "en", rest:
+// "/app/dashboard" }, "/app/dashboard" -> { locale: "fr", rest: "/app/dashboard" }
+// (fr is the default locale and stays unprefixed).
+function stripLocalePrefix(pathname: string): { locale: Locale; rest: string } {
+  for (const locale of locales) {
+    if (locale === defaultLocale) continue;
+    const prefix = `/${locale}`;
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+      return { locale, rest: pathname.slice(prefix.length) || "/" };
+    }
+  }
+  return { locale: defaultLocale, rest: pathname };
+}
+
+async function gateApiRequest(request: NextRequest) {
+  const { supabase, supabaseResponse } = createClient(request);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+    return response;
+  }
+
+  return supabaseResponse;
 }
 
 /**
  * Global proxy (Next's renamed `middleware.ts` file convention as of Next 16 —
  * see https://nextjs.org/docs/messages/middleware-to-proxy; the helper this
  * calls into is still `lib/supabase/middleware.ts`, unrelated to the file
- * convention rename): redirects retired/canonical hosts, resolves the locale
- * for every matched request, and gates access to the authenticated surface —
- * refreshing the Supabase session as it does so.
+ * convention rename): redirects the retired `.fr` host, resolves the URL's
+ * locale prefix via next-intl, and gates access to the authenticated
+ * surface — refreshing the Supabase session as it does so.
  *
  * The Supabase session lookup (`getUser()`, a network round-trip) runs only for
  * the authenticated surface (`/api`, `/app`, `/login`, `/signup`); public
- * marketing pages skip it and just get locale resolution.
+ * marketing pages skip it entirely.
  *
- * - `watch-borne.fr` is redirected (308) to `watch-borne.com` with `?lang=fr`
- *   forced — see `redirectFrHostToCom`. This runs before anything else below.
- * - The locale comes from `resolveLocale` (see above). It's set on the
- *   request's cookies too (not just the response) so this request's RSC
- *   render picks it up immediately via `i18n/request.ts` — a cookie on the
- *   response alone only applies from the next request onward. The response
- *   cookie is refreshed on every request so a `?lang=` switch (or a
- *   first-visit host guess) persists.
- * - `/app/*` — requires a session; unauthenticated users are redirected to
- *   `/login`.
- * - `/api/*` — requires a session; unauthenticated callers get 401. These routes
- *   proxy to the backend with the shared API key (`lib/proxy-request.ts`), so they
- *   must never be reachable without a user session.
- * - `/login` and `/signup` — authenticated users are bounced to the dashboard.
+ * - `watch-borne.fr` is redirected (308) to `watch-borne.com` — see
+ *   `redirectFrHostToCom`. This runs before anything else below.
+ * - `/api/*` and `/auth/*` sit outside the `[locale]` segment (no locale
+ *   prefix), so they skip next-intl's routing and go straight to the
+ *   Supabase gate (for `/api/*`) or through untouched (for `/auth/*`, which
+ *   handles its own redirects — see app/auth/callback/route.ts).
+ * - Everything else goes through `handleI18nRouting` first. A redirect from
+ *   that (URL normalization) is returned immediately — see `isRedirect`.
+ *   Otherwise, `/app/*`, `/login`, `/signup` (locale prefix stripped) are
+ *   gated the same way as before, with redirect targets re-prefixed with the
+ *   request's locale via `localizedPath`.
  *
- * Any response we return in place of `supabaseResponse` must carry the refreshed
- * session cookies, otherwise a token rotated during `getUser()` is lost.
+ * Any response we return in place of `supabaseResponse` must carry the
+ * refreshed session cookies, otherwise a token rotated during `getUser()` is
+ * lost.
  */
 export async function proxy(request: NextRequest) {
   const frRedirectUrl = redirectFrHostToCom(request);
   if (frRedirectUrl) return NextResponse.redirect(frRedirectUrl, 308);
 
-  const locale = resolveLocale(request);
-  // Set on the request too (not just the response) so the current request's
-  // RSC render picks it up immediately via `i18n/request.ts` — the cookie
-  // header on a downstream response alone would only apply from the next
-  // request onward.
-  request.cookies.set(LOCALE_COOKIE_NAME, locale);
-
   const { pathname } = request.nextUrl;
 
-  const setLocaleCookie = (response: NextResponse) => {
-    response.cookies.set(LOCALE_COOKIE_NAME, locale, {
-      path: "/",
-      maxAge: LOCALE_COOKIE_MAX_AGE,
-    });
-    return response;
-  };
-
-  // Only the authenticated surface needs a Supabase session lookup. Public
-  // marketing pages skip `supabase.auth.getUser()` — a network round-trip to
-  // Supabase that ran on *every* request, marketing pages included. They still
-  // get locale resolution.
-  const needsAuth =
-    (pathname.startsWith("/api") && !PUBLIC_API_PATHS.includes(pathname)) ||
-    pathname.startsWith("/app") ||
-    pathname === "/login" ||
-    pathname === "/signup";
-
-  if (!needsAuth) {
-    return setLocaleCookie(NextResponse.next({ request }));
+  if (!isLocaleRoutedPath(pathname)) {
+    if (pathname.startsWith("/api") && !PUBLIC_API_PATHS.includes(pathname)) {
+      return gateApiRequest(request);
+    }
+    return NextResponse.next({ request });
   }
 
-  const { supabase, supabaseResponse } = createClient(request);
+  const intlResponse = handleI18nRouting(request);
+  if (isRedirect(intlResponse)) return intlResponse;
 
+  const { locale, rest } = stripLocalePrefix(pathname);
+  const needsAuth = rest.startsWith("/app") || rest === "/login" || rest === "/signup";
+  if (!needsAuth) return intlResponse;
+
+  const { supabase, supabaseResponse } = createClient(request);
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const withSessionCookies = (response: NextResponse) => {
     supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
-    return setLocaleCookie(response);
+    return response;
   };
 
   const redirectTo = (path: string) => {
     const url = request.nextUrl.clone();
-    url.pathname = path;
+    url.pathname = localizedPath(path, locale);
     return withSessionCookies(NextResponse.redirect(url));
   };
 
-  if (pathname.startsWith("/api")) {
-    if (!user) {
-      return withSessionCookies(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
-    }
-    return supabaseResponse;
-  }
-
-  if (pathname.startsWith("/app") && !user) {
+  if (rest.startsWith("/app") && !user) {
     return redirectTo("/login");
   }
 
-  if ((pathname === "/login" || pathname === "/signup") && user) {
+  if ((rest === "/login" || rest === "/signup") && user) {
     return redirectTo("/app/dashboard");
   }
 
-  return withSessionCookies(supabaseResponse);
+  return withSessionCookies(intlResponse);
 }
 
 export const config = {

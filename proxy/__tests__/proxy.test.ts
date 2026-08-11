@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock only the external @supabase/ssr (a bare specifier — reliably intercepted).
@@ -13,6 +13,23 @@ const { createServerClient, getUser } = vi.hoisted(() => {
 });
 
 vi.mock("@supabase/ssr", () => ({ createServerClient }));
+
+// next-intl/middleware's ESM build imports "next/server" in a way Vitest's
+// Node-ESM resolver can't follow outside a real Next.js build (confirmed
+// working under `next build`/`next start`) — a test-tooling gap, not a
+// runtime bug. Mocked here so this file can focus on what's actually ours to
+// test: the auth-gating/redirect logic layered around next-intl's routing,
+// not next-intl's own URL-prefix algorithm (that's next-intl's job to test).
+// Defaults to a passthrough; the "locale routing" describe block below swaps
+// in a redirect for the one scenario that needs it.
+const { intlMiddlewareImpl } = vi.hoisted(() => ({
+  intlMiddlewareImpl: { current: null as ((request: NextRequest) => NextResponse) | null },
+}));
+
+vi.mock("next-intl/middleware", () => ({
+  default: () => (request: NextRequest) =>
+    intlMiddlewareImpl.current?.(request) ?? NextResponse.next({ request }),
+}));
 
 function setUser(user: { id: string } | null) {
   getUser.mockResolvedValue({ data: { user } });
@@ -30,6 +47,7 @@ beforeEach(() => {
   vi.resetModules();
   createServerClient.mockClear();
   getUser.mockReset();
+  intlMiddlewareImpl.current = null;
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test-anon-key");
 });
@@ -91,6 +109,16 @@ describe("proxy auth guard", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
 
+  it("SHOULD redirect a locale-prefixed /app/* to the same locale's /login WHEN there is no session", async () => {
+    setUser(null);
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/en/app/dashboard"));
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3001/en/login");
+  });
+
   it("SHOULD let /app/* through WHEN there is a session", async () => {
     setUser({ id: "user-1" });
     const { proxy } = await import("../../proxy");
@@ -128,16 +156,9 @@ describe(".fr host redirect", () => {
     const res = await proxy(requestFromHost("watch-borne.fr", "/pricing?ref=footer"));
 
     expect(res.status).toBe(308);
-    expect(res.headers.get("location")).toBe("http://watch-borne.com/pricing?ref=footer&lang=fr");
-  });
-
-  it("SHOULD override an existing lang param WHEN redirecting from watch-borne.fr", async () => {
-    setUser(null);
-    const { proxy } = await import("../../proxy");
-
-    const res = await proxy(requestFromHost("watch-borne.fr", "/?lang=en"));
-
-    expect(res.headers.get("location")).toBe("http://watch-borne.com/?lang=fr");
+    // No ?lang= forcing any more: an unprefixed path on .com already means fr,
+    // the default locale (see i18n/routing.ts).
+    expect(res.headers.get("location")).toBe("http://watch-borne.com/pricing?ref=footer");
   });
 
   it("SHOULD NOT redirect WHEN the host is already watch-borne.com", async () => {
@@ -150,68 +171,36 @@ describe(".fr host redirect", () => {
   });
 });
 
-describe("locale resolution", () => {
-  it("SHOULD default the NEXT_LOCALE cookie to fr WHEN there is no lang param or cookie", async () => {
+describe("locale routing", () => {
+  // next-intl's own URL-prefix algorithm (as-needed, fr unprefixed / en
+  // prefixed) is next-intl's responsibility to test, not ours — see the
+  // vi.mock("next-intl/middleware", ...) comment above. What's ours to get
+  // right is: (1) a redirect from next-intl short-circuits immediately
+  // without running the Supabase auth gate, and (2) a non-redirect response
+  // proceeds through gating as normal, on both prefixed and unprefixed paths.
+
+  it("SHOULD return next-intl's redirect immediately WITHOUT running the auth gate", async () => {
+    setUser(null);
+    intlMiddlewareImpl.current = (req) => NextResponse.redirect(new URL("/pricing", req.url), 307);
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/fr/pricing"));
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3001/pricing");
+    // /fr/pricing isn't an auth-gated path anyway, but the point stands for
+    // /app/* and /login too: a redirect is returned as-is, before gating.
+    expect(getUser).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD proceed to auth gating WHEN next-intl does not redirect", async () => {
     setUser(null);
     const { proxy } = await import("../../proxy");
 
-    const res = await proxy(request("/pricing"));
+    const res = await proxy(request("/app/dashboard"));
 
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("fr");
-  });
-
-  it("SHOULD set NEXT_LOCALE to en WHEN the host is watch-borne.com", async () => {
-    setUser({ id: "user-1" });
-    const { proxy } = await import("../../proxy");
-
-    const res = await proxy(requestFromHost("watch-borne.com", "/"));
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
-  });
-
-  it("SHOULD set the NEXT_LOCALE cookie from the lang query param WHEN it is a supported locale", async () => {
-    setUser(null);
-    const { proxy } = await import("../../proxy");
-
-    const res = await proxy(request("/pricing?lang=en"));
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
-  });
-
-  it("SHOULD ignore an unsupported lang query param WHEN falling back to the cookie", async () => {
-    setUser(null);
-    const { proxy } = await import("../../proxy");
-
-    const req = request("/pricing?lang=de");
-    req.cookies.set("NEXT_LOCALE", "en");
-
-    const res = await proxy(req);
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
-  });
-
-  it("SHOULD keep the existing NEXT_LOCALE cookie WHEN no lang query param is present", async () => {
-    setUser(null);
-    const { proxy } = await import("../../proxy");
-
-    const req = request("/pricing");
-    req.cookies.set("NEXT_LOCALE", "en");
-
-    const res = await proxy(req);
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
-  });
-
-  it("SHOULD let a lang query param override an existing NEXT_LOCALE cookie", async () => {
-    setUser(null);
-    const { proxy } = await import("../../proxy");
-
-    const req = request("/pricing?lang=en");
-    req.cookies.set("NEXT_LOCALE", "fr");
-
-    const res = await proxy(req);
-
-    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
 });
 

@@ -1,11 +1,11 @@
 import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Menu, X } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React, { PropsWithChildren, useState } from "react";
 import { UrlObject } from "url";
+
+import { Link, usePathname } from "@/i18n/navigation";
 
 export type NavbarLink = { key: string; label: string; url: string | UrlObject };
 

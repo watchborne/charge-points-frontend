@@ -1,25 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isLocale, localeForHost, withLocaleParam } from "../locale";
-
-describe("localeForHost", () => {
-  it("SHOULD return fr WHEN the host ends with .fr", () => {
-    expect(localeForHost("watch-borne.fr")).toBe("fr");
-  });
-
-  it("SHOULD return en WHEN the host ends with .com", () => {
-    expect(localeForHost("watch-borne.com")).toBe("en");
-  });
-
-  it("SHOULD return en WHEN a subdomain host ends with .com", () => {
-    expect(localeForHost("app.watch-borne.com")).toBe("en");
-  });
-
-  it("SHOULD return the default locale WHEN the host matches neither TLD", () => {
-    expect(localeForHost("localhost:3001")).toBe("fr");
-    expect(localeForHost("watchborne.netlify.app")).toBe("fr");
-  });
-});
+import { isLocale, localizedPath } from "../locale";
 
 describe("isLocale", () => {
   it("SHOULD return true WHEN the value is a supported locale", () => {
@@ -34,16 +15,12 @@ describe("isLocale", () => {
   });
 });
 
-describe("withLocaleParam", () => {
-  it("SHOULD add the lang query param WHEN there is no existing query string", () => {
-    expect(withLocaleParam("/pricing", "", "en")).toBe("/pricing?lang=en");
+describe("localizedPath", () => {
+  it("SHOULD return the path unchanged WHEN the locale is the default (fr)", () => {
+    expect(localizedPath("/app/dashboard", "fr")).toBe("/app/dashboard");
   });
 
-  it("SHOULD preserve other query params WHEN setting the lang param", () => {
-    expect(withLocaleParam("/pricing", "foo=bar", "en")).toBe("/pricing?foo=bar&lang=en");
-  });
-
-  it("SHOULD override an existing lang param WHEN one is already present", () => {
-    expect(withLocaleParam("/pricing", "lang=fr", "en")).toBe("/pricing?lang=en");
+  it("SHOULD prefix the path WHEN the locale is not the default", () => {
+    expect(localizedPath("/app/dashboard", "en")).toBe("/en/app/dashboard");
   });
 });

@@ -20,38 +20,63 @@ Turbopack/Netlify tracing bug forces webpack for `next build` specifically;
 
 ```
 app/
-  (marketing)/          # public site (route group): home, pricing, contact, features
-  app/                  # authenticated dashboard
-    dashboard/ sites/    # pages (no local components/ subfolder)
-    configuration/       # page + its own components/ (CommissioningTokenPanel:
-                         #   installer self-service OCPP commissioning token)
-    charge-points/       # page + its own components/ (commissioning dialog/queue/
-                         #   checklist, fleet panel, config dialog, trigger message)
-    sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
-                         #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
-    components/         # shared feature + common + layout components
-                        #   (common/: ConnectorStatusIcon, WsStatusBadge —
-                        #   app-specific, tied to domain types/state; the
-                        #   generic display primitives that used to live here
-                        #   moved to @watchborne/electrons)
-    404/                 # dashboard-scoped not-found page
-    hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
-    ws/ws-manager.ts    # singleton WebSocket manager (see below)
+  [locale]/              # every page lives under this segment — locale is part
+                         #   of the URL now (fr unprefixed/default, /en/... for
+                         #   English), which is what lets Next.js statically
+                         #   generate and CDN-cache these routes (see i18n/
+                         #   routing.ts). Each root layout below still calls
+                         #   generateStaticParams + setRequestLocale, and every
+                         #   page under (marketing) also calls setRequestLocale
+                         #   itself (required per-segment, not just the layout)
+                         #   with getTranslations (not useTranslations, which
+                         #   can't be called in an async Server Component).
+    (marketing)/          # public site (route group): home, pricing, contact, features
+    app/                  # authenticated dashboard
+      dashboard/ sites/    # pages (no local components/ subfolder)
+      configuration/       # page + its own components/ (CommissioningTokenPanel:
+                           #   installer self-service OCPP commissioning token)
+      charge-points/       # page + its own components/ (commissioning dialog/queue/
+                           #   checklist, fleet panel, config dialog, trigger message).
+                           #   The page itself wraps its useSearchParams() usage in
+                           #   Suspense — required for static rendering.
+      sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
+                           #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
+      components/         # shared feature + common + layout components
+                          #   (common/: ConnectorStatusIcon, WsStatusBadge —
+                          #   app-specific, tied to domain types/state; the
+                          #   generic display primitives that used to live here
+                          #   moved to @watchborne/electrons)
+      404/                 # dashboard-scoped not-found page
+      hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
+      ws/ws-manager.ts    # singleton WebSocket manager (see below)
+    404/                   # top-level not-found page
+    login/                 # login page (magic-link sign-in)
+    signup/                # alpha access-request page (gated, admin-approved)
   components/layout/Navbar.tsx  # shared Navbar used by both the marketing
-                                 #   Navbar and the dashboard Header
+                                 #   Navbar and the dashboard Header — imports
+                                 #   Link/usePathname from i18n/navigation.ts,
+                                 #   not next/link or next/navigation
   components/ToastNotification/  # stackable toast system (wraps sonner's Toaster;
                                   #   bottom-center, 15s, dismissible, richColors)
-  404/                   # top-level not-found page
-  api/                   # Next route handlers that PROXY to the backend
-  login/                 # login page (OTP-code sign-in)
-  signup/                # alpha access-request page (gated, admin-approved)
+  api/                   # Next route handlers that PROXY to the backend — outside
+                         #   [locale] (no locale prefix; not user-facing pages)
+  auth/callback/         # Supabase magic-link code-exchange handler — also
+                         #   outside [locale]; builds its own locale-prefixed
+                         #   redirect target from the NEXT_LOCALE cookie
+                         #   (i18n/locale.ts's localizedPath) since it has no
+                         #   [locale] route param to read
   auth/components/       # LogoutButton, shared by Header and marketing Navbar
   auth/dev-login/        # local-dev-only OTP-code shortcut route
   assets/                # static assets used by app/ components
-proxy.ts                # Supabase session refresh, locale resolution
-                        # (?lang= > cookie > host), and auth guard for
+proxy.ts                # Supabase session refresh, next-intl URL-based locale
+                        # routing (via next-intl/middleware), and auth guard for
                         # /app, /api, /login, /signup (Next's renamed
-                        # middleware.ts file convention as of Next 16)
+                        # middleware.ts file convention as of Next 16). /api and
+                        # /auth skip next-intl's routing entirely (they're
+                        # outside [locale]); everything else goes through
+                        # next-intl's middleware first, and a redirect from
+                        # that (URL normalization) short-circuits immediately
+                        # before the auth gate runs.
 components/ui/          # shadcn/ui primitives not yet promoted to
                         #   @watchborne/electrons (generated; edit via
                         #   components.json) — Dialog, AlertDialog, Popover,
@@ -59,8 +84,17 @@ components/ui/          # shadcn/ui primitives not yet promoted to
                         #   Datepicker, Form
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # thin re-exports of @watchborne/charge-points-types
-i18n/locale.ts          # Locale type, defaultLocale, localeForHost (edge-safe)
-i18n/request.ts         # next-intl config (locale from NEXT_LOCALE cookie)
+i18n/locale.ts          # Locale type, defaultLocale, isLocale, localizedPath (edge-safe)
+i18n/routing.ts         # next-intl defineRouting: locales, defaultLocale,
+                        #   localePrefix: "as-needed" (fr unprefixed, /en/... prefixed),
+                        #   localeDetection: false (see i18n/routing.ts's own
+                        #   comment for why — SEO, not Accept-Language guessing)
+i18n/navigation.ts      # next-intl createNavigation: locale-aware Link, redirect,
+                        #   usePathname, useRouter — use these, not next/link or
+                        #   next/navigation, for any in-app navigation under [locale]
+i18n/request.ts         # next-intl config: locale from the [locale] route param
+                        #   (via requestLocale), not a cookie — that's what makes
+                        #   these routes static-generation-eligible again
 messages/{fr,en}.json   # translations
 emails/templates/       # Supabase auth email templates (magic-link.html, signup.html)
 ```
@@ -104,7 +138,7 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
 
 ### Real-time WebSocket
 
-`app/app/ws/ws-manager.ts` is a **per-URL singleton** (`getWebSocketManager`)
+`app/[locale]/app/ws/ws-manager.ts` is a **per-URL singleton** (`getWebSocketManager`)
 that owns the connection: reference counting, a disconnect grace period, and
 exponential-backoff auto-reconnect. Components consume it through the
 `useWebSocket(url)` hook — do not construct `new WebSocket` directly in
@@ -128,17 +162,17 @@ components. Prefer `useWebSocketContext` for shared dashboard state.
   redirects through Supabase's hosted domain.
 - `proxy.ts` (Next's renamed `middleware.ts` file convention as of Next 16)
   runs on every request: it redirects the retired `watch-borne.fr` host
-  permanently to `watch-borne.com` (forcing the `fr` locale via `?lang=`),
-  refreshes the Supabase session via `lib/supabase/middleware.ts` (that
-  helper's filename is unrelated to the file-convention rename), then gates
-  `/app/*` and `/api/*` behind a valid
+  permanently to `watch-borne.com` (an unprefixed path there already means fr,
+  the default locale — see i18n/routing.ts), refreshes the Supabase session via
+  `lib/supabase/middleware.ts` (that helper's filename is unrelated to the
+  file-convention rename), then gates `/app/*` and `/api/*` behind a valid
   session (redirecting to `/login`, or returning 401 for `/api/*`) — except the
   paths listed in `PUBLIC_API_PATHS` (currently just `/api/access-requests`,
   reachable by unauthenticated visitors from `/signup`). The Supabase session
   lookup (`getUser()`, a network round trip) only runs for the authenticated
   surface (`/api`, `/app`, `/login`, `/signup`); public marketing pages skip it
-  and get locale resolution only. There is no `app.*` subdomain routing —
-  `/app/*` is served at that path on the main host in every environment.
+  entirely. There is no `app.*` subdomain routing — `/app/*` is served at that
+  path (under the active locale prefix) on the main host in every environment.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
   server component, middleware). `lib/supabase/admin.ts` is the one exception:
@@ -198,21 +232,52 @@ via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.
 ### i18n
 
 All user-facing strings go through `next-intl`. Default locale is **`fr`**;
-supported locales are `fr` and `en`. `proxy.ts`'s `resolveLocale` picks the
-active locale with this precedence: an explicit `?lang=` query param (the
-footer's `LocaleSwitcher` component and shared links use this to force a
-locale) > the persisted `NEXT_LOCALE` cookie > the host's TLD on a first-time
-visit (`localeForHost`: `.fr` -> fr, `.com` -> en, else the default). In
-practice `watch-borne.fr` is retired and permanently redirected to
-`watch-borne.com?lang=fr` by `proxy.ts` before locale resolution runs (see
-the Authentication section above), so the TLD branch only still matters for
-`.com`/other hosts. The resolved locale is written back to the cookie on every
-request. Add keys to **both** `messages/fr.json` and `messages/en.json`.
+supported locales are `fr` and `en`. **Locale is part of the URL**, not a
+cookie: `i18n/routing.ts` configures `localePrefix: "as-needed"`, so `fr`
+(the default) stays unprefixed (`/pricing`) and `en` gets a `/en/...` prefix
+(`/en/pricing`). This is a deliberate architecture choice, not incidental —
+an earlier cookie-based version of this (`i18n/request.ts` reading a
+`NEXT_LOCALE` cookie via `cookies()`) forced every single route to render
+dynamically on every request (a Next.js "dynamic API" opts the whole app out
+of static generation), which was the direct cause of slow production
+navigations. URL-based locale lets Next.js statically generate and CDN-cache
+every route again (`generateStaticParams` returning `["fr", "en"]` in every
+root layout, plus `setRequestLocale` — called in each layout **and** in every
+Server Component page directly under it, since static-render eligibility is
+per-segment, not inherited from the layout alone).
+
+`proxy.ts` combines next-intl's own routing middleware (`next-intl/middleware`)
+with the Supabase auth gate: `/api/*` and `/auth/*` sit outside `[locale]`
+(no prefix) and skip next-intl's routing entirely; everything else goes
+through it first, and a redirect from that (URL normalization, e.g. stripping
+a redundant `/fr/` prefix) short-circuits immediately, before the auth gate
+runs. `localeDetection` is deliberately `false` (see `i18n/routing.ts`'s
+comment) — no Accept-Language-based redirect-on-first-visit, since that's bad
+for SEO (crawlers don't send a consistent Accept-Language, and redirect-based
+content negotiation reads as cloaking). The retired `watch-borne.fr` host is
+still redirected (308) to `watch-borne.com` by `proxy.ts`, unprefixed (an
+unprefixed path there already means fr, the default locale — no `?lang=`
+trick needed any more). The footer's `LocaleSwitcher` switches locale via
+next-intl's own navigation APIs (`i18n/navigation.ts`'s `useRouter().replace(
+pathname, {locale})`), not a query param. Add keys to **both**
+`messages/fr.json` and `messages/en.json`.
+
+**Navigation:** use `Link`, `redirect`, `usePathname`, `useRouter` from
+`@/i18n/navigation` (not `next/link` / `next/navigation`) for anything that
+links to or navigates another in-app route — they add/strip the locale prefix
+automatically. `useSearchParams` is the one exception, still from
+`next/navigation` (not locale-related); a page using it needs a `<Suspense>`
+boundary around that part to stay statically renderable (see
+`app/[locale]/app/charge-points/page.tsx`).
 
 **Translation usage pattern:**
 
 - **Single call per component:** always use `const t = useTranslations("")` (root
-  namespace) — never use `useTranslations("some.namespace")`.
+  namespace) — never use `useTranslations("some.namespace")`. **Exception:**
+  in an `async` Server Component (a page under `(marketing)` that calls
+  `setRequestLocale` — see above), use `const t = await getTranslations("")`
+  from `next-intl/server` instead — `useTranslations` cannot be called there
+  and fails at build time (only in a _sync_ Server/Client Component).
 - **Full paths:** reference translations with the complete path from root,
   e.g. `t("loginPage.form.email")` not `t("form.email")`.
 - **No arrays in translations:** translate lists as objects with key-value pairs.

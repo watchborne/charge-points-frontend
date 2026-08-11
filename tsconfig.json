@@ -20,8 +20,8 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@marketing/*": ["./app/(marketing)/*"],
-      "@app/*": ["./app/app/*"],
+      "@marketing/*": ["./app/[locale]/(marketing)/*"],
+      "@app/*": ["./app/[locale]/app/*"],
       "rootApp/*": ["./app/*"]
     }
   },

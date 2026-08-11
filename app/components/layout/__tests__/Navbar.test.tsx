@@ -1,11 +1,27 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { usePathname } = vi.hoisted(() => ({
   usePathname: vi.fn(() => "/pricing"),
 }));
 
-vi.mock("next/navigation", () => ({ usePathname }));
+vi.mock("../../../../i18n/navigation", () => ({
+  usePathname,
+  Link: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string | { pathname: string };
+    children?: ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <a href={typeof href === "string" ? href : href.pathname} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => {

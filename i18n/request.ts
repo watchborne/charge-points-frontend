@@ -1,13 +1,16 @@
-import { cookies } from "next/headers";
+import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 
-import { defaultLocale, isLocale, LOCALE_COOKIE_NAME } from "./locale";
+import { routing } from "./routing";
 
-export { defaultLocale, localeForHost, type Locale } from "./locale";
+export { defaultLocale, type Locale } from "./locale";
 
-export default getRequestConfig(async () => {
-  const cookieLocale = (await cookies()).get(LOCALE_COOKIE_NAME)?.value;
-  const locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+// `requestLocale` comes from the `[locale]` route segment (via the middleware
+// rewrite), not from a cookie/header read — that's what keeps this static-
+// generation-eligible (see i18n/routing.ts for why that matters).
+export default getRequestConfig(async ({ requestLocale }) => {
+  const requested = await requestLocale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
   return {
     locale,
