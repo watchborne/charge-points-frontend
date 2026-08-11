@@ -45,6 +45,7 @@ export function useChargePoints(): UseChargePointsReturn {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refetchSilently = useCallback(async () => {
