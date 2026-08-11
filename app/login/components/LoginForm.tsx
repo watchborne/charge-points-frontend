@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { api } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 
 interface LoginFormProps {
@@ -16,21 +17,32 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
   const locale = useLocale();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<"unknown-user" | "generic" | null>(null);
+  const [error, setError] = useState<"unknown-user" | "pending" | "generic" | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
+    // Gate on access_requests.status (charge-points-server ADR 0006) before
+    // even attempting signInWithOtp below: an approved email has its Supabase
+    // user ensured as a side effect of this call, so it's never in the
+    // "otp_disabled" state signInWithOtp itself would otherwise report; a
+    // pending/never-applied/rejected one is turned back here with copy that
+    // says why, instead of Supabase's generic error.
+    const access = await api.AccessRequests.checkLoginAccess(email).catch(() => null);
+    if (access && !access.allowed) {
+      setIsLoading(false);
+      setError(access.code === "ACCESS_PENDING" ? "pending" : "unknown-user");
+      return;
+    }
+
     const supabase = createClient();
-    // shouldCreateUser: false makes Supabase verify the email belongs to an
-    // existing user before sending anything — unknown emails get an
-    // "otp_disabled" error instead of silently creating an account and
-    // sending a code. No emailRedirectTo: the "Magic Link" email template
-    // (Supabase dashboard) now renders {{ .Token }}, a 6-digit code the user
-    // types into VerifyOtpForm — there's no link to redirect from anymore
-    // (ADR 0005, charge-points-server).
+    // shouldCreateUser: false stays as defense in depth — the gate above is
+    // what actually decides who reaches this call in the ordinary flow. No
+    // emailRedirectTo: the "Magic Link" email template (Supabase dashboard)
+    // now renders {{ .Token }}, a 6-digit code the user types into
+    // VerifyOtpForm — there's no link to redirect from anymore (ADR 0005).
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -72,11 +84,13 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
 
       {error && (
         <Callout
-          variant="error"
+          variant={error === "pending" ? "info" : "error"}
           description={
             error === "unknown-user"
               ? t("loginPage.sendCode.unknownUser")
-              : t("loginPage.sendCode.error")
+              : error === "pending"
+                ? t("loginPage.sendCode.pending")
+                : t("loginPage.sendCode.error")
           }
         />
       )}
