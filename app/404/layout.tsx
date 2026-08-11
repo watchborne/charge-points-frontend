@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 
 import { Footer } from "../(marketing)/layout/Footer";
 import { Navbar } from "../(marketing)/layout/Navbar";
-
-const inter = Inter({ subsets: ["latin"] });
 
 // See app/(marketing)/layout.tsx for why this is set on every root layout.
 export const runtime = "edge";
@@ -21,14 +18,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
-      <body className={inter.className}>
-        <NextIntlClientProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <>
+      <NextIntlClientProvider>
+        <Navbar />
+        {children}
+        <Footer />
+      </NextIntlClientProvider>
+    </>
   );
 }

@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 
 import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
 
 import { Footer } from "../(marketing)/layout/Footer";
-
-const inter = Inter({ subsets: ["latin"] });
 
 // See app/(marketing)/layout.tsx for why this is set on every root layout.
 export const runtime = "edge";
@@ -22,17 +19,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
-      <body className={inter.className}>
-        <NextIntlClientProvider>
-          <main className="max-w-7xl">
-            <div className="min-h-screen lg:grid lg:grid-cols-2">{children}</div>
-          </main>
+    <>
+      <NextIntlClientProvider>
+        <main className="max-w-7xl">
+          <div className="min-h-screen lg:grid lg:grid-cols-2">{children}</div>
+        </main>
 
-          <Footer />
-          <ToastNotification />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+        <Footer />
+        <ToastNotification />
+      </NextIntlClientProvider>
+    </>
   );
 }

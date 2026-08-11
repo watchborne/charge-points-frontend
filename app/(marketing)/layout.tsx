@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 
 import { Footer } from "./layout/Footer";
 import { Navbar } from "./layout/Navbar";
 
 import "rootApp/globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 // The locale comes from a cookie (see i18n/request.ts), which is a Next
 // "dynamic" API and opts every page under this layout out of static
@@ -27,14 +24,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
-      <body className={inter.className}>
-        <NextIntlClientProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <>
+      <NextIntlClientProvider>
+        <Navbar />
+        {children}
+        <Footer />
+      </NextIntlClientProvider>
+    </>
   );
 }
