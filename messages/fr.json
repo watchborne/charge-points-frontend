@@ -260,7 +260,8 @@
     },
     "sendCode": {
       "error": "Impossible d'envoyer le code. Veuillez réessayer.",
-      "unknownUser": "Aucun compte n'est associé à cette adresse email. Demandez un accès Alpha pour en créer un."
+      "unknownUser": "Aucun compte n'est associé à cette adresse email. Demandez un accès Alpha pour en créer un.",
+      "pending": "Votre demande d'accès Alpha est en cours d'examen. Vous recevrez un email dès qu'elle sera approuvée."
     },
     "otp": {
       "description": "Un code à 6 chiffres a été envoyé à {email}. Il expire dans 1 heure.",
