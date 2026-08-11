@@ -1,7 +1,8 @@
 "use client";
 
-import type { Theme } from "@watchborne/electrons";
 import React, { ReactNode, useEffect, useState } from "react";
+
+export type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "theme-preference";
 
@@ -13,12 +14,8 @@ type ThemeContextType = {
 const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
 
 const applyTheme = (selectedTheme: Theme) => {
-  const isDark =
-    selectedTheme === "dark" ||
-    (selectedTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-
   const htmlElement = document.documentElement;
-  if (isDark) {
+  if (selectedTheme === "dark") {
     htmlElement.classList.add("dark");
   } else {
     htmlElement.classList.remove("dark");
@@ -26,11 +23,11 @@ const applyTheme = (selectedTheme: Theme) => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || "system";
+    const stored = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || "light";
     setTheme(stored);
     applyTheme(stored);
     setMounted(true);
