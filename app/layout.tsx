@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { ThemeInitScript } from "./components/ThemeInitScript";
 import { ThemeProvider } from "./components/ThemeProvider";
 
 export const metadata: Metadata = {
@@ -11,10 +10,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html suppressHydrationWarning>
-      <head>
-        <ThemeInitScript />
-      </head>
+    <html suppressHydrationWarning lang="fr">
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>

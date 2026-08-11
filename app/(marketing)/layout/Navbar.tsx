@@ -1,12 +1,13 @@
 "use client";
 
-import { Button, ThemeSwitcher } from "@watchborne/electrons";
+import { Button } from "@watchborne/electrons";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { LogoutButton } from "@/app/auth/components/LogoutButton";
 import { useTheme } from "@/app/components/ThemeProvider";
+import { ThemeSwitcher } from "@/app/components/ThemeSwitcher";
 import { Navbar as LayoutNavbar, NavbarLink } from "@/app/components/layout/Navbar";
 import { createClient } from "@/lib/supabase/client";
 

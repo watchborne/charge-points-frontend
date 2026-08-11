@@ -1,10 +1,10 @@
 "use client";
 
-import { ThemeSwitcher } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 
 import { LogoutButton } from "@/app/auth/components/LogoutButton";
 import { useTheme } from "@/app/components/ThemeProvider";
+import { ThemeSwitcher } from "@/app/components/ThemeSwitcher";
 import { Navbar, NavbarLink } from "@/app/components/layout/Navbar";
 import { WS_URL } from "@/lib/constants";
 
