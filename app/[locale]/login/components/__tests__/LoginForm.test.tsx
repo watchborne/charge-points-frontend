@@ -13,7 +13,7 @@ const { createBrowserClient, signInWithOtp, checkLoginAccess } = vi.hoisted(() =
 
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
-vi.mock("../../../../lib/api", () => ({
+vi.mock("../../../../../lib/api", () => ({
   api: { AccessRequests: { checkLoginAccess } },
 }));
 

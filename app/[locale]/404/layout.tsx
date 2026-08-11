@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
-import { ThemeInitScript } from "@/app/components/ThemeInitScript";
 import { ThemeProvider } from "@/app/components/ThemeProvider";
 import type { Locale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
@@ -47,9 +46,6 @@ export default async function RootLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <ThemeInitScript />
-      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <NextIntlClientProvider>

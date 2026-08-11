@@ -6,7 +6,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 // aliased target silently fails to intercept and the real fetch runs.
 const { startFirmwareUpdate } = vi.hoisted(() => ({ startFirmwareUpdate: vi.fn() }));
 
-vi.mock("../../../../../lib/api", () => ({
+vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { startFirmwareUpdate } },
 }));
 

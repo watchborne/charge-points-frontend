@@ -5,7 +5,6 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
 import "../../globals.css";
-import { ThemeInitScript } from "@/app/components/ThemeInitScript";
 import { ThemeProvider } from "@/app/components/ThemeProvider";
 import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
 import type { Locale } from "@/i18n/locale";
@@ -50,9 +49,6 @@ export default async function RootLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <ThemeInitScript />
-      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <WebSocketDataProvider>

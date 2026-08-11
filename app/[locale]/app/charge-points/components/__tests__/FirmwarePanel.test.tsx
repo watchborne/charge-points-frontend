@@ -16,7 +16,7 @@ const { getFirmware, useWebSocketContext } = vi.hoisted(() => ({
 // Vitest config does not alias "@/" for the mock resolver, so an aliased target
 // silently fails to intercept and the real fetch runs. Repo convention — see
 // TriggerMessageControl.test.tsx.
-vi.mock("../../../../../lib/api", () => ({
+vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getFirmware } },
 }));
 
