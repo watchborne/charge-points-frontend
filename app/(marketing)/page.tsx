@@ -243,7 +243,7 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="container mx-auto px-6 pb-24">
-        <div className="rounded-3xl border bg-primary px-8 py-16 text-primary-foreground">
+        <div className="rounded-3xl border bg-muted px-8 py-16 text-primary">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-4xl font-bold">{t("homePage.cta.title")}</h2>
 
