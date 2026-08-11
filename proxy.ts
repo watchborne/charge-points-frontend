@@ -11,7 +11,14 @@ import { createClient } from "@/lib/supabase/middleware";
 // backend server-side). check-login is the same story from /login: LoginForm
 // calls it to decide whether the visitor may even attempt to sign in, so it
 // must be reachable before any session exists (charge-points-server ADR 0006).
-const PUBLIC_API_PATHS = ["/api/access-requests", "/api/access-requests/check-login"];
+// verify-email is the destination of the confirmation link /signup/verify
+// calls right after submission — reachable before approval, let alone a
+// session (charge-points-server ADR 0007).
+const PUBLIC_API_PATHS = [
+  "/api/access-requests",
+  "/api/access-requests/check-login",
+  "/api/access-requests/verify-email",
+];
 
 // The .fr domain is retired in favor of .com; visitors are redirected there
 // permanently. Unlike before URL-based locale routing, no `?lang=` is needed
