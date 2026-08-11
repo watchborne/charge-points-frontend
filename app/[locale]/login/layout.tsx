@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -11,6 +12,8 @@ import type { Locale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
 
 import { Footer } from "../(marketing)/layout/Footer";
+
+const inter = Inter({ subsets: ["latin"] });
 
 // See app/(marketing)/layout.tsx for why there's no `runtime = "edge"` here.
 export function generateStaticParams() {
@@ -37,17 +40,19 @@ export default async function RootLayout({ children, params }: Props) {
   setRequestLocale(locale as Locale);
 
   return (
-    <>
-      <ThemeProvider>
-        <NextIntlClientProvider>
-          <main className="max-w-7xl">
-            <div className="min-h-screen lg:grid lg:grid-cols-2">{children}</div>
-          </main>
+    <html lang={locale} suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <NextIntlClientProvider>
+            <main className="max-w-7xl">
+              <div className="min-h-screen lg:grid lg:grid-cols-2">{children}</div>
+            </main>
 
-          <Footer />
-          <ToastNotification />
-        </NextIntlClientProvider>
-      </ThemeProvider>
-    </>
+            <Footer />
+            <ToastNotification />
+          </NextIntlClientProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
