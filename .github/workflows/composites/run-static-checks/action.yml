@@ -1,0 +1,35 @@
+name: "Run static checks"
+description: "Lint, format check and typecheck in a single job"
+
+inputs:
+  npm-token:
+    description: "NPM token for private packages"
+    required: true
+
+# The three checks share one `npm ci`, deliberately. GitHub Actions bills per job
+# rounded UP to the whole minute, and these do only seconds of real work each
+# (measured: ~12s for lint + format, ~16s for typecheck) on top of a ~15s
+# install. As three separate jobs they cost 3 billed minutes; together they fit
+# inside one.
+#
+# Lint and format run first: they fail fastest and catch the most common
+# mistakes, so a broken PR reports without waiting on tsc.
+runs:
+  using: "composite"
+  steps:
+    - name: Install dependencies
+      uses: ./.github/workflows/composites/install-dependencies
+      with:
+        npm-token: ${{ inputs.npm-token }}
+
+    - name: Run lint
+      run: npm run lint
+      shell: bash
+
+    - name: Check formatting
+      run: npm run format:check
+      shell: bash
+
+    - name: Run typecheck
+      run: npm run typecheck
+      shell: bash
