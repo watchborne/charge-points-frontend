@@ -11,7 +11,7 @@ import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePoin
 import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
-import { SiteHealthOverview } from "../components/dashboard/SiteHealthOverview";
+import { SiteHealthSection } from "../components/dashboard/SiteHealthSection";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 import { useSitesHealth } from "../hooks/useSitesHealth";
@@ -19,11 +19,7 @@ import { useSitesHealth } from "../hooks/useSitesHealth";
 export default function DashboardPage() {
   const { chargePoints, loading, error } = useChargePoints();
   const { sites, loading: loadingSites, error: errorSites } = useSites();
-  // Independent of the loading/error gate below on purpose: this tile is a
-  // supplementary fleet-wide indicator, not core dashboard content, so a slow
-  // or failed health read must not hold up (or blank out) everything else —
-  // it simply doesn't render until it has something to show.
-  const { sitesHealth, loading: loadingSitesHealth } = useSitesHealth();
+  const { sitesHealth, loading: loadingSitesHealth, error: errorSitesHealth } = useSitesHealth();
   const router = useRouter();
 
   const unassignedChargePoints = useMemo(
@@ -31,29 +27,29 @@ export default function DashboardPage() {
     [chargePoints],
   );
 
+  const isLoading = loading || loadingSites || loadingSitesHealth;
+  const hasError = error || errorSites || errorSitesHealth;
+
   return (
     <>
-      {(error || errorSites) && (
+      {hasError && (
         <div className="flex flex-col gap-2 content-stretch mb-4">
           {error && <Callout variant="error" description={error} />}
           {errorSites && <Callout variant="error" description={errorSites} />}
+          {errorSitesHealth && <Callout variant="error" description={errorSitesHealth} />}
         </div>
       )}
 
-      {(loading || loadingSites) && (
+      {isLoading && (
         <div className="flex flex-col gap-8">
           <ChargePointStatsSkeleton />
           <FleetOverviewPanelSkeleton />
         </div>
       )}
 
-      {!loading && !loadingSites && !error && !errorSites && (
+      {!isLoading && !hasError && (
         <div className="flex flex-col gap-8">
-          {!loadingSitesHealth && sitesHealth.length > 0 && (
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-              <SiteHealthOverview sitesHealth={sitesHealth} />
-            </div>
-          )}
+          <SiteHealthSection sites={sites} sitesHealth={sitesHealth} />
 
           <ChargePointStats chargePoints={chargePoints} />
 

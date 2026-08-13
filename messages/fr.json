@@ -422,7 +422,34 @@
       "uptimeOnline": "En ligne depuis {time}",
       "uptimeOffline": "Hors ligne depuis {time}",
       "siteHealth": {
-        "title": "Sites en bonne santé"
+        "sectionTitle": "Santé des sites",
+        "affectedChargePoints": "{count, plural, =0 {Aucune borne affectée} =1 {1 borne affectée} other {# bornes affectées}}",
+        "stats": {
+          "total": "Sites",
+          "healthy": "Sains",
+          "degraded": "Dégradés",
+          "critical": "Critiques"
+        },
+        "watchlist": {
+          "title": "À surveiller en priorité",
+          "empty": "Tous vos sites sont sains.",
+          "affected": "{count, plural, =0 {0 borne} =1 {1 borne} other {# bornes}}"
+        },
+        "list": {
+          "title": "Tous les sites",
+          "columns": {
+            "site": "Site",
+            "status": "Statut",
+            "online": "En ligne",
+            "warning": "En surveillance",
+            "offline": "Hors ligne"
+          }
+        },
+        "status": {
+          "healthy": "Sain",
+          "degraded": "Dégradé",
+          "critical": "Critique"
+        }
       },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",
