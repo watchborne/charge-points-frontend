@@ -24,8 +24,12 @@ runs:
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
 
+    # HUSKY=0 skips the `prepare` script's `husky` invocation. Git hooks are
+    # meaningless on a runner that never commits, and installing them is pure
+    # latency inside a billed minute.
     - name: Install dependencies
       run: npm ci
       env:
         NPM_TOKEN: ${{ inputs.npm-token }}
+        HUSKY: 0
       shell: bash

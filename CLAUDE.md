@@ -344,6 +344,18 @@ typecheck, build, and unit tests — keep them green. A Husky pre-commit hook ru
 `.ts/.tsx/.js/.jsx` files, ESLint (`--fix`) followed by `vitest related --run`
 (only the tests affected by the staged files, not the full suite).
 
+Those four checks are packed into **two jobs** — `static-checks` (lint +
+`format:check` + typecheck) and `build-and-test` (unit tests + build) — and
+those two names are the contexts `main`'s branch protection requires. The
+packing is deliberate: **Actions bills per job, rounded up to the whole
+minute**, and each check is only seconds of real work behind the same ~15s
+`npm ci`, so four jobs billed 5 minutes for 3m18s of compute. Don't split them
+back apart for wall clock; two roughly equal halves already keep the run near
+its old duration. There is also **no `push: main` trigger** — a `pull_request`
+run tests the merge ref, and no deploy chains off main (production is
+`workflow_dispatch`, previews are comment-triggered), so it depends on branch
+protection's "Require branches to be up to date before merging" staying ON.
+
 `.github/workflows/update-types-dependency.yml` listens for a `types-released`
 `repository_dispatch` event from `charge-points-types` and opens an automated PR
 bumping the `@watchborne/charge-points-types` version in `package.json`.
