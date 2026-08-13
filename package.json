@@ -40,7 +40,7 @@
     "@sentry/nextjs": "^10.69.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.110.0",
-    "@watchborne/charge-points-types": "^0.23.0",
+    "@watchborne/charge-points-types": "^0.23.1",
     "@watchborne/electrons": "^0.2.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
