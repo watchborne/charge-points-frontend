@@ -1,7 +1,25 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
+// The detail panel now nests ChargePointConsumptionPanel, which fetches on mount
+// and formats numbers per locale. Both are stubbed here so this file stays about
+// the detail panel: the consumption panel has its own tests.
+vi.mock("../../../../../../lib/api", () => ({
+  api: {
+    Metering: {
+      getConsumption: vi.fn().mockResolvedValue({
+        chargePointId: "cp-1",
+        from: new Date().toISOString(),
+        to: new Date().toISOString(),
+        series: [],
+      }),
+      getMeterSamples: vi.fn().mockResolvedValue([]),
+    },
+  },
+}));
+
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
     const map: Record<string, string> = {
       "appPage.chargePoints.detail.connector": `Connector #${values?.connectorId}`,

@@ -704,6 +704,34 @@
       },
       "anomalies": {
         "unexpectedTransition": "{chargePointName} — connecteur #{connectorId} : transition inattendue ({from} → {to})"
+      },
+      "consumption": {
+        "title": "Consommation",
+        "measurandLabel": "Mesurande",
+        "connectorSeries": "Connecteur {connectorId}",
+        "showTable": "Afficher le tableau des relevés",
+        "showChart": "Afficher le graphique",
+        "empty": "Aucun relevé sur cette période. La borne envoie ses valeurs de compteur d'elle-même — élargissez la période, ou déclenchez un message MeterValues pour en demander un maintenant.",
+        "noSamples": "Aucun relevé à tracer sur cette période.",
+        "connectorsOmitted": "{count} connecteur(s) non tracé(s) : le graphique en affiche {charted} au maximum. Le tableau des relevés les contient tous.",
+        "truncated": "Période tronquée aux {limit} relevés les plus récents. Choisissez une période plus courte pour la voir en entier.",
+        "ranges": {
+          "24h": "24 h",
+          "7d": "7 j",
+          "30d": "30 j"
+        },
+        "tiles": {
+          "delivered": "Énergie délivrée",
+          "deliveredRange": "Index de {from} à {to}",
+          "average": "Moyenne",
+          "peak": "Maximum {value}"
+        },
+        "table": {
+          "measuredAt": "Horodatage",
+          "connector": "Connecteur",
+          "value": "Valeur"
+        },
+        "chartLabel": "Relevés de {measurand} en {unit} au fil du temps"
       }
     },
     "sites": {
@@ -816,6 +844,7 @@
   "errors": {
     "default": "Une erreur est survenue.",
     "loadingChargePoints": "Impossible de charger les bornes.",
-    "loadingSites": "Impossible de charger les sites."
+    "loadingSites": "Impossible de charger les sites.",
+    "loadingConsumption": "Le chargement de la consommation a échoué."
   }
 }

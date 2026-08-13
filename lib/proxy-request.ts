@@ -10,8 +10,13 @@ export async function proxyToBackend(
 ): Promise<NextResponse> {
   const backendUrl = new URL(`${API_URL}${backendPath}`);
 
+  // `append`, not `set`: a repeated parameter must survive the hop. The metering
+  // reads take `?measurand=Voltage&measurand=SoC` to ask for two series at once,
+  // and `set` would keep only the last one — a filter silently narrowing on its
+  // way to the backend. Appending is equivalent for single-valued params because
+  // `backendUrl` starts with no query of its own (it is API_URL + a fixed path).
   request.nextUrl.searchParams.forEach((value, key) => {
-    backendUrl.searchParams.set(key, value);
+    backendUrl.searchParams.append(key, value);
   });
 
   const headers: Record<string, string> = {

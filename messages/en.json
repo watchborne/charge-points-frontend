@@ -704,6 +704,34 @@
       },
       "anomalies": {
         "unexpectedTransition": "{chargePointName} — connector #{connectorId}: unexpected transition ({from} → {to})"
+      },
+      "consumption": {
+        "title": "Consumption",
+        "measurandLabel": "Measurand",
+        "connectorSeries": "Connector {connectorId}",
+        "showTable": "Show the readings table",
+        "showChart": "Show the chart",
+        "empty": "No readings over this window. A station sends its meter values on its own timer — widen the window, or trigger a MeterValues message to ask for one now.",
+        "noSamples": "No readings to plot over this window.",
+        "connectorsOmitted": "{count} connector(s) not plotted: the chart shows at most {charted}. The readings table has them all.",
+        "truncated": "Window truncated to the {limit} most recent readings. Pick a shorter window to see all of it.",
+        "ranges": {
+          "24h": "24h",
+          "7d": "7d",
+          "30d": "30d"
+        },
+        "tiles": {
+          "delivered": "Energy delivered",
+          "deliveredRange": "Register {from} to {to}",
+          "average": "Average",
+          "peak": "Peak {value}"
+        },
+        "table": {
+          "measuredAt": "Timestamp",
+          "connector": "Connector",
+          "value": "Value"
+        },
+        "chartLabel": "{measurand} readings in {unit} over time"
       }
     },
     "sites": {
@@ -816,6 +844,7 @@
   "errors": {
     "default": "An error has occurred.",
     "loadingChargePoints": "Loading charge points failed.",
-    "loadingSites": "Loading sites failed."
+    "loadingSites": "Loading sites failed.",
+    "loadingConsumption": "Loading consumption failed."
   }
 }
