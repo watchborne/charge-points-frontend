@@ -11,12 +11,15 @@ import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePoin
 import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
+import { SiteHealthSection } from "../components/dashboard/SiteHealthSection";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
+import { useSitesHealth } from "../hooks/useSitesHealth";
 
 export default function DashboardPage() {
   const { chargePoints, loading, error } = useChargePoints();
   const { sites, loading: loadingSites, error: errorSites } = useSites();
+  const { sitesHealth, loading: loadingSitesHealth, error: errorSitesHealth } = useSitesHealth();
   const router = useRouter();
 
   const unassignedChargePoints = useMemo(
@@ -24,24 +27,30 @@ export default function DashboardPage() {
     [chargePoints],
   );
 
+  const isLoading = loading || loadingSites || loadingSitesHealth;
+  const hasError = error || errorSites || errorSitesHealth;
+
   return (
     <>
-      {(error || errorSites) && (
+      {hasError && (
         <div className="flex flex-col gap-2 content-stretch mb-4">
           {error && <Callout variant="error" description={error} />}
           {errorSites && <Callout variant="error" description={errorSites} />}
+          {errorSitesHealth && <Callout variant="error" description={errorSitesHealth} />}
         </div>
       )}
 
-      {(loading || loadingSites) && (
+      {isLoading && (
         <div className="flex flex-col gap-8">
           <ChargePointStatsSkeleton />
           <FleetOverviewPanelSkeleton />
         </div>
       )}
 
-      {!loading && !loadingSites && !error && !errorSites && (
+      {!isLoading && !hasError && (
         <div className="flex flex-col gap-8">
+          <SiteHealthSection sites={sites} sitesHealth={sitesHealth} />
+
           <ChargePointStats chargePoints={chargePoints} />
 
           <CommissioningQueue

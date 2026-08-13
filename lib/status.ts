@@ -1,3 +1,5 @@
+import { SiteHealthStatus } from "@watchborne/charge-points-types";
+
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
 /**
@@ -47,6 +49,20 @@ export const connectorStatusTone = (status: ConnectorStatus): StatusTone => {
     case "Unavailable":
       return "warning";
     case "Faulted":
+      return "error";
+    default:
+      return "offline";
+  }
+};
+
+/** Aggregated per-site health bucket (`SiteHealth.status`). */
+export const siteHealthStatusTone = (status: SiteHealthStatus): StatusTone => {
+  switch (status) {
+    case "HEALTHY":
+      return "available";
+    case "DEGRADED":
+      return "warning";
+    case "CRITICAL":
       return "error";
     default:
       return "offline";

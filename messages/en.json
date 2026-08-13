@@ -421,6 +421,36 @@
       "uptime": "Uptime",
       "uptimeOnline": "Online for {time}",
       "uptimeOffline": "Offline for {time}",
+      "siteHealth": {
+        "sectionTitle": "Site health",
+        "affectedChargePoints": "{count, plural, =0 {No affected charge points} =1 {1 affected charge point} other {# affected charge points}}",
+        "stats": {
+          "total": "Sites",
+          "healthy": "Healthy",
+          "degraded": "Degraded",
+          "critical": "Critical"
+        },
+        "watchlist": {
+          "title": "Needs attention first",
+          "empty": "All your sites are healthy.",
+          "affected": "{count, plural, =0 {0 charge points} =1 {1 charge point} other {# charge points}}"
+        },
+        "list": {
+          "title": "All sites",
+          "columns": {
+            "site": "Site",
+            "status": "Status",
+            "online": "Online",
+            "warning": "Warning",
+            "offline": "Offline"
+          }
+        },
+        "status": {
+          "healthy": "Healthy",
+          "degraded": "Degraded",
+          "critical": "Critical"
+        }
+      },
       "onboarding": {
         "title": "Welcome to Watchborne",
         "description": "Follow these steps to start monitoring your charge point fleet.",
@@ -845,6 +875,7 @@
     "default": "An error has occurred.",
     "loadingChargePoints": "Loading charge points failed.",
     "loadingSites": "Loading sites failed.",
+    "loadingSitesHealth": "Loading sites health failed.",
     "loadingConsumption": "Loading consumption failed."
   }
 }
