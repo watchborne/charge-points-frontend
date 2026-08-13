@@ -1,20 +1,30 @@
-name: "Run build"
-description: "Build the application"
+name: "Run build and unit tests"
+description: "Build the Next.js app and run the unit test suite in a single job"
 
 inputs:
   npm-token:
     description: "NPM token for private packages"
     required: true
 
+# Build and unit tests share one job for the same reason the static checks do:
+# Actions bills per job rounded UP to the whole minute. The build is ~53s of real
+# work and the tests ~31s; run separately they cost 2 + 1 billed minutes, and
+# together they land inside 2. This is bin-packing against the billing model, not
+# a claim that the two belong together conceptually.
+#
+# Tests run first: they are the faster signal, and a failing test tells you more
+# than a failing build usually does.
 runs:
   using: "composite"
   steps:
-    - uses: runs-on/action@v2
-
     - name: Install dependencies
       uses: ./.github/workflows/composites/install-dependencies
       with:
         npm-token: ${{ inputs.npm-token }}
+
+    - name: Run unit tests
+      run: npm run test:ci
+      shell: bash
 
     # Persist Next.js's incremental compiler cache between runs. A fresh entry
     # is written per commit; restore-keys falls back to the most recent cache

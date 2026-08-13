@@ -13,7 +13,30 @@ updates:
       interval: "weekly"
     registries:
       - github-npm
+
+    # Dependabot is a large share of CI volume here — 5 of the 23 CI runs in a
+    # sampled 12-hour window were Dependabot branches, each costing a full run.
+    # The two settings below cut that, and neither weakens anything: security
+    # advisories still open a PR immediately, regardless of schedule or grouping.
+
+    # Grouping. Previously only `@watchborne/charge-points-types` was grouped, so
+    # every other package opened its own PR. The production/development split
+    # keeps a risky runtime bump from being blocked behind an unrelated tooling
+    # bump while collapsing the count to at most three PRs.
     groups:
       internal-types:
         patterns:
           - "@watchborne/charge-points-types"
+          - "@watchborne/electrons"
+      production-dependencies:
+        dependency-type: "production"
+        exclude-patterns:
+          - "@watchborne/charge-points-types"
+          - "@watchborne/electrons"
+      development-dependencies:
+        dependency-type: "development"
+
+    # Dependabot rebases every open PR whenever main moves, re-triggering the
+    # whole suite on each one. Rebase on demand instead, by commenting
+    # `@dependabot rebase` on a PR when you are ready to merge it.
+    rebase-strategy: "disabled"
