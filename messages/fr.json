@@ -421,6 +421,9 @@
       "uptime": "Uptime",
       "uptimeOnline": "En ligne depuis {time}",
       "uptimeOffline": "Hors ligne depuis {time}",
+      "siteHealth": {
+        "title": "Sites en bonne santé"
+      },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",
         "description": "Suivez ces étapes pour démarrer la supervision de votre parc de bornes.",
@@ -845,6 +848,7 @@
     "default": "Une erreur est survenue.",
     "loadingChargePoints": "Impossible de charger les bornes.",
     "loadingSites": "Impossible de charger les sites.",
+    "loadingSitesHealth": "Impossible de charger la santé des sites.",
     "loadingConsumption": "Le chargement de la consommation a échoué."
   }
 }

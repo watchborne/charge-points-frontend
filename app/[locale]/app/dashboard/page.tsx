@@ -11,12 +11,19 @@ import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePoin
 import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
+import { SiteHealthOverview } from "../components/dashboard/SiteHealthOverview";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
+import { useSitesHealth } from "../hooks/useSitesHealth";
 
 export default function DashboardPage() {
   const { chargePoints, loading, error } = useChargePoints();
   const { sites, loading: loadingSites, error: errorSites } = useSites();
+  // Independent of the loading/error gate below on purpose: this tile is a
+  // supplementary fleet-wide indicator, not core dashboard content, so a slow
+  // or failed health read must not hold up (or blank out) everything else —
+  // it simply doesn't render until it has something to show.
+  const { sitesHealth, loading: loadingSitesHealth } = useSitesHealth();
   const router = useRouter();
 
   const unassignedChargePoints = useMemo(
@@ -42,6 +49,12 @@ export default function DashboardPage() {
 
       {!loading && !loadingSites && !error && !errorSites && (
         <div className="flex flex-col gap-8">
+          {!loadingSitesHealth && sitesHealth.length > 0 && (
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+              <SiteHealthOverview sitesHealth={sitesHealth} />
+            </div>
+          )}
+
           <ChargePointStats chargePoints={chargePoints} />
 
           <CommissioningQueue

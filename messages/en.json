@@ -421,6 +421,9 @@
       "uptime": "Uptime",
       "uptimeOnline": "Online for {time}",
       "uptimeOffline": "Offline for {time}",
+      "siteHealth": {
+        "title": "Healthy sites"
+      },
       "onboarding": {
         "title": "Welcome to Watchborne",
         "description": "Follow these steps to start monitoring your charge point fleet.",
@@ -845,6 +848,7 @@
     "default": "An error has occurred.",
     "loadingChargePoints": "Loading charge points failed.",
     "loadingSites": "Loading sites failed.",
+    "loadingSitesHealth": "Loading sites health failed.",
     "loadingConsumption": "Loading consumption failed."
   }
 }
