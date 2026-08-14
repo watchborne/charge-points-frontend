@@ -1,4 +1,5 @@
 import type {
+  Alert,
   AvailabilityType,
   ChangeAvailabilityStatus,
   ChangeConfigurationStatus,
@@ -298,6 +299,22 @@ export const chargePointApis = {
       );
     } catch (error) {
       console.error(`Failed to fetch firmware history of charge point ${chargePointId}`, error);
+      throw error;
+    }
+  },
+  /**
+   * The charge point's alert history, newest opened first — every OPEN and
+   * RESOLVED alert, including any still open. The "sent ✔️, to whom, when"
+   * read: each entry carries notifiedRecipients/lastNotifiedAt/notificationCount.
+   * The backend answers 200 with an empty list for a charge point outside the
+   * caller's scope, so there is no 404 to handle.
+   */
+  getAlerts: async function (chargePointId: ChargePoint["id"], limit?: number): Promise<Alert[]> {
+    try {
+      const query = limit === undefined ? "" : `?limit=${limit}`;
+      return await httpClient.get<Alert[]>(`/api/charge-points/${chargePointId}/alerts${query}`);
+    } catch (error) {
+      console.error(`Failed to fetch alert history of charge point ${chargePointId}`, error);
       throw error;
     }
   },

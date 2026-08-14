@@ -1,4 +1,4 @@
-import { SiteHealthStatus } from "@watchborne/charge-points-types";
+import { AlertStatus, SiteHealthStatus } from "@watchborne/charge-points-types";
 
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
@@ -64,6 +64,18 @@ export const siteHealthStatusTone = (status: SiteHealthStatus): StatusTone => {
       return "warning";
     case "CRITICAL":
       return "error";
+    default:
+      return "offline";
+  }
+};
+
+/** An alert's lifecycle state (`Alert.status`): open needs attention, resolved doesn't. */
+export const alertStatusTone = (status: AlertStatus): StatusTone => {
+  switch (status) {
+    case "OPEN":
+      return "error";
+    case "RESOLVED":
+      return "available";
     default:
       return "offline";
   }
