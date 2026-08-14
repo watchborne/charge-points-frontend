@@ -13,12 +13,10 @@ import {
 } from "@/types/firmware";
 
 /**
- * How a phase reads on the timeline.
- *
- * `skipped` is its own state rather than a flavour of `pending`: an unsigned
- * firmware image never goes through SIGNATURE at all, and a 1.6 station never
- * reports REBOOT — showing those as "still to come" on a finished update would be
- * wrong.
+ * How a phase reads on the timeline. `skipped` is its own state, not a
+ * flavour of `pending`: an unsigned image never goes through SIGNATURE, and
+ * a 1.6 station never reports REBOOT — showing those as "still to come" on
+ * a finished update would be wrong.
  */
 type PhaseState = "pending" | "active" | "done" | "failed" | "skipped";
 
@@ -39,14 +37,11 @@ const PHASE_CLASSES: Record<PhaseState, string> = {
 };
 
 /**
- * Works out each phase's state from the **whole** step list, never from the
- * latest status alone.
- *
- * That is deliberate and load-bearing: `firmwareStatusPhase` is not monotonic —
- * the terminal `Installed` reports on INSTALL yet arrives *after* an
- * `InstallRebooting` (a station confirms the install once it has rebooted into
- * the new firmware). Reading "current phase" off the last step would show the
- * update walking backwards.
+ * Works out each phase's state from the **whole** step list, never the
+ * latest status alone — `firmwareStatusPhase` is not monotonic: the
+ * terminal `Installed` reports on INSTALL yet arrives *after*
+ * `InstallRebooting` (the station confirms install only once rebooted).
+ * Reading "current phase" off the last step would show the update walking backwards.
  */
 export const derivePhaseStates = (
   update: FirmwareUpdateView,
@@ -54,9 +49,8 @@ export const derivePhaseStates = (
   const reported = new Set<FirmwareUpdatePhase>();
   let failedPhase: FirmwareUpdatePhase | null = null;
 
-  // A historized update has no steps left (they are dropped on completion), so
-  // its final `status` is all there is to go on — which is exactly what the
-  // summary is for.
+  // A historized update has no steps left (dropped on completion), so its
+  // final `status` is all there is to go on.
   const statuses = update.steps?.length ? update.steps.map((step) => step.status) : [update.status];
 
   for (const status of statuses) {
@@ -74,13 +68,12 @@ export const derivePhaseStates = (
       if (phase === failedPhase) return { ...states, [phase]: "failed" as PhaseState };
 
       if (!reported.has(phase)) {
-        // Never reported. On a finished update that means it was skipped (no
-        // signature to verify, or a dialect that never reports a reboot); on a
-        // running one it may still be coming.
+        // Never reported: skipped on a finished update (no signature to
+        // verify, or a dialect that never reports reboot), or still to come on a running one.
         return { ...states, [phase]: (finished ? "skipped" : "pending") as PhaseState };
       }
 
-      // Reported, and it is where the station currently is: still working on it.
+      // Reported, and where the station currently is: still working on it.
       if (!finished && phase === latestPhase) {
         return { ...states, [phase]: "active" as PhaseState };
       }

@@ -6,24 +6,19 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * Local-dev-only shortcut around the real OTP-code email round-trip.
  *
  * Returns the code itself (`properties.email_otp` from the admin API)
- * instead of creating a session server-side: `DevLoginShortcut` feeds it into
- * `VerifyOtpForm`, which runs the exact same client-side
+ * instead of creating a session server-side: `DevLoginShortcut` feeds it
+ * into `VerifyOtpForm`, which runs the same client-side
  * `supabase.auth.verifyOtp` call a real user's browser would after reading
- * the code from their inbox. Local dev still skips the real email, but now
- * exercises the actual sign-in path instead of a server-side shortcut around
- * it — unlike this route's magic-link-era version, which had to verify a
- * `token_hash` server-side because a real magic link's PKCE exchange can
- * only ever be driven by the browser that requested it (see ADR 0005,
- * charge-points-server).
+ * the code from their inbox. Skips the real email, but exercises the actual
+ * sign-in path — unlike this route's magic-link-era version, which had to
+ * verify a `token_hash` server-side (a real magic link's PKCE exchange can
+ * only be driven by the browser that requested it — ADR 0005, charge-points-server).
  *
  * Disabled outside development, whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
- * set (which it never is in a deployed environment), and unless
- * `ENABLE_DEV_LOGIN=true` is explicitly set. The extra opt-in flag means a
- * misconfigured non-production deployment that happens to have the
- * service-role key set (e.g. a preview/staging environment) still can't
- * mint a code for an arbitrary email — a second, deliberate flag has to be
- * set too, so this can't activate by accident outside a developer's
- * machine.
+ * set (never in a deployed environment), and unless `ENABLE_DEV_LOGIN=true`
+ * is explicit. That second flag means a misconfigured non-prod deployment
+ * with the service-role key set (e.g. preview/staging) still can't mint a
+ * code for an arbitrary email — it can't activate by accident outside a dev machine.
  */
 export async function GET(request: NextRequest) {
   if (

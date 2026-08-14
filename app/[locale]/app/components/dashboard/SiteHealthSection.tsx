@@ -13,12 +13,10 @@ export type SiteWithHealth = { site: Site; health: SiteHealth };
  * fleet-wide tile this used to be.
  *
  * Joins `sitesHealth` (`GET /api/sites/health`) against `sites` (already
- * fetched for the rest of the dashboard) by `siteId`, client-side —
- * `SiteHealth` carries no site name of its own on purpose (see
- * `charge-points-types`), and the name is already available here. A health
- * entry with no matching site (or vice versa) is dropped rather than shown
- * half-filled; this can only happen for a brief instant while both reads are
- * still settling independently.
+ * fetched for the dashboard) by `siteId`, client-side — `SiteHealth` carries
+ * no site name of its own on purpose (see `charge-points-types`). An entry
+ * with no match on either side is dropped rather than shown half-filled;
+ * this can only happen briefly while both reads settle independently.
  */
 export const SiteHealthSection = ({
   sites,
