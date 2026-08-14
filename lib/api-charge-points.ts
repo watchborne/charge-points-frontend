@@ -19,7 +19,12 @@ import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 
 import { httpClient } from "./http-client";
 
-type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive">;
+type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive"> & {
+  /** Optional here unlike isActive: defaults to false server-side (opt-in),
+   * and there is no creation-time UI for it — an installer sets it later via
+   * the detail panel's toggle (a PATCH). */
+  realtimeAlertsEnabled?: ChargePoint["realtimeAlertsEnabled"];
+};
 
 type PatchChargePointBody = Partial<CreateChargePointBody>;
 

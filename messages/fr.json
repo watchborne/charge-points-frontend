@@ -675,6 +675,7 @@
       },
       "alerts": {
         "title": "Alertes",
+        "realtimeToggle": "Alertes temps réel",
         "loading": "Chargement des alertes…",
         "loadError": "Impossible de charger l'historique des alertes de cette borne.",
         "empty": "Aucune alerte récente.",

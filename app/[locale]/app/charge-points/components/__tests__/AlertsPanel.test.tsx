@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Alert } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -59,6 +59,24 @@ const buildAlert = (overrides: Partial<Alert> = {}): Alert =>
 
 const resolveWith = (alerts: Alert[]) => getAlerts.mockResolvedValue(alerts);
 
+const renderPanel = ({
+  chargePointId = CP_ID,
+  realtimeAlertsEnabled = false,
+  onToggleRealtimeAlerts = vi.fn(),
+}: {
+  chargePointId?: string;
+  realtimeAlertsEnabled?: boolean;
+  onToggleRealtimeAlerts?: () => void;
+} = {}) =>
+  render(
+    <AlertsPanel
+      chargePointId={chargePointId}
+      chargePointName="CP-001"
+      realtimeAlertsEnabled={realtimeAlertsEnabled}
+      onToggleRealtimeAlerts={onToggleRealtimeAlerts}
+    />,
+  );
+
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
@@ -66,7 +84,7 @@ beforeEach(() => {
 
 describe("AlertsPanel", () => {
   it("SHOULD say there are no alerts WHEN the history is empty", async () => {
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     expect(await screen.findByText("appPage.chargePoints.alerts.empty")).toBeTruthy();
   });
@@ -74,7 +92,7 @@ describe("AlertsPanel", () => {
   it("SHOULD render the alert's type and lifecycle status", async () => {
     resolveWith([buildAlert({ type: "CONNECTOR_FAULTED", status: "OPEN" })]);
 
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     expect(
       await screen.findByText("appPage.chargePoints.alerts.types.CONNECTOR_FAULTED"),
@@ -85,7 +103,7 @@ describe("AlertsPanel", () => {
   it("SHOULD show the connector number WHEN the alert is connector-scoped", async () => {
     resolveWith([buildAlert({ type: "CONNECTOR_FAULTED", connectorId: 2 })]);
 
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     expect(await screen.findByText("Connector 2")).toBeTruthy();
   });
@@ -93,7 +111,7 @@ describe("AlertsPanel", () => {
   it("SHOULD NOT show a connector qualifier WHEN the alert is charge-point-wide", async () => {
     resolveWith([buildAlert({ type: "OFFLINE", connectorId: null })]);
 
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     await screen.findByText("appPage.chargePoints.alerts.types.OFFLINE");
     expect(screen.queryByText(/^Connector /)).toBeNull();
@@ -111,7 +129,7 @@ describe("AlertsPanel", () => {
       }),
     ]);
 
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     expect(await screen.findByText("Sent to alice@example.com, bob@example.com")).toBeTruthy();
   });
@@ -121,7 +139,7 @@ describe("AlertsPanel", () => {
       buildAlert({ notificationCount: 0, lastNotifiedAt: null, notifiedRecipients: [] }),
     ]);
 
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     expect(await screen.findByText("appPage.chargePoints.alerts.notNotified")).toBeTruthy();
   });
@@ -129,23 +147,47 @@ describe("AlertsPanel", () => {
   it("SHOULD surface a load failure rather than rendering an empty panel", async () => {
     getAlerts.mockRejectedValue(new Error("boom"));
 
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     expect(await screen.findByText("appPage.chargePoints.alerts.loadError")).toBeTruthy();
   });
 
   it("SHOULD cap the fetch to the panel's visible alert count", async () => {
-    render(<AlertsPanel chargePointId={CP_ID} />);
+    renderPanel();
 
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith(CP_ID, 5));
   });
 
   it("SHOULD refetch WHEN a different charge point is opened", async () => {
-    const { rerender } = render(<AlertsPanel chargePointId={CP_ID} />);
+    const { rerender } = renderPanel();
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith(CP_ID, 5));
 
-    rerender(<AlertsPanel chargePointId="cp-2" />);
+    rerender(
+      <AlertsPanel
+        chargePointId="cp-2"
+        chargePointName="CP-002"
+        realtimeAlertsEnabled={false}
+        onToggleRealtimeAlerts={vi.fn()}
+      />,
+    );
 
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith("cp-2", 5));
+  });
+
+  it("SHOULD reflect realtimeAlertsEnabled in the toggle's checked state", async () => {
+    renderPanel({ realtimeAlertsEnabled: true });
+
+    await waitFor(() => expect(getAlerts).toHaveBeenCalled());
+    expect(screen.getByRole("switch").getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("SHOULD call onToggleRealtimeAlerts WHEN the toggle is clicked", async () => {
+    const onToggleRealtimeAlerts = vi.fn();
+    renderPanel({ realtimeAlertsEnabled: false, onToggleRealtimeAlerts });
+
+    await waitFor(() => expect(getAlerts).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole("switch"));
+
+    expect(onToggleRealtimeAlerts).toHaveBeenCalledTimes(1);
   });
 });

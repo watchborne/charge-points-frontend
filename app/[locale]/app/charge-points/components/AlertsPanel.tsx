@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, AlertType } from "@watchborne/charge-points-types";
-import { Callout } from "@watchborne/electrons";
+import { Callout, Switch } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { AlertTriangle, CheckCircle2, Clock, Shield, WifiOff } from "lucide-react";
@@ -15,6 +15,9 @@ import { AlertStatusBadge } from "../../components/charge-points/AlertStatusBadg
 
 type AlertsPanelProps = {
   chargePointId: ChargePoint["id"];
+  chargePointName: ChargePoint["name"];
+  realtimeAlertsEnabled: ChargePoint["realtimeAlertsEnabled"];
+  onToggleRealtimeAlerts: () => void;
 };
 
 /** How many recent alerts (open or resolved) the panel shows — a glance at
@@ -35,13 +38,25 @@ const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
  * The alerting section of a charge point's detail panel: recent OFFLINE /
  * CONNECTOR_FAULTED / FIRMWARE_STALLED activity, and — the "✔️ sent, to whom,
  * when" read the feature exists for — whether each one actually notified
- * anyone, who, and when.
+ * anyone, who, and when. Also hosts the opt-in switch for the real-time
+ * channel itself (`ChargePoint.realtimeAlertsEnabled`) — the alerting
+ * section is where an installer already is when deciding whether this
+ * station warrants paging, so the toggle lives here rather than in the
+ * panel's admin header alongside `isActive`.
  *
- * Self-contained and fetch-once, like `ChargePointConsumptionPanel`: unlike
- * `FirmwarePanel` there is no dedicated WebSocket broadcast for alert changes
- * yet, so this does not subscribe to the dashboard socket.
+ * The alert list itself is self-contained and fetch-once, like
+ * `ChargePointConsumptionPanel`: unlike `FirmwarePanel` there is no
+ * dedicated WebSocket broadcast for alert changes yet, so this does not
+ * subscribe to the dashboard socket. The toggle's own state
+ * (`realtimeAlertsEnabled`) is owned by the parent, same as `FirmwarePanel`
+ * receiving `firmwareVersion`/`ocppVersion` as props already.
  */
-export const AlertsPanel = ({ chargePointId }: AlertsPanelProps) => {
+export const AlertsPanel = ({
+  chargePointId,
+  chargePointName,
+  realtimeAlertsEnabled,
+  onToggleRealtimeAlerts,
+}: AlertsPanelProps) => {
   const t = useTranslations("");
 
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -75,7 +90,17 @@ export const AlertsPanel = ({ chargePointId }: AlertsPanelProps) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-sm font-semibold">{t("appPage.chargePoints.alerts.title")}</h4>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h4 className="text-sm font-semibold">{t("appPage.chargePoints.alerts.title")}</h4>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+          {t("appPage.chargePoints.alerts.realtimeToggle")}
+          <Switch
+            checked={realtimeAlertsEnabled}
+            onCheckedChange={onToggleRealtimeAlerts}
+            aria-label={`Toggle real-time alerts for ${chargePointName}`}
+          />
+        </label>
+      </div>
 
       {loading && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
