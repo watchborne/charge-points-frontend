@@ -159,6 +159,43 @@ describe("proxy auth guard", () => {
   });
 });
 
+describe("proxy auth guard resilience", () => {
+  // @supabase/auth-js's getUser() rethrows anything that isn't an AuthError
+  // (e.g. a raw network failure reaching Supabase) instead of resolving with
+  // { user: null }. Left uncaught, that crashes the whole Netlify Edge
+  // Function invocation for the request. These fail-closed instead: treat a
+  // rejected getUser() the same as no session.
+  beforeEach(() => {
+    getUser.mockRejectedValue(new Error("fetch failed"));
+  });
+
+  it("SHOULD redirect /app/* to /login WHEN supabase.auth.getUser() throws", async () => {
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/app/dashboard"));
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3001/login");
+  });
+
+  it("SHOULD return 401 for /api/* WHEN supabase.auth.getUser() throws", async () => {
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/api/charge-points"));
+
+    expect(res.status).toBe(401);
+  });
+
+  it("SHOULD still render /login WHEN supabase.auth.getUser() throws", async () => {
+    const { proxy } = await import("../../proxy");
+
+    const res = await proxy(request("/login"));
+
+    expect(res.status).not.toBe(401);
+    expect(res.headers.get("location")).toBeNull();
+  });
+});
+
 describe(".fr host redirect", () => {
   it("SHOULD redirect to .com WHEN the host is watch-borne.fr", async () => {
     setUser(null);
