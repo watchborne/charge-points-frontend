@@ -5,15 +5,12 @@ import { defaultLocale, localizedPath, locales, type Locale } from "@/i18n/local
 import { routing } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/middleware";
 
-// API routes reachable without a Supabase session. The alpha access request is
-// submitted from /signup by an unauthenticated visitor, so its proxy route must
-// not be gated behind a session (it still forwards the shared API key to the
-// backend server-side). check-login is the same story from /login: LoginForm
-// calls it to decide whether the visitor may even attempt to sign in, so it
-// must be reachable before any session exists (charge-points-server ADR 0006).
-// verify-email is the destination of the confirmation link /signup/verify
-// calls right after submission — reachable before approval, let alone a
-// session (charge-points-server ADR 0007).
+// API routes reachable without a Supabase session. access-requests is
+// submitted from /signup by an unauthenticated visitor (still forwards the
+// shared API key server-side). check-login is called by LoginForm to decide
+// whether the visitor may even attempt to sign in — before any session
+// exists (charge-points-server ADR 0006). verify-email is the confirmation
+// link's destination — reachable before approval, let alone a session (ADR 0007).
 const PUBLIC_API_PATHS = [
   "/api/access-requests",
   "/api/access-requests/check-login",
@@ -21,8 +18,8 @@ const PUBLIC_API_PATHS = [
 ];
 
 // The .fr domain is retired in favor of .com; visitors are redirected there
-// permanently. Unlike before URL-based locale routing, no `?lang=` is needed
-// any more: an unprefixed path on .com already means fr, the default locale.
+// permanently. No `?lang=` needed — an unprefixed path on .com already means
+// fr, the default locale.
 const FR_HOST = "watch-borne.fr";
 const FR_REDIRECT_HOST = "watch-borne.com";
 
@@ -37,24 +34,23 @@ function redirectFrHostToCom(request: NextRequest) {
 
 const handleI18nRouting = createIntlMiddleware(routing);
 
-// /api/* and /auth/* live outside the `[locale]` segment (no locale prefix —
-// see i18n/routing.ts) — next-intl's routing has nothing to do there.
+// /api/* and /auth/* live outside the `[locale]` segment (see i18n/routing.ts)
+// — next-intl's routing has nothing to do there.
 function isLocaleRoutedPath(pathname: string) {
   return !pathname.startsWith("/api") && !pathname.startsWith("/auth");
 }
 
 // A redirect from next-intl only normalizes the URL (missing/extra locale
-// prefix) — no page content is served, so it's always safe to return
-// immediately without checking auth. The browser refetches with the
-// corrected URL, and auth gating below applies on that follow-up request.
+// prefix), no page content served — safe to return immediately without
+// checking auth. The browser refetches with the corrected URL, and auth
+// gating applies on that follow-up request.
 function isRedirect(response: NextResponse) {
   return response.headers.has("location");
 }
 
-// Splits a locale-routed pathname into the active locale and the path with
-// its prefix removed, e.g. "/en/app/dashboard" -> { locale: "en", rest:
-// "/app/dashboard" }, "/app/dashboard" -> { locale: "fr", rest: "/app/dashboard" }
-// (fr is the default locale and stays unprefixed).
+// Splits a locale-routed pathname into the active locale and the unprefixed
+// path, e.g. "/en/app/dashboard" -> { locale: "en", rest: "/app/dashboard" };
+// "/app/dashboard" -> { locale: "fr", ... } (fr stays unprefixed as default).
 function stripLocalePrefix(pathname: string): { locale: Locale; rest: string } {
   for (const locale of locales) {
     if (locale === defaultLocale) continue;
@@ -82,32 +78,28 @@ async function gateApiRequest(request: NextRequest) {
 }
 
 /**
- * Global proxy (Next's renamed `middleware.ts` file convention as of Next 16 —
- * see https://nextjs.org/docs/messages/middleware-to-proxy; the helper this
- * calls into is still `lib/supabase/middleware.ts`, unrelated to the file
- * convention rename): redirects the retired `.fr` host, resolves the URL's
- * locale prefix via next-intl, and gates access to the authenticated
+ * Global proxy (Next's renamed `middleware.ts` file convention as of Next 16
+ * — https://nextjs.org/docs/messages/middleware-to-proxy; `lib/supabase/middleware.ts`
+ * is unrelated to that rename): redirects the retired `.fr` host, resolves
+ * the URL's locale prefix via next-intl, and gates the authenticated
  * surface — refreshing the Supabase session as it does so.
  *
- * The Supabase session lookup (`getUser()`, a network round-trip) runs only for
- * the authenticated surface (`/api`, `/app`, `/login`, `/signup`); public
- * marketing pages skip it entirely.
+ * The Supabase session lookup (`getUser()`, a network round-trip) only runs
+ * for the authenticated surface (`/api`, `/app`, `/login`, `/signup`);
+ * public marketing pages skip it entirely.
  *
- * - `watch-borne.fr` is redirected (308) to `watch-borne.com` — see
- *   `redirectFrHostToCom`. This runs before anything else below.
- * - `/api/*` and `/auth/*` sit outside the `[locale]` segment (no locale
- *   prefix), so they skip next-intl's routing and go straight to the
- *   Supabase gate (for `/api/*`) or through untouched (for `/auth/*`, which
- *   handles its own redirects — see app/auth/callback/route.ts).
- * - Everything else goes through `handleI18nRouting` first. A redirect from
- *   that (URL normalization) is returned immediately — see `isRedirect`.
- *   Otherwise, `/app/*`, `/login`, `/signup` (locale prefix stripped) are
- *   gated the same way as before, with redirect targets re-prefixed with the
- *   request's locale via `localizedPath`.
+ * - `watch-borne.fr` redirects (308) to `watch-borne.com` first — see `redirectFrHostToCom`.
+ * - `/api/*`/`/auth/*` sit outside `[locale]` (no prefix): they skip
+ *   next-intl's routing, going straight to the Supabase gate (`/api/*`) or
+ *   through untouched (`/auth/*`, which handles its own redirects — see
+ *   app/auth/callback/route.ts).
+ * - Everything else goes through `handleI18nRouting` first; a redirect from
+ *   that (URL normalization) returns immediately (`isRedirect`). Otherwise
+ *   `/app/*`, `/login`, `/signup` are gated as before, redirect targets
+ *   re-prefixed via `localizedPath`.
  *
- * Any response we return in place of `supabaseResponse` must carry the
- * refreshed session cookies, otherwise a token rotated during `getUser()` is
- * lost.
+ * Any response returned in place of `supabaseResponse` must carry the
+ * refreshed session cookies, or a token rotated during `getUser()` is lost.
  */
 export async function proxy(request: NextRequest) {
   const frRedirectUrl = redirectFrHostToCom(request);

@@ -421,6 +421,36 @@
       "uptime": "Uptime",
       "uptimeOnline": "En ligne depuis {time}",
       "uptimeOffline": "Hors ligne depuis {time}",
+      "siteHealth": {
+        "sectionTitle": "Santé des sites",
+        "affectedChargePoints": "{count, plural, =0 {Aucune borne affectée} =1 {1 borne affectée} other {# bornes affectées}}",
+        "stats": {
+          "total": "Sites",
+          "healthy": "Sains",
+          "degraded": "Dégradés",
+          "critical": "Critiques"
+        },
+        "watchlist": {
+          "title": "À surveiller en priorité",
+          "empty": "Tous vos sites sont sains.",
+          "affected": "{count, plural, =0 {0 borne} =1 {1 borne} other {# bornes}}"
+        },
+        "list": {
+          "title": "Tous les sites",
+          "columns": {
+            "site": "Site",
+            "status": "Statut",
+            "online": "En ligne",
+            "warning": "En surveillance",
+            "offline": "Hors ligne"
+          }
+        },
+        "status": {
+          "healthy": "Sain",
+          "degraded": "Dégradé",
+          "critical": "Critique"
+        }
+      },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",
         "description": "Suivez ces étapes pour démarrer la supervision de votre parc de bornes.",
@@ -704,6 +734,34 @@
       },
       "anomalies": {
         "unexpectedTransition": "{chargePointName} — connecteur #{connectorId} : transition inattendue ({from} → {to})"
+      },
+      "consumption": {
+        "title": "Consommation",
+        "measurandLabel": "Mesurande",
+        "connectorSeries": "Connecteur {connectorId}",
+        "showTable": "Afficher le tableau des relevés",
+        "showChart": "Afficher le graphique",
+        "empty": "Aucun relevé sur cette période. La borne envoie ses valeurs de compteur d'elle-même — élargissez la période, ou déclenchez un message MeterValues pour en demander un maintenant.",
+        "noSamples": "Aucun relevé à tracer sur cette période.",
+        "connectorsOmitted": "{count} connecteur(s) non tracé(s) : le graphique en affiche {charted} au maximum. Le tableau des relevés les contient tous.",
+        "truncated": "Période tronquée aux {limit} relevés les plus récents. Choisissez une période plus courte pour la voir en entier.",
+        "ranges": {
+          "24h": "24 h",
+          "7d": "7 j",
+          "30d": "30 j"
+        },
+        "tiles": {
+          "delivered": "Énergie délivrée",
+          "deliveredRange": "Index de {from} à {to}",
+          "average": "Moyenne",
+          "peak": "Maximum {value}"
+        },
+        "table": {
+          "measuredAt": "Horodatage",
+          "connector": "Connecteur",
+          "value": "Valeur"
+        },
+        "chartLabel": "Relevés de {measurand} en {unit} au fil du temps"
       }
     },
     "sites": {
@@ -816,6 +874,8 @@
   "errors": {
     "default": "Une erreur est survenue.",
     "loadingChargePoints": "Impossible de charger les bornes.",
-    "loadingSites": "Impossible de charger les sites."
+    "loadingSites": "Impossible de charger les sites.",
+    "loadingSitesHealth": "Impossible de charger la santé des sites.",
+    "loadingConsumption": "Le chargement de la consommation a échoué."
   }
 }

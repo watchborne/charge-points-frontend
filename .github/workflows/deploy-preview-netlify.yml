@@ -93,7 +93,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          npx --yes netlify-cli@17 deploy \
+          npx --yes netlify-cli@27 deploy \
             --build \
             --context deploy-preview \
             --alias "deploy-preview-${{ steps.pr.outputs.number }}" \

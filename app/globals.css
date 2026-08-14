@@ -4,6 +4,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+ * Chart series tokens — the categorical palette for data visualisation.
+ *
+ * Not in @watchborne/electrons/tokens.css yet: that package ships semantic UI,
+ * brand and *status* tones, and the status tones are reserved — they mean
+ * available/charging/faulted, so reusing one as "series 2" would tell a reader
+ * a connector is faulted because it happens to be third in a legend. These are
+ * identity colours, a different job, and they belong in electrons the day a
+ * second surface needs them.
+ *
+ * Raw hex rather than the HSL-triplet convention used above, deliberately: these
+ * are exact validated steps, and they are consumed by Recharts as `stroke`/`fill`
+ * values rather than through Tailwind opacity modifiers, so there is nothing for
+ * the triplet form to buy.
+ *
+ * Capped at three slots on purpose. A time-series chart overlays lines that can
+ * end up beside any other line, so the palette has to clear the colour-blindness
+ * floors on *every* pair, not just neighbours — and past three hues no ordering
+ * does. A charge point with more connectors than this charts the first three and
+ * says so, rather than seating a fourth hue nobody can tell from the first.
+ *
+ * Both sets are validated (adjacent and all-pairs, light on --background white
+ * and dark on #020817): OKLCH lightness band, chroma floor, CVD separation
+ * (worst pair ΔE 9.2 light / 9.4 dark), normal-vision floor (24.0 / 20.9).
+ * `--series-3` sits at 2.74:1 on the light surface, below the 3:1 mark, which is
+ * why the chart always ships a legend with values and a table view rather than
+ * relying on the colour alone.
+ * ========================================================================== */
+:root {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+}
+
+.dark {
+  /* Own steps chosen for the dark band, not a mechanical lightening of the above. */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+}
+
 @layer base {
   * {
     border-color: hsl(var(--border));

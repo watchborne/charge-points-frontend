@@ -1,4 +1,4 @@
-import { Site, SiteWithChargePoints } from "@watchborne/charge-points-types";
+import { Site, SiteHealth, SiteWithChargePoints } from "@watchborne/charge-points-types";
 
 import { httpClient } from "./http-client";
 
@@ -48,6 +48,15 @@ export const siteApis = {
       await httpClient.delete(`/api/sites/${siteId}`);
     } catch (error) {
       console.error(`Failed to delete site ${siteId}`, error, { siteId });
+      throw error;
+    }
+  },
+  /** The health of every site visible to the caller (`GET /api/sites/health`). */
+  getSitesHealth: async function (): Promise<SiteHealth[]> {
+    try {
+      return await httpClient.get<SiteHealth[]>("/api/sites/health");
+    } catch (error) {
+      console.error("Failed to fetch sites health", error);
       throw error;
     }
   },

@@ -26,12 +26,12 @@ type FirmwarePanelProps = {
 const EMPTY: ChargePointFirmware = { active: null, lastCompleted: null };
 
 /**
- * The firmware section of a charge point's detail panel: which version it runs,
- * what an update in flight is doing, and when it was last updated.
+ * The firmware section of a charge point's detail panel: which version it
+ * runs, what an update in flight is doing, and when it was last updated.
  *
- * Self-contained — it fetches its own data rather than being threaded through the
- * detail panel's props, which keeps that already-large component from growing a
- * fourth concern. It refreshes on `CHARGE_POINT_FIRMWARE_UPDATE`, the dedicated
+ * Self-contained — fetches its own data rather than threading through the
+ * detail panel's props, keeping that already-large component from growing a
+ * fourth concern. Refreshes on `CHARGE_POINT_FIRMWARE_UPDATE`, the dedicated
  * broadcast the backend emits only from the FirmwareStatusNotification handler.
  */
 export const FirmwarePanel = ({
@@ -62,8 +62,8 @@ export const FirmwarePanel = ({
   );
 
   useEffect(() => {
-    // Reset before refetching so a different station's firmware is never shown
-    // under this one's name while the request is in flight.
+    // Reset before refetching so a different station's firmware is never
+    // shown under this one's name while the request is in flight.
     setFirmware(EMPTY);
     void load(true);
   }, [load]);
@@ -72,13 +72,13 @@ export const FirmwarePanel = ({
     if (lastMessage?.type !== "CHARGE_POINT_FIRMWARE_UPDATE") return;
 
     const update = lastMessage.payload?.firmwareUpdate as FirmwareUpdateView | undefined;
-    // The broadcast is already scoped to charge points the caller can see, but a
-    // dashboard shows one station at a time — ignore the others'.
+    // The broadcast is already scoped to charge points the caller can see,
+    // but a dashboard shows one station at a time — ignore the others'.
     if (!update || update.chargePointId !== chargePointId) return;
 
-    // Refetch rather than patching `active` from the payload: a terminal status
-    // moves the update from `active` to `lastCompleted`, and the broadcast alone
-    // does not say which side it landed on.
+    // Refetch rather than patching `active` from the payload: a terminal
+    // status moves the update to `lastCompleted`, and the broadcast alone
+    // doesn't say which side it landed on.
     void load(false);
   }, [lastMessage, chargePointId, load]);
 
@@ -174,9 +174,9 @@ export const FirmwarePanel = ({
           <UpdateFirmwareDialog
             chargePointId={chargePointId}
             ocppVersion={ocppVersion}
-            // The backend refuses a second concurrent update (at most one may be
-            // unfinished per charge point); disabling the trigger says so before
-            // the installer fills a form that would be rejected.
+            // The backend refuses a second concurrent update (at most one
+            // unfinished per charge point); disabling the trigger says so
+            // before the installer fills a form that would be rejected.
             updateInProgress={firmware.active !== null}
             onStarted={() => void load(false)}
           />
