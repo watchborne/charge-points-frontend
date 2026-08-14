@@ -18,13 +18,13 @@ import {
 import type { MeterSample } from "@/lib/api-metering";
 
 /**
- * The categorical slots, in fixed order, read from the CSS custom properties in
- * `app/globals.css` so light and dark each get their own validated step without
- * this component knowing which mode is active.
+ * The categorical slots, in fixed order, read from the CSS custom
+ * properties in `app/globals.css` so light and dark each get their own
+ * validated step without this component knowing which mode is active.
  *
  * Three, not more: overlaid lines can end up beside any other line, so the
- * palette has to clear the colour-blindness floors on every pair — and past three
- * hues no ordering does. `CHARTABLE_CONNECTORS` is that cap made explicit.
+ * palette must clear colour-blindness floors on every pair, and past three
+ * hues no ordering does. `CHARTABLE_CONNECTORS` makes that cap explicit.
  */
 const SERIES_VARS = ["var(--series-1)", "var(--series-2)", "var(--series-3)"] as const;
 export const CHARTABLE_CONNECTORS = SERIES_VARS.length;
@@ -35,13 +35,13 @@ type ChartRow = { measuredAt: number } & Record<string, number | undefined>;
 const connectorKey = (connectorId: number) => `c${connectorId}`;
 
 /**
- * Pivots the flat sample list into one row per timestamp, with a column per
+ * Pivots the flat sample list into one row per timestamp, one column per
  * connector.
  *
- * Connectors on one station sample on the same timer but not necessarily at the
- * same instant, so a row can legitimately hold a value for one connector and not
- * another. Those gaps stay `undefined` rather than 0 — `connectNulls` then bridges
- * the line instead of drawing a drop to zero that the meter never read.
+ * Connectors on one station sample on the same timer but not necessarily the
+ * same instant, so a row can legitimately hold one connector's value and not
+ * another's. Those gaps stay `undefined`, not 0 — `connectNulls` bridges the
+ * line instead of drawing a drop to zero the meter never read.
  */
 const toChartRows = (samples: MeterSample[], connectorIds: number[]): ChartRow[] => {
   const rows = new Map<number, ChartRow>();
@@ -71,11 +71,10 @@ type Props = {
 /**
  * One measurand's readings over time, one line per connector.
  *
- * Deliberately single-measurand: energy in Wh and power in W do not share a scale,
- * and putting them on one plot would need a second y-axis whose alignment is
- * arbitrary — it invents a correlation the data does not contain. The panel's
- * measurand selector is what keeps this to one unit, and the caption above the
- * plot names it.
+ * Deliberately single-measurand: energy in Wh and power in W don't share a
+ * scale, and a second y-axis to fit both would have an arbitrary alignment
+ * — inventing a correlation the data doesn't contain. The panel's measurand
+ * selector keeps this to one unit; the caption above the plot names it.
  */
 export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spansDays }: Props) => {
   const t = useTranslations("");
@@ -101,9 +100,8 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
   const single = connectorIds.length === 1;
 
   return (
-    // The plot is an SVG a screen reader cannot narrate, so the region carries the
-    // name — which measurand, in which unit — and the panel's table view carries
-    // the values.
+    // The plot is an SVG a screen reader can't narrate, so the region
+    // carries the name (measurand + unit); the panel's table view carries the values.
     <div
       role="img"
       aria-label={t("appPage.chargePoints.consumption.chartLabel", {
@@ -111,18 +109,17 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
         unit: unit ?? "",
       })}
     >
-      {/* What is plotted, in HTML rather than as an SVG axis label: an in-plot unit
-          label sits right where the topmost y tick lands and the two collide. Here
-          it also names the series, which is why a single-series chart needs no
-          legend. */}
+      {/* What's plotted, in HTML rather than an SVG axis label: an in-plot
+          unit label would collide with the topmost y tick. Also names the
+          series, so a single-series chart needs no legend. */}
       <p className="mb-1 text-[11px] text-muted-foreground">
         {measurand}
         {unit ? ` · ${unit}` : ""}
       </p>
       <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-          {/* Horizontal only, solid hairline: vertical rules would compete with the
-            crosshair, and a dashed grid reads as noise rather than as chrome. */}
+          {/* Horizontal only, solid hairline: vertical rules would compete
+            with the crosshair, and a dashed grid reads as noise. */}
           <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeWidth={1} />
           <XAxis
             dataKey="measuredAt"
@@ -141,8 +138,8 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
             width={64}
           />
           <Tooltip
-            // The crosshair finds the x: the reader aims at a moment, never at a 2px
-            // line, and the readout lists every connector at that moment.
+            // The crosshair finds the x: the reader aims at a moment, not a
+            // 2px line, and the readout lists every connector at that moment.
             cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1 }}
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;
@@ -157,15 +154,15 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
                       key={entry.dataKey as string}
                       className="flex items-center gap-2 text-xs text-popover-foreground"
                     >
-                      {/* A short stroke keys the series; the text itself stays in an
-                        ink token so identity never rides on coloured text. */}
+                      {/* A short stroke keys the series; the text stays in
+                        an ink token, so identity never rides on colour. */}
                       <span
                         aria-hidden
                         className="inline-block h-0.5 w-3 shrink-0 rounded-full"
                         style={{ backgroundColor: entry.color }}
                       />
-                      {/* Value leads, label follows: the reader already has the
-                        series and wants the number. */}
+                      {/* Value leads, label follows: the reader already has
+                        the series and wants the number. */}
                       <span className="font-medium">
                         {formatValue(entry.value as number)}
                         {unit ? ` ${unit}` : ""}
@@ -185,10 +182,9 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
               height={28}
               iconType="plainline"
               wrapperStyle={{ fontSize: 11 }}
-              // Recharts paints legend text in the series colour by default. The
-              // label is text and wears an ink token; the line key beside it is
-              // what carries identity — a coloured name is both weaker contrast
-              // and identity riding on colour alone.
+              // Recharts paints legend text in the series colour by
+              // default; the label wears an ink token instead — the line
+              // key beside it carries identity, not the coloured text.
               formatter={(value) => <span className="text-muted-foreground">{String(value)}</span>}
             />
           )}
@@ -208,8 +204,8 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
                 strokeLinejoin="round"
                 fill={color}
                 fillOpacity={0.12}
-                // No dot per reading — a dense series would become a solid band. The
-                // active dot carries the 2px surface ring so it reads as lifted.
+                // No dot per reading — a dense series would become a solid
+                // band. The active dot's 2px surface ring reads as lifted.
                 dot={false}
                 activeDot={{ r: 4, strokeWidth: 2, stroke: "hsl(var(--background))" }}
                 connectNulls

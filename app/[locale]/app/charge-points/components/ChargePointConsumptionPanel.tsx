@@ -37,12 +37,11 @@ import {
 } from "../../hooks/useConsumption";
 
 /**
- * A headline metering figure.
- *
- * Local rather than `StatCard` from `@watchborne/electrons`: that primitive types
- * `value` as a `number` and prints it raw, and every figure here needs a
- * locale-formatted number *with its unit* — "1 620 Wh", not "1620". Same visual
- * language, one slot the shared component does not have.
+ * A headline metering figure. Local rather than `StatCard` from
+ * `@watchborne/electrons`: that primitive types `value` as a `number` and
+ * prints it raw, but every figure here needs a locale-formatted number
+ * *with its unit* ("1 620 Wh", not "1620") — same visual language, one slot
+ * the shared component lacks.
  */
 const ConsumptionTile = ({
   title,
@@ -70,15 +69,14 @@ type Props = {
 };
 
 /**
- * A charge point's consumption: the window reduced to headline figures, and the
- * readings behind them plotted over time.
+ * A charge point's consumption: the window reduced to headline figures, and
+ * the readings behind them plotted over time.
  *
- * One measurand at a time, on purpose. Energy in Wh and power in W do not share a
- * scale, and the only way to draw both on one plot is a second y-axis whose
- * alignment is arbitrary — it would invent a correlation the meter never reported.
- * The selector is built from what the station actually reported in the window
- * (from the summary read), never from a hardcoded OCPP vocabulary, so a station
- * that only sends an energy register shows exactly one option.
+ * One measurand at a time, on purpose — Wh and W don't share a scale, and
+ * drawing both needs a second y-axis whose alignment is arbitrary, inventing
+ * a correlation the meter never reported. The selector is built from what
+ * the station actually reported in the window (the summary read), never a
+ * hardcoded OCPP vocabulary, so a station with only an energy register shows exactly one option.
  */
 export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
   const t = useTranslations("");
@@ -94,10 +92,10 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
     measurand,
   );
 
-  // The station decides which measurands exist, so the selection follows the data:
-  // default to the energy register (what "consumption" means to an installer) and
-  // fall back to whatever came first alphabetically. Re-runs when the window
-  // changes because a shorter window can drop a measurand entirely.
+  // The station decides which measurands exist, so selection follows the
+  // data: default to the energy register ("consumption" to an installer),
+  // fall back to alphabetically first. Re-runs on window change since a
+  // shorter window can drop a measurand entirely.
   useEffect(() => {
     if (measurands.length === 0) return;
     if (measurand && measurands.includes(measurand)) return;
@@ -126,12 +124,11 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
     seriesUnit ? `${formatNumber(value)} ${seriesUnit}` : formatNumber(value);
 
   /**
-   * The one figure that leads for a series.
-   *
-   * A cumulative register only counts up, so `max - min` is what it delivered over
-   * the window — the number an installer is actually after. Every other measurand
-   * is a spot reading, where a difference between two instants means nothing and
-   * the average is the honest headline. The tile says which one it is showing
+   * The one figure that leads for a series. A cumulative register only
+   * counts up, so `max - min` is what it delivered over the window — the
+   * number an installer actually wants. Every other measurand is a spot
+   * reading, where a difference between instants means nothing and the
+   * average is the honest headline. The tile names which one it's showing,
    * rather than labelling both "consumption".
    */
   const headline = (series: MeterSampleSummary) =>
@@ -193,9 +190,9 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
             </Select>
           )}
 
-          {/* The table view is not a nicety here: it is how every value stays
-              reachable without hovering, and the relief the palette's third slot
-              requires (it sits below 3:1 on the light surface). */}
+          {/* Not a nicety: how every value stays reachable without
+              hovering, and the relief the palette's third slot needs
+              (below 3:1 contrast on the light surface). */}
           <Button
             variant="outline"
             size="sm"
@@ -271,8 +268,8 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {/* Newest first here, the opposite of the chart's axis: a list is
-                      read from the top and the latest reading is the interesting one. */}
+                  {/* Newest first, the opposite of the chart's axis: a list
+                      reads from the top, and the latest reading is the interesting one. */}
                   {[...samples].reverse().map((sample) => (
                     <TableRow key={sample.id}>
                       <TableCell className="text-xs">

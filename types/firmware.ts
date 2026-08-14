@@ -15,14 +15,13 @@ export {
 } from "@watchborne/charge-points-types";
 
 /**
- * A firmware update as the backend's REST layer returns it: the shared domain
- * entity plus `isStalled`.
+ * A firmware update as the backend's REST layer returns it: the shared
+ * domain entity plus `isStalled`.
  *
- * `isStalled` deliberately lives here rather than in
- * `@watchborne/charge-points-types`: it is **derived at read time** from the age
- * of the update's last reported step against a server-side threshold, so it is a
- * property of the API response, not of the entity. Putting it on
- * `FirmwareUpdateSchema` would imply it is stored, which it never is.
+ * `isStalled` lives here, not in `@watchborne/charge-points-types`: it's
+ * **derived at read time** from the age of the update's last reported step
+ * against a server-side threshold — a property of the API response, not the
+ * entity. Putting it on `FirmwareUpdateSchema` would imply it's stored, which it isn't.
  */
 export type FirmwareUpdateView = FirmwareUpdate & { isStalled: boolean };
 
@@ -30,10 +29,7 @@ export type FirmwareUpdateView = FirmwareUpdate & { isStalled: boolean };
 export type ChargePointFirmware = {
   /** The update in flight, or `null` when the station is not updating. */
   active: FirmwareUpdateView | null;
-  /**
-   * The most recently finished update, or `null` when the station has never
-   * completed one — this is what answers "when was this charge point last
-   * updated, and did it work".
-   */
+  /** The most recently finished update, or `null` if never completed — answers
+   * "when was this last updated, and did it work". */
   lastCompleted: FirmwareUpdateView | null;
 };

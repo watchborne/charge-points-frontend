@@ -13,20 +13,18 @@ const OTP_CODE_LENGTH = 8;
 interface VerifyOtpFormProps {
   email: string;
   onBack: () => void;
-  // Dev-only: pre-fills the code from `/auth/dev-login` and submits it
-  // immediately, so `DevLoginShortcut` still signs in in one click while
-  // running through this component's real `verifyOtp` call instead of
-  // bypassing it server-side. Never set outside `DevLoginShortcut`.
+  // Dev-only: pre-fills the code from `/auth/dev-login` and auto-submits, so
+  // `DevLoginShortcut` still signs in in one click while running through
+  // this component's real `verifyOtp` call. Never set outside `DevLoginShortcut`.
   initialCode?: string;
 }
 
 /**
  * Step 2 of sign-in: verifies the 8-digit code `LoginForm`'s `signInWithOtp`
- * call emailed to `email`. Unlike the magic-link code-exchange it replaces,
- * `verifyOtp` runs entirely client-side against the anon client — no redirect
- * through Supabase's hosted domain, no PKCE `code_verifier` cookie — so it
- * can't fail just because the user is on a different browser/device than the
- * one that requested the code (see ADR 0005 in charge-points-server).
+ * emailed to `email`. Unlike the magic-link exchange it replaces,
+ * `verifyOtp` runs entirely client-side against the anon client — no
+ * redirect through Supabase's hosted domain, no PKCE cookie — so it can't
+ * fail just because the user is on a different browser/device (ADR 0005, charge-points-server).
  */
 export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps) {
   const t = useTranslations("");
@@ -57,25 +55,24 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     });
 
     if (verifyError) {
-      // Supabase error messages aren't localized; log for diagnostics and show
-      // our own translated copy to the user instead of the raw message.
+      // Supabase error messages aren't localized; log for diagnostics, show
+      // our own translated copy instead of the raw message.
       console.error("verifyOtp failed:", verifyError.message);
       setIsVerifying(false);
       setError(verifyError.code === "otp_expired" ? "invalid" : "generic");
       return;
     }
 
-    // Full-page navigation, not a client-side router push: same reasoning as
-    // LogoutButton (app/auth/components/LogoutButton.tsx) — components elsewhere
-    // resolve session state once on mount, so a hard reload is what reliably
-    // picks up the session verifyOtp just created.
+    // Full-page navigation, not a router push: same reasoning as
+    // LogoutButton — components elsewhere resolve session state once on
+    // mount, so a hard reload is what reliably picks up the new session.
     window.location.assign("/app/dashboard");
   };
 
   useEffect(() => {
     // Only ever set by DevLoginShortcut with a fresh code for a freshly
-    // mounted form, so firing once on mount (rather than tracking initialCode
-    // as a dependency) is exactly the intended one-shot auto-submit.
+    // mounted form — firing once on mount (not tracking initialCode as a
+    // dependency) is exactly the intended one-shot auto-submit.
     if (initialCode) void verify(initialCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -90,9 +87,9 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     setError(null);
 
     const supabase = createClient();
-    // Same call LoginForm makes to send the first code — shouldCreateUser stays
-    // false for the same reason (an unknown email must not be able to fish for
-    // a code), and locale keeps the resent email in the user's language.
+    // Same call LoginForm makes for the first code — shouldCreateUser stays
+    // false so an unknown email can't fish for a code; locale keeps the
+    // resent email in the user's language.
     const { error: resendError } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false, data: { locale } },

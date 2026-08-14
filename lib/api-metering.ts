@@ -3,11 +3,11 @@ import type { ChargePoint } from "@watchborne/charge-points-types";
 import { httpClient } from "./http-client";
 
 // The metering reads' response shapes. Not part of
-// @watchborne/charge-points-types on purpose: the backend keeps `MeterSample` as
-// a server-local domain type (ADR 0004) because no client consumes it as a
-// domain entity — the dashboard codes against these response contracts, the same
-// arrangement as `Me` in api-me.ts. Timestamps arrive as ISO strings over JSON
-// and are parsed where they are rendered, never widened to `Date` here.
+// @watchborne/charge-points-types on purpose: the backend keeps `MeterSample`
+// server-local (ADR 0004) since no client consumes it as a domain entity —
+// the dashboard codes against these response contracts, same as `Me` in
+// api-me.ts. Timestamps arrive as ISO strings and are parsed where rendered,
+// never widened to `Date` here.
 
 /** One stored measurement, as `GET /api/charge-points/:id/meter-samples` returns it. */
 export type MeterSample = {
@@ -30,11 +30,11 @@ export type MeterSample = {
  * One `(connector, measurand, unit)` series reduced over the window.
  *
  * `min`/`max`/`avg` are reported without interpretation, deliberately: on a
- * cumulative register (`Energy.Active.Import.Register`) `max - min` is the energy
- * delivered over the window, while on an instantaneous measurand
- * (`Power.Active.Import`) `avg`/`max` are the useful figures and the difference
- * means nothing. Deciding which reading applies is the caller's job — see
- * `isCumulativeRegister`.
+ * cumulative register (`Energy.Active.Import.Register`) `max - min` is the
+ * energy delivered over the window, while on an instantaneous measurand
+ * (`Power.Active.Import`) `avg`/`max` are the useful figures and the
+ * difference means nothing. Deciding which applies is the caller's job —
+ * see `isCumulativeRegister`.
  */
 export type MeterSampleSummary = {
   connectorId: number;
@@ -66,10 +66,10 @@ export type MeterSamplesQuery = {
 };
 
 /**
- * OCPP's `measurand` is an open vocabulary, so this is a suffix test rather than
- * a list: anything ending in `.Register` is a meter register that only ever
- * counts up, which is what makes `max - min` its energy over the window. Every
- * other measurand is a spot reading.
+ * OCPP's `measurand` is an open vocabulary, so this is a suffix test rather
+ * than a list: anything ending in `.Register` is a meter register that only
+ * counts up, which is what makes `max - min` its energy over the window.
+ * Every other measurand is a spot reading.
  */
 export const isCumulativeRegister = (measurand: string): boolean => measurand.endsWith(".Register");
 
@@ -80,8 +80,8 @@ const buildQuery = ({ connectorId, from, to, measurands, limit }: MeterSamplesQu
   if (from) params.set("from", from.toISOString());
   if (to) params.set("to", to.toISOString());
   if (limit !== undefined) params.set("limit", String(limit));
-  // `append`, not `set`: the backend reads a repeated `?measurand=` as the filter
-  // list, and the API proxy forwards duplicates (see lib/proxy-request.ts).
+  // `append`, not `set`: the backend reads a repeated `?measurand=` as the
+  // filter list, and the API proxy forwards duplicates (lib/proxy-request.ts).
   measurands?.forEach((measurand) => params.append("measurand", measurand));
 
   const query = params.toString();

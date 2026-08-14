@@ -27,10 +27,9 @@ type SubmitState =
 const ALLOWED_PROTOCOLS = ["http:", "https:", "ftp:", "ftps:"];
 
 /**
- * Client-side check on the URL an installer types. Deliberately the same
- * allowlist the backend enforces — this is convenience, not the boundary: the
- * field decides what a piece of hardware downloads and executes, so the server
- * remains authoritative.
+ * Client-side check on the URL an installer types — deliberately the same
+ * allowlist the backend enforces. Convenience, not the boundary: this field
+ * decides what hardware downloads and executes, so the server stays authoritative.
  */
 const isAcceptableLocation = (value: string): boolean => {
   try {
@@ -76,10 +75,10 @@ type UpdateFirmwareDialogProps = {
 /**
  * Lets an installer start a firmware update (OCPP `UpdateFirmware`).
  *
- * The station's answer is not a plain success: a 2.0.1 station reports a status,
- * whereas a 1.6 station only acknowledges the frame (its response payload is
- * empty), so a `null` status is reported as "requested" rather than "accepted" —
- * the real outcome then arrives through the timeline.
+ * The station's answer isn't a plain success: a 2.0.1 station reports a
+ * status, a 1.6 station only acknowledges the frame (empty payload) — so a
+ * `null` status is reported as "requested" rather than "accepted", and the
+ * real outcome arrives through the timeline.
  */
 export const UpdateFirmwareDialog = ({
   chargePointId,
@@ -125,8 +124,8 @@ export const UpdateFirmwareDialog = ({
 
     const outcome = await api.ChargePoints.startFirmwareUpdate(chargePointId, {
       location,
-      // The input is local time; the backend coerces a date, so send an
-      // unambiguous instant rather than a bare local string.
+      // The input is local time; send an unambiguous instant rather than a
+      // bare local string.
       retrieveDateTime: new Date(retrieveDateTime).toISOString(),
       retries: optionalInt(retries),
       retryInterval: optionalInt(retryInterval),
