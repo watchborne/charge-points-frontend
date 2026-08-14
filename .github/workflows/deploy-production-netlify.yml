@@ -36,7 +36,18 @@ jobs:
         with:
           npm-token: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build with Netlify
+      # Single step on purpose: `deploy --build` runs the @netlify/build build
+      # and the deploy in one `netlify-cli` invocation. We deliberately don't
+      # pass --json here — on a non-interactive runner --json buffers all
+      # output and only prints it as a JSON blob at the very end, which hides
+      # the real build error behind a bare "exit code 2" if the build fails
+      # (see #191). Plain-text output streams as it happens instead. Since
+      # there's no JSON to read the deploy URL from, we parse it out of
+      # netlify-cli's non-interactive text output instead (`Production URL:
+      # <...>`, printed when stdout isn't a TTY — see netlify-cli's
+      # printResults in commands/deploy/deploy.js).
+      - name: Build and deploy to Netlify
+        id: netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -44,22 +55,13 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          npx --yes netlify-cli@27 build
-
-      - name: Deploy to Netlify
-        id: netlify
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          set -euo pipefail
           npx --yes netlify-cli@27 deploy \
-            --no-build \
+            --build \
             --prod \
             --message "Manual production deploy @ ${{ inputs.ref }} (${{ github.sha }})" \
-            --json | tee deploy.json
-          echo "url=$(jq -r '.deploy_url' deploy.json)" >> "$GITHUB_OUTPUT"
+            | tee deploy.log
+          url=$(grep -oP 'Production URL: <\K[^>]+' deploy.log)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Summary
         if: always()
