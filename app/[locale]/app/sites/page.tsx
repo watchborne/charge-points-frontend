@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { Button, Input, Callout } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
@@ -18,9 +19,19 @@ import { useSites } from "../hooks/useSites";
 
 export default function SitesPage() {
   const t = useTranslations("");
-  const { sites, loading, error, refetch: refetchSites } = useSites();
+  const { sites, loading, error } = useSites();
   const { chargePoints } = useChargePoints();
   const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
+
+  const createSiteMutation = useMutation({
+    mutationFn: api.Sites.createSite,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sites"] }),
+  });
+  const deleteSiteMutation = useMutation({
+    mutationFn: api.Sites.deleteSite,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sites"] }),
+  });
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Site | null>(null);
@@ -38,8 +49,7 @@ export default function SitesPage() {
   }, [sites, search, error, loading]);
 
   const handleCreate = async (values: SiteFormValues) => {
-    await api.Sites.createSite(values);
-    await refetchSites();
+    await createSiteMutation.mutateAsync(values);
   };
 
   function handleEdit(values: SiteFormValues) {
@@ -51,8 +61,7 @@ export default function SitesPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
-    await api.Sites.deleteSite(deleteTarget.id);
-    await refetchSites();
+    await deleteSiteMutation.mutateAsync(deleteTarget.id);
 
     setDeleteTarget(null);
   };

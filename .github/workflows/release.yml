@@ -1,0 +1,143 @@
+name: Release
+
+# Manual, one-shot release pipeline: tag -> generate a changelog and GitHub
+# Release -> deploy that tag to production. Mirrors
+# watchborne/charge-points-server's release.yml (see that repo's #376/#377/#382
+# for the design and the changelog-generation bugs already found and fixed
+# there).
+#
+# Deliberately does NOT bump package.json: nothing here consumes that field
+# (no dependent repo resolves a version from it, unlike
+# @watchborne/charge-points-types). The git tag is the single source of truth,
+# so no push-to-main step is needed and the default GITHUB_TOKEN is enough
+# throughout (no tag protection rules or rulesets on this repo) — no
+# RELEASE_TOKEN/PAT secret required.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., 1.4.0 or v1.4.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+# Two releases running at once would race on the tag push. Never cancel one in
+# flight: a half-finished release leaves a pushed tag with nothing published
+# against it.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      tag: ${{ steps.setup.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Normalize and validate version
+        id: setup
+        run: |
+          INPUT_VERSION="${{ inputs.version }}"
+          # Remove 'v' prefix if present
+          VERSION="${INPUT_VERSION#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format: $INPUT_VERSION. Expected: major.minor.patch (e.g., 1.4.0)"
+            exit 1
+          fi
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        run: |
+          git tag "${{ steps.setup.outputs.tag }}"
+          git push origin "${{ steps.setup.outputs.tag }}"
+
+  generate-release:
+    needs: tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.tag.outputs.tag }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: "package.json"
+
+      - name: Install conventional-changelog
+        run: npm install -g conventional-changelog-cli@^5
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # conventional-changelog labels/bounds its FIRST section from
+          # package.json's version, which this repo intentionally never bumps
+          # (see this workflow's header comment). Whether that produces a
+          # second, real section — and whether the real section ever comes
+          # first — depends on whether that stale version happens to collide
+          # with the tag just cut:
+          #   - mismatch (the common case: package.json says e.g. "1.0.0"
+          #     forever): section 1 is a phantom "still unreleased" range
+          #     (latest tag..HEAD, always empty since HEAD IS the tag just
+          #     created) and section 2 is the real content
+          #     (watchborne/charge-points-server's v0.1.0/v0.1.1 releases hit
+          #     this — see that repo's #377/#382);
+          #   - exact match (package.json's stale version happens to equal
+          #     the very first tag cut, e.g. both "0.1.0" — this repo's
+          #     package.json and its own first release):
+          #     https://github.com/watchborne/charge-points-frontend/releases/tag/v0.1.0
+          #     shipped empty because there is no phantom at all here, and
+          #     the real content IS section 1 — the position-based fix
+          #     ported from charge-points-server assumed a phantom always
+          #     exists.
+          #
+          # Rather than count/guess which position or header level the real
+          # section lands on, take the first section (by either header level)
+          # that actually has non-blank content below its header — the
+          # phantom, when one exists, never does (its range is always empty
+          # in this job).
+          CHANGELOG=$(conventional-changelog -p angular --release-count 2 | awk '
+            /^# |^## / {
+              if (has_content) { print header; print body; exit }
+              header = $0; body = ""; has_content = 0; next
+            }
+            {
+              body = body $0 "\n"
+              if ($0 !~ /^[[:space:]]*$/) has_content = 1
+            }
+            END { if (has_content) { print header; print body } }
+          ')
+          if [ -z "$(printf '%s' "$CHANGELOG" | tr -d '[:space:]')" ]; then
+            CHANGELOG="Release ${{ needs.tag.outputs.tag }}"
+          fi
+          {
+            echo "body<<EOF"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.tag.outputs.tag }}
+          body: ${{ steps.changelog.outputs.body }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs:
+      - tag
+      - generate-release
+    uses: ./.github/workflows/deploy-production-netlify.yml
+    with:
+      ref: ${{ needs.tag.outputs.tag }}
+    secrets: inherit

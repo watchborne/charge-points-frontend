@@ -5,6 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
 import "../../globals.css";
+import { QueryProvider } from "@/app/app/providers/QueryProvider";
 import { ThemeProvider } from "@/app/components/ThemeProvider";
 import { ToastNotification } from "@/app/components/ToastNotification/ToastNotification";
 import type { Locale } from "@/i18n/locale";
@@ -51,18 +52,20 @@ export default async function RootLayout({ children, params }: Props) {
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <WebSocketDataProvider>
-            <NextIntlClientProvider>
-              <div className="flex min-h-screen flex-col bg-muted/30">
-                <Header />
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-              <ToastNotification />
-            </NextIntlClientProvider>
-          </WebSocketDataProvider>
+          <QueryProvider>
+            <WebSocketDataProvider>
+              <NextIntlClientProvider>
+                <div className="flex min-h-screen flex-col bg-muted/30">
+                  <Header />
+                  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+                    {children}
+                  </main>
+                  <Footer />
+                </div>
+                <ToastNotification />
+              </NextIntlClientProvider>
+            </WebSocketDataProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

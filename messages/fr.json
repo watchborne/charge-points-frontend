@@ -668,6 +668,26 @@
           }
         }
       },
+      "alerts": {
+        "title": "Alertes",
+        "loading": "Chargement des alertes…",
+        "loadError": "Impossible de charger l'historique des alertes de cette borne.",
+        "empty": "Aucune alerte récente.",
+        "connector": "Connecteur {connectorId}",
+        "openedAt": "Ouverte {date}",
+        "resolvedAt": "Résolue {date}",
+        "notifiedTo": "Envoyée à {emails}",
+        "notNotified": "Pas encore envoyée",
+        "types": {
+          "OFFLINE": "Borne hors ligne",
+          "CONNECTOR_FAULTED": "Connecteur en défaut",
+          "FIRMWARE_STALLED": "Mise à jour firmware bloquée"
+        },
+        "status": {
+          "open": "Ouverte",
+          "resolved": "Résolue"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",

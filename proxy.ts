@@ -62,11 +62,28 @@ function stripLocalePrefix(pathname: string): { locale: Locale; rest: string } {
   return { locale: defaultLocale, rest: pathname };
 }
 
+// supabase-js's getUser() swallows expected auth errors (expired session,
+// missing token, ...) but rethrows anything else — in particular a raw
+// network failure talking to Supabase's API (see @supabase/auth-js's
+// GoTrueClient#_getUser). Left uncaught here, that exception crashes the
+// whole Netlify Edge Function for the request ("edge function invocation
+// failed"), taking down /login, /signup or /app with it. Fail closed
+// instead: treat it as no session, same as an expired/missing one.
+async function getSessionUser(supabase: ReturnType<typeof createClient>["supabase"]) {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    console.error("proxy: supabase.auth.getUser() failed", error);
+    return null;
+  }
+}
+
 async function gateApiRequest(request: NextRequest) {
   const { supabase, supabaseResponse } = createClient(request);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser(supabase);
 
   if (!user) {
     const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -122,9 +139,7 @@ export async function proxy(request: NextRequest) {
   if (!needsAuth) return intlResponse;
 
   const { supabase, supabaseResponse } = createClient(request);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser(supabase);
 
   const withSessionCookies = (response: NextResponse) => {
     supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
