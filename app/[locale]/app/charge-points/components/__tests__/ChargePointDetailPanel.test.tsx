@@ -1,9 +1,9 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-// The detail panel now nests ChargePointConsumptionPanel and AlertsPanel, both
-// of which fetch on mount. All three are stubbed here so this file stays about
-// the detail panel: each nested panel has its own tests.
+// The detail panel now nests ChargePointConsumptionPanel, StatusHistoryPanel and
+// AlertsPanel which fetch on mount and format numbers per locale. All 3 are stubbed
+// here so this file stays about the detail panel: each nested panel has its own tests.
 vi.mock("../../../../../../lib/api", () => ({
   api: {
     Metering: {
@@ -17,6 +17,10 @@ vi.mock("../../../../../../lib/api", () => ({
     },
     ChargePoints: {
       getAlerts: vi.fn().mockResolvedValue([]),
+    },
+    StatusHistory: {
+      getConnectionEvents: vi.fn().mockResolvedValue([]),
+      getConnectorStatusEvents: vi.fn().mockResolvedValue([]),
     },
   },
 }));
@@ -33,6 +37,20 @@ vi.mock("next-intl", () => ({
       "appPage.chargePoints.detail.unknownSite": "Unknown site",
       "appPage.chargePoints.availability.button": "Change availability",
       "appPage.chargePoints.unlockConnector.button": "Unlock connector",
+      "appPage.chargePoints.statusHistory.title": "Status history",
+      "appPage.chargePoints.statusHistory.connectivity": "Connectivity",
+      "appPage.chargePoints.statusHistory.connectorStatus": `Connector ${values?.connectorId} status`,
+      "appPage.chargePoints.statusHistory.connectorLabel": "Connector",
+      "appPage.chargePoints.statusHistory.noData": "No data",
+      "appPage.chargePoints.statusHistory.truncated": "Truncated",
+      "appPage.chargePoints.statusHistory.error": "Failed to load status history.",
+      "appPage.chargePoints.statusHistory.ranges.day": "Today",
+      "appPage.chargePoints.statusHistory.ranges.7d": "7d",
+      "appPage.chargePoints.statusHistory.ranges.30d": "30d",
+      "appPage.chargePoints.statusHistory.table.timestamp": "Timestamp",
+      "appPage.chargePoints.statusHistory.table.status": "Status",
+      "appPage.chargePoints.statusHistory.table.duration": "Duration",
+      "appPage.chargePoints.consumption.connectorSeries": `Connector ${values?.connectorId}`,
     };
     return map[key] ?? key;
   },
@@ -56,6 +74,20 @@ beforeAll(() => {
 
 afterEach(() => cleanup());
 
+const CONNECTOR = {
+  id: "connector-1",
+  chargePointId: "cp-1",
+  connectorId: 1,
+  status: "Available",
+  lastMeterValue: {
+    timestamp: new Date("2024-01-01T00:00:00Z"),
+    sampledValue: [{ value: "1000", measurand: "Energy.Active.Import.Register", unit: "Wh" }],
+  },
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+} as Record<string, unknown>;
+
 const CHARGE_POINT = {
   id: "cp-1",
   name: "CP-001",
@@ -65,22 +97,8 @@ const CHARGE_POINT = {
   ocppVersion: "1.6",
   meta: {},
   connection: { status: "SYNCED", lastSeenAt: null },
-  connectors: [
-    {
-      id: "connector-1",
-      chargePointId: "cp-1",
-      connectorId: 1,
-      status: "Available",
-      lastMeterValue: {
-        timestamp: new Date("2024-01-01T00:00:00Z"),
-        sampledValue: [{ value: "1000", measurand: "Energy.Active.Import.Register", unit: "Wh" }],
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-  ],
-} as never;
+  connectors: [CONNECTOR],
+} as Record<string, unknown>;
 
 describe("ChargePointDetailPanel", () => {
   it("SHOULD display the connector's lastMeterValue snapshot WHEN one is present", () => {
@@ -104,8 +122,8 @@ describe("ChargePointDetailPanel", () => {
   it("SHOULD render no meter value line WHEN the connector never reported one", () => {
     const chargePointWithoutMeterValue = {
       ...CHARGE_POINT,
-      connectors: [{ ...CHARGE_POINT.connectors[0], lastMeterValue: undefined }],
-    } as never;
+      connectors: [{ ...CONNECTOR, lastMeterValue: undefined }],
+    } as unknown;
 
     render(
       <ChargePointDetailPanel

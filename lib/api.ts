@@ -4,6 +4,7 @@ import { commissioningTokenApis } from "./api-commissioning-token";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { siteApis } from "./api-sites";
+import { statusHistoryApis } from "./api-status-history";
 
 export const api = {
   AccessRequests: accessRequestApis,
@@ -12,4 +13,5 @@ export const api = {
   Me: meApis,
   CommissioningToken: commissioningTokenApis,
   Metering: meteringApis,
+  StatusHistory: statusHistoryApis,
 };
