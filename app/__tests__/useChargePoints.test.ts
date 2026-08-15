@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, act, waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createChargePoint } from "./fixtures/charge-point";
@@ -64,6 +66,16 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+function renderUseChargePoints() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
+
+  return renderHook(() => useChargePoints(), { wrapper });
+}
+
 describe("useChargePoints", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -80,7 +92,7 @@ describe("useChargePoints", () => {
   it("SHOULD load charge points WHEN mounted", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
-    const { result } = renderHook(() => useChargePoints());
+    const { result } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -98,7 +110,7 @@ describe("useChargePoints", () => {
     });
     mockGetChargePoints.mockReturnValue(pendingPromise);
 
-    const { result } = renderHook(() => useChargePoints());
+    const { result } = renderUseChargePoints();
 
     // Initially loading
     expect(result.current.loading).toBe(true);
@@ -117,7 +129,7 @@ describe("useChargePoints", () => {
   it("SHOULD expose an error WHEN the API call fails", async () => {
     mockGetChargePoints.mockRejectedValue(new Error("Network error"));
 
-    const { result } = renderHook(() => useChargePoints());
+    const { result } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -131,7 +143,7 @@ describe("useChargePoints", () => {
   it("SHOULD reload the data WHEN refetch is called", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
-    const { result } = renderHook(() => useChargePoints());
+    const { result } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -155,13 +167,15 @@ describe("useChargePoints", () => {
     });
 
     expect(mockGetChargePoints).toHaveBeenCalledTimes(2);
-    expect(result.current.chargePoints).toEqual(newChargePoints);
+    await waitFor(() => {
+      expect(result.current.chargePoints).toEqual(newChargePoints);
+    });
   });
 
   it("SHOULD update a charge point in place WHEN a CHARGE_POINT_MONITORING WebSocket message arrives", async () => {
     mockGetChargePoints.mockResolvedValue(mockChargePoints);
 
-    const { result, rerender } = renderHook(() => useChargePoints());
+    const { result, rerender } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -212,7 +226,7 @@ describe("useChargePoints", () => {
       clearMessages: vi.fn(),
     });
 
-    const { rerender } = renderHook(() => useChargePoints());
+    const { rerender } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(mockGetChargePoints).toHaveBeenCalledTimes(1);
@@ -265,7 +279,7 @@ describe("useChargePoints", () => {
     });
     mockGetChargePoints.mockResolvedValue([chargePointWithConnector]);
 
-    const { result, rerender } = renderHook(() => useChargePoints());
+    const { result, rerender } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -317,7 +331,7 @@ describe("useChargePoints", () => {
     });
     mockGetChargePoints.mockResolvedValue([chargePointWithConnector]);
 
-    const { result, rerender } = renderHook(() => useChargePoints());
+    const { result, rerender } = renderUseChargePoints();
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
