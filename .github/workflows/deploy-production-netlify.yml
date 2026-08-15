@@ -2,13 +2,21 @@ name: Deploy Frontend to Production (manual)
 
 # Manual, on-demand production deploy to Netlify. Netlify's automatic production
 # deploys on push should stay OFF so that going live is always a deliberate,
-# auditable action taken from this workflow.
+# auditable action taken from this workflow. Also callable from release.yml
+# (workflow_call), which deploys the tag it just cut at the end of a release.
 on:
   workflow_dispatch:
     inputs:
       ref:
         description: "Branch, tag or SHA to deploy"
         required: false
+        default: "main"
+  workflow_call:
+    inputs:
+      ref:
+        description: "Branch, tag or SHA to deploy"
+        required: false
+        type: string
         default: "main"
 
 permissions:
@@ -22,6 +30,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    # Guards against dispatching this workflow file from a branch other than
+    # main (the ref a workflow_dispatch/workflow_call run is launched from,
+    # not the `ref` input it deploys).
     if: github.ref == 'refs/heads/main'
 
     environment:
@@ -29,7 +40,14 @@ jobs:
       url: https://watch-borne.com
 
     steps:
+      # `ref:` is what actually makes the `ref` input mean something — without
+      # it, checkout defaults to whatever ref this run was launched from (the
+      # branch/tag picked in the "Run workflow" dropdown, not the `ref` input
+      # text field), so a caller passing `ref: v1.2.0` deployed main's tip
+      # instead of that tag whenever they didn't happen to match.
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Install dependencies
         uses: ./.github/workflows/composites/install-dependencies
@@ -80,8 +98,7 @@ jobs:
           {
             echo "## Production deployment"
             echo ""
-            echo "- Commit: \`${{ github.sha }}\`"
-            echo "- Branch: \`${{ github.ref_name }}\`"
+            echo "- Ref deployed: \`${{ inputs.ref }}\`"
             echo "- Actor: @${{ github.actor }}"
             echo "- URL: https://watch-borne.com"
           } >> "$GITHUB_STEP_SUMMARY"
