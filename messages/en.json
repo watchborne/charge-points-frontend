@@ -668,6 +668,26 @@
           }
         }
       },
+      "alerts": {
+        "title": "Alerts",
+        "loading": "Loading alerts…",
+        "loadError": "Could not load this charge point's alert history.",
+        "empty": "No recent alerts.",
+        "connector": "Connector {connectorId}",
+        "openedAt": "Opened {date}",
+        "resolvedAt": "Resolved {date}",
+        "notifiedTo": "Sent to {emails}",
+        "notNotified": "Not sent yet",
+        "types": {
+          "OFFLINE": "Station offline",
+          "CONNECTOR_FAULTED": "Connector faulted",
+          "FIRMWARE_STALLED": "Firmware update stalled"
+        },
+        "status": {
+          "open": "Open",
+          "resolved": "Resolved"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
