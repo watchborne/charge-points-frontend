@@ -117,15 +117,22 @@ only when:
   - `NETLIFY_SITE_ID` — the site's API ID (Netlify → Site configuration → General).
   - `NPM_TOKEN` — already used by the other workflows, needed for private packages.
 
-## 🚀 Netlify production deploys
+## 🚀 Releasing and Netlify production deploys
 
-Production deploys are **manual and on-demand**, not triggered by pushes to
-`main`. Run the
+A production deploy is part of the release pipeline,
+[`release`](.github/workflows/release.yml): **Actions → Release → Run
+workflow**, one input (`version`, e.g. `1.4.0`). It tags `vX.Y.Z`, creates a
+GitHub Release with a changelog generated from Conventional Commits, then
+calls `deploy-production-netlify` to build and deploy that exact tag. No
+`package.json` version bump, no push to `main` — the git tag alone is the
+source of truth.
+
 [`deploy-production-netlify`](.github/workflows/deploy-production-netlify.yml)
-workflow via **Actions → Deploy Frontend to Production (manual) → Run workflow**.
-The job only runs when triggered against `main` (`if: github.ref ==
-'refs/heads/main'`); the `ref` input is used only in the deploy message/summary
-text, not to check out a different ref — the workflow always builds `main`.
+is also independently dispatchable via **Actions → Deploy Frontend to
+Production (manual) → Run workflow**, one input: `ref` (default `main`) — for
+redeploying or rolling back to an already-tagged release without cutting a
+new one. The job only runs when triggered against `main` (`if: github.ref ==
+'refs/heads/main'`); the `ref` input is checked out and built.
 
 - In the Netlify UI, **disable automatic production deploys** so `main` pushes
   don't also trigger a separate deploy outside this workflow.
