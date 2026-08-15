@@ -88,7 +88,7 @@
   },
   "homePage": {
     "hero": {
-      "badge": "OCPP 2.0.1 Monitoring Platform",
+      "badge": "OCPP 1.6 & 2.0.1 Monitoring Platform",
       "title": "Know the real status of your EV charge points.",
       "subtitle": "Watchborne helps EV charging installers monitor charging stations across multiple sites in real time.",
       "cta": {
@@ -107,7 +107,7 @@
       },
       "ocpp": {
         "title": "OCPP-native",
-        "description": "Built around OCPP workflows and charging infrastructure operations."
+        "description": "Supports both OCPP 1.6 and 2.0.1 stations, running side by side across the same fleet."
       },
       "offline": {
         "title": "Offline detection",
@@ -117,20 +117,19 @@
         "title": "Fleet overview",
         "description": "Get a single view of every station deployed in the field."
       },
-      "reliable": {
-        "title": "Reliable monitoring",
-        "description": "Designed for installers who need trustworthy operational visibility."
+      "alerting": {
+        "title": "Automatic alerting",
+        "description": "Get notified the moment a station disconnects, faults, or a firmware update stalls, with a record of who was notified and when."
       }
     },
     "roadmap": {
       "badge": "Roadmap",
       "title": "What's coming next",
       "items": {
-        "alerting": "Alerting",
-        "eventHistory": "Event History",
-        "historicalAnalytics": "Historical analytics",
-        "rbac": "Role-based access control",
-        "siteHealth": "Site health overview"
+        "eventHistory": "Event history",
+        "realtimeNotifications": "Real-time notifications",
+        "maintenance": "Maintenance scheduling",
+        "rbac": "Role-based access control"
       }
     },
     "featuresSection": {
@@ -145,7 +144,11 @@
         "stateTracking": "Connection State Tracking",
         "dashboard": "Real-Time Dashboard",
         "offlineDetection": "Offline Detection",
-        "multisite": "Multi-Site Organization"
+        "multisite": "Multi-Site Organization",
+        "consumption": "Per-station consumption history",
+        "firmware": "Firmware update tracking & triggering",
+        "siteHealth": "Site health overview",
+        "alerting": "Automatic alerts (offline, fault, firmware)"
       }
     },
     "cta": {
@@ -182,19 +185,19 @@
       "items": {
         "installation": {
           "title": "Commissioning",
-          "description": "Instantly confirm a newly installed charger is communicating correctly, without waiting for customer feedback."
+          "description": "Track commissioning through a dedicated queue and checklist, and self-generate an OCPP commissioning token without waiting on support."
         },
         "monitoring": {
           "title": "Daily supervision",
-          "description": "Keep a real-time eye on the connection and charging status of your whole fleet, across sites, from a single screen."
+          "description": "Keep a real-time eye on the connection status, consumption, and firmware updates of your whole fleet, across sites, from a single screen."
         },
         "maintenance": {
           "title": "Maintenance & intervention",
-          "description": "Catch disconnections and anomalies before your customers do, and prioritize field interventions accordingly."
+          "description": "Catch disconnections, faults, and failed firmware updates before your customers do with automatic alerts, and prioritize field interventions accordingly."
         },
         "reporting": {
           "title": "Customer reporting",
-          "description": "Give your customers reliable visibility into their charger availability, without manual reporting."
+          "description": "Give your customers reliable visibility into their charger availability and consumption, without manual reporting."
         }
       }
     },
@@ -206,8 +209,8 @@
       "badge": "Roadmap",
       "title": "What we're building",
       "items": {
-        "alerting": "Automatic alerts on faults or disconnections",
-        "historicalAnalytics": "Availability history and analytics",
+        "eventHistory": "Detailed connection & connector history",
+        "realtimeNotifications": "Real-time email notifications",
         "maintenance": "Maintenance intervention planning and tracking",
         "reporting": "Automated reports for your customers",
         "rbac": "Team- and site-level access management",
@@ -372,7 +375,9 @@
         "realtime": "Real-time supervision",
         "offlineDetection": "Offline detection",
         "multisite": "Multi-site organization",
-        "alphaAccess": "Alpha access"
+        "alphaAccess": "Alpha access",
+        "alerting": "Automatic alerts",
+        "firmware": "Firmware update tracking"
       }
     },
     "futurePricing": {

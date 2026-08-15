@@ -88,7 +88,7 @@
   },
   "homePage": {
     "hero": {
-      "badge": "Plateforme de supervision OCPP 2.0.1",
+      "badge": "Plateforme de supervision OCPP 1.6 & 2.0.1",
       "title": "Connaissez l'état réel de vos bornes de recharge.",
       "subtitle": "Watchborne aide les installateurs IRVE à superviser leurs bornes de recharge sur plusieurs sites en temps réel.",
       "cta": {
@@ -107,7 +107,7 @@
       },
       "ocpp": {
         "title": "Natif OCPP",
-        "description": "Construit autour des workflows OCPP et des opérations d'infrastructure de recharge."
+        "description": "Compatible avec les bornes OCPP 1.6 et 2.0.1, qui cohabitent sans problème sur un même parc."
       },
       "offline": {
         "title": "Détection des déconnexions",
@@ -117,20 +117,19 @@
         "title": "Vue d'ensemble du parc",
         "description": "Obtenez une vue unique de chaque borne déployée sur le terrain."
       },
-      "reliable": {
-        "title": "Surveillance fiable",
-        "description": "Conçu pour les installateurs qui ont besoin d'une visibilité opérationnelle fiable."
+      "alerting": {
+        "title": "Alertes automatiques",
+        "description": "Soyez notifié dès qu'une borne se déconnecte, tombe en panne ou qu'une mise à jour firmware échoue, avec un suivi de qui a été notifié et quand."
       }
     },
     "roadmap": {
       "badge": "Feuille de route",
       "title": "Ce qui arrive ensuite",
       "items": {
-        "alerting": "Système d'alertes",
         "eventHistory": "Historique des événements",
-        "historicalAnalytics": "Analyses historiques",
-        "rbac": "Contrôle d'accès basé sur les rôles",
-        "siteHealth": "Vue d'ensemble de la santé du site"
+        "realtimeNotifications": "Notifications en temps réel",
+        "maintenance": "Planification de la maintenance",
+        "rbac": "Contrôle d'accès basé sur les rôles"
       }
     },
     "featuresSection": {
@@ -145,7 +144,11 @@
         "stateTracking": "Suivi de l'état de connexion",
         "dashboard": "Tableau de bord en temps réel",
         "offlineDetection": "Détection des déconnexions",
-        "multisite": "Organisation multi-sites"
+        "multisite": "Organisation multi-sites",
+        "consumption": "Historique de consommation par borne",
+        "firmware": "Suivi et déclenchement des mises à jour firmware",
+        "siteHealth": "Vue d'ensemble de la santé des sites",
+        "alerting": "Alertes automatiques (déconnexion, panne, firmware)"
       }
     },
     "cta": {
@@ -182,19 +185,19 @@
       "items": {
         "installation": {
           "title": "Mise en service",
-          "description": "Vérifiez instantanément qu'une borne nouvellement installée communique correctement, sans attendre un retour client."
+          "description": "Suivez la mise en service de chaque borne grâce à une file d'attente et une checklist dédiées, et générez vous-même un jeton de commissioning OCPP sans dépendre du support."
         },
         "monitoring": {
           "title": "Supervision quotidienne",
-          "description": "Gardez un œil en temps réel sur l'état de connexion et de charge de tout votre parc, multi-sites, depuis un seul écran."
+          "description": "Gardez un œil en temps réel sur l'état de connexion, la consommation et les mises à jour firmware de tout votre parc, multi-sites, depuis un seul écran."
         },
         "maintenance": {
           "title": "Maintenance & intervention",
-          "description": "Détectez les déconnexions et anomalies avant vos clients, et priorisez vos interventions terrain en conséquence."
+          "description": "Détectez les déconnexions, pannes et échecs de mise à jour firmware avant vos clients grâce aux alertes automatiques, et priorisez vos interventions terrain en conséquence."
         },
         "reporting": {
           "title": "Reporting client",
-          "description": "Donnez à vos clients une visibilité fiable sur la disponibilité de leurs bornes, sans reporting manuel."
+          "description": "Donnez à vos clients une visibilité fiable sur la disponibilité et la consommation de leurs bornes, sans reporting manuel."
         }
       }
     },
@@ -206,8 +209,8 @@
       "badge": "Feuille de route",
       "title": "Ce que nous construisons",
       "items": {
-        "alerting": "Alertes automatiques en cas de panne ou de déconnexion",
-        "historicalAnalytics": "Historique et analyses de disponibilité",
+        "eventHistory": "Historique détaillé des connexions et des connecteurs",
+        "realtimeNotifications": "Notifications en temps réel par email",
         "maintenance": "Planification et suivi des interventions de maintenance",
         "reporting": "Rapports automatisés pour vos clients",
         "rbac": "Gestion des accès par équipe et par site",
@@ -372,7 +375,9 @@
         "realtime": "Supervision en temps réel",
         "offlineDetection": "Détection des déconnexions",
         "multisite": "Organisation multi-sites",
-        "alphaAccess": "Accès Alpha"
+        "alphaAccess": "Accès Alpha",
+        "alerting": "Alertes automatiques",
+        "firmware": "Suivi des mises à jour firmware"
       }
     },
     "futurePricing": {
