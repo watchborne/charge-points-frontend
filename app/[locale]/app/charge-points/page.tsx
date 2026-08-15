@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Callout, Skeleton } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -48,9 +49,31 @@ function ChargePointsPageContent() {
     chargePoints,
     loading: loadingChargePoints,
     error: errorChargePoints,
-    refetch: refetchChargePoints,
   } = useChargePoints();
   const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
+
+  const invalidateChargePoints = () =>
+    queryClient.invalidateQueries({ queryKey: ["chargePoints"] });
+
+  const createChargePointMutation = useMutation({
+    mutationFn: api.ChargePoints.createChargePoint,
+    onSuccess: invalidateChargePoints,
+  });
+  const updateChargePointMutation = useMutation({
+    mutationFn: ({
+      id,
+      patch,
+    }: {
+      id: string;
+      patch: Parameters<typeof api.ChargePoints.updateChargePoint>[1];
+    }) => api.ChargePoints.updateChargePoint(id, patch),
+    onSuccess: invalidateChargePoints,
+  });
+  const deleteChargePointMutation = useMutation({
+    mutationFn: api.ChargePoints.deleteChargePoint,
+    onSuccess: invalidateChargePoints,
+  });
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -102,7 +125,7 @@ function ChargePointsPageContent() {
   }, [highlightedId, chargePoints, loadingChargePoints, loadingSites]);
 
   const handleCreate = async (values: ChargePointFormValues) => {
-    await api.ChargePoints.createChargePoint({
+    await createChargePointMutation.mutateAsync({
       name: values.name,
       // Empty selection means "unassigned" — send null, not "".
       siteId: values.siteId || null,
@@ -114,48 +137,50 @@ function ChargePointsPageContent() {
         firmwareVersion: values.meta?.firmwareVersion ?? "",
       },
     });
-    await refetchChargePoints();
   };
 
   const handleEdit = async (values: ChargePointFormValues) => {
     if (!editTarget) return;
-    await api.ChargePoints.updateChargePoint(editTarget.id, {
-      name: values.name,
-      // Empty selection detaches the charge point from its site.
-      siteId: values.siteId || null,
-      meta: {
-        vendor: values.meta?.vendor ?? "",
-        model: values.meta?.model ?? "",
-        serialNumber: values.meta?.serialNumber ?? "",
-        firmwareVersion: values.meta?.firmwareVersion ?? "",
+    await updateChargePointMutation.mutateAsync({
+      id: editTarget.id,
+      patch: {
+        name: values.name,
+        // Empty selection detaches the charge point from its site.
+        siteId: values.siteId || null,
+        meta: {
+          vendor: values.meta?.vendor ?? "",
+          model: values.meta?.model ?? "",
+          serialNumber: values.meta?.serialNumber ?? "",
+          firmwareVersion: values.meta?.firmwareVersion ?? "",
+        },
       },
     });
-    await refetchChargePoints();
     setEditTarget(null);
   };
 
   const handleCommission = async (values: { name: string; siteId: string | null }) => {
     if (!commissionTarget) return;
-    await api.ChargePoints.updateChargePoint(commissionTarget.id, {
-      name: values.name,
-      siteId: values.siteId,
+    await updateChargePointMutation.mutateAsync({
+      id: commissionTarget.id,
+      patch: {
+        name: values.name,
+        siteId: values.siteId,
+      },
     });
-    await refetchChargePoints();
     setCommissionTarget(null);
   };
 
   const handleToggleActive = async (cp: ChargePointWithConnectors) => {
-    await api.ChargePoints.updateChargePoint(cp.id, {
-      isActive: !cp.isActive,
+    await updateChargePointMutation.mutateAsync({
+      id: cp.id,
+      patch: { isActive: !cp.isActive },
     });
-    await refetchChargePoints();
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
-    await api.ChargePoints.deleteChargePoint(deleteTarget.id);
-    await refetchChargePoints();
+    await deleteChargePointMutation.mutateAsync(deleteTarget.id);
 
     if (detailTarget?.id === deleteTarget.id) {
       updateDetailTarget(null);
