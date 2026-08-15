@@ -2,6 +2,7 @@ import { Badge, Button } from "@watchborne/electrons";
 import {
   ArrowRight,
   Activity,
+  Bell,
   Building2,
   PlugZap,
   ShieldCheck,
@@ -55,9 +56,9 @@ export default async function HomePage({ params }: Props) {
       description: t("homePage.features.fleet.description"),
     },
     {
-      icon: ShieldCheck,
-      title: t("homePage.features.reliable.title"),
-      description: t("homePage.features.reliable.description"),
+      icon: Bell,
+      title: t("homePage.features.alerting.title"),
+      description: t("homePage.features.alerting.description"),
     },
   ];
 
