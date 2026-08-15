@@ -79,25 +79,41 @@ jobs:
         run: |
           # conventional-changelog labels/bounds its FIRST section from
           # package.json's version, which this repo intentionally never bumps
-          # (see this workflow's header comment) — that version never matches
-          # any tag, so the tool treats it as a still-unreleased section ahead
-          # of the real one. Since this job always checks out HEAD exactly at
-          # the tag just created, that phantom section's range (latest tag
-          # .. HEAD) is always empty. The SECOND section — bounded by the
-          # previous real tag and this one — is always the actual content for
-          # the release being cut, hence `c==2` (keep from the 2nd header
-          # onward), not `c<2` (which keeps the empty phantom first section).
+          # (see this workflow's header comment). Whether that produces a
+          # second, real section — and whether the real section ever comes
+          # first — depends on whether that stale version happens to collide
+          # with the tag just cut:
+          #   - mismatch (the common case: package.json says e.g. "1.0.0"
+          #     forever): section 1 is a phantom "still unreleased" range
+          #     (latest tag..HEAD, always empty since HEAD IS the tag just
+          #     created) and section 2 is the real content
+          #     (watchborne/charge-points-server's v0.1.0/v0.1.1 releases hit
+          #     this — see that repo's #377/#382);
+          #   - exact match (package.json's stale version happens to equal
+          #     the very first tag cut, e.g. both "0.1.0" — this repo's
+          #     package.json and its own first release):
+          #     https://github.com/watchborne/charge-points-frontend/releases/tag/v0.1.0
+          #     shipped empty because there is no phantom at all here, and
+          #     the real content IS section 1 — the position-based fix
+          #     ported from charge-points-server assumed a phantom always
+          #     exists.
           #
-          # The Angular preset's writer heads a release `# ` (H1) when its
-          # patch component is 0 (major/minor releases, e.g. v0.1.0) and
-          # `## ` (H2) otherwise (true patch releases, e.g. v0.1.1) — the
-          # phantom section is always `# ` (package.json's stale version is
-          # permanently x.0.0-shaped), but the real second section can be
-          # either depending on this release's own version, so both must
-          # count as a header line or a `## ` release's content is skipped
-          # entirely. See watchborne/charge-points-server#377 and #382 for
-          # both bugs found the hard way (empty/wrong-header releases).
-          CHANGELOG=$(conventional-changelog -p angular --release-count 2 | awk '/^# |^## /{c++} c==2')
+          # Rather than count/guess which position or header level the real
+          # section lands on, take the first section (by either header level)
+          # that actually has non-blank content below its header — the
+          # phantom, when one exists, never does (its range is always empty
+          # in this job).
+          CHANGELOG=$(conventional-changelog -p angular --release-count 2 | awk '
+            /^# |^## / {
+              if (has_content) { print header; print body; exit }
+              header = $0; body = ""; has_content = 0; next
+            }
+            {
+              body = body $0 "\n"
+              if ($0 !~ /^[[:space:]]*$/) has_content = 1
+            }
+            END { if (has_content) { print header; print body } }
+          ')
           if [ -z "$(printf '%s' "$CHANGELOG" | tr -d '[:space:]')" ]; then
             CHANGELOG="Release ${{ needs.tag.outputs.tag }}"
           fi
