@@ -49,6 +49,7 @@ function ChargePointsPageContent() {
     chargePoints,
     loading: loadingChargePoints,
     error: errorChargePoints,
+    refetch: refetchChargePoints,
   } = useChargePoints();
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
