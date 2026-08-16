@@ -791,6 +791,25 @@
           "value": "Value"
         },
         "chartLabel": "{measurand} readings in {unit} over time"
+      },
+      "statusHistory": {
+        "title": "Status history",
+        "connectivity": "Connectivity",
+        "connectorStatus": "Connector {connectorId} status",
+        "connectorLabel": "Connector",
+        "noData": "No data",
+        "truncated": "History truncated to the 500 most recent transitions. Pick a shorter window to see all of it.",
+        "error": "Failed to load status history.",
+        "ranges": {
+          "day": "Today",
+          "7d": "7d",
+          "30d": "30d"
+        },
+        "table": {
+          "timestamp": "Timestamp",
+          "status": "Status",
+          "duration": "Duration"
+        }
       }
     },
     "sites": {

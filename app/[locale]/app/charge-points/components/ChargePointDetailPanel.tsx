@@ -35,6 +35,7 @@ import { AlertsPanel } from "./AlertsPanel";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { FirmwarePanel } from "./FirmwarePanel";
+import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
@@ -420,6 +421,11 @@ export const ChargePointDetailPanel = ({
         chargePointName={chargePoint.name}
         realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
         onToggleRealtimeAlerts={() => onToggleRealtimeAlerts(chargePoint)}
+      />
+
+      <StatusHistoryPanel
+        chargePointId={chargePoint.id}
+        connectorIds={chargePoint.connectors.map((connector) => connector.connectorId)}
       />
 
       <div className="mt-auto flex flex-col gap-2">

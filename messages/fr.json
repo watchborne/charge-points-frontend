@@ -791,6 +791,25 @@
           "value": "Valeur"
         },
         "chartLabel": "Relevés de {measurand} en {unit} au fil du temps"
+      },
+      "statusHistory": {
+        "title": "Historique des statuts",
+        "connectivity": "Connectivité",
+        "connectorStatus": "Statut du connecteur {connectorId}",
+        "connectorLabel": "Connecteur",
+        "noData": "Aucune donnée",
+        "truncated": "Historique tronqué aux 500 transitions les plus récentes. Choisissez une période plus courte pour le voir en entier.",
+        "error": "Impossible de charger l'historique des statuts.",
+        "ranges": {
+          "day": "Aujourd'hui",
+          "7d": "7 j",
+          "30d": "30 j"
+        },
+        "table": {
+          "timestamp": "Horodatage",
+          "status": "Statut",
+          "duration": "Durée"
+        }
       }
     },
     "sites": {
