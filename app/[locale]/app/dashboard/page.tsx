@@ -6,8 +6,8 @@ import { useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 
 import { CommissioningQueue } from "../charge-points/components/CommissioningQueue";
-import { ChargePointStats } from "../components/charge-points/ChargePointStats";
 import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePointStatsSkeleton";
+import { ChargePointsBreakdown } from "../components/charge-points/ChargePointsBreakdown";
 import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
@@ -51,7 +51,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-8">
           <SiteHealthSection sites={sites} sitesHealth={sitesHealth} />
 
-          <ChargePointStats chargePoints={chargePoints} />
+          <ChargePointsBreakdown chargePoints={chargePoints} />
 
           <CommissioningQueue
             chargePoints={unassignedChargePoints}
