@@ -456,6 +456,9 @@
           "critical": "Critical"
         }
       },
+      "chargePoints": {
+        "sectionTitle": "Charge points health"
+      },
       "onboarding": {
         "title": "Welcome to Watchborne",
         "description": "Follow these steps to start monitoring your charge point fleet.",

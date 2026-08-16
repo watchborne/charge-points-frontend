@@ -456,6 +456,9 @@
           "critical": "Critique"
         }
       },
+      "chargePoints": {
+        "sectionTitle": "Santé des bornes"
+      },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",
         "description": "Suivez ces étapes pour démarrer la supervision de votre parc de bornes.",
