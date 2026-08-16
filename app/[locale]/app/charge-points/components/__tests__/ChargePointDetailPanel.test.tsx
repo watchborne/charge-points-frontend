@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 // The detail panel now nests ChargePointConsumptionPanel and AlertsPanel, both
@@ -61,6 +61,7 @@ const CHARGE_POINT = {
   name: "CP-001",
   siteId: null,
   isActive: true,
+  realtimeAlertsEnabled: false,
   ocppVersion: "1.6",
   meta: {},
   connection: { status: "SYNCED", lastSeenAt: null },
@@ -88,6 +89,7 @@ describe("ChargePointDetailPanel", () => {
         chargePoint={CHARGE_POINT}
         site={undefined}
         onToggleActive={vi.fn()}
+        onToggleRealtimeAlerts={vi.fn()}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
         onResetClicked={vi.fn()}
@@ -110,6 +112,7 @@ describe("ChargePointDetailPanel", () => {
         chargePoint={chargePointWithoutMeterValue}
         site={undefined}
         onToggleActive={vi.fn()}
+        onToggleRealtimeAlerts={vi.fn()}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
         onResetClicked={vi.fn()}
@@ -119,5 +122,30 @@ describe("ChargePointDetailPanel", () => {
     );
 
     expect(screen.queryByTitle("Last meter reading")).toBeNull();
+  });
+
+  it("SHOULD forward the charge point to onToggleRealtimeAlerts WHEN its switch is toggled", async () => {
+    const onToggleRealtimeAlerts = vi.fn();
+
+    render(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onToggleActive={vi.fn()}
+        onToggleRealtimeAlerts={onToggleRealtimeAlerts}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        onResetClicked={vi.fn()}
+        onChangeAvailability={vi.fn()}
+        onUnlockConnector={vi.fn()}
+      />,
+    );
+
+    // Two switches render in this panel: isActive (admin header) and the
+    // AlertsPanel's real-time toggle — the latter is the second one.
+    const switches = await screen.findAllByRole("switch");
+    fireEvent.click(switches[1]!);
+
+    expect(onToggleRealtimeAlerts).toHaveBeenCalledWith(CHARGE_POINT);
   });
 });

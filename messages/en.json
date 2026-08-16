@@ -675,6 +675,7 @@
       },
       "alerts": {
         "title": "Alerts",
+        "realtimeToggle": "Real-time alerts",
         "loading": "Loading alerts…",
         "loadError": "Could not load this charge point's alert history.",
         "empty": "No recent alerts.",

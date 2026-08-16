@@ -110,6 +110,7 @@ type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
   onToggleActive: (cp: ChargePointWithConnectors) => void;
+  onToggleRealtimeAlerts: (cp: ChargePointWithConnectors) => void;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
   onResetClicked: (
@@ -131,6 +132,7 @@ export const ChargePointDetailPanel = ({
   chargePoint,
   site,
   onToggleActive,
+  onToggleRealtimeAlerts,
   onEditClicked,
   onDeleteClicked,
   onResetClicked,
@@ -413,7 +415,12 @@ export const ChargePointDetailPanel = ({
 
       <ChargePointConsumptionPanel chargePointId={chargePoint.id} />
 
-      <AlertsPanel chargePointId={chargePoint.id} />
+      <AlertsPanel
+        chargePointId={chargePoint.id}
+        chargePointName={chargePoint.name}
+        realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
+        onToggleRealtimeAlerts={() => onToggleRealtimeAlerts(chargePoint)}
+      />
 
       <div className="mt-auto flex flex-col gap-2">
         <div className="flex items-stretch gap-4">

@@ -49,6 +49,7 @@ function ChargePointsPageContent() {
     chargePoints,
     loading: loadingChargePoints,
     error: errorChargePoints,
+    refetch: refetchChargePoints,
   } = useChargePoints();
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
@@ -177,6 +178,13 @@ function ChargePointsPageContent() {
     });
   };
 
+  const handleToggleRealtimeAlerts = async (cp: ChargePointWithConnectors) => {
+    await api.ChargePoints.updateChargePoint(cp.id, {
+      realtimeAlertsEnabled: !cp.realtimeAlertsEnabled,
+    });
+    await refetchChargePoints();
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
@@ -247,6 +255,7 @@ function ChargePointsPageContent() {
               selected={detailTarget}
               onSelect={updateDetailTarget}
               onToggleActive={handleToggleActive}
+              onToggleRealtimeAlerts={handleToggleRealtimeAlerts}
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
               onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}

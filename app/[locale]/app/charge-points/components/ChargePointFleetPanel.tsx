@@ -29,6 +29,7 @@ interface ChargePointFleetPanelProps {
   selected: ChargePointWithConnectors | null;
   onSelect: (chargePoint: ChargePointWithConnectors | null) => void;
   onToggleActive: (chargePoint: ChargePointWithConnectors) => void;
+  onToggleRealtimeAlerts: (chargePoint: ChargePointWithConnectors) => void;
   onEditClicked: (chargePoint: ChargePointWithConnectors) => void;
   onDeleteClicked: (chargePoint: ChargePointWithConnectors) => void;
   onResetClicked: (
@@ -52,6 +53,7 @@ export const ChargePointFleetPanel = ({
   selected,
   onSelect,
   onToggleActive,
+  onToggleRealtimeAlerts,
   onEditClicked,
   onDeleteClicked,
   onResetClicked,
@@ -191,6 +193,7 @@ export const ChargePointFleetPanel = ({
               chargePoint={selected}
               site={sites.find((site) => site.id === selected.siteId)}
               onToggleActive={onToggleActive}
+              onToggleRealtimeAlerts={onToggleRealtimeAlerts}
               onEditClicked={onEditClicked}
               onDeleteClicked={onDeleteClicked}
               onResetClicked={onResetClicked}
