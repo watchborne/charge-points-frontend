@@ -105,8 +105,7 @@ preview is built and deployed by the
 [`deploy-preview-netlify`](.github/workflows/deploy-preview-netlify.yml) workflow
 only when:
 
-1. A trusted member comments `/deploy` on the pull request, or
-2. The pull request is marked **ready for review** (leaves draft state).
+1. A trusted member comments `/deploy` on the pull request
 
 ### Setup
 
