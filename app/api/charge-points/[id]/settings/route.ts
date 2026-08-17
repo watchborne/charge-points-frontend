@@ -7,10 +7,10 @@ export const runtime = "edge";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return proxyToBackend(request, `/api/charge-points/${id}/configuration`);
+  return proxyToBackend(request, `/api/charge-points/${id}/settings`);
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return proxyToBackend(request, `/api/charge-points/${id}/configuration`);
+  return proxyToBackend(request, `/api/charge-points/${id}/settings`);
 }

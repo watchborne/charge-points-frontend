@@ -14,16 +14,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { api } from "@/lib/api";
-import { ChangeConfigurationOutcome, GetConfigurationOutcome } from "@/lib/api-charge-points";
+import { GetSettingsOutcome, SetSettingOutcome } from "@/lib/api-charge-points";
 import { ChargePoint } from "@/types/charge-point";
 
 type FetchState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetConfigurationOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetSettingsOutcome };
 
 type SetState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: ChangeConfigurationOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: SetSettingOutcome };
 
 const readErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
@@ -66,10 +64,16 @@ type ChargePointConfigurationDialogProps = {
 };
 
 /**
- * Reads (GetConfiguration) and sets (ChangeConfiguration) a charge point's OCPP
- * configuration. Self-contained: fetches on open, lists the reported keys, and
- * offers a key/value form to change one — re-reading afterwards so the table
- * reflects the change. Lets an installer inspect and retune a station remotely.
+ * Reads and sets a charge point's OCPP configuration. Self-contained: fetches
+ * on open, lists the reported keys, and offers a key/value form to change one —
+ * re-reading afterwards so the table reflects the change. Lets an installer
+ * inspect and retune a station remotely.
+ *
+ * Dialect-agnostic by construction: it talks flat keys to the backend's
+ * `/settings` endpoint, which dispatches GetConfiguration/ChangeConfiguration to
+ * an OCPP 1.6 station and GetVariables/SetVariables to a 2.0.1 one. So this
+ * component never reads `chargePoint.ocppVersion` — the station's dialect is not
+ * something the UI has to know or render (issue #270).
  */
 export const ChargePointConfigurationDialog = ({
   chargePointId,
@@ -84,7 +88,7 @@ export const ChargePointConfigurationDialog = ({
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
-    const outcome = await api.ChargePoints.getConfiguration(chargePointId);
+    const outcome = await api.ChargePoints.getSettings(chargePointId);
     setState({ status: "done", outcome });
   }, [chargePointId]);
 
@@ -103,7 +107,7 @@ export const ChargePointConfigurationDialog = ({
   const handleSet = async () => {
     if (!key.trim()) return;
     setSetState({ status: "loading" });
-    const outcome = await api.ChargePoints.changeConfiguration(chargePointId, key.trim(), value);
+    const outcome = await api.ChargePoints.setSetting(chargePointId, key.trim(), value);
     setSetState({ status: "done", outcome });
     // Re-read so the table reflects the applied change.
     if (outcome.ok) await load();

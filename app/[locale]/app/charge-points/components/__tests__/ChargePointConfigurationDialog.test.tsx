@@ -1,9 +1,9 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const { getConfiguration, changeConfiguration } = vi.hoisted(() => ({
-  getConfiguration: vi.fn(),
-  changeConfiguration: vi.fn(),
+const { getSettings, setSetting } = vi.hoisted(() => ({
+  getSettings: vi.fn(),
+  setSetting: vi.fn(),
 }));
 
 // Mocked via the relative module path (not the "@/lib/api" alias): vi.mock
@@ -12,7 +12,7 @@ const { getConfiguration, changeConfiguration } = vi.hoisted(() => ({
 // fail to intercept and the real fetch would run. Matches the repo convention
 // of relative vi.mock targets.
 vi.mock("../../../../../../lib/api", () => ({
-  api: { ChargePoints: { getConfiguration, changeConfiguration } },
+  api: { ChargePoints: { getSettings, setSetting } },
 }));
 
 vi.mock("next-intl", () => ({
@@ -40,13 +40,13 @@ import { ChargePointConfigurationDialog } from "../ChargePointConfigurationDialo
 
 afterEach(() => {
   cleanup();
-  getConfiguration.mockReset();
-  changeConfiguration.mockReset();
+  getSettings.mockReset();
+  setSetting.mockReset();
 });
 
 describe("ChargePointConfigurationDialog", () => {
   it("SHOULD fetch and list the reported configuration WHEN opened", async () => {
-    getConfiguration.mockResolvedValue({
+    getSettings.mockResolvedValue({
       ok: true,
       configurationKey: [{ key: "HeartbeatInterval", readonly: false, value: "300" }],
     });
@@ -56,11 +56,11 @@ describe("ChargePointConfigurationDialog", () => {
 
     await waitFor(() => expect(screen.getByText("HeartbeatInterval")).toBeTruthy());
     expect(screen.getByText("300")).toBeTruthy();
-    expect(getConfiguration).toHaveBeenCalledWith("cp-1");
+    expect(getSettings).toHaveBeenCalledWith("cp-1");
   });
 
   it("SHOULD show an error message WHEN the station is offline", async () => {
-    getConfiguration.mockResolvedValue({ ok: false, httpStatus: 409 });
+    getSettings.mockResolvedValue({ ok: false, httpStatus: 409 });
 
     render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
     fireEvent.click(screen.getByRole("button", { name: "Configuration" }));
@@ -69,12 +69,12 @@ describe("ChargePointConfigurationDialog", () => {
   });
 
   it("SHOULD apply a key change then re-read the configuration WHEN Apply is clicked", async () => {
-    getConfiguration.mockResolvedValue({ ok: true, configurationKey: [] });
-    changeConfiguration.mockResolvedValue({ ok: true, status: "Accepted" });
+    getSettings.mockResolvedValue({ ok: true, configurationKey: [] });
+    setSetting.mockResolvedValue({ ok: true, status: "Accepted" });
 
     render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
     fireEvent.click(screen.getByRole("button", { name: "Configuration" }));
-    await waitFor(() => expect(getConfiguration).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(getSettings).toHaveBeenCalledTimes(1));
 
     fireEvent.change(screen.getByPlaceholderText("Key"), {
       target: { value: "HeartbeatInterval" },
@@ -83,8 +83,8 @@ describe("ChargePointConfigurationDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
 
     await waitFor(() => expect(screen.getByText("Change applied.")).toBeTruthy());
-    expect(changeConfiguration).toHaveBeenCalledWith("cp-1", "HeartbeatInterval", "600");
+    expect(setSetting).toHaveBeenCalledWith("cp-1", "HeartbeatInterval", "600");
     // Re-reads after a successful change.
-    expect(getConfiguration).toHaveBeenCalledTimes(2);
+    expect(getSettings).toHaveBeenCalledTimes(2);
   });
 });
