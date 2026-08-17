@@ -5,13 +5,21 @@ import { proxyToBackend } from "@/lib/proxy-request";
 // Edge runtime avoids Node.js serverless cold starts on this proxy hop.
 export const runtime = "edge";
 
-// Proxies to the backend's GET/POST /api/me/commissioning-token: the caller's
-// personal commissioning token, used to auto-claim membership on a charge
-// point they connect via the OCPP URL (ADR 0002 in charge-points-server).
+// Proxies to the backend's GET/POST/DELETE /api/me/commissioning-token: the
+// caller's personal commissioning token, used to auto-claim membership on a
+// charge point they connect via the OCPP URL (ADR 0002 in
+// charge-points-server).
 export async function GET(request: NextRequest) {
   return proxyToBackend(request, "/api/me/commissioning-token");
 }
 
 export async function POST(request: NextRequest) {
+  return proxyToBackend(request, "/api/me/commissioning-token");
+}
+
+// Revokes the caller's token without issuing a new one: stations already
+// claimed with it stay claimed, only future auto-commissioning with the old
+// value stops working (backend: DELETE /api/me/commissioning-token).
+export async function DELETE(request: NextRequest) {
   return proxyToBackend(request, "/api/me/commissioning-token");
 }
