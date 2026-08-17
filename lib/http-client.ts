@@ -31,6 +31,13 @@ const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> =>
     throw new HttpError(response.status, body);
   }
 
+  // A 204 (e.g. every DELETE this proxies) has no body by definition —
+  // `.json()` on an empty body throws `SyntaxError: Unexpected end of JSON
+  // input`, which would surface a successful delete as a thrown error.
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 };
 

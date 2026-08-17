@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Callout } from "@watchborne/electrons";
-import { Check, Copy, KeyRound, RefreshCw } from "lucide-react";
+import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -25,6 +25,10 @@ import { OCPP_SERVER_URL } from "@/lib/constants";
  * connects with it (see charge-points-server's ADR 0002 and the claim step
  * wired into the OCPP connection handler). The plaintext token is only ever
  * shown once, right after it's (re)generated.
+ *
+ * Revoking (as opposed to regenerating) stops working for a *new* one to
+ * claim, but never affects a charge point already claimed with it — a safe
+ * end-of-job action, not a destructive one.
  */
 export const CommissioningTokenPanel = () => {
   const t = useTranslations("");
@@ -34,10 +38,12 @@ export const CommissioningTokenPanel = () => {
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState(false);
+  const [revoking, setRevoking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [revealedToken, setRevealedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmRegenerateOpen, setConfirmRegenerateOpen] = useState(false);
+  const [confirmRevokeOpen, setConfirmRevokeOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +88,22 @@ export const CommissioningTokenPanel = () => {
       setConfirmRegenerateOpen(true);
     } else {
       void issueToken();
+    }
+  };
+
+  const revokeToken = async () => {
+    setError(null);
+    setRevoking(true);
+    try {
+      await api.CommissioningToken.revoke();
+      setHasToken(false);
+      setCreatedAt(null);
+      setRevealedToken(null);
+    } catch {
+      setError(t("common.error"));
+    } finally {
+      setRevoking(false);
+      setConfirmRevokeOpen(false);
     }
   };
 
@@ -157,18 +179,33 @@ export const CommissioningTokenPanel = () => {
           </p>
         )}
 
-        <Button
-          type="button"
-          variant={hasToken && !revealedToken ? "outline" : "default"}
-          className="w-full sm:w-fit"
-          disabled={loading || issuing}
-          onClick={handleGenerateClicked}
-        >
-          {hasToken ? <RefreshCw className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
-          {hasToken
-            ? t("appPage.configuration.commissioningToken.regenerateCta")
-            : t("appPage.configuration.commissioningToken.generateCta")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant={hasToken && !revealedToken ? "outline" : "default"}
+            className="w-full sm:w-fit"
+            disabled={loading || issuing || revoking}
+            onClick={handleGenerateClicked}
+          >
+            {hasToken ? <RefreshCw className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
+            {hasToken
+              ? t("appPage.configuration.commissioningToken.regenerateCta")
+              : t("appPage.configuration.commissioningToken.generateCta")}
+          </Button>
+
+          {hasToken && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full sm:w-fit"
+              disabled={loading || issuing || revoking}
+              onClick={() => setConfirmRevokeOpen(true)}
+            >
+              <Ban className="h-4 w-4" />
+              {t("appPage.configuration.commissioningToken.revokeCta")}
+            </Button>
+          )}
+        </div>
       </div>
 
       <AlertDialog open={confirmRegenerateOpen}>
@@ -186,6 +223,27 @@ export const CommissioningTokenPanel = () => {
               {t("common.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction disabled={issuing} onClick={() => void issueToken()}>
+              {t("common.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmRevokeOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("appPage.configuration.commissioningToken.revokeConfirm.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("appPage.configuration.commissioningToken.revokeConfirm.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmRevokeOpen(false)}>
+              {t("common.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction disabled={revoking} onClick={() => void revokeToken()}>
               {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -903,9 +903,14 @@
         "exampleUrlPlaceholder": "<identifiant-de-la-borne>",
         "createdAtLabel": "Jeton généré le {date}",
         "revealedWarning": "Copiez ce jeton maintenant : il ne sera plus jamais affiché en clair.",
+        "revokeCta": "Révoquer",
         "regenerateConfirm": {
           "title": "Régénérer le jeton ?",
           "description": "Le jeton actuel cessera immédiatement de fonctionner. Les bornes déjà mises en service ne sont pas affectées ; seule la mise en service automatique de nouvelles bornes avec l'ancien jeton cessera de fonctionner."
+        },
+        "revokeConfirm": {
+          "title": "Révoquer le jeton ?",
+          "description": "Le jeton actuel cessera immédiatement de fonctionner et ne sera pas remplacé par un nouveau. Les bornes déjà mises en service ne sont pas affectées ; seule la mise en service automatique de nouvelles bornes avec ce jeton cessera de fonctionner."
         }
       },
       "association": {

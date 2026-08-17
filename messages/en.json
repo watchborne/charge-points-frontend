@@ -903,9 +903,14 @@
         "exampleUrlPlaceholder": "<charge-point-id>",
         "createdAtLabel": "Token generated on {date}",
         "revealedWarning": "Copy this token now — it will never be shown in full again.",
+        "revokeCta": "Revoke",
         "regenerateConfirm": {
           "title": "Regenerate the token?",
           "description": "The current token will stop working immediately. Charge points already commissioned aren't affected; only auto-commissioning new charge points with the old token will stop working."
+        },
+        "revokeConfirm": {
+          "title": "Revoke the token?",
+          "description": "The current token will stop working immediately and won't be replaced with a new one. Charge points already commissioned aren't affected — this only stops auto-commissioning new charge points with it."
         }
       },
       "association": {
