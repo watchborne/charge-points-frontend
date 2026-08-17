@@ -119,6 +119,14 @@ describe("httpClient.delete", () => {
     });
   });
 
+  it("SHOULD resolve WHEN the response is a real 204 with no body, not throw on JSON parsing", async () => {
+    // What every DELETE this proxies actually returns (z.void() on the
+    // backend) — unlike okResponse(null) above, this has no body at all.
+    mockFetch.mockReturnValue(Promise.resolve(new Response(null, { status: 204 })));
+
+    await expect(httpClient.delete("/api/items/1")).resolves.toBeUndefined();
+  });
+
   it("SHOULD throw WHEN the response is not ok", async () => {
     mockFetch.mockReturnValue(errorResponse(403));
 

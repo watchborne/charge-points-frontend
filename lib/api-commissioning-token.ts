@@ -34,4 +34,17 @@ export const commissioningTokenApis = {
       throw error;
     }
   },
+
+  // Revokes the caller's token without replacing it. Idempotent (revoking
+  // with no token succeeds) and non-destructive to charge points already
+  // claimed with it — only auto-commissioning a *new* one with the old value
+  // stops working.
+  revoke: async function (): Promise<void> {
+    try {
+      await httpClient.delete("/api/me/commissioning-token");
+    } catch (error) {
+      console.error("Failed to revoke the commissioning token", error);
+      throw error;
+    }
+  },
 };
