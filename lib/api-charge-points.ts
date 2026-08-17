@@ -56,21 +56,24 @@ export type UnlockConnectorOutcome =
   { ok: true; status: UnlockConnectorStatus } | { ok: false; httpStatus: number };
 
 /**
- * GetConfiguration is a request/response OCPP read: on success it returns the
- * station's reported configuration rather than a status. Same raw-status
- * discriminated shape as the other commands for precise offline/timeout feedback.
+ * Reading a station's settings is a request/response OCPP read: on success it
+ * returns the station's reported configuration rather than a status. Same
+ * raw-status discriminated shape as the other commands for precise
+ * offline/timeout feedback.
  */
-export type GetConfigurationOutcome =
+export type GetSettingsOutcome =
   | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
   | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: ChangeConfiguration is a request/response OCPP command whose caller
+ * reason: writing a setting is a request/response OCPP command whose caller
  * needs the specific outcome (accepted/reboot-required vs. offline/rejected/
- * not-supported/timeout).
+ * not-supported/timeout). `status` keeps OCPP 1.6's vocabulary whatever dialect
+ * the station speaks — the backend normalizes 2.0.1's per-target statuses onto
+ * it (see its `ocpp-supported-actions.md` §15).
  */
-export type ChangeConfigurationOutcome =
+export type SetSettingOutcome =
   { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
 
 /**
@@ -225,12 +228,22 @@ export const chargePointApis = {
       return { ok: false, httpStatus: 0 };
     }
   },
-  getConfiguration: async function (
+  /**
+   * Reads the station's settings as a flat key/value list.
+   *
+   * Hits the **dialect-neutral** `/settings` endpoint rather than the raw
+   * `/configuration` one: `GetConfiguration` (OCPP 1.6) and `GetVariables`
+   * (2.0.1) are different actions over incompatible request shapes, and which
+   * applies is a property of the station. The backend owns that decision, so a
+   * 2.0.1 station is readable here without the client branching on
+   * `chargePoint.ocppVersion` (issue #270).
+   */
+  getSettings: async function (
     chargePointId: ChargePoint["id"],
     key?: string[],
-  ): Promise<GetConfigurationOutcome> {
+  ): Promise<GetSettingsOutcome> {
     try {
-      const response = await fetch(`/api/charge-points/${chargePointId}/configuration`, {
+      const response = await fetch(`/api/charge-points/${chargePointId}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(key ? { key } : {}),
@@ -246,17 +259,18 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to read configuration of charge point ${chargePointId}`, error);
+      console.error(`Failed to read settings of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },
-  changeConfiguration: async function (
+  /** Writes one setting by flat key — the write half of `getSettings` above. */
+  setSetting: async function (
     chargePointId: ChargePoint["id"],
     key: string,
     value: string,
-  ): Promise<ChangeConfigurationOutcome> {
+  ): Promise<SetSettingOutcome> {
     try {
-      const response = await fetch(`/api/charge-points/${chargePointId}/configuration`, {
+      const response = await fetch(`/api/charge-points/${chargePointId}/settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key, value }),
@@ -269,7 +283,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to change configuration of charge point ${chargePointId}`, error);
+      console.error(`Failed to change a setting of charge point ${chargePointId}`, error);
       return { ok: false, httpStatus: 0 };
     }
   },
