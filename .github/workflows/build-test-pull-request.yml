@@ -5,10 +5,10 @@ name: Build, Lint, Format and Tests for Pull Requests
 # re-running everything after the merge re-verified a tree that was just
 # verified. Nothing downstream depended on it either — the production deploy is
 # `workflow_dispatch` (deploy-production-netlify.yml) and previews are triggered
-# by a `/deploy` comment or "ready for review" (deploy-preview-netlify.yml), so
-# the main run was a signal nobody consumed. `main`'s branch protection requires
-# branches to be up to date before merging, which is what makes the merge-ref
-# result trustworthy at merge time.
+# by a `/deploy` comment (deploy-preview-netlify.yml), so the main run was a
+# signal nobody consumed. `main`'s branch protection requires branches to be up
+# to date before merging, which is what makes the merge-ref result trustworthy
+# at merge time.
 on:
   pull_request:
 
