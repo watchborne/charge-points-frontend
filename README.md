@@ -64,14 +64,14 @@ redirected to `/login`.
 1. Create a Supabase project and grab the URL/anon key from
    **Project Settings → API**; set them as `NEXT_PUBLIC_SUPABASE_URL` /
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-2. Enable email magic-link sign-in in the Supabase Auth settings.
-3. Add `http://localhost:3001/auth/callback` (and the equivalent production
-   URL) to the project's Auth **Redirect URLs**.
-4. Sign in from `/login` — Supabase emails a magic link that hits
-   `app/auth/callback/route.ts`, which exchanges the code for a session and
-   redirects into `/app/dashboard`. Use the header's logout button to end the
-   session.
-5. New users request access from `/signup` (like `/login`, an
+2. Enable email OTP sign-in in the Supabase Auth settings (no Redirect URL
+   setup needed — sign-in never leaves this app).
+3. Sign in from `/login` — Supabase emails a 6-digit code; `LoginForm` sends
+   it, then `VerifyOtpForm` verifies it client-side
+   (`supabase.auth.verifyOtp({ email, token, type: "email" })`) and
+   hard-redirects into `/app/dashboard`. Use the header's logout button to end
+   the session.
+4. New users request access from `/signup` (like `/login`, an
    already-authenticated visitor is redirected straight to `/app/dashboard`).
    This does **not** create a Supabase user directly — it posts the email to
    the public, unauthenticated `/api/access-requests` proxy route (exempted
@@ -80,16 +80,16 @@ redirected to `/login`.
    which creates the auth user; `/login`'s `shouldCreateUser: false` admits
    only invited users from then on.
 
-### Skipping the magic-link email in local dev
+### Skipping the OTP email in local dev
 
 Set **both** `ENABLE_DEV_LOGIN=true` and `SUPABASE_SERVICE_ROLE_KEY` (Project
 Settings → API → `service_role`) in your local `.env` to get a "Dev only"
-sign-in box on `/login`: it mints a magic link via the Supabase admin API and
-verifies it server-side, so you don't have to check your inbox on every
-sign-in while developing. It does **not** go through `/auth/callback` — an
-admin-generated link has no matching PKCE code_verifier for that route's
-`exchangeCodeForSession` to consume, so the dev route verifies the link's
-`token_hash` directly instead.
+sign-in box on `/login`: `app/auth/dev-login/route.ts` mints an OTP code via
+the Supabase admin API and returns it as JSON, and `DevLoginShortcut` feeds it
+into `VerifyOtpForm` as `initialCode`, which auto-submits it through the exact
+same client-side `verifyOtp` call a real user's browser would make — so you
+don't have to check your inbox on every sign-in while developing, without
+skipping the real verification path.
 
 This is disabled in production and unless **both** `ENABLE_DEV_LOGIN=true` and
 `SUPABASE_SERVICE_ROLE_KEY` are set, so **never** set either variable outside

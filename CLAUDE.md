@@ -10,8 +10,10 @@ shows charge points and sites in real time, backed by `charge-points-server`.
 
 Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
-`next-intl` for i18n, `sonner` for toast notifications, `recharts` for charts. Dev server runs on
-**port 3001**. Domain types come from `@watchborne/charge-points-types`.
+`@tanstack/react-query` for server-state, `next-intl` for i18n, `sonner` for
+toast notifications, `recharts` for charts, `@sentry/nextjs` for error
+tracking. Dev server runs on **port 3001**. Domain types come from
+`@watchborne/charge-points-types`.
 Production builds run with `next build --webpack` (see Commands below) — a
 Turbopack/Netlify tracing bug forces webpack for `next build` specifically;
 `next dev` still uses Turbopack.
@@ -32,11 +34,14 @@ app/
                          #   can't be called in an async Server Component).
     (marketing)/          # public site (route group): home, pricing, contact, features
     app/                  # authenticated dashboard
-      dashboard/ sites/    # pages (no local components/ subfolder)
+      dashboard/ sites/    # pages (no local components/ subfolder); dashboard renders
+                           #   components/dashboard/ (below)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
       charge-points/       # page + its own components/ (commissioning dialog/queue/
-                           #   checklist, fleet panel, config dialog, trigger message).
+                           #   checklist, fleet panel, config dialog, trigger message,
+                           #   AlertsPanel: alert history + real-time-alerts opt-in,
+                           #   StatusHistoryPanel: connection/connector status timeline).
                            #   The page itself wraps its useSearchParams() usage in
                            #   Suspense — required for static rendering.
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
@@ -45,13 +50,24 @@ app/
                           #   (common/: ConnectorStatusIcon, WsStatusBadge —
                           #   app-specific, tied to domain types/state; the
                           #   generic display primitives that used to live here
-                          #   moved to @watchborne/electrons)
+                          #   moved to @watchborne/electrons; dashboard/:
+                          #   FleetOverviewPanel + SiteHealth* — the fleet-wide
+                          #   site health tile — and DashboardOnboarding;
+                          #   charge-points/: ChargePointsBreakdown,
+                          #   AlertStatusBadge, FirmwareTimeline, StatusBadge)
       404/                 # dashboard-scoped not-found page
-      hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext
+      hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
+                          #   useConsumption, useStatusHistory, useSitesHealth,
+                          #   useFlipReorder
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
-    login/                 # login page (magic-link sign-in)
+    login/                 # login page (OTP sign-in)
     signup/                # alpha access-request page (gated, admin-approved)
+  app/providers/QueryProvider.tsx  # wraps the dashboard in a TanStack Query
+                                    #   QueryClientProvider (see Data access
+                                    #   layers below) — note this sits outside
+                                    #   [locale], not to be confused with
+                                    #   [locale]/app/
   components/layout/Navbar.tsx  # shared Navbar used by both the marketing
                                  #   Navbar and the dashboard Header — imports
                                  #   Link/usePathname from i18n/navigation.ts,
@@ -60,11 +76,6 @@ app/
                                   #   bottom-center, 15s, dismissible, richColors)
   api/                   # Next route handlers that PROXY to the backend — outside
                          #   [locale] (no locale prefix; not user-facing pages)
-  auth/callback/         # Supabase magic-link code-exchange handler — also
-                         #   outside [locale]; builds its own locale-prefixed
-                         #   redirect target from the NEXT_LOCALE cookie
-                         #   (i18n/locale.ts's localizedPath) since it has no
-                         #   [locale] route param to read
   auth/components/       # LogoutButton, shared by Header and marketing Navbar
   auth/dev-login/        # local-dev-only OTP-code shortcut route
   assets/                # static assets used by app/ components
@@ -96,7 +107,8 @@ i18n/request.ts         # next-intl config: locale from the [locale] route param
                         #   (via requestLocale), not a cookie — that's what makes
                         #   these routes static-generation-eligible again
 messages/{fr,en}.json   # translations
-emails/templates/       # Supabase auth email templates (magic-link.html, signup.html)
+emails/templates/       # Supabase auth email templates (invite.html, signup.html;
+                        #   magic-link.html is unused, kept from the pre-OTP flow)
 ```
 
 ## Core patterns — follow these
@@ -137,12 +149,22 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
   per connector/measurand/unit). Its response types are declared locally, like
   `Me`: the backend keeps `MeterSample` server-local (its ADR 0004), so these
-  response contracts are the shared surface.
+  response contracts are the shared surface. `lib/api-status-history.ts`
+  (`api.StatusHistory`) reads the connection/connector status timeline behind
+  `StatusHistoryPanel`; `lib/status.ts` / `lib/status-history.ts` hold the
+  client-side status-display/derivation helpers it and `ConnectorStatusIcon`
+  share.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
   a repeated one survives the hop (`?measurand=A&measurand=B` is how the metering
   reads ask for two series). Keep it that way.
+- `app/app/providers/QueryProvider.tsx` wraps the dashboard (`app/[locale]/app/layout.tsx`)
+  in a TanStack Query `QueryClientProvider` (plus devtools). `useChargePoints` /
+  `useSites` and their create/update/delete flows are `useQuery` / `useMutation`
+  hooks built on top of the `lib/api-*.ts` methods above, not manual
+  fetch-then-`useState`/`useEffect` — invalidate the relevant query key after a
+  mutation rather than refetching by hand.
 
 ### Real-time WebSocket
 
@@ -371,6 +393,11 @@ NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)
 ENABLE_DEV_LOGIN=                                 # optional, LOCAL DEV ONLY (dev-login shortcut opt-in)
 SUPABASE_SERVICE_ROLE_KEY=                        # optional, LOCAL DEV ONLY (dev-login shortcut)
+NEXT_PUBLIC_SENTRY_DSN=                           # optional; unset disables Sentry entirely
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=                   # optional, overrides NODE_ENV as the Sentry "environment" tag
+SENTRY_ORG=                                       # optional, CI/build only (source map upload)
+SENTRY_PROJECT=                                   # optional, CI/build only (source map upload)
+SENTRY_AUTH_TOKEN=                                # optional, CI/build only, secret (source map upload)
 ```
 
 `NEXT_PUBLIC_*` values are exposed to the browser; anything secret (like
@@ -378,7 +405,12 @@ SUPABASE_SERVICE_ROLE_KEY=                        # optional, LOCAL DEV ONLY (de
 Supabase anon key is public by design (Row Level Security governs access), so
 it is `NEXT_PUBLIC_`. `NEXT_PUBLIC_OCPP_SERVER_URL` and the Supabase values are
 centralized in `lib/constants.ts` and consumed only through
-`lib/supabase/{client,server,middleware}.ts`. See `.env.example`.
+`lib/supabase/{client,server,middleware}.ts`. `NEXT_PUBLIC_SENTRY_DSN` wires
+Sentry error reporting and Web Vitals via `instrumentation.ts` /
+`instrumentation-client.ts` / `sentry.*.config.ts`; leaving it unset disables
+Sentry rather than erroring (the local dev default). `SENTRY_ORG` /
+`SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` are only used at build time to upload
+source maps so stack traces resolve to original TypeScript. See `.env.example`.
 
 ## Coding conventions
 
