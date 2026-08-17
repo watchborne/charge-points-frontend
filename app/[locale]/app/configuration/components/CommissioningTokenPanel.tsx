@@ -2,7 +2,7 @@
 
 import { Button, Callout } from "@watchborne/electrons";
 import { Check, Copy, KeyRound, RefreshCw } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import {
@@ -28,6 +28,7 @@ import { OCPP_SERVER_URL } from "@/lib/constants";
  */
 export const CommissioningTokenPanel = () => {
   const t = useTranslations("");
+  const format = useFormatter();
 
   const [hasToken, setHasToken] = useState(false);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
@@ -91,7 +92,12 @@ export const CommissioningTokenPanel = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const exampleUrl = `${OCPP_SERVER_URL}/CP-001?token=${revealedToken ?? "..."}`;
+  // A placeholder, not a real station id: showing something concrete-looking
+  // (e.g. "CP-001") invites pasting it verbatim, which — with discovery mode
+  // on — adopts a charge point literally named that, and with a valid token
+  // claims it for the caller (issue #281).
+  const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
+  const exampleUrl = `${OCPP_SERVER_URL}/${stationIdPlaceholder}?token=${revealedToken ?? "..."}`;
 
   return (
     <section className="rounded-lg border">
@@ -142,7 +148,11 @@ export const CommissioningTokenPanel = () => {
         {!loading && !revealedToken && hasToken && createdAt && (
           <p className="text-sm text-muted-foreground">
             {t("appPage.configuration.commissioningToken.createdAtLabel", {
-              date: new Date(createdAt).toLocaleDateString("fr-FR"),
+              date: format.dateTime(new Date(createdAt), {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              }),
             })}
           </p>
         )}
