@@ -900,6 +900,7 @@
         "regenerateCta": "Regenerate",
         "copyCta": "Copy token",
         "exampleLabel": "Example address with your token",
+        "exampleUrlPlaceholder": "<charge-point-id>",
         "createdAtLabel": "Token generated on {date}",
         "revealedWarning": "Copy this token now — it will never be shown in full again.",
         "revokeCta": "Revoke",
