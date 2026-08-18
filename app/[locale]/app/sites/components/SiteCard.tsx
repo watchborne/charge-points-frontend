@@ -2,7 +2,7 @@ import { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Battery, Calendar, MapPin, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 import {
   DropdownMenu,
@@ -23,6 +23,7 @@ type SiteCardProps = {
 
 export const SiteCard = ({ site, chargePoints, onEditClicked, onDeleteClicked }: SiteCardProps) => {
   const t = useTranslations("");
+  const format = useFormatter();
 
   const onlineCount = chargePoints.filter(({ connection }) =>
     ["SYNCED", "CONNECTED"].includes(connection.status),
@@ -103,14 +104,24 @@ export const SiteCard = ({ site, chargePoints, onEditClicked, onDeleteClicked }:
           <Calendar className="h-4 w-4 shrink-0" />
           <span>
             {t("appPage.sites.page.table.columns.installDate")}:{" "}
-            {new Date(site.installedAt).toLocaleDateString("fr-FR")}
+            {format.dateTime(new Date(site.installedAt), {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 shrink-0" />
           <span>
             {t("appPage.sites.page.table.columns.lastVisit")}:{" "}
-            {site.lastVisitedAt ? new Date(site.lastVisitedAt).toLocaleDateString("fr-FR") : "—"}
+            {site.lastVisitedAt
+              ? format.dateTime(new Date(site.lastVisitedAt), {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+              : "—"}
           </span>
         </div>
       </div>
