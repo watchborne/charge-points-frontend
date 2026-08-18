@@ -1,4 +1,5 @@
 import { AlertStatus, SiteHealthStatus } from "@watchborne/charge-points-types";
+import type { StatusTone } from "@watchborne/electrons";
 
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
@@ -6,14 +7,16 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  * Charge-point status design tokens.
  *
  * Both the network connection status and the OCPP connector status collapse
- * onto a shared, finite set of visual "tones". Each tone is backed by the
- * `--status-*` CSS variables (see `@watchborne/electrons`'s `tokens.css`) and exposed
- * through Tailwind's `status-<tone>` colour family. Components must colour
- * statuses through the class maps below rather than hardcoding raw colours, so
- * the marketing site and the app stay in sync.
+ * onto a shared, finite set of visual "tones" — `StatusTone`, owned by
+ * `@watchborne/electrons` (issue #7) rather than redeclared here, so this
+ * file and `StatusPill`'s own tone variants can never drift apart. Each tone
+ * is backed by the `--status-*` CSS variables (see `@watchborne/electrons`'s
+ * `tokens.css`) and exposed through Tailwind's `status-<tone>` colour family.
+ * Components must colour statuses through the class maps below (or
+ * `StatusPill` directly) rather than hardcoding raw colours, so the
+ * marketing site and the app stay in sync.
  */
-export type StatusTone =
-  "available" | "charging" | "pending" | "warning" | "error" | "offline" | "reserved";
+export type { StatusTone };
 
 /** Network connectivity of a station (`ChargePoint.connection.status`). */
 export const connectionStatusTone = (status: ChargePointConnectionStatus): StatusTone => {
