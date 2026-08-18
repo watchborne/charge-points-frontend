@@ -162,7 +162,10 @@ describe("WebSocketManager token failure and backoff", () => {
     expect(MockWebSocket.instances).toHaveLength(0);
   });
 
-  it("SHOULD retry with exponential backoff (1s then 2s) WHEN the token keeps failing", async () => {
+  it("SHOULD retry with jittered exponential backoff (750ms then 1500ms) WHEN the token keeps failing", async () => {
+    // Equal jitter always resolves to exponential/2 + random * exponential/2;
+    // stubbing Math.random to 0.5 makes that 0.75 * exponential.
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
     mockFetch.mockResolvedValue({ ok: false, json: async () => ({}) });
     const getWebSocketManager = await importManager();
     const manager = getWebSocketManager("ws://test/ws");
@@ -171,28 +174,72 @@ describe("WebSocketManager token failure and backoff", () => {
     await settle();
     expect(mockFetch).toHaveBeenCalledTimes(1);
 
-    // First backoff is 1000ms (1000 * 2^0).
-    await vi.advanceTimersByTimeAsync(999);
+    // First backoff is 750ms (0.75 * 1000 * 2^0).
+    await vi.advanceTimersByTimeAsync(749);
     expect(mockFetch).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(1);
     expect(mockFetch).toHaveBeenCalledTimes(2);
 
-    // Second backoff doubles to 2000ms (1000 * 2^1).
-    await vi.advanceTimersByTimeAsync(1999);
+    // Second backoff is 1500ms (0.75 * 1000 * 2^1).
+    await vi.advanceTimersByTimeAsync(1499);
     expect(mockFetch).toHaveBeenCalledTimes(2);
     await vi.advanceTimersByTimeAsync(1);
     expect(mockFetch).toHaveBeenCalledTimes(3);
   });
 
+  it("SHOULD keep the delay within [exponential/2, exponential] WHEN backing off", async () => {
+    mockFetch.mockResolvedValue({ ok: false, json: async () => ({}) });
+    const getWebSocketManager = await importManager();
+    const manager = getWebSocketManager("ws://test/ws");
+
+    manager.subscribe(() => {});
+    await settle();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    // First backoff's exponential base is 1000ms, so the jittered delay must
+    // land in [500, 1000). Anything before 500ms must not have retried yet;
+    // by 1000ms it must have.
+    await vi.advanceTimersByTimeAsync(499);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(501);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("SHOULD stop retrying and go to ERROR WHEN the max reconnect attempts is exceeded", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    mockFetch.mockResolvedValue({ ok: false, json: async () => ({}) });
+    const getWebSocketManager = await importManager();
+    const manager = getWebSocketManager("ws://test/ws");
+
+    manager.subscribe(() => {});
+    await settle();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    // 10 max attempts: advance past every backoff (each capped at 30s once
+    // exponential growth saturates) to exhaust them all.
+    for (let i = 0; i < 10; i++) {
+      await vi.advanceTimersByTimeAsync(30_000);
+    }
+
+    expect(mockFetch).toHaveBeenCalledTimes(11);
+    expect(manager.getState().status).toBe("ERROR");
+
+    // No further retry is scheduled once attempts are exhausted.
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(mockFetch).toHaveBeenCalledTimes(11);
+  });
+
   it("SHOULD auto-reconnect WHEN an open socket is closed by the server", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
     const { manager } = await connected();
     expect(MockWebSocket.instances).toHaveLength(1);
 
     lastSocket().simulateServerClose();
     expect(manager.getState().status).toBe("DISCONNECTED");
 
-    // scheduleReconnect fires after the 1s backoff and opens a fresh socket.
-    await vi.advanceTimersByTimeAsync(1000);
+    // scheduleReconnect fires after the jittered ~750ms backoff and opens a
+    // fresh socket.
+    await vi.advanceTimersByTimeAsync(750);
     expect(MockWebSocket.instances).toHaveLength(2);
 
     lastSocket().simulateOpen();
