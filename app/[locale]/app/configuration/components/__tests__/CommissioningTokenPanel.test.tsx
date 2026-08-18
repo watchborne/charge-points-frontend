@@ -1,5 +1,21 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { ChargePoint } from "@watchborne/charge-points-types";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const makeChargePoint = (overrides: Partial<ChargePoint> = {}): ChargePoint => ({
+  id: "11111111-1111-4111-8111-111111111111",
+  name: "CP-001",
+  siteId: null,
+  isActive: true,
+  realtimeAlertsEnabled: false,
+  connection: { status: "CONNECTED", lastSeenAt: null },
+  ocppVersion: "1.6",
+  meta: {},
+  createdAt: new Date("2024-01-01T00:00:00.000Z"),
+  updatedAt: new Date("2024-01-01T00:00:00.000Z"),
+  deletedAt: null,
+  ...overrides,
+});
 
 // A stable function reference, not a fresh closure per call: the panel's own
 // useEffect depends on `t` ([t]), the same way it would on the real
@@ -26,9 +42,21 @@ const translate = (key: string, params?: Record<string, unknown>) => {
     "appPage.configuration.commissioningToken.revokeConfirm.title": "Revoke the token?",
     "appPage.configuration.commissioningToken.revokeConfirm.description":
       "Already-claimed charge points stay claimed.",
+    "appPage.configuration.commissioningToken.recentActivity.title": "Recent commissioning activity",
+    "appPage.configuration.commissioningToken.recentActivity.outcomes.CLAIMED":
+      "Commissioned successfully.",
+    "appPage.configuration.commissioningToken.recentActivity.outcomes.ALREADY_CLAIMED_BY_SELF":
+      "Recommissioned with a new token.",
+    "appPage.configuration.commissioningToken.recentActivity.outcomes.ALREADY_CLAIMED_BY_OTHER":
+      "Already belongs to another installer.",
+    "appPage.configuration.commissioningToken.recentActivity.outcomes.UNKNOWN_TOKEN":
+      "Unknown token presented.",
   };
   if (key === "appPage.configuration.commissioningToken.createdAtLabel") {
     return `Token generated on ${params?.date}`;
+  }
+  if (key === "appPage.configuration.commissioningToken.recentActivity.stationLabel") {
+    return `Charge point: ${params?.station}`;
   }
   return map[key] ?? key;
 };
@@ -54,6 +82,13 @@ import { CommissioningTokenPanel } from "../CommissioningTokenPanel";
 const getStatus = vi.spyOn(api.CommissioningToken, "getStatus");
 const issueToken = vi.spyOn(api.CommissioningToken, "issueToken");
 const revoke = vi.spyOn(api.CommissioningToken, "revoke");
+const getMe = vi.spyOn(api.Me, "getMe");
+
+beforeEach(() => {
+  // Default: no activity to show — individual tests override this to
+  // exercise the "recent commissioning activity" list (issue #420 / #278).
+  getMe.mockResolvedValue({ userId: "user-1", chargePoints: [], commissioningAttempts: [] });
+});
 
 afterEach(() => {
   cleanup();
@@ -179,5 +214,80 @@ describe("CommissioningTokenPanel", () => {
 
     expect(await screen.findByText("Something went wrong")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Revoke" })).toBeTruthy();
+  });
+
+  it("SHOULD NOT show recent activity WHEN there are no commissioning attempts", async () => {
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
+
+    render(<CommissioningTokenPanel />);
+
+    await screen.findByRole("button", { name: "Generate my token" });
+    expect(screen.queryByText("Recent commissioning activity")).toBeNull();
+  });
+
+  it("SHOULD render a claim, resolving the station name from Me.chargePoints", async () => {
+    getStatus.mockResolvedValue({ hasToken: true, createdAt: "2024-01-01T00:00:00.000Z" });
+    getMe.mockResolvedValue({
+      userId: "user-1",
+      chargePoints: [makeChargePoint({ id: "cp-1", name: "Station Nord" })],
+      commissioningAttempts: [
+        {
+          id: "attempt-1",
+          chargePointId: "cp-1",
+          attemptedAt: "2024-06-01T10:00:00.000Z",
+          outcome: "CLAIMED",
+        },
+      ],
+    });
+
+    render(<CommissioningTokenPanel />);
+
+    expect(await screen.findByText("Recent commissioning activity")).toBeTruthy();
+    expect(screen.getByText("Commissioned successfully.")).toBeTruthy();
+    expect(screen.getByText(/Charge point: Station Nord/)).toBeTruthy();
+  });
+
+  it("SHOULD render a refused claim WHEN the station belongs to another installer", async () => {
+    getStatus.mockResolvedValue({ hasToken: true, createdAt: "2024-01-01T00:00:00.000Z" });
+    getMe.mockResolvedValue({
+      userId: "user-1",
+      chargePoints: [],
+      commissioningAttempts: [
+        {
+          id: "attempt-2",
+          chargePointId: "cp-2",
+          attemptedAt: "2024-06-02T10:00:00.000Z",
+          outcome: "ALREADY_CLAIMED_BY_OTHER",
+        },
+      ],
+    });
+
+    render(<CommissioningTokenPanel />);
+
+    expect(await screen.findByText("Already belongs to another installer.")).toBeTruthy();
+    // Not in the caller's own chargePoints (belongs to someone else) — falls back to the raw id.
+    expect(screen.getByText(/Charge point: cp-2/)).toBeTruthy();
+  });
+
+  it("SHOULD sort commissioning attempts newest first and cap the list at 5", async () => {
+    getStatus.mockResolvedValue({ hasToken: true, createdAt: "2024-01-01T00:00:00.000Z" });
+    const attempts = Array.from({ length: 6 }, (_, i) => ({
+      id: `attempt-${i}`,
+      chargePointId: `cp-${i}`,
+      attemptedAt: new Date(2024, 0, i + 1).toISOString(),
+      outcome: "CLAIMED" as const,
+    }));
+    getMe.mockResolvedValue({
+      userId: "user-1",
+      chargePoints: [],
+      commissioningAttempts: attempts,
+    });
+
+    render(<CommissioningTokenPanel />);
+
+    await screen.findByText("Recent commissioning activity");
+    // Newest (attempt-5, Jan 6th) is present; oldest (attempt-0, Jan 1st) is dropped by the 5-item cap.
+    expect(screen.getByText(/Charge point: cp-5/)).toBeTruthy();
+    expect(screen.queryByText(/Charge point: cp-0/)).toBeNull();
   });
 });

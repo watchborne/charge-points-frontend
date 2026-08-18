@@ -911,6 +911,16 @@
         "revokeConfirm": {
           "title": "Révoquer le jeton ?",
           "description": "Le jeton actuel cessera immédiatement de fonctionner et ne sera pas remplacé par un nouveau. Les bornes déjà mises en service ne sont pas affectées ; seule la mise en service automatique de nouvelles bornes avec ce jeton cessera de fonctionner."
+        },
+        "recentActivity": {
+          "title": "Activité de mise en service récente",
+          "stationLabel": "Borne : {station}",
+          "outcomes": {
+            "CLAIMED": "Borne mise en service avec succès grâce à votre jeton.",
+            "ALREADY_CLAIMED_BY_SELF": "Borne déjà à vous, recommissionnée avec un nouveau jeton.",
+            "ALREADY_CLAIMED_BY_OTHER": "Cette borne appartient déjà à un autre installateur — la mise en service a été refusée. Si elle devrait vous appartenir, demandez-en le transfert de propriété.",
+            "UNKNOWN_TOKEN": "Une borne a présenté un jeton inconnu, expiré ou révoqué."
+          }
         }
       },
       "association": {
