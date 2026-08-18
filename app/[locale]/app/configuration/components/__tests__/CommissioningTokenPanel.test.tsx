@@ -17,6 +17,7 @@ const translate = (key: string, params?: Record<string, unknown>) => {
     "appPage.configuration.commissioningToken.regenerateCta": "Regenerate",
     "appPage.configuration.commissioningToken.copyCta": "Copy token",
     "appPage.configuration.commissioningToken.exampleLabel": "Example address with your token",
+    "appPage.configuration.commissioningToken.exampleUrlPlaceholder": "<charge-point-id>",
     "appPage.configuration.commissioningToken.revealedWarning": "Copy this token now.",
     "appPage.configuration.commissioningToken.regenerateConfirm.title": "Regenerate the token?",
     "appPage.configuration.commissioningToken.regenerateConfirm.description":
