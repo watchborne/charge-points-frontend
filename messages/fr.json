@@ -900,6 +900,7 @@
         "regenerateCta": "Régénérer",
         "copyCta": "Copier le jeton",
         "exampleLabel": "Exemple d'adresse avec votre jeton",
+        "exampleUrlPlaceholder": "<identifiant-de-la-borne>",
         "createdAtLabel": "Jeton généré le {date}",
         "revealedWarning": "Copiez ce jeton maintenant : il ne sera plus jamais affiché en clair.",
         "revokeCta": "Révoquer",
