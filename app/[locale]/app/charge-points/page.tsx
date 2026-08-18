@@ -9,6 +9,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/api";
+import { isAwaitingCommissioning } from "@/lib/commissioning";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
@@ -87,11 +88,11 @@ function ChargePointsPageContent() {
   const [commissionTarget, setCommissionTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
 
-  // Discovered-but-unassigned charge points form the commissioning backlog.
-  // Computed from the full list (not the search-filtered one) so the queue is
-  // always complete regardless of the current search.
+  // Charge points that have never been through commissioning form the
+  // backlog. Computed from the full list (not the search-filtered one) so
+  // the queue is always complete regardless of the current search.
   const unassignedChargePoints = useMemo(
-    () => chargePoints.filter((cp) => cp.siteId === null),
+    () => chargePoints.filter(isAwaitingCommissioning),
     [chargePoints],
   );
 

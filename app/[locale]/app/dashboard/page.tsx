@@ -4,6 +4,7 @@ import { Callout } from "@watchborne/electrons";
 import { useMemo } from "react";
 
 import { useRouter } from "@/i18n/navigation";
+import { isAwaitingCommissioning } from "@/lib/commissioning";
 
 import { CommissioningQueue } from "../charge-points/components/CommissioningQueue";
 import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePointStatsSkeleton";
@@ -23,7 +24,7 @@ export default function DashboardPage() {
   const router = useRouter();
 
   const unassignedChargePoints = useMemo(
-    () => chargePoints.filter((cp) => cp.siteId === null),
+    () => chargePoints.filter(isAwaitingCommissioning),
     [chargePoints],
   );
 
