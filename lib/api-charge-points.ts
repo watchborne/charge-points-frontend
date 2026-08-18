@@ -4,8 +4,6 @@ import type {
   ChangeAvailabilityStatus,
   ChangeConfigurationStatus,
   ChargePoint,
-  ChargePointWithConnectors,
-  ChargePointWithSite,
   ConfigurationKey,
   ResetStatus,
   ResetType,
@@ -15,6 +13,7 @@ import type {
   UpdateFirmwareStatusV201,
 } from "@watchborne/charge-points-types";
 
+import type { ChargePointWithConnectors, ChargePointWithSite } from "@/types/charge-point";
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 
 import { httpClient } from "./http-client";
