@@ -42,7 +42,8 @@ const translate = (key: string, params?: Record<string, unknown>) => {
     "appPage.configuration.commissioningToken.revokeConfirm.title": "Revoke the token?",
     "appPage.configuration.commissioningToken.revokeConfirm.description":
       "Already-claimed charge points stay claimed.",
-    "appPage.configuration.commissioningToken.recentActivity.title": "Recent commissioning activity",
+    "appPage.configuration.commissioningToken.recentActivity.title":
+      "Recent commissioning activity",
     "appPage.configuration.commissioningToken.recentActivity.outcomes.CLAIMED":
       "Commissioned successfully.",
     "appPage.configuration.commissioningToken.recentActivity.outcomes.ALREADY_CLAIMED_BY_SELF":

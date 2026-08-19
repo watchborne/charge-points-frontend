@@ -242,9 +242,7 @@ export const CommissioningTokenPanel = () => {
               {t("appPage.configuration.commissioningToken.recentActivity.title")}
             </p>
             {[...attempts]
-              .sort(
-                (a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime(),
-              )
+              .sort((a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime())
               .slice(0, 5)
               .map((attempt) => {
                 const outcomeKey =
