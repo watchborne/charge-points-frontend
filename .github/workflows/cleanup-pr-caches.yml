@@ -1,0 +1,53 @@
+name: Cleanup PR Caches
+
+# GitHub caps the Actions cache at 10 GB per repository and evicts the
+# least-recently-used entries past that. This repo sat at 10.3 GB with 7.8 GB of
+# it — 54 of 63 entries — belonging to pull requests that had already merged or
+# closed, so live caches were being evicted to keep dead ones. Entries saved
+# during a `pull_request` run are scoped to `refs/pull/<n>/merge`, which makes
+# them cheap to drop wholesale once the PR ends.
+#
+# `pull_request_target` rather than `pull_request`: this repo is public, and a
+# fork PR's `pull_request` token is read-only, so the deletion would fail on
+# exactly the PRs nobody else will clean up after. This is the safe shape of
+# `pull_request_target` — nothing is checked out and no pull request code runs,
+# only a `gh api` call against a ref derived from the event payload.
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  actions: write
+
+concurrency:
+  group: cleanup-caches-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete every cache scoped to this pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          set -uo pipefail
+
+          IDS=$(gh api --paginate "/repos/$REPO/actions/caches?ref=$REF" --jq '.actions_caches[].id')
+          if [ -z "$IDS" ]; then
+            echo "No caches scoped to $REF"
+            exit 0
+          fi
+
+          # A failed delete is a warning, not a failure: the entry may have been
+          # evicted between the list and the delete, and there is nothing to fix.
+          echo "$IDS" | while read -r id; do
+            if gh api -X DELETE "/repos/$REPO/actions/caches/$id" >/dev/null 2>&1; then
+              echo "deleted cache $id"
+            else
+              echo "::warning::could not delete cache $id"
+            fi
+          done
