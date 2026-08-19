@@ -16,7 +16,22 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { api } from "@/lib/api";
+import { CommissioningAttempt, CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
+
+// success: the attempt is what an installer wants to see (a fresh claim, or
+// an already-owned station recommissioned with a new token). error: refused
+// because the station already belongs to someone else — the one outcome
+// worth flagging as wrong, not just routine. warning: a stale/unknown token
+// was presented — never actually returned by GET /api/me (it can't be
+// attributed to any caller, see charge-points-server issue #420), kept here
+// only so the mapping stays total over the shared outcome union.
+const OUTCOME_VARIANT: Record<CommissioningOutcome, "success" | "warning" | "error"> = {
+  CLAIMED: "success",
+  ALREADY_CLAIMED_BY_SELF: "success",
+  ALREADY_CLAIMED_BY_OTHER: "error",
+  UNKNOWN_TOKEN: "warning",
+};
 
 /**
  * Lets an installer generate their personal commissioning token: appended as
@@ -44,6 +59,8 @@ export const CommissioningTokenPanel = () => {
   const [copied, setCopied] = useState(false);
   const [confirmRegenerateOpen, setConfirmRegenerateOpen] = useState(false);
   const [confirmRevokeOpen, setConfirmRevokeOpen] = useState(false);
+  const [attempts, setAttempts] = useState<CommissioningAttempt[]>([]);
+  const [chargePointNames, setChargePointNames] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -58,6 +75,18 @@ export const CommissioningTokenPanel = () => {
         if (!cancelled) setError(t("common.error"));
       } finally {
         if (!cancelled) setLoading(false);
+      }
+
+      // Recent commissioning activity (issue #420 / #278): best-effort — a
+      // failure here must never block the token panel itself, so it's kept
+      // out of the try/catch above and just leaves the list empty.
+      try {
+        const me = await api.Me.getMe();
+        if (cancelled) return;
+        setAttempts(me.commissioningAttempts);
+        setChargePointNames(new Map(me.chargePoints.map((cp) => [cp.id, cp.name])));
+      } catch {
+        // Silent: the activity list is a nice-to-have, not core functionality.
       }
     })();
 
@@ -206,6 +235,46 @@ export const CommissioningTokenPanel = () => {
             </Button>
           )}
         </div>
+
+        {attempts.length > 0 && (
+          <div className="flex flex-col gap-2 border-t pt-4">
+            <p className="text-xs font-medium text-muted-foreground">
+              {t("appPage.configuration.commissioningToken.recentActivity.title")}
+            </p>
+            {[...attempts]
+              .sort((a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime())
+              .slice(0, 5)
+              .map((attempt) => {
+                const outcomeKey =
+                  `appPage.configuration.commissioningToken.recentActivity.outcomes.` +
+                  attempt.outcome;
+                const station =
+                  chargePointNames.get(attempt.chargePointId) ?? attempt.chargePointId;
+
+                return (
+                  <div key={attempt.id} className="flex flex-col gap-1">
+                    <Callout
+                      variant={OUTCOME_VARIANT[attempt.outcome]}
+                      description={t(outcomeKey)}
+                    />
+                    <p className="text-xs text-muted-foreground pl-1">
+                      {t("appPage.configuration.commissioningToken.recentActivity.stationLabel", {
+                        station,
+                      })}
+                      {" · "}
+                      {format.dateTime(new Date(attempt.attemptedAt), {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                );
+              })}
+          </div>
+        )}
       </div>
 
       <AlertDialog open={confirmRegenerateOpen}>

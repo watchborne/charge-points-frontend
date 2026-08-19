@@ -911,6 +911,16 @@
         "revokeConfirm": {
           "title": "Revoke the token?",
           "description": "The current token will stop working immediately and won't be replaced with a new one. Charge points already commissioned aren't affected — this only stops auto-commissioning new charge points with it."
+        },
+        "recentActivity": {
+          "title": "Recent commissioning activity",
+          "stationLabel": "Charge point: {station}",
+          "outcomes": {
+            "CLAIMED": "Charge point commissioned successfully with your token.",
+            "ALREADY_CLAIMED_BY_SELF": "Charge point already yours, recommissioned with a new token.",
+            "ALREADY_CLAIMED_BY_OTHER": "This charge point already belongs to another installer — commissioning was refused. If it should be yours, request an ownership transfer.",
+            "UNKNOWN_TOKEN": "A charge point presented an unknown, expired, or revoked token."
+          }
         }
       },
       "association": {
