@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-// The detail panel now nests ChargePointConsumptionPanel, StatusHistoryPanel and
-// AlertsPanel which fetch on mount and format numbers per locale. All 3 are stubbed
-// here so this file stays about the detail panel: each nested panel has its own tests.
+// The detail panel now nests ChargePointConsumptionPanel, StatusHistoryPanel,
+// AlertsPanel and SecurityEventsPanel which fetch on mount and format numbers
+// per locale. All are stubbed here so this file stays about the detail panel:
+// each nested panel has its own tests.
 vi.mock("../../../../../../lib/api", () => ({
   api: {
     Metering: {
@@ -21,6 +22,9 @@ vi.mock("../../../../../../lib/api", () => ({
     StatusHistory: {
       getConnectionEvents: vi.fn().mockResolvedValue([]),
       getConnectorStatusEvents: vi.fn().mockResolvedValue([]),
+    },
+    SecurityEvents: {
+      list: vi.fn().mockResolvedValue([]),
     },
   },
 }));

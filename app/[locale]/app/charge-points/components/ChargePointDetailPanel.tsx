@@ -35,6 +35,7 @@ import { AlertsPanel } from "./AlertsPanel";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { FirmwarePanel } from "./FirmwarePanel";
+import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
@@ -422,6 +423,8 @@ export const ChargePointDetailPanel = ({
         realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
         onToggleRealtimeAlerts={() => onToggleRealtimeAlerts(chargePoint)}
       />
+
+      <SecurityEventsPanel chargePointId={chargePoint.id} />
 
       <StatusHistoryPanel
         chargePointId={chargePoint.id}

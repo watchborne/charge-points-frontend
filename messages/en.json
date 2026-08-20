@@ -701,6 +701,12 @@
           "resolved": "Resolved"
         }
       },
+      "securityEvents": {
+        "title": "Security events",
+        "loading": "Loading security events…",
+        "loadError": "Could not load this charge point's security-event history.",
+        "empty": "No recent security events."
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
