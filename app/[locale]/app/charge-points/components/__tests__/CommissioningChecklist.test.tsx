@@ -4,16 +4,21 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
+  useTranslations: () => (key: string, params?: Record<string, string>) => {
     const map: Record<string, string> = {
       "appPage.chargePoints.commissioning.selfTest.title": "Commissioning check",
       "appPage.chargePoints.commissioning.selfTest.site": "Assigned to a site",
       "appPage.chargePoints.commissioning.selfTest.online": "Station connected",
       "appPage.chargePoints.commissioning.selfTest.bootAccepted": "Boot accepted by the station",
       "appPage.chargePoints.commissioning.selfTest.ocppVersionKnown": "OCPP version confirmed",
+      "appPage.chargePoints.commissioning.selfTest.ocppVersionKnownWithVersion":
+        "OCPP {version} confirmed",
       "appPage.chargePoints.commissioning.selfTest.connectors": "Connectors report their status",
     };
-    return map[key] ?? key;
+    const template = map[key] ?? key;
+    return params
+      ? template.replace(/{(\w+)}/g, (_, name: string) => params[name] ?? "")
+      : template;
   },
 }));
 
@@ -25,6 +30,7 @@ const makeChargePoint = (
     connectorCount?: number;
     siteId?: string | null;
     lastSeenAt?: Date | null;
+    ocppVersion?: "1.6" | "2.0.1";
   } = {},
 ): ChargePointWithConnectors =>
   ({
@@ -36,7 +42,7 @@ const makeChargePoint = (
       status: overrides.status ?? "CONNECTED",
       lastSeenAt: overrides.lastSeenAt ?? null,
     },
-    ocppVersion: "1.6",
+    ocppVersion: overrides.ocppVersion ?? "1.6",
     meta: {},
     connectors: Array.from({ length: overrides.connectorCount ?? 1 }, (_, i) => ({
       id: `c${i}`,
@@ -76,7 +82,7 @@ describe("CommissioningChecklist", () => {
     expect(rowPassed("Assigned to a site")).toBe(true);
     expect(rowPassed("Station connected")).toBe(true);
     expect(rowPassed("Boot accepted by the station")).toBe(true);
-    expect(rowPassed("OCPP version confirmed")).toBe(true);
+    expect(rowPassed("OCPP 1.6 confirmed")).toBe(true);
     expect(rowPassed("Connectors report their status")).toBe(true);
   });
 
@@ -134,6 +140,24 @@ describe("CommissioningChecklist", () => {
     );
 
     expect(rowPassed("Station connected")).toBe(false);
-    expect(rowPassed("OCPP version confirmed")).toBe(true);
+    expect(rowPassed("OCPP 1.6 confirmed")).toBe(true);
+  });
+
+  it("SHOULD name the negotiated OCPP dialect WHEN the version is confirmed", () => {
+    render(
+      <CommissioningChecklist
+        chargePoint={makeChargePoint({ lastSeenAt: new Date(), ocppVersion: "2.0.1" })}
+      />,
+    );
+
+    expect(screen.getByText("OCPP 2.0.1 confirmed")).toBeTruthy();
+    expect(screen.queryByText("OCPP version confirmed")).toBeNull();
+  });
+
+  it("SHOULD show the generic label, not a guessed version, WHEN the station has never connected", () => {
+    render(<CommissioningChecklist chargePoint={makeChargePoint({ lastSeenAt: null })} />);
+
+    expect(screen.getByText("OCPP version confirmed")).toBeTruthy();
+    expect(screen.queryByText("OCPP 1.6 confirmed")).toBeNull();
   });
 });

@@ -19,6 +19,8 @@ type CommissioningChecklistProps = {
 export const CommissioningChecklist = ({ chargePoint }: CommissioningChecklistProps) => {
   const t = useTranslations("");
 
+  const ocppVersionKnown = chargePoint.connection.lastSeenAt !== null;
+
   const checks = [
     {
       key: "site",
@@ -38,13 +40,21 @@ export const CommissioningChecklist = ({ chargePoint }: CommissioningChecklistPr
     },
     {
       key: "ocppVersionKnown",
-      label: t("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown"),
+      // Once confirmed, name the actual negotiated dialect rather than just
+      // saying "confirmed" — chargePoint.ocppVersion is otherwise just the
+      // "1.6" default a never-connected station is created with (see below),
+      // so showing it before it's confirmed would read as a real answer.
+      label: ocppVersionKnown
+        ? t("appPage.chargePoints.commissioning.selfTest.ocppVersionKnownWithVersion", {
+            version: chargePoint.ocppVersion,
+          })
+        : t("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown"),
       // The negotiated OCPP version is reconciled server-side the moment a
       // station first connects (protocol/server.ts) — lastSeenAt is set at
       // that same moment and, unlike connection.status, never reverts to
       // null afterward, so it stays a reliable "we've heard from this
       // station" signal even once it has since gone offline.
-      passed: chargePoint.connection.lastSeenAt !== null,
+      passed: ocppVersionKnown,
     },
     {
       key: "connectors",

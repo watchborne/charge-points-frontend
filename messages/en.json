@@ -565,6 +565,7 @@
           "online": "Station connected",
           "bootAccepted": "Boot accepted by the station",
           "ocppVersionKnown": "OCPP version confirmed",
+          "ocppVersionKnownWithVersion": "OCPP {version} confirmed",
           "connectors": "Connectors report their status"
         }
       },

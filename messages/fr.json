@@ -565,6 +565,7 @@
           "online": "Borne connectée",
           "bootAccepted": "Démarrage accepté par la borne",
           "ocppVersionKnown": "Version OCPP confirmée",
+          "ocppVersionKnownWithVersion": "Version OCPP {version} confirmée",
           "connectors": "Les connecteurs remontent leur statut"
         }
       },
