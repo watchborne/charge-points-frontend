@@ -561,7 +561,10 @@
         },
         "selfTest": {
           "title": "Vérification de mise en service",
+          "site": "Rattachée à un site",
           "online": "Borne connectée",
+          "bootAccepted": "Démarrage accepté par la borne",
+          "ocppVersionKnown": "Version OCPP confirmée",
           "connectors": "Les connecteurs remontent leur statut"
         }
       },

@@ -561,7 +561,10 @@
         },
         "selfTest": {
           "title": "Commissioning check",
+          "site": "Assigned to a site",
           "online": "Station connected",
+          "bootAccepted": "Boot accepted by the station",
+          "ocppVersionKnown": "OCPP version confirmed",
           "connectors": "Connectors report their status"
         }
       },
