@@ -701,6 +701,12 @@
           "resolved": "Résolue"
         }
       },
+      "securityEvents": {
+        "title": "Événements de sécurité",
+        "loading": "Chargement des événements de sécurité…",
+        "loadError": "Impossible de charger l'historique des événements de sécurité de cette borne.",
+        "empty": "Aucun événement de sécurité récent."
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",
