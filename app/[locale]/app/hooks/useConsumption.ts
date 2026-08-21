@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
@@ -28,8 +29,10 @@ export type UseConsumptionReturn = {
   consumption: ChargePointConsumption | null;
   /** Raw readings for `measurand`, oldest first (the backend returns newest first). */
   samples: MeterSample[];
-  /** Every measurand this station reported in the window, alphabetical. */
+  /** Every measurand this station reported in the window, alphabetical (original OCPP names). */
   measurands: string[];
+  /** Localized display names for measurands (keyed by original OCPP name). */
+  measurandLabels: Record<string, string>;
   /** True when `samples` hit `MAX_CHART_SAMPLES`, so the chart shows a truncated window. */
   truncated: boolean;
   loading: boolean;
@@ -60,6 +63,8 @@ export const useConsumption = (
   range: ConsumptionRange,
   measurand: string | undefined,
 ): UseConsumptionReturn => {
+  const t = useTranslations("");
+
   const [consumption, setConsumption] = useState<ChargePointConsumption | null>(null);
   const [samples, setSamples] = useState<MeterSample[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,10 +130,23 @@ export const useConsumption = (
     [consumption],
   );
 
+  const measurandLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        measurands.map((measurand) => [
+          measurand,
+          t(`appPage.chargePoints.consumption.measurands.${measurand.replaceAll(".", "")}`) ??
+            measurand,
+        ]),
+      ),
+    [measurands, t],
+  );
+
   return {
     consumption,
     samples,
     measurands,
+    measurandLabels,
     truncated: samples.length >= MAX_CHART_SAMPLES,
     loading,
     failed,

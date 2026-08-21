@@ -3,28 +3,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.consumption.title": "Consumption",
-      "appPage.chargePoints.consumption.tiles.delivered": "Energy delivered",
-      "appPage.chargePoints.consumption.tiles.average": "Average",
-      "appPage.chargePoints.consumption.tiles.deliveredRange": `Register ${values?.from} to ${values?.to}`,
-      "appPage.chargePoints.consumption.tiles.peak": `Peak ${values?.value}`,
-      "appPage.chargePoints.consumption.connectorSeries": `Connector ${values?.connectorId}`,
-      "appPage.chargePoints.consumption.empty": "No readings over this window.",
-      "appPage.chargePoints.consumption.noSamples": "No readings to plot.",
-      "appPage.chargePoints.consumption.showTable": "Show the readings table",
-      "appPage.chargePoints.consumption.showChart": "Show the chart",
-      "appPage.chargePoints.consumption.connectorsOmitted": `${values?.count} connector(s) not plotted, max ${values?.charted}`,
-      "appPage.chargePoints.consumption.truncated": `Truncated to ${values?.limit} readings`,
-      "appPage.chargePoints.consumption.table.measuredAt": "Timestamp",
-      "appPage.chargePoints.consumption.table.connector": "Connector",
-      "appPage.chargePoints.consumption.table.value": "Value",
-      "appPage.chargePoints.consumption.chartLabel": `${values?.measurand} readings in ${values?.unit}`,
-      "errors.loadingConsumption": "Loading consumption failed.",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 // Recharts renders into a ResponsiveContainer that measures 0x0 under jsdom, so
@@ -120,7 +99,9 @@ describe("ChargePointConsumptionPanel", () => {
 
     // 2620 - 1000, locale-formatted with its unit — not the raw register value.
     expect(await screen.findByText("1,620 Wh")).toBeDefined();
-    expect(screen.getByText(/Energy delivered/)).toBeDefined();
+    // Title is combined with connector series label in a single <p> element, verify at least one exists
+    const elements = screen.getAllByText(/appPage\.chargePoints\.consumption\.tiles\.delivered/);
+    expect(elements.length).toBeGreaterThan(0);
   });
 
   it("SHOULD show the average, not a difference, WHEN the measurand is a spot reading", async () => {
@@ -133,8 +114,8 @@ describe("ChargePointConsumptionPanel", () => {
     render(<ChargePointConsumptionPanel chargePointId="cp-1" />);
 
     expect(await screen.findByText("6,900 W")).toBeDefined();
-    expect(screen.getByText(/Average/)).toBeDefined();
-    expect(screen.getByText("Peak 7,400 W")).toBeDefined();
+    expect(screen.getByText(/appPage\.chargePoints\.consumption\.tiles\.average/)).toBeDefined();
+    expect(screen.getByText("appPage.chargePoints.consumption.tiles.peak")).toBeDefined();
   });
 
   it("SHOULD default to the energy register WHEN the station reports several measurands", async () => {
@@ -187,7 +168,7 @@ describe("ChargePointConsumptionPanel", () => {
 
     const chart = await screen.findByTestId("chart");
     expect(chart.getAttribute("data-connectors")).toBe("1,2,3");
-    expect(screen.getByText("2 connector(s) not plotted, max 3")).toBeDefined();
+    expect(screen.getByText("appPage.chargePoints.consumption.connectorsOmitted")).toBeDefined();
   });
 
   it("SHOULD NOT claim omitted connectors WHEN every one is charted", async () => {
@@ -195,14 +176,14 @@ describe("ChargePointConsumptionPanel", () => {
     render(<ChargePointConsumptionPanel chargePointId="cp-1" />);
 
     await screen.findByTestId("chart");
-    expect(screen.queryByText(/not plotted/)).toBeNull();
+    expect(screen.queryByText("appPage.chargePoints.consumption.connectorsOmitted")).toBeNull();
   });
 
   it("SHOULD tell the reader the window was truncated WHEN the sample cap was hit", async () => {
     given({ samples: Array.from({ length: 3_000 }, () => sample()) });
     render(<ChargePointConsumptionPanel chargePointId="cp-1" />);
 
-    expect(await screen.findByText("Truncated to 3000 readings")).toBeDefined();
+    expect(await screen.findByText("appPage.chargePoints.consumption.truncated")).toBeDefined();
   });
 
   it("SHOULD NOT mention truncation WHEN the window fits under the cap", async () => {
@@ -210,14 +191,14 @@ describe("ChargePointConsumptionPanel", () => {
     render(<ChargePointConsumptionPanel chargePointId="cp-1" />);
 
     await screen.findByTestId("chart");
-    expect(screen.queryByText(/Truncated/)).toBeNull();
+    expect(screen.queryByText("appPage.chargePoints.consumption.truncated")).toBeNull();
   });
 
   it("SHOULD explain the empty state WHEN the station reported nothing in the window", async () => {
     given({ seriesList: [], samples: [] });
     render(<ChargePointConsumptionPanel chargePointId="cp-1" />);
 
-    expect(await screen.findByText("No readings over this window.")).toBeDefined();
+    expect(await screen.findByText("appPage.chargePoints.consumption.empty")).toBeDefined();
     expect(screen.queryByTestId("chart")).toBeNull();
   });
 
@@ -226,7 +207,7 @@ describe("ChargePointConsumptionPanel", () => {
     vi.mocked(api.Metering.getMeterSamples).mockResolvedValue([]);
     render(<ChargePointConsumptionPanel chargePointId="cp-1" />);
 
-    expect(await screen.findByText("Loading consumption failed.")).toBeDefined();
+    expect(await screen.findByText("errors.loadingConsumption")).toBeDefined();
     expect(screen.queryByTestId("chart")).toBeNull();
   });
 

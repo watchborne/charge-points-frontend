@@ -86,11 +86,8 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
   const [measurand, setMeasurand] = useState<string | undefined>(undefined);
   const [view, setView] = useState<"chart" | "table">("chart");
 
-  const { consumption, samples, measurands, truncated, loading, failed } = useConsumption(
-    chargePointId,
-    range,
-    measurand,
-  );
+  const { consumption, samples, measurands, measurandLabels, truncated, loading, failed } =
+    useConsumption(chargePointId, range, measurand);
 
   // The station decides which measurands exist, so selection follows the
   // data: default to the energy register ("consumption" to an installer),
@@ -183,7 +180,7 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
               <SelectContent>
                 {measurands.map((option) => (
                   <SelectItem key={option} value={option} className="text-xs">
-                    {option}
+                    {measurandLabels[option]}
                   </SelectItem>
                 ))}
               </SelectContent>
