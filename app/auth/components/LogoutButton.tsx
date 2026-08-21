@@ -1,10 +1,10 @@
 import { Button } from "@watchborne/electrons";
+import classNames from "classnames";
 import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
-import classNames from "classnames";
 
 export const LogoutButton = ({ className }: { className?: string }) => {
   const t = useTranslations("");
