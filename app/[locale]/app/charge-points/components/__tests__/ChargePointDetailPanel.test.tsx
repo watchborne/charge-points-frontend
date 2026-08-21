@@ -67,6 +67,12 @@ vi.mock("../FirmwarePanel", () => ({
   FirmwarePanel: () => null,
 }));
 
+// Stubbed out for the same reason as FirmwarePanel above: it fetches its own
+// log-upload state. Its own behaviour is covered by LogUploadPanel.test.tsx.
+vi.mock("../LogUploadPanel", () => ({
+  LogUploadPanel: () => null,
+}));
+
 import { ChargePointDetailPanel } from "../ChargePointDetailPanel";
 
 beforeAll(() => {

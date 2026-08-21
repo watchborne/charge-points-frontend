@@ -680,6 +680,59 @@
           }
         }
       },
+      "logUpload": {
+        "title": "Diagnostics & logs",
+        "loading": "Loading log upload state…",
+        "loadError": "Could not load this charge point's log upload state.",
+        "inProgress": "Upload in progress",
+        "lastUpload": "Last upload",
+        "neverUploaded": "No log upload on record",
+        "stalled": "No progress reported for a while — the station may be stuck.",
+        "logTypes": {
+          "DiagnosticsLog": "Diagnostics log",
+          "SecurityLog": "Security log"
+        },
+        "statuses": {
+          "AcceptedCanceled": "Cancellation acknowledged",
+          "BadMessage": "Invalid request",
+          "Idle": "Idle",
+          "NotSupportedOperation": "Not supported by this station",
+          "PermissionDenied": "Permission denied",
+          "Uploaded": "Uploaded",
+          "UploadFailed": "Upload failed",
+          "Uploading": "Uploading"
+        },
+        "history": {
+          "title": "Upload history",
+          "empty": "No log uploads yet",
+          "loadError": "Could not load the log upload history."
+        },
+        "start": {
+          "button": "Request logs",
+          "title": "Request a log upload",
+          "description": "The station uploads its log file to the URL you give. The supervisor never downloads anything itself.",
+          "submit": "Start upload",
+          "close": "Close",
+          "unsupportedSecurityLog": "This station speaks OCPP 1.6, which has no security-log concept: only the diagnostics bundle can be requested.",
+          "fields": {
+            "logType": "Log type",
+            "remoteLocation": "Upload target URL",
+            "remoteLocationInvalid": "The URL must be absolute, over http(s) or ftp(s).",
+            "oldestTimestamp": "Not before",
+            "latestTimestamp": "Not after"
+          },
+          "result": {
+            "accepted": "Upload accepted by the station.",
+            "requested": "Upload requested. This station (OCPP 1.6) does not report whether it accepted — follow its status below.",
+            "invalidRequest": "Invalid request — check the upload target URL.",
+            "notFound": "Unknown charge point.",
+            "notConnectedOrRejected": "Station not connected, an upload is already in progress, or the station refused.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The upload could not be started."
+          }
+        }
+      },
       "alerts": {
         "title": "Alerts",
         "realtimeToggle": "Real-time alerts",
