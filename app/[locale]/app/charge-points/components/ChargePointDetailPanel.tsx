@@ -35,6 +35,7 @@ import { AlertsPanel } from "./AlertsPanel";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { FirmwarePanel } from "./FirmwarePanel";
+import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
@@ -203,6 +204,12 @@ export const ChargePointDetailPanel = ({
               </span>
             )}
           </h4>
+          {/* The station's immutable OCPP wire identity (issue #419) — distinct
+              from the editable name above, shown here so it stays visible
+              without opening the edit dialog. */}
+          <p className="truncate font-mono text-xs text-muted-foreground">
+            {chargePoint.ocppIdentity}
+          </p>
           <div className="mt-2 flex items-center gap-2">
             <Badge>OCPP {chargePoint.ocppVersion}</Badge>
             <StatusBadge status={chargePoint.connection.status} />
@@ -414,6 +421,10 @@ export const ChargePointDetailPanel = ({
           />
         </div>
       )}
+
+      <div className="rounded-md border">
+        <LogUploadPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
+      </div>
 
       <ChargePointConsumptionPanel chargePointId={chargePoint.id} />
 

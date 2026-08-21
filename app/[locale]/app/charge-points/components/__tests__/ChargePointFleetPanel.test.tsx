@@ -68,6 +68,7 @@ const chargePoint = (
 ): ChargePointWithConnectors =>
   ({
     id,
+    ocppIdentity: `CP-${id}`,
     name: `CP-${id}`,
     siteId: null,
     isActive: true,

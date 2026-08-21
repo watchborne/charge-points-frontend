@@ -51,6 +51,7 @@ afterEach(() => cleanup());
 const chargePoint = (id: string, commissionedAt: string | null): ChargePointWithConnectors =>
   ({
     id,
+    ocppIdentity: `CP-${id}`,
     name: `CP-${id}`,
     siteId: null,
     isActive: true,

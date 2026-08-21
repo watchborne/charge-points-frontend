@@ -40,6 +40,7 @@ const site = (id: string, name: string): Site =>
 const chargePoint = (id: string, siteId: string): ChargePointWithConnectors =>
   ({
     id,
+    ocppIdentity: `CP-${id}`,
     name: `CP-${id}`,
     siteId,
     isActive: true,

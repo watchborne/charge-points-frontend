@@ -527,6 +527,8 @@
         "fields": {
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
+          "ocppIdentity": "Identité OCPP",
+          "ocppIdentityCaption": "L'identité fixe de la borne sur le protocole OCPP. Définie une fois lors de sa première connexion et jamais modifiée : renommer la borne ci-dessus reste toujours sans risque.",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",
@@ -677,6 +679,59 @@
             "stationError": "La borne a renvoyé une réponse invalide.",
             "timeout": "La borne n'a pas répondu à temps.",
             "genericError": "La mise à jour n'a pas pu être lancée."
+          }
+        }
+      },
+      "logUpload": {
+        "title": "Diagnostics & journaux",
+        "loading": "Chargement de l'état d'envoi des journaux…",
+        "loadError": "Impossible de charger l'état d'envoi des journaux de cette borne.",
+        "inProgress": "Envoi en cours",
+        "lastUpload": "Dernier envoi",
+        "neverUploaded": "Aucun envoi de journal enregistré",
+        "stalled": "Aucune progression signalée depuis un moment — la borne est peut-être bloquée.",
+        "logTypes": {
+          "DiagnosticsLog": "Journal de diagnostic",
+          "SecurityLog": "Journal de sécurité"
+        },
+        "statuses": {
+          "AcceptedCanceled": "Annulation acquittée",
+          "BadMessage": "Requête invalide",
+          "Idle": "Inactif",
+          "NotSupportedOperation": "Non prise en charge par cette borne",
+          "PermissionDenied": "Permission refusée",
+          "Uploaded": "Envoyé",
+          "UploadFailed": "Échec de l'envoi",
+          "Uploading": "Envoi en cours"
+        },
+        "history": {
+          "title": "Historique des envois",
+          "empty": "Aucun envoi de journal pour l'instant",
+          "loadError": "Impossible de charger l'historique des envois de journaux."
+        },
+        "start": {
+          "button": "Demander les journaux",
+          "title": "Demander un envoi de journal",
+          "description": "La borne enverra son fichier de journal vers l'URL indiquée. Le superviseur ne télécharge rien lui-même.",
+          "submit": "Lancer l'envoi",
+          "close": "Fermer",
+          "unsupportedSecurityLog": "Cette borne parle OCPP 1.6, qui n'a pas de notion de journal de sécurité : seul le journal de diagnostic peut être demandé.",
+          "fields": {
+            "logType": "Type de journal",
+            "remoteLocation": "URL de destination de l'envoi",
+            "remoteLocationInvalid": "L'URL doit être absolue, en http(s) ou ftp(s).",
+            "oldestTimestamp": "Pas avant",
+            "latestTimestamp": "Pas après"
+          },
+          "result": {
+            "accepted": "Envoi accepté par la borne.",
+            "requested": "Envoi demandé. Cette borne (OCPP 1.6) n'indique pas si elle l'accepte : suivez son statut ci-dessous.",
+            "invalidRequest": "Requête invalide — vérifiez l'URL de destination de l'envoi.",
+            "notFound": "Borne inconnue.",
+            "notConnectedOrRejected": "Borne non connectée, envoi déjà en cours, ou refusé par la borne.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "L'envoi n'a pas pu être lancé."
           }
         }
       },

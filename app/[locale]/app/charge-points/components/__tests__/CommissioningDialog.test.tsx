@@ -11,6 +11,8 @@ vi.mock("next-intl", () => ({
       "appPage.chargePoints.commissioning.dialog.submit": "Commission",
       "appPage.chargePoints.form.fields.name": "Name",
       "appPage.chargePoints.form.fields.namePlaceholder": "e.g. CP-001",
+      "appPage.chargePoints.form.fields.ocppIdentity": "OCPP identity",
+      "appPage.chargePoints.form.fields.ocppIdentityCaption": "Fixed wire identity, never changes.",
       "appPage.chargePoints.form.fields.site": "Site",
       "appPage.chargePoints.form.buttons.cancel": "Cancel",
     };
@@ -22,6 +24,7 @@ import { CommissioningDialog } from "../CommissioningDialog";
 
 const chargePoint = {
   id: "11111111-1111-4111-8111-111111111111",
+  ocppIdentity: "CP-RAW-01",
   name: "CP-RAW-01",
   siteId: null,
   isActive: true,
@@ -49,6 +52,22 @@ describe("CommissioningDialog", () => {
     );
 
     expect(screen.getByRole("textbox")).toHaveProperty("value", "CP-RAW-01");
+  });
+
+  it("SHOULD show the charge point's ocppIdentity read-only WHEN opened", () => {
+    render(
+      <CommissioningDialog
+        open
+        onOpenChange={vi.fn()}
+        chargePoint={{ ...chargePoint, ocppIdentity: "CP-RAW-01-WIRE" }}
+        sites={[]}
+        onCommission={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("CP-RAW-01-WIRE")).toBeTruthy();
+    // Not editable: no textbox carries the raw wire identity, only the name field does.
+    expect(screen.queryByDisplayValue("CP-RAW-01-WIRE")).toBeNull();
   });
 
   it("SHOULD commission with the new name and a null site WHEN no site is chosen", async () => {

@@ -8,6 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Input,
+  Label,
 } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Zap, ChevronDown, Server } from "lucide-react";
@@ -39,6 +40,13 @@ type ChargePointFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialValues?: Partial<ChargePointFormValues>;
+  /**
+   * The charge point's OCPP wire identity, shown read-only alongside `name`.
+   * Not part of `ChargePointFormValues` — it's set once at creation and never
+   * patchable (issue #419), so there is no form field for it. `undefined` in
+   * "create" mode, where the record (and its identity) doesn't exist yet.
+   */
+  ocppIdentity?: string;
   onSubmit: (values: ChargePointFormValues) => void;
   mode: "create" | "edit";
   sites: Site[];
@@ -67,6 +75,7 @@ export const ChargePointFormDialog = ({
   open,
   onOpenChange,
   initialValues,
+  ocppIdentity,
   onSubmit,
   mode,
   sites,
@@ -131,6 +140,18 @@ export const ChargePointFormDialog = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
+            {ocppIdentity && (
+              <div className="flex flex-col gap-1.5">
+                <Label>{t("appPage.chargePoints.form.fields.ocppIdentity")}</Label>
+                <div className="rounded-md border bg-muted/30 px-3 py-2 font-mono text-sm text-muted-foreground">
+                  {ocppIdentity}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("appPage.chargePoints.form.fields.ocppIdentityCaption")}
+                </p>
+              </div>
+            )}
+
             <FormField
               control={form.control}
               name="name"

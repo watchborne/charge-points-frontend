@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const makeChargePoint = (overrides: Partial<ChargePoint> = {}): ChargePoint => ({
   id: "11111111-1111-4111-8111-111111111111",
+  ocppIdentity: "CP-001",
   name: "CP-001",
   siteId: null,
   isActive: true,

@@ -67,6 +67,12 @@ vi.mock("../FirmwarePanel", () => ({
   FirmwarePanel: () => null,
 }));
 
+// Stubbed out for the same reason as FirmwarePanel above: it fetches its own
+// log-upload state. Its own behaviour is covered by LogUploadPanel.test.tsx.
+vi.mock("../LogUploadPanel", () => ({
+  LogUploadPanel: () => null,
+}));
+
 import { ChargePointDetailPanel } from "../ChargePointDetailPanel";
 
 beforeAll(() => {
@@ -94,6 +100,7 @@ const CONNECTOR = {
 
 const CHARGE_POINT = {
   id: "cp-1",
+  ocppIdentity: "CP-001-WIRE",
   name: "CP-001",
   siteId: null,
   isActive: true,
@@ -105,6 +112,24 @@ const CHARGE_POINT = {
 } as Record<string, unknown>;
 
 describe("ChargePointDetailPanel", () => {
+  it("SHOULD display the charge point's ocppIdentity alongside its name", () => {
+    render(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onToggleActive={vi.fn()}
+        onToggleRealtimeAlerts={vi.fn()}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        onResetClicked={vi.fn()}
+        onChangeAvailability={vi.fn()}
+        onUnlockConnector={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("CP-001-WIRE")).toBeTruthy();
+  });
+
   it("SHOULD display the connector's lastMeterValue snapshot WHEN one is present", () => {
     render(
       <ChargePointDetailPanel

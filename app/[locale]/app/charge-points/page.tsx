@@ -288,6 +288,7 @@ function ChargePointsPageContent() {
           <ChargePointFormDialog
             open={!!editTarget}
             onOpenChange={(open) => !open && setEditTarget(null)}
+            ocppIdentity={editTarget?.ocppIdentity}
             initialValues={
               editTarget
                 ? {
