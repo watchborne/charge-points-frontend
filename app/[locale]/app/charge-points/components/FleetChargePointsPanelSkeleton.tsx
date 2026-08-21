@@ -14,7 +14,7 @@ export const FleetChargePointsPanelSkeleton = () => {
         <Skeleton className="w-40 h-9" />
       </div>
 
-      <div className="grid md:grid-cols-3">
+      <div className="grid grid grid-cols-1 md:grid-cols-3">
         {/* Left sidebar - sites list */}
         <div className="border-b bg-muted/30 p-4 sm:p-6 md:border-b-0 md:border-r">
           <Skeleton className="h-5 w-32 mb-2" />

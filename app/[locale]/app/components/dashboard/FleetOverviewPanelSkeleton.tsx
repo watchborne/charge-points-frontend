@@ -3,7 +3,7 @@ import { Skeleton } from "@watchborne/electrons";
 export const FleetOverviewPanelSkeleton = () => {
   return (
     <div className="rounded-xl border bg-card shadow-2xl overflow-hidden">
-      <div className="grid md:grid-cols-3">
+      <div className="grid grid grid-cols-1 md:grid-cols-3">
         {/* Left sidebar - sites list */}
         <div className="border-b bg-muted/30 p-4 sm:p-6 md:border-b-0 md:border-r">
           <Skeleton className="h-4 w-16 mb-6" />

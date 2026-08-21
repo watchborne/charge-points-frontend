@@ -99,7 +99,7 @@ export default async function HomePage({ params }: Props) {
           <div className="mt-20">
             <div className="border shadow-2xl">
               <div className="p-0">
-                <div className="grid md:grid-cols-3">
+                <div className="grid grid grid-cols-1 md:grid-cols-3">
                   {/* Sidebar */}
                   <div className="border-r bg-muted/30 p-6">
                     <div className="text-sm font-medium text-muted-foreground">
