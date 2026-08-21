@@ -35,6 +35,7 @@ import { AlertsPanel } from "./AlertsPanel";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { FirmwarePanel } from "./FirmwarePanel";
+import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
@@ -414,6 +415,10 @@ export const ChargePointDetailPanel = ({
           />
         </div>
       )}
+
+      <div className="rounded-md border">
+        <LogUploadPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
+      </div>
 
       <ChargePointConsumptionPanel chargePointId={chargePoint.id} />
 
