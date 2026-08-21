@@ -5,6 +5,7 @@ export const createChargePoint = (
   overrides: Partial<ChargePointWithConnectors> = {},
 ): ChargePointWithConnectors => ({
   id: faker.string.uuid(),
+  ocppIdentity: faker.string.alphanumeric(12),
   name: `Borne ${faker.location.city()}`,
   isActive: faker.datatype.boolean(),
   siteId: faker.string.uuid(),

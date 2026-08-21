@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Site } from "@watchborne/charge-points-types";
-import { Button, Input } from "@watchborne/electrons";
+import { Button, Input, Label } from "@watchborne/electrons";
 import { PlugZap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -48,10 +48,12 @@ type CommissioningDialogProps = {
 };
 
 /**
- * Guided commissioning of a discovered charge point: rename it (its name is the
- * raw OCPP station id until an installer sets a human one) and attach it to a
- * site. Distinct from the edit dialog, which locks the name — renaming is the
- * point here.
+ * Guided commissioning of a discovered charge point: rename it (its name starts
+ * as the raw OCPP station id until an installer sets a human one) and attach it
+ * to a site. Distinct from the edit dialog, which locks the name — renaming is
+ * the point here. `ocppIdentity` — the station's actual wire identity — is
+ * shown read-only alongside it: unlike `name`, it is set once at creation and
+ * never patchable (issue #419), so there is no form field for it here.
  */
 export const CommissioningDialog = ({
   open,
@@ -95,6 +97,18 @@ export const CommissioningDialog = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
+            {chargePoint && (
+              <div className="flex flex-col gap-1.5">
+                <Label>{t("appPage.chargePoints.form.fields.ocppIdentity")}</Label>
+                <div className="rounded-md border bg-muted/30 px-3 py-2 font-mono text-sm text-muted-foreground">
+                  {chargePoint.ocppIdentity}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("appPage.chargePoints.form.fields.ocppIdentityCaption")}
+                </p>
+              </div>
+            )}
+
             <FormField
               control={form.control}
               name="name"

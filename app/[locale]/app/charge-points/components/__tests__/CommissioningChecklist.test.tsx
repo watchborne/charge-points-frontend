@@ -35,6 +35,7 @@ const makeChargePoint = (
 ): ChargePointWithConnectors =>
   ({
     id: "11111111-1111-4111-8111-111111111111",
+    ocppIdentity: "CP-001",
     name: "CP-001",
     siteId: overrides.siteId ?? null,
     isActive: true,

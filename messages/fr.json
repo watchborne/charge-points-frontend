@@ -527,6 +527,8 @@
         "fields": {
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
+          "ocppIdentity": "Identité OCPP",
+          "ocppIdentityCaption": "L'identité fixe de la borne sur le protocole OCPP. Définie une fois lors de sa première connexion et jamais modifiée : renommer la borne ci-dessus reste toujours sans risque.",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",

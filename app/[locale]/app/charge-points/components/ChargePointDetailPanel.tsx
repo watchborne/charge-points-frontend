@@ -203,6 +203,12 @@ export const ChargePointDetailPanel = ({
               </span>
             )}
           </h4>
+          {/* The station's immutable OCPP wire identity (issue #419) — distinct
+              from the editable name above, shown here so it stays visible
+              without opening the edit dialog. */}
+          <p className="truncate font-mono text-xs text-muted-foreground">
+            {chargePoint.ocppIdentity}
+          </p>
           <div className="mt-2 flex items-center gap-2">
             <Badge>OCPP {chargePoint.ocppVersion}</Badge>
             <StatusBadge status={chargePoint.connection.status} />

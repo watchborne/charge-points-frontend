@@ -527,6 +527,8 @@
         "fields": {
           "name": "Name",
           "namePlaceholder": "Ex: CP-001",
+          "ocppIdentity": "OCPP identity",
+          "ocppIdentityCaption": "The station's fixed identity on the OCPP wire. Set once when it first connects and never changes — renaming the charge point above is always safe.",
           "site": "Site",
           "technicalInformation": "Technical information",
           "vendor": "Vendor",
