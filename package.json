@@ -2,6 +2,7 @@
   "name": "charge-points-frontend",
   "version": "0.1.0",
   "private": true,
+  "//dependencies-note": "TEMP (issue #415): @watchborne/charge-points-types below is pinned to the unreleased claude/415-remote-diagnostics-types branch (GetLog/GetDiagnostics/LogUpload) — revert to a pinned npm semver range once that package is released (see its CLAUDE.md 'Releasing' section) and bump this dependency here via the normal Dependabot flow.",
   "scripts": {
     "dev": "next dev --webpack -p 3001",
     "build": "next build --webpack",

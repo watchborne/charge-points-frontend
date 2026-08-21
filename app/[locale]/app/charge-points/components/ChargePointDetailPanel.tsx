@@ -26,6 +26,8 @@ import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
+import { FirmwarePanel } from "./FirmwarePanel";
+import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
@@ -323,6 +325,8 @@ export const ChargePointDetailPanel = ({
             chargePointId={chargePoint.id}
             connectorIds={chargePoint.connectors.map((connector) => connector.connectorId)}
           />
+
+          <LogUploadPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
         </>
       )}
     </div>
