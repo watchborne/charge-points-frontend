@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import classNames from "classnames";
 
-export const LogoutButton = () => {
+export const LogoutButton = ({ className }: { className?: string }) => {
   const t = useTranslations("");
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -30,7 +31,7 @@ export const LogoutButton = () => {
       size="sm"
       onClick={handleLogout}
       disabled={isLoggingOut}
-      className="gap-2"
+      className={classNames(className, "gap-2")}
     >
       <LogOut className="h-4 w-4" />
       {t("layout.navbar.actions.logout")}

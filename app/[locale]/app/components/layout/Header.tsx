@@ -32,10 +32,12 @@ export const Header = () => {
 
   return (
     <Navbar links={links}>
-      <div className="flex items-center gap-4 sm:ml-auto">
-        <WsStatusBadge status={status} />
-        <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
-        <LogoutButton />
+      <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:ml-auto content-stretch sm:content-start">
+        <div className="flex gap-4 sm:justify-start justify-between items-center w-full">
+          <WsStatusBadge status={status} />
+          <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
+        </div>
+        <LogoutButton className="w-full" />
       </div>
     </Navbar>
   );
