@@ -22,7 +22,7 @@ export const SiteStats = ({
     chargePoints.length > 0 ? `${Math.round((count / chargePoints.length) * 100)}%` : "0%";
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
       <StatCard
         title={t("appPage.sites.page.stats.totalSites")}
         value={sites.length}
