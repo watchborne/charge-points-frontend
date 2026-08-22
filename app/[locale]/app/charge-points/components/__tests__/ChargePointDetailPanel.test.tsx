@@ -39,6 +39,10 @@ vi.mock("next-intl", () => ({
       "appPage.chargePoints.detail.never": "Never",
       "appPage.chargePoints.detail.site": "Site",
       "appPage.chargePoints.detail.unknownSite": "Unknown site",
+      "appPage.chargePoints.detail.tabs.main": "Overview",
+      "appPage.chargePoints.detail.tabs.consumption": "Consumption",
+      "appPage.chargePoints.detail.tabs.alerts": "Alerts",
+      "appPage.chargePoints.detail.tabs.security": "Security & history",
       "appPage.chargePoints.availability.button": "Change availability",
       "appPage.chargePoints.unlockConnector.button": "Unlock connector",
       "appPage.chargePoints.statusHistory.title": "Status history",
@@ -163,11 +167,71 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    // Two switches render in this panel: isActive (admin header) and the
-    // AlertsPanel's real-time toggle — the latter is the second one.
+    // The AlertsPanel only mounts on the "Alerts" tab — Radix Tabs' default
+    // "automatic" activation switches on focus, not click — jsdom doesn't
+    // move focus as a side effect of a synthetic click the way a real
+    // browser does, so it's driven explicitly here (see StatusHistoryPanel's
+    // own tab-switching test for the same pattern).
+    const alertsTab = screen.getByRole("tab", { name: "Alerts" });
+    fireEvent.mouseDown(alertsTab);
+    alertsTab.focus();
+    fireEvent.click(alertsTab);
+
+    // Two switches render once the Alerts tab is active: isActive (header,
+    // shown on every tab) and the AlertsPanel's real-time toggle — the
+    // latter is the second one.
     const switches = await screen.findAllByRole("switch");
     fireEvent.click(switches[1]!);
 
     expect(onToggleRealtimeAlerts).toHaveBeenCalledWith(CHARGE_POINT);
+  });
+
+  it("SHOULD default to the Overview tab", () => {
+    render(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onToggleActive={vi.fn()}
+        onToggleRealtimeAlerts={vi.fn()}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        onResetClicked={vi.fn()}
+        onChangeAvailability={vi.fn()}
+        onUnlockConnector={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
+      "true",
+    );
+  });
+
+  it("SHOULD switch the active tab WHEN a different tab is clicked", () => {
+    render(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onToggleActive={vi.fn()}
+        onToggleRealtimeAlerts={vi.fn()}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        onResetClicked={vi.fn()}
+        onChangeAvailability={vi.fn()}
+        onUnlockConnector={vi.fn()}
+      />,
+    );
+
+    // Radix Tabs' default "automatic" activation switches on focus, not
+    // click — jsdom doesn't move focus as a side effect of a synthetic
+    // click the way a real browser does, so it's driven explicitly here.
+    const consumptionTab = screen.getByRole("tab", { name: "Consumption" });
+    fireEvent.mouseDown(consumptionTab);
+    consumptionTab.focus();
+    fireEvent.click(consumptionTab);
+
+    expect(consumptionTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
+      "false",
+    );
   });
 });

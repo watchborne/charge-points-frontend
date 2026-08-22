@@ -18,6 +18,14 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  */
 export type { StatusTone };
 
+/** Every value `ChargePoint.connection.status` can take, for filter/select controls. */
+export const CONNECTION_STATUSES: readonly ChargePointConnectionStatus[] = [
+  "SYNCED",
+  "CONNECTED",
+  "WARNING",
+  "OFFLINE",
+];
+
 /** Network connectivity of a station (`ChargePoint.connection.status`). */
 export const connectionStatusTone = (status: ChargePointConnectionStatus): StatusTone => {
   switch (status) {

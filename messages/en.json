@@ -487,6 +487,12 @@
           "addForThisSite": "Add for this site",
           "search": "Search..."
         },
+        "filters": {
+          "status": "Status",
+          "ocppVersion": "OCPP version",
+          "allStatuses": "All statuses",
+          "allVersions": "All versions"
+        },
         "labels": {
           "countText": "{count, plural, =1 {# charge point} other {# charge points}}"
         },
@@ -547,7 +553,13 @@
         "never": "Never",
         "site": "Site",
         "unknownSite": "Unknown site",
-        "inactive": "Inactive"
+        "inactive": "Inactive",
+        "tabs": {
+          "main": "Overview",
+          "consumption": "Consumption",
+          "alerts": "Alerts",
+          "security": "Security & history"
+        }
       },
       "commissioning": {
         "title": "Awaiting commissioning",
