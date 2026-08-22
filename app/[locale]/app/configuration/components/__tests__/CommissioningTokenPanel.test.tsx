@@ -23,47 +23,17 @@ const makeChargePoint = (overrides: Partial<ChargePoint> = {}): ChargePoint => (
 // would re-fire that effect (re-fetching getStatus) on every state change
 // this component makes, clobbering state a test just set.
 const translate = (key: string, params?: Record<string, unknown>) => {
-  const map: Record<string, string> = {
-    "common.error": "Something went wrong",
-    "common.cancel": "Cancel",
-    "common.confirm": "Confirm",
-    "appPage.configuration.commissioningToken.title": "Personal commissioning token",
-    "appPage.configuration.commissioningToken.description": "Generate a personal token.",
-    "appPage.configuration.commissioningToken.generateCta": "Generate my token",
-    "appPage.configuration.commissioningToken.regenerateCta": "Regenerate",
-    "appPage.configuration.commissioningToken.copyCta": "Copy token",
-    "appPage.configuration.commissioningToken.exampleLabel": "Example address with your token",
-    "appPage.configuration.commissioningToken.exampleUrlPlaceholder": "<charge-point-id>",
-    "appPage.configuration.commissioningToken.revealedWarning": "Copy this token now.",
-    "appPage.configuration.commissioningToken.regenerateConfirm.title": "Regenerate the token?",
-    "appPage.configuration.commissioningToken.regenerateConfirm.description":
-      "The current token will stop working.",
-    "appPage.configuration.commissioningToken.revokeCta": "Revoke",
-    "appPage.configuration.commissioningToken.revokeConfirm.title": "Revoke the token?",
-    "appPage.configuration.commissioningToken.revokeConfirm.description":
-      "Already-claimed charge points stay claimed.",
-    "appPage.configuration.commissioningToken.recentActivity.title":
-      "Recent commissioning activity",
-    "appPage.configuration.commissioningToken.recentActivity.outcomes.CLAIMED":
-      "Commissioned successfully.",
-    "appPage.configuration.commissioningToken.recentActivity.outcomes.ALREADY_CLAIMED_BY_SELF":
-      "Recommissioned with a new token.",
-    "appPage.configuration.commissioningToken.recentActivity.outcomes.ALREADY_CLAIMED_BY_OTHER":
-      "Already belongs to another installer.",
-    "appPage.configuration.commissioningToken.recentActivity.outcomes.UNKNOWN_TOKEN":
-      "Unknown token presented.",
-  };
-  if (key === "appPage.configuration.commissioningToken.createdAtLabel") {
-    return `Token generated on ${params?.date}`;
+  if (params && Object.keys(params).length > 0) {
+    const paramList = Object.entries(params)
+      .map(([k, v]) => `${k}=${v}`)
+      .join(", ");
+    return `${key}(${paramList})`;
   }
-  if (key === "appPage.configuration.commissioningToken.recentActivity.stationLabel") {
-    return `Charge point: ${params?.station}`;
-  }
-  return map[key] ?? key;
+  return key;
 };
 
 // A fixed, locale-agnostic stand-in for the real Intl-backed formatter — what
-// matters here is that the component calls it (issue #281), not the exact
+// matters here is that the component calls it, not the exact
 // rendered string, which is next-intl's own concern.
 const formatter = {
   dateTime: (date: Date) => `formatted:${date.toISOString().slice(0, 10)}`,
@@ -102,8 +72,8 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    expect(await screen.findByRole("button", { name: "Generate my token" })).toBeTruthy();
-    expect(screen.queryByText(/Token generated on/)).toBeNull();
+    expect(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" })).toBeTruthy();
+    expect(screen.queryByText(/appPage.configuration.commissioningToken.createdAtLabel/)).toBeNull();
   });
 
   it("SHOULD reveal the token WHEN generated for the first time (no confirmation needed)", async () => {
@@ -115,14 +85,14 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Generate my token" }));
+    fireEvent.click(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" }));
 
     await waitFor(() => expect(issueToken).toHaveBeenCalled());
     expect(await screen.findByText("abc123")).toBeTruthy();
     expect(screen.getByText(/token=abc123/)).toBeTruthy();
   });
 
-  it("SHOULD show a placeholder station id in the example URL, never a concrete-looking one (issue #281)", async () => {
+  it("SHOULD show a placeholder station id in the example URL, never a concrete-looking one", async () => {
     getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
     issueToken.mockResolvedValue({
       token: "abc123",
@@ -130,13 +100,13 @@ describe("CommissioningTokenPanel", () => {
     });
 
     render(<CommissioningTokenPanel />);
-    fireEvent.click(await screen.findByRole("button", { name: "Generate my token" }));
+    fireEvent.click(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" }));
 
     expect(await screen.findByText(/<charge-point-id>\?token=abc123/)).toBeTruthy();
     expect(screen.queryByText(/CP-001/)).toBeNull();
   });
 
-  it("SHOULD format the creation date through useFormatter, not a hardcoded locale (issue #281)", async () => {
+  it("SHOULD format the creation date through useFormatter, not a hardcoded locale", async () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-03-15T00:00:00.000Z",
@@ -144,7 +114,7 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    expect(await screen.findByText("Token generated on formatted:2024-03-15")).toBeTruthy();
+    expect(await screen.findByText(/appPage.configuration.commissioningToken.createdAtLabel.*formatted:2024-03-15/)).toBeTruthy();
   });
 
   it("SHOULD ask for confirmation before regenerating WHEN a token already exists", async () => {
@@ -159,12 +129,12 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Regenerate" }));
+    fireEvent.click(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.regenerateCta" }));
 
-    expect(await screen.findByText("Regenerate the token?")).toBeTruthy();
+    expect(await screen.findByText("appPage.configuration.commissioningToken.regenerateConfirm.title")).toBeTruthy();
     expect(issueToken).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.confirm" }));
 
     await waitFor(() => expect(issueToken).toHaveBeenCalled());
     expect(await screen.findByText("new-token")).toBeTruthy();
@@ -175,8 +145,8 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    await screen.findByRole("button", { name: "Generate my token" });
-    expect(screen.queryByRole("button", { name: "Revoke" })).toBeNull();
+    await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" });
+    expect(screen.queryByRole("button", { name: "appPage.configuration.commissioningToken.revokeCta" })).toBeNull();
   });
 
   it("SHOULD ask for confirmation before revoking, then reflect hasToken: false", async () => {
@@ -188,17 +158,17 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
+    fireEvent.click(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.revokeCta" }));
 
-    expect(await screen.findByText("Revoke the token?")).toBeTruthy();
+    expect(await screen.findByText("appPage.configuration.commissioningToken.revokeConfirm.title")).toBeTruthy();
     expect(revoke).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.confirm" }));
 
     await waitFor(() => expect(revoke).toHaveBeenCalled());
     // Back to the pre-token state: the generate CTA returns, revoke disappears.
-    expect(await screen.findByRole("button", { name: "Generate my token" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Revoke" })).toBeNull();
+    expect(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "appPage.configuration.commissioningToken.revokeCta" })).toBeNull();
   });
 
   it("SHOULD show an error and keep the token state WHEN revoking fails", async () => {
@@ -210,11 +180,11 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
-    fireEvent.click(await screen.findByRole("button", { name: "Confirm" }));
+    fireEvent.click(await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.revokeCta" }));
+    fireEvent.click(await screen.findByRole("button", { name: "common.confirm" }));
 
-    expect(await screen.findByText("Something went wrong")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Revoke" })).toBeTruthy();
+    expect(await screen.findByText("common.error")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "appPage.configuration.commissioningToken.revokeCta" })).toBeTruthy();
   });
 
   it("SHOULD NOT show recent activity WHEN there are no commissioning attempts", async () => {
@@ -222,8 +192,8 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    await screen.findByRole("button", { name: "Generate my token" });
-    expect(screen.queryByText("Recent commissioning activity")).toBeNull();
+    await screen.findByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" });
+    expect(screen.queryByText("appPage.configuration.commissioningToken.recentActivity.title")).toBeNull();
   });
 
   it("SHOULD render a claim, resolving the station name from Me.chargePoints", async () => {
@@ -243,9 +213,9 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    expect(await screen.findByText("Recent commissioning activity")).toBeTruthy();
-    expect(screen.getByText("Commissioned successfully.")).toBeTruthy();
-    expect(screen.getByText(/Charge point: Station Nord/)).toBeTruthy();
+    expect(await screen.findByText("appPage.configuration.commissioningToken.recentActivity.title")).toBeTruthy();
+    expect(screen.getByText("appPage.configuration.commissioningToken.recentActivity.outcomes.CLAIMED")).toBeTruthy();
+    expect(screen.getByText(/appPage.configuration.commissioningToken.recentActivity.stationLabel.*Station Nord/)).toBeTruthy();
   });
 
   it("SHOULD render a refused claim WHEN the station belongs to another installer", async () => {
@@ -265,9 +235,9 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    expect(await screen.findByText("Already belongs to another installer.")).toBeTruthy();
+    expect(await screen.findByText("appPage.configuration.commissioningToken.recentActivity.outcomes.ALREADY_CLAIMED_BY_OTHER")).toBeTruthy();
     // Not in the caller's own chargePoints (belongs to someone else) — falls back to the raw id.
-    expect(screen.getByText(/Charge point: cp-2/)).toBeTruthy();
+    expect(screen.getByText(/appPage.configuration.commissioningToken.recentActivity.stationLabel.*cp-2/)).toBeTruthy();
   });
 
   it("SHOULD sort commissioning attempts newest first and cap the list at 5", async () => {
@@ -286,9 +256,9 @@ describe("CommissioningTokenPanel", () => {
 
     render(<CommissioningTokenPanel />);
 
-    await screen.findByText("Recent commissioning activity");
+    await screen.findByText("appPage.configuration.commissioningToken.recentActivity.title");
     // Newest (attempt-5, Jan 6th) is present; oldest (attempt-0, Jan 1st) is dropped by the 5-item cap.
-    expect(screen.getByText(/Charge point: cp-5/)).toBeTruthy();
-    expect(screen.queryByText(/Charge point: cp-0/)).toBeNull();
+    expect(screen.getByText(/appPage.configuration.commissioningToken.recentActivity.stationLabel.*cp-5/)).toBeTruthy();
+    expect(screen.queryByText(/appPage.configuration.commissioningToken.recentActivity.stationLabel.*cp-0/)).toBeNull();
   });
 });

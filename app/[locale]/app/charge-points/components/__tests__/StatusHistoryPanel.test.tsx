@@ -2,25 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.statusHistory.title": "Status history",
-      "appPage.chargePoints.statusHistory.connectivity": "Connectivity",
-      "appPage.chargePoints.statusHistory.connectorStatus": `Connector ${values?.connectorId} status`,
-      "appPage.chargePoints.statusHistory.connectorLabel": "Connector",
-      "appPage.chargePoints.statusHistory.noData": "No data",
-      "appPage.chargePoints.statusHistory.truncated": "Truncated to 500 transitions",
-      "appPage.chargePoints.statusHistory.error": "Failed to load status history.",
-      "appPage.chargePoints.statusHistory.ranges.day": "Today",
-      "appPage.chargePoints.statusHistory.ranges.7d": "7d",
-      "appPage.chargePoints.statusHistory.ranges.30d": "30d",
-      "appPage.chargePoints.statusHistory.table.timestamp": "Timestamp",
-      "appPage.chargePoints.statusHistory.table.status": "Status",
-      "appPage.chargePoints.statusHistory.table.duration": "Duration",
-      "appPage.chargePoints.consumption.connectorSeries": `Connector ${values?.connectorId}`,
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 vi.mock("../../../../../../lib/api", () => ({

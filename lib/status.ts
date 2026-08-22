@@ -8,7 +8,7 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  *
  * Both the network connection status and the OCPP connector status collapse
  * onto a shared, finite set of visual "tones" — `StatusTone`, owned by
- * `@watchborne/electrons` (issue #7) rather than redeclared here, so this
+ * `@watchborne/electrons` rather than redeclared here, so this
  * file and `StatusPill`'s own tone variants can never drift apart. Each tone
  * is backed by the `--status-*` CSS variables (see `@watchborne/electrons`'s
  * `tokens.css`) and exposed through Tailwind's `status-<tone>` colour family.

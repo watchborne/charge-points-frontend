@@ -4,18 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.commissioning.dialog.title": "Commissioning",
-      "appPage.chargePoints.commissioning.dialog.description": "Name and attach.",
-      "appPage.chargePoints.commissioning.dialog.submit": "Commission",
-      "appPage.chargePoints.form.fields.name": "Name",
-      "appPage.chargePoints.form.fields.namePlaceholder": "e.g. CP-001",
-      "appPage.chargePoints.form.fields.site": "Site",
-      "appPage.chargePoints.form.buttons.cancel": "Cancel",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { CommissioningDialog } from "../CommissioningDialog";

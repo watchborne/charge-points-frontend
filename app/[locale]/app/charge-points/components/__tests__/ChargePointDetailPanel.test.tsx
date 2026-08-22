@@ -32,35 +32,13 @@ vi.mock("../../../../../../lib/api", () => ({
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.detail.connector": `Connector #${values?.connectorId}`,
-      "appPage.chargePoints.detail.lastMeterValue": "Last meter reading",
-      "appPage.chargePoints.detail.lastSeen": "Last seen",
-      "appPage.chargePoints.detail.never": "Never",
-      "appPage.chargePoints.detail.site": "Site",
-      "appPage.chargePoints.detail.unknownSite": "Unknown site",
-      "appPage.chargePoints.detail.tabs.main": "Overview",
-      "appPage.chargePoints.detail.tabs.consumption": "Consumption",
-      "appPage.chargePoints.detail.tabs.alerts": "Alerts",
-      "appPage.chargePoints.detail.tabs.security": "Security & history",
-      "appPage.chargePoints.availability.button": "Change availability",
-      "appPage.chargePoints.unlockConnector.button": "Unlock connector",
-      "appPage.chargePoints.statusHistory.title": "Status history",
-      "appPage.chargePoints.statusHistory.connectivity": "Connectivity",
-      "appPage.chargePoints.statusHistory.connectorStatus": `Connector ${values?.connectorId} status`,
-      "appPage.chargePoints.statusHistory.connectorLabel": "Connector",
-      "appPage.chargePoints.statusHistory.noData": "No data",
-      "appPage.chargePoints.statusHistory.truncated": "Truncated",
-      "appPage.chargePoints.statusHistory.error": "Failed to load status history.",
-      "appPage.chargePoints.statusHistory.ranges.day": "Today",
-      "appPage.chargePoints.statusHistory.ranges.7d": "7d",
-      "appPage.chargePoints.statusHistory.ranges.30d": "30d",
-      "appPage.chargePoints.statusHistory.table.timestamp": "Timestamp",
-      "appPage.chargePoints.statusHistory.table.status": "Status",
-      "appPage.chargePoints.statusHistory.table.duration": "Duration",
-      "appPage.chargePoints.consumption.connectorSeries": `Connector ${values?.connectorId}`,
-    };
-    return map[key] ?? key;
+    if (values && Object.keys(values).length > 0) {
+      const paramList = Object.entries(values)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(", ");
+      return `${key}(${paramList})`;
+    }
+    return key;
   },
 }));
 

@@ -7,7 +7,7 @@ interface StatusBadgeProps {
   status: ChargePointConnectionStatus;
 }
 
-/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill (issue #7). */
+/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill. */
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
   const tone = connectionStatusTone(status);
 

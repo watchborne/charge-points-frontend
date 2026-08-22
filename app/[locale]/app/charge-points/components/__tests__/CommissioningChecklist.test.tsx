@@ -5,20 +5,13 @@ import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, params?: Record<string, string>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.commissioning.selfTest.title": "Commissioning check",
-      "appPage.chargePoints.commissioning.selfTest.site": "Assigned to a site",
-      "appPage.chargePoints.commissioning.selfTest.online": "Station connected",
-      "appPage.chargePoints.commissioning.selfTest.bootAccepted": "Boot accepted by the station",
-      "appPage.chargePoints.commissioning.selfTest.ocppVersionKnown": "OCPP version confirmed",
-      "appPage.chargePoints.commissioning.selfTest.ocppVersionKnownWithVersion":
-        "OCPP {version} confirmed",
-      "appPage.chargePoints.commissioning.selfTest.connectors": "Connectors report their status",
-    };
-    const template = map[key] ?? key;
-    return params
-      ? template.replace(/{(\w+)}/g, (_, name: string) => params[name] ?? "")
-      : template;
+    if (params && Object.keys(params).length > 0) {
+      const paramList = Object.entries(params)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(", ");
+      return `${key}(${paramList})`;
+    }
+    return key;
   },
 }));
 
@@ -79,11 +72,11 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(rowPassed("Assigned to a site")).toBe(true);
-    expect(rowPassed("Station connected")).toBe(true);
-    expect(rowPassed("Boot accepted by the station")).toBe(true);
-    expect(rowPassed("OCPP 1.6 confirmed")).toBe(true);
-    expect(rowPassed("Connectors report their status")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.site")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.bootAccepted")).toBe(true);
+    expect(rowPassed(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.connectors")).toBe(true);
   });
 
   it("SHOULD fail the connector check WHEN no connector has reported yet", () => {
@@ -93,8 +86,8 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(rowPassed("Station connected")).toBe(true);
-    expect(rowPassed("Connectors report their status")).toBe(false);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.connectors")).toBe(false);
   });
 
   it("SHOULD fail the online and boot-accepted checks WHEN the station is offline", () => {
@@ -104,22 +97,22 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(rowPassed("Station connected")).toBe(false);
-    expect(rowPassed("Boot accepted by the station")).toBe(false);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(false);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.bootAccepted")).toBe(false);
     expect(rowPassed("Connectors report their status")).toBe(true);
   });
 
   it("SHOULD fail the site check WHEN the charge point has no siteId", () => {
     render(<CommissioningChecklist chargePoint={makeChargePoint({ siteId: null })} />);
 
-    expect(rowPassed("Assigned to a site")).toBe(false);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.site")).toBe(false);
   });
 
   it("SHOULD fail the boot-accepted check WHEN the station is only CONNECTED, not SYNCED", () => {
     render(<CommissioningChecklist chargePoint={makeChargePoint({ status: "CONNECTED" })} />);
 
-    expect(rowPassed("Station connected")).toBe(true);
-    expect(rowPassed("Boot accepted by the station")).toBe(false);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.bootAccepted")).toBe(false);
   });
 
   it("SHOULD fail the OCPP-version-known check WHEN the station has never connected", () => {
@@ -129,7 +122,7 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(rowPassed("OCPP version confirmed")).toBe(false);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown")).toBe(false);
   });
 
   it("SHOULD pass the OCPP-version-known check WHEN the station has connected before, even if now offline", () => {
@@ -139,8 +132,8 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(rowPassed("Station connected")).toBe(false);
-    expect(rowPassed("OCPP 1.6 confirmed")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(false);
+    expect(rowPassed(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBe(true);
   });
 
   it("SHOULD name the negotiated OCPP dialect WHEN the version is confirmed", () => {
@@ -150,14 +143,14 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(screen.getByText("OCPP 2.0.1 confirmed")).toBeTruthy();
-    expect(screen.queryByText("OCPP version confirmed")).toBeNull();
+    expect(screen.getByText(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*2.0.1/)).toBeTruthy();
+    expect(screen.queryByText("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown")).toBeNull();
   });
 
   it("SHOULD show the generic label, not a guessed version, WHEN the station has never connected", () => {
     render(<CommissioningChecklist chargePoint={makeChargePoint({ lastSeenAt: null })} />);
 
-    expect(screen.getByText("OCPP version confirmed")).toBeTruthy();
-    expect(screen.queryByText("OCPP 1.6 confirmed")).toBeNull();
+    expect(screen.getByText("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown")).toBeTruthy();
+    expect(screen.queryByText(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBeNull();
   });
 });

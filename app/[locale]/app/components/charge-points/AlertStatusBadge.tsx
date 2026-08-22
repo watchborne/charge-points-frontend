@@ -9,7 +9,7 @@ const STATUS_LABEL_KEY: Record<AlertStatus, string> = {
   RESOLVED: "appPage.chargePoints.alerts.status.resolved",
 };
 
-/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill (issue #7). */
+/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill. */
 export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => {
   const t = useTranslations("");
   const tone = alertStatusTone(status);

@@ -5,21 +5,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.dashboard.fleetOverview": "Fleet overview",
-      "misc.chargePointWithCount": `${values?.count ?? ""} charge points`,
-      "misc.siteWithCount": `${values?.count ?? ""} sites`,
-      "appPage.chargePoints.page.groupBy.label": "Group by",
-      "appPage.chargePoints.page.groupBy.site": "Site",
-      "appPage.chargePoints.page.groupBy.vendor": "Vendor",
-      "appPage.chargePoints.page.groupBy.unknownVendor": "Unknown vendor",
-      "appPage.chargePoints.page.empty.noChargePointFound": "No charge point found",
-      "appPage.chargePoints.detail.unknownSite": "Unknown site",
-      "appPage.chargePoints.page.detail.selectPrompt": "Select a charge point",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 // The detail panel is a large, independently-testable component with its own

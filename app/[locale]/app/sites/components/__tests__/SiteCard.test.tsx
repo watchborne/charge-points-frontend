@@ -6,17 +6,13 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.sites.page.table.columns.actions": "Actions",
-      "common.edit": "Edit",
-      "common.delete": "Delete",
-      "appPage.sites.page.card.chargePointsWithCount": `${values?.count ?? ""} charge points`,
-      "appPage.sites.page.card.online": `${values?.count ?? ""} online`,
-      "appPage.sites.page.card.offline": `${values?.count ?? ""} offline`,
-      "appPage.sites.page.table.columns.installDate": "Installed",
-      "appPage.sites.page.table.columns.lastVisit": "Last visit",
-    };
-    return map[key] ?? key;
+    if (values && Object.keys(values).length > 0) {
+      const paramList = Object.entries(values)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(", ");
+      return `${key}(${paramList})`;
+    }
+    return key;
   },
   useFormatter: () => ({
     dateTime: (date: Date) => date.toISOString().slice(0, 10),

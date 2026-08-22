@@ -73,7 +73,7 @@ type ChargePointConfigurationDialogProps = {
  * `/settings` endpoint, which dispatches GetConfiguration/ChangeConfiguration to
  * an OCPP 1.6 station and GetVariables/SetVariables to a 2.0.1 one. So this
  * component never reads `chargePoint.ocppVersion` — the station's dialect is not
- * something the UI has to know or render (issue #270).
+ * something the UI has to know or render.
  */
 export const ChargePointConfigurationDialog = ({
   chargePointId,

@@ -3,15 +3,7 @@ import type { Site } from "@watchborne/charge-points-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.sites.deletion.title": `Delete ${values?.name ?? ""}?`,
-      "appPage.sites.deletion.description": "This cannot be undone.",
-      "common.cancel": "Cancel",
-      "common.delete": "Delete",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { SiteDeletionDialog } from "../SiteDeletionDialog";

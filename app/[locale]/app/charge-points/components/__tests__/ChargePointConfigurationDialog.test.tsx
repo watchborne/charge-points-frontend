@@ -16,24 +16,7 @@ vi.mock("../../../../../../lib/api", () => ({
 }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.configuration.button": "Configuration",
-      "appPage.chargePoints.configuration.title": "OCPP configuration",
-      "appPage.chargePoints.configuration.description": "Configuration reported.",
-      "appPage.chargePoints.configuration.loading": "Reading…",
-      "appPage.chargePoints.configuration.empty": "No configuration keys.",
-      "appPage.chargePoints.configuration.readonly": "read-only",
-      "appPage.chargePoints.configuration.unknownKeys": "Unknown keys",
-      "appPage.chargePoints.configuration.result.notConnected": "Cannot read: offline.",
-      "appPage.chargePoints.configuration.set.title": "Change a key",
-      "appPage.chargePoints.configuration.set.keyPlaceholder": "Key",
-      "appPage.chargePoints.configuration.set.valuePlaceholder": "Value",
-      "appPage.chargePoints.configuration.set.button": "Apply",
-      "appPage.chargePoints.configuration.set.result.accepted": "Change applied.",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { ChargePointConfigurationDialog } from "../ChargePointConfigurationDialog";

@@ -2,26 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const map: Record<string, string> = {
-      "appPage.sites.form.createTitle": "New site",
-      "appPage.sites.form.editTitle": "Edit site",
-      "appPage.sites.form.createDescription": "Add a new site.",
-      "appPage.sites.form.editDescription": "Update this site.",
-      "appPage.sites.form.fields.siteName": "Site name",
-      "appPage.sites.form.fields.siteNamePlaceholder": "e.g. Paris Nord",
-      "appPage.sites.form.fields.customerName": "Customer",
-      "appPage.sites.form.fields.customerNamePlaceholder": "e.g. LVMH",
-      "appPage.sites.form.fields.installDate": "Install date",
-      "appPage.sites.form.fields.installDatePlaceholder": "Pick a date",
-      "appPage.sites.form.fields.lastVisit": "Last visit",
-      "appPage.sites.form.fields.lastVisitPlaceholder": "Pick a date",
-      "appPage.sites.form.buttons.cancel": "Cancel",
-      "appPage.sites.form.buttons.create": "Create",
-      "appPage.sites.form.buttons.save": "Save",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { SiteFormDialog } from "../SiteFormDialog";
