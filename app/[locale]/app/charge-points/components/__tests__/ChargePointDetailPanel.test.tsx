@@ -201,7 +201,9 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
+      "true",
+    );
   });
 
   it("SHOULD switch the active tab WHEN a different tab is clicked", () => {
@@ -228,6 +230,8 @@ describe("ChargePointDetailPanel", () => {
     fireEvent.click(consumptionTab);
 
     expect(consumptionTab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe("false");
+    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
+      "false",
+    );
   });
 });
