@@ -26,6 +26,13 @@ type Props = {
   chargePointId: string;
   /** The charge point's connector ordinals — its `connectors[].connectorId`, not the connector rows themselves. */
   connectorIds: number[];
+  /**
+   * Windows offered by the range picker. Defaults to all of
+   * `STATUS_HISTORY_RANGES`; pass a single-element array (e.g. `["day"]`) to
+   * lock the panel to that window and hide the picker — used by the charge
+   * point detail view's main tab, which only wants "today" at a glance.
+   */
+  ranges?: readonly StatusHistoryRange[];
 };
 
 /**
@@ -36,10 +43,14 @@ type Props = {
  * connectivity and connector activity are two different questions
  * (`docs/ai/domain-model.md`'s Critical Domain Rule), never one chart.
  */
-export const StatusHistoryPanel = ({ chargePointId, connectorIds }: Props) => {
+export const StatusHistoryPanel = ({
+  chargePointId,
+  connectorIds,
+  ranges = STATUS_HISTORY_RANGES,
+}: Props) => {
   const t = useTranslations("");
 
-  const [range, setRange] = useState<StatusHistoryRange>("day");
+  const [range, setRange] = useState<StatusHistoryRange>(ranges[0]);
   const [connectorId, setConnectorId] = useState<number>(connectorIds[0] ?? 1);
 
   // Follows the charge point's own connectors: a selection that no longer
@@ -75,15 +86,17 @@ export const StatusHistoryPanel = ({ chargePointId, connectorIds }: Props) => {
         <h4 className="text-sm font-semibold">{t("appPage.chargePoints.statusHistory.title")}</h4>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Tabs value={range} onValueChange={(value) => setRange(value as StatusHistoryRange)}>
-            <TabsList>
-              {STATUS_HISTORY_RANGES.map((option) => (
-                <TabsTrigger key={option} value={option} className="text-xs">
-                  {t(`appPage.chargePoints.statusHistory.ranges.${option}`)}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          {ranges.length > 1 && (
+            <Tabs value={range} onValueChange={(value) => setRange(value as StatusHistoryRange)}>
+              <TabsList>
+                {ranges.map((option) => (
+                  <TabsTrigger key={option} value={option} className="text-xs">
+                    {t(`appPage.chargePoints.statusHistory.ranges.${option}`)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
 
           {connectorIds.length > 1 && (
             <Select

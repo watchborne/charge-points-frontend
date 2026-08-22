@@ -7,10 +7,18 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/api";
 import { isAwaitingCommissioning } from "@/lib/commissioning";
-import { ChargePointWithConnectors } from "@/types/charge-point";
+import { CONNECTION_STATUSES } from "@/lib/status";
+import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
@@ -53,6 +61,8 @@ function ChargePointsPageContent() {
     refetch: refetchChargePoints,
   } = useChargePoints();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ChargePointConnectionStatus | "all">("all");
+  const [ocppVersionFilter, setOcppVersionFilter] = useState<string>("all");
   const queryClient = useQueryClient();
 
   const invalidateChargePoints = () =>
@@ -96,18 +106,38 @@ function ChargePointsPageContent() {
     [chargePoints],
   );
 
-  const filteredChargePoints = useMemo(() => {
-    if (search.length <= 2) return chargePoints;
+  // Every OCPP version currently present in the fleet, offered as filter
+  // options — not the package's static "1.6" | "2.0.1" union, so a future
+  // version shows up here without a frontend change.
+  const ocppVersionOptions = useMemo(
+    () => [...new Set(chargePoints.map((cp) => cp.ocppVersion))].sort(),
+    [chargePoints],
+  );
 
-    const query = search.toLowerCase();
-    return chargePoints.filter(
-      (cp) =>
-        cp.name.toLowerCase().includes(query) ||
-        cp.meta?.vendor?.toLowerCase().includes(query) ||
-        cp.meta?.model?.toLowerCase().includes(query) ||
-        cp.meta?.serialNumber?.toLowerCase().includes(query),
-    );
-  }, [chargePoints, search]);
+  const filteredChargePoints = useMemo(() => {
+    let result = chargePoints;
+
+    if (statusFilter !== "all") {
+      result = result.filter((cp) => cp.connection.status === statusFilter);
+    }
+
+    if (ocppVersionFilter !== "all") {
+      result = result.filter((cp) => cp.ocppVersion === ocppVersionFilter);
+    }
+
+    if (search.length > 2) {
+      const query = search.toLowerCase();
+      result = result.filter(
+        (cp) =>
+          cp.name.toLowerCase().includes(query) ||
+          cp.meta?.vendor?.toLowerCase().includes(query) ||
+          cp.meta?.model?.toLowerCase().includes(query) ||
+          cp.meta?.serialNumber?.toLowerCase().includes(query),
+      );
+    }
+
+    return result;
+  }, [chargePoints, search, statusFilter, ocppVersionFilter]);
 
   useEffect(() => {
     if (detailTarget) {
@@ -228,20 +258,65 @@ function ChargePointsPageContent() {
       {!loadingChargePoints && !loadingSites && !errorChargePoints && (
         <>
           <div className="flex flex-col gap-4 content-stretch">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Button onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 {t("appPage.chargePoints.page.buttons.addChargePoint")}
               </Button>
 
-              <div className="relative max-w-sm ml-auto">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={t("appPage.chargePoints.page.buttons.search")}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9"
-                />
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value) =>
+                    setStatusFilter(value as ChargePointConnectionStatus | "all")
+                  }
+                >
+                  <SelectTrigger
+                    className="h-9 w-[150px] text-sm"
+                    aria-label={t("appPage.chargePoints.page.filters.status")}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("appPage.chargePoints.page.filters.allStatuses")}
+                    </SelectItem>
+                    {CONNECTION_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status} className="capitalize">
+                        {status.toLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={ocppVersionFilter} onValueChange={setOcppVersionFilter}>
+                  <SelectTrigger
+                    className="h-9 w-[150px] text-sm"
+                    aria-label={t("appPage.chargePoints.page.filters.ocppVersion")}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("appPage.chargePoints.page.filters.allVersions")}
+                    </SelectItem>
+                    {ocppVersionOptions.map((version) => (
+                      <SelectItem key={version} value={version}>
+                        OCPP {version}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="relative max-w-sm">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t("appPage.chargePoints.page.buttons.search")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
               </div>
             </div>
 

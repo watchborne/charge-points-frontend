@@ -487,6 +487,12 @@
           "addForThisSite": "Ajouter pour ce site",
           "search": "Chercher..."
         },
+        "filters": {
+          "status": "Statut",
+          "ocppVersion": "Version OCPP",
+          "allStatuses": "Tous les statuts",
+          "allVersions": "Toutes les versions"
+        },
         "labels": {
           "countText": "{count, plural, =1 {# borne de recharge} other {# bornes de recharge}}"
         },
@@ -547,7 +553,13 @@
         "never": "Jamais",
         "site": "Site",
         "unknownSite": "Site inconnu",
-        "inactive": "Inactif"
+        "inactive": "Inactif",
+        "tabs": {
+          "main": "Vue d'ensemble",
+          "consumption": "Consommation",
+          "alerts": "Alertes",
+          "security": "Sécurité & historique"
+        }
       },
       "commissioning": {
         "title": "À mettre en service",
