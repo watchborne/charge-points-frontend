@@ -105,7 +105,11 @@ export const ChargePointFleetPanel = ({
           ].join(" / ")}
         </p>
 
-        <Tabs value={groupBy} onValueChange={(value) => setGroupBy(value as GroupBy)}>
+        <Tabs
+          value={groupBy}
+          onValueChange={(value) => setGroupBy(value as GroupBy)}
+          className="overflow-auto"
+        >
           <TabsList aria-label={t("appPage.chargePoints.page.groupBy.label")}>
             <TabsTrigger value="site">{t("appPage.chargePoints.page.groupBy.site")}</TabsTrigger>
             <TabsTrigger value="vendor">

@@ -272,7 +272,7 @@ function ChargePointsPageContent() {
                   }
                 >
                   <SelectTrigger
-                    className="h-9 w-[150px] text-sm"
+                    className="h-9 min-w-[150px] w-max text-sm"
                     aria-label={t("appPage.chargePoints.page.filters.status")}
                   >
                     <SelectValue />
@@ -291,7 +291,7 @@ function ChargePointsPageContent() {
 
                 <Select value={ocppVersionFilter} onValueChange={setOcppVersionFilter}>
                   <SelectTrigger
-                    className="h-9 w-[150px] text-sm"
+                    className="h-9 min-w-[150px] w-max text-sm"
                     aria-label={t("appPage.chargePoints.page.filters.ocppVersion")}
                   >
                     <SelectValue />

@@ -48,7 +48,9 @@ const renderDialog = (
   );
 
 const openDialog = () => {
-  fireEvent.click(screen.getByText("appPage.chargePoints.firmware.update.button"));
+  fireEvent.click(
+    screen.getByRole("button", { name: "appPage.chargePoints.firmware.update.button" }),
+  );
 };
 
 const fillLocation = (value: string) => {
@@ -65,9 +67,9 @@ describe("UpdateFirmwareDialog", () => {
   it("SHOULD disable the trigger WHEN an update is already in progress", () => {
     renderDialog({ updateInProgress: true });
 
-    const trigger = screen
-      .getByText("appPage.chargePoints.firmware.update.button")
-      .closest("button");
+    const trigger = screen.getByRole("button", {
+      name: "appPage.chargePoints.firmware.update.button",
+    });
     expect(trigger?.hasAttribute("disabled")).toBe(true);
   });
 

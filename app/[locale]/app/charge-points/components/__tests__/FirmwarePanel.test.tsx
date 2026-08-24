@@ -214,17 +214,17 @@ describe("FirmwarePanel", () => {
     await waitFor(() => expect(getFirmware).toHaveBeenCalledTimes(1));
   });
 
-  it("SHOULD disable the update trigger WHILE an update is in flight", async () => {
+  it("SHOULD NOT display the update trigger WHILE an update is in flight", async () => {
     resolveWith({ active: buildUpdate(), lastCompleted: null });
 
     renderPanel();
 
     // The backend refuses a second concurrent update; saying so upfront beats
     // letting the installer fill a form that would be rejected.
-    const trigger = (
-      await screen.findByText("appPage.chargePoints.firmware.update.button")
-    ).closest("button");
-    expect(trigger?.hasAttribute("disabled")).toBe(true);
+    const trigger = screen.queryByRole("button", {
+      name: "appPage.chargePoints.firmware.update.button",
+    });
+    expect(trigger).toBeNull();
   });
 
   it("SHOULD enable the update trigger WHEN nothing is in flight", async () => {
@@ -232,10 +232,10 @@ describe("FirmwarePanel", () => {
 
     renderPanel();
 
-    const trigger = (
-      await screen.findByText("appPage.chargePoints.firmware.update.button")
-    ).closest("button");
-    expect(trigger?.hasAttribute("disabled")).toBe(false);
+    const trigger = await screen.findByRole("button", {
+      name: "appPage.chargePoints.firmware.update.button",
+    });
+    expect(trigger.hasAttribute("disabled")).toBe(false);
   });
 
   it("SHOULD refetch WHEN a different charge point is opened", async () => {

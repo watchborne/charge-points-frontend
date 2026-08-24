@@ -142,9 +142,13 @@ export const UpdateFirmwareDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" disabled={updateInProgress}>
-          <Upload className="mr-1.5 h-4 w-4" />
-          {t("appPage.chargePoints.firmware.update.button")}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={updateInProgress}
+          aria-label={t("appPage.chargePoints.firmware.update.button")}
+        >
+          <Upload className="h-4 w-4" />
         </Button>
       </DialogTrigger>
 
