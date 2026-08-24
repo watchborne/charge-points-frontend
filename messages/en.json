@@ -419,6 +419,7 @@
       "sites": "Sites",
       "fleetOverview": "Fleet Overview",
       "fleetOverviewForSite": "Charge points installed at {site}",
+      "viewChargePoint": "View charge point",
       "live": "Live",
       "online": "online",
       "offline": "offline",
