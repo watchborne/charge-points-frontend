@@ -41,9 +41,12 @@ app/
       charge-points/       # page + its own components/ (commissioning dialog/queue/
                            #   checklist, fleet panel, config dialog, trigger message,
                            #   AlertsPanel: alert history + real-time-alerts opt-in,
-                           #   StatusHistoryPanel: connection/connector status timeline).
-                           #   The page itself wraps its useSearchParams() usage in
-                           #   Suspense — required for static rendering.
+                           #   StatusHistoryPanel: connection/connector status timeline,
+                           #   SecurityEventsPanel: OCPP SecurityEventNotification history).
+                           #   ChargePointDetailPanel is the tabbed container these render
+                           #   into. The page itself wraps its useSearchParams() usage in
+                           #   Suspense — required for static rendering, and also drives
+                           #   status/OCPP connector filters off the search params.
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
                            #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
       components/         # shared feature + common + layout components
@@ -94,7 +97,10 @@ components/ui/          # shadcn/ui primitives not yet promoted to
                         #   DropdownMenu, Select, Command, Calendar,
                         #   Datepicker, Form
 lib/                    # http-client, api, api-*, proxy-request, constants
-types/                  # thin re-exports of @watchborne/charge-points-types
+types/                  # mostly thin re-exports of @watchborne/charge-points-types;
+                        #   charge-point.ts also extends ChargePointWithConnectors/
+                        #   ChargePointWithSite with server-local `commissionedAt`
+                        #   (Membership queue/audit state, not in the shared package)
 i18n/locale.ts          # Locale type, defaultLocale, isLocale, localizedPath (edge-safe)
 i18n/routing.ts         # next-intl defineRouting: locales, defaultLocale,
                         #   localePrefix: "as-needed" (fr unprefixed, /en/... prefixed),
@@ -159,6 +165,11 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
   a repeated one survives the hop (`?measurand=A&measurand=B` is how the metering
   reads ask for two series). Keep it that way.
+- `lib/api-security-events.ts` (`api.SecurityEvents.list`) reads
+  `GET /api/charge-points/:id/security-events` for `SecurityEventsPanel` — the
+  station's OCPP `SecurityEventNotification` history. Its response type is
+  declared locally too, same reasoning as `Me`/`ConnectionStateEvent` above:
+  the backend keeps `SecurityEvent` server-local (its ADR 0009).
 - `app/app/providers/QueryProvider.tsx` wraps the dashboard (`app/[locale]/app/layout.tsx`)
   in a TanStack Query `QueryClientProvider` (plus devtools). `useChargePoints` /
   `useSites` and their create/update/delete flows are `useQuery` / `useMutation`
@@ -170,9 +181,14 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
 
 `app/[locale]/app/ws/ws-manager.ts` is a **per-URL singleton** (`getWebSocketManager`)
 that owns the connection: reference counting, a disconnect grace period, and
-exponential-backoff auto-reconnect. Components consume it through the
-`useWebSocket(url)` hook — do not construct `new WebSocket` directly in
-components. Prefer `useWebSocketContext` for shared dashboard state.
+exponential-backoff auto-reconnect with equal jitter (half the backoff is
+guaranteed, half randomized, to avoid every dashboard reconnecting in lockstep
+after a shared server blip). Reconnection gives up after 10 consecutive
+attempts, setting a terminal `"ERROR"` status and turning off auto-reconnect —
+a fresh `subscribe()` or a manual `reconnect()` call resets the attempt count
+and can bring it back. Components consume it through the `useWebSocket(url)`
+hook — do not construct `new WebSocket` directly in components. Prefer
+`useWebSocketContext` for shared dashboard state.
 
 ### Authentication (Supabase OTP)
 
