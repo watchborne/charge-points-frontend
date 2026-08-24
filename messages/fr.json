@@ -977,7 +977,11 @@
         },
         "recentActivity": {
           "title": "Activité de mise en service récente",
-          "stationLabel": "Borne : {station}",
+          "table": {
+            "date": "Date",
+            "station": "Borne",
+            "outcome": "Résultat"
+          },
           "outcomes": {
             "CLAIMED": "Borne mise en service avec succès grâce à votre jeton.",
             "ALREADY_CLAIMED_BY_SELF": "Borne déjà à vous, recommissionnée avec un nouveau jeton.",

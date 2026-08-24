@@ -977,7 +977,11 @@
         },
         "recentActivity": {
           "title": "Recent commissioning activity",
-          "stationLabel": "Charge point: {station}",
+          "table": {
+            "date": "Date",
+            "station": "Charge point",
+            "outcome": "Outcome"
+          },
           "outcomes": {
             "CLAIMED": "Charge point commissioned successfully with your token.",
             "ALREADY_CLAIMED_BY_SELF": "Charge point already yours, recommissioned with a new token.",

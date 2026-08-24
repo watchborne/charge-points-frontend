@@ -1,6 +1,16 @@
 "use client";
 
-import { Button, Callout } from "@watchborne/electrons";
+import {
+  Button,
+  Callout,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  type StatusTone,
+} from "@watchborne/electrons";
 import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -18,17 +28,18 @@ import {
 import { api } from "@/lib/api";
 import { CommissioningAttempt, CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
+import { toneDotClass } from "@/lib/status";
 
-// success: the attempt is what an installer wants to see (a fresh claim, or
+// available: the attempt is what an installer wants to see (a fresh claim, or
 // an already-owned station recommissioned with a new token). error: refused
 // because the station already belongs to someone else — the one outcome
 // worth flagging as wrong, not just routine. warning: a stale/unknown token
 // was presented — never actually returned by GET /api/me (it can't be
 // attributed to any caller, see charge-points-server issue #420), kept here
 // only so the mapping stays total over the shared outcome union.
-const OUTCOME_VARIANT: Record<CommissioningOutcome, "success" | "warning" | "error"> = {
-  CLAIMED: "success",
-  ALREADY_CLAIMED_BY_SELF: "success",
+const OUTCOME_TONE: Record<CommissioningOutcome, StatusTone> = {
+  CLAIMED: "available",
+  ALREADY_CLAIMED_BY_SELF: "available",
   ALREADY_CLAIMED_BY_OTHER: "error",
   UNKNOWN_TOKEN: "warning",
 };
@@ -241,38 +252,61 @@ export const CommissioningTokenPanel = () => {
             <p className="text-xs font-medium text-muted-foreground">
               {t("appPage.configuration.commissioningToken.recentActivity.title")}
             </p>
-            {[...attempts]
-              .sort((a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime())
-              .slice(0, 5)
-              .map((attempt) => {
-                const outcomeKey =
-                  `appPage.configuration.commissioningToken.recentActivity.outcomes.` +
-                  attempt.outcome;
-                const station =
-                  chargePointNames.get(attempt.chargePointId) ?? attempt.chargePointId;
+            <div className="max-h-[220px] overflow-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">
+                      {t("appPage.configuration.commissioningToken.recentActivity.table.date")}
+                    </TableHead>
+                    <TableHead className="text-xs">
+                      {t("appPage.configuration.commissioningToken.recentActivity.table.station")}
+                    </TableHead>
+                    <TableHead className="text-xs">
+                      {t("appPage.configuration.commissioningToken.recentActivity.table.outcome")}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...attempts]
+                    .sort(
+                      (a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime(),
+                    )
+                    .slice(0, 5)
+                    .map((attempt) => {
+                      const outcomeKey =
+                        `appPage.configuration.commissioningToken.recentActivity.outcomes.` +
+                        attempt.outcome;
+                      const station =
+                        chargePointNames.get(attempt.chargePointId) ?? attempt.chargePointId;
 
-                return (
-                  <div key={attempt.id} className="flex flex-col gap-1">
-                    <Callout
-                      variant={OUTCOME_VARIANT[attempt.outcome]}
-                      description={t(outcomeKey)}
-                    />
-                    <p className="text-xs text-muted-foreground pl-1">
-                      {t("appPage.configuration.commissioningToken.recentActivity.stationLabel", {
-                        station,
-                      })}
-                      {" · "}
-                      {format.dateTime(new Date(attempt.attemptedAt), {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                );
-              })}
+                      return (
+                        <TableRow key={attempt.id}>
+                          <TableCell className="whitespace-nowrap text-xs">
+                            {format.dateTime(new Date(attempt.attemptedAt), {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </TableCell>
+                          <TableCell className="text-xs">{station}</TableCell>
+                          <TableCell className="text-xs">
+                            <span className="inline-flex items-start gap-1.5">
+                              <span
+                                aria-hidden
+                                className={`mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full ${toneDotClass[OUTCOME_TONE[attempt.outcome]]}`}
+                              />
+                              {t(outcomeKey)}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )}
       </div>
