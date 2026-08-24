@@ -16,7 +16,7 @@ const THEMES: { theme: Theme; icon: React.ReactNode; label: string }[] = [
 
 export const ThemeSwitcher = ({ currentTheme, onThemeChange }: ThemeSwitcherProps) => {
   return (
-    <div className="flex items-center gap-1 rounded-md border border-border bg-muted p-1">
+    <div className="flex items-center gap-1 rounded-md border border-border bg-muted">
       {THEMES.map(({ theme, icon, label }) => (
         <button
           key={theme}
