@@ -146,7 +146,7 @@ export const CommissioningTokenPanel = () => {
   // A placeholder, not a real station id: showing something concrete-looking
   // (e.g. "CP-001") invites pasting it verbatim, which — with discovery mode
   // on — adopts a charge point literally named that, and with a valid token
-  // claims it for the caller (issue #281).
+  // claims it for the caller.
   const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
   const exampleUrl = `${OCPP_SERVER_URL}/${stationIdPlaceholder}?token=${revealedToken ?? "..."}`;
 

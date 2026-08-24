@@ -4,17 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.commissioning.title": "Awaiting commissioning",
-      "appPage.chargePoints.commissioning.description": "Discovered charge points.",
-      "appPage.chargePoints.commissioning.cta": "Commission",
-    };
-    if (key === "appPage.chargePoints.commissioning.connectorsWithCount") {
-      return `${params?.count} connectors`;
-    }
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { CommissioningQueue } from "../CommissioningQueue";

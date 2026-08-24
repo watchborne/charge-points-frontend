@@ -26,14 +26,22 @@ runs:
       run: npm run test:ci
       shell: bash
 
-    # Persist Next.js's incremental compiler cache between runs. A fresh entry
-    # is written per commit; restore-keys falls back to the most recent cache
-    # for the same lockfile, so unchanged modules are not recompiled.
+    # Persist Next.js's incremental compiler cache between runs, keyed per branch
+    # rather than per commit. A per-commit key wrote a fresh ~100 MB entry on
+    # every push — 38 of them were sitting in a repo that had crossed the 10 GB
+    # per-repository cache limit and was evicting live entries to make room for
+    # dead ones. One entry per branch restores just as well: restore-keys still
+    # falls back to the newest cache for the same lockfile.
+    #
+    # The trade-off: actions/cache never overwrites an existing key, so the second
+    # and later runs on a branch restore the first run's cache rather than the
+    # previous run's. Next.js recompiles what changed on top of it, so this costs
+    # a few seconds of extra compile on later pushes, not a cold build.
     - name: Cache Next.js build
       uses: actions/cache@v4
       with:
         path: .next/cache
-        key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+        key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.head_ref || github.ref_name }}
         restore-keys: |
           nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
 

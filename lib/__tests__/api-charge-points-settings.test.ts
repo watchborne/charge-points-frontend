@@ -21,7 +21,7 @@ const lastCall = () => fetchMock.mock.calls.at(-1) as [string, RequestInit];
 /**
  * These pin the endpoint, not the transport: `/settings` is what makes an OCPP
  * 2.0.1 station readable at all, since the backend picks GetVariables/
- * SetVariables for it (issue #270). Pointing these back at `/configuration`
+ * SetVariables for it. Pointing these back at `/configuration`
  * would compile, pass every UI test, and silently break 2.0.1 stations again.
  */
 describe("chargePointApis.getSettings", () => {

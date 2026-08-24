@@ -19,7 +19,7 @@ describe("isAwaitingCommissioning", () => {
     expect(isAwaitingCommissioning(chargePoint({ commissionedAt: null }))).toBe(true);
   });
 
-  it("SHOULD report false WHEN commissionedAt is set, even with no site (issue #279)", () => {
+  it("SHOULD report false WHEN commissionedAt is set, even with no site", () => {
     // A charge point deliberately commissioned without a site must leave the
     // queue — the bug this field exists to fix.
     expect(

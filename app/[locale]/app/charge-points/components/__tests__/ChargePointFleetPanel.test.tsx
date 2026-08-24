@@ -5,21 +5,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.dashboard.fleetOverview": "Fleet overview",
-      "misc.chargePointWithCount": `${values?.count ?? ""} charge points`,
-      "misc.siteWithCount": `${values?.count ?? ""} sites`,
-      "appPage.chargePoints.page.groupBy.label": "Group by",
-      "appPage.chargePoints.page.groupBy.site": "Site",
-      "appPage.chargePoints.page.groupBy.vendor": "Vendor",
-      "appPage.chargePoints.page.groupBy.unknownVendor": "Unknown vendor",
-      "appPage.chargePoints.page.empty.noChargePointFound": "No charge point found",
-      "appPage.chargePoints.detail.unknownSite": "Unknown site",
-      "appPage.chargePoints.page.detail.selectPrompt": "Select a charge point",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 // The detail panel is a large, independently-testable component with its own
@@ -99,7 +85,7 @@ describe("ChargePointFleetPanel", () => {
   it("SHOULD show the empty state WHEN there are no charge points", () => {
     render(<ChargePointFleetPanel {...baseProps} sites={[]} chargePoints={[]} selected={null} />);
 
-    expect(screen.getByText("No charge point found")).toBeTruthy();
+    expect(screen.getByText("appPage.chargePoints.page.empty.noChargePointFound")).toBeTruthy();
   });
 
   it("SHOULD group charge points by site WHEN grouping by site", () => {
@@ -118,7 +104,9 @@ describe("ChargePointFleetPanel", () => {
     // "Paris" legitimately renders twice: as the group label and again as the
     // card's site Tag.
     expect(screen.getAllByText("Paris").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Unknown site").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("appPage.chargePoints.detail.unknownSite").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getByText("CP-cp-1")).toBeTruthy();
     expect(screen.getByText("CP-cp-2")).toBeTruthy();
   });
@@ -138,7 +126,7 @@ describe("ChargePointFleetPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: "Vendor" }));
+    fireEvent.click(screen.getByRole("tab", { name: "appPage.chargePoints.page.groupBy.vendor" }));
 
     // Each vendor name legitimately renders twice: as the group label and
     // again as the card's vendor/model subtitle.
@@ -195,6 +183,6 @@ describe("ChargePointFleetPanel", () => {
   it("SHOULD show the select prompt WHEN nothing is selected", () => {
     render(<ChargePointFleetPanel {...baseProps} sites={[]} chargePoints={[]} selected={null} />);
 
-    expect(screen.getByText("Select a charge point")).toBeTruthy();
+    expect(screen.getByText("appPage.chargePoints.page.detail.selectPrompt")).toBeTruthy();
   });
 });

@@ -235,7 +235,7 @@ export const chargePointApis = {
    * (2.0.1) are different actions over incompatible request shapes, and which
    * applies is a property of the station. The backend owns that decision, so a
    * 2.0.1 station is readable here without the client branching on
-   * `chargePoint.ocppVersion` (issue #270).
+   * `chargePoint.ocppVersion`.
    */
   getSettings: async function (
     chargePointId: ChargePoint["id"],
