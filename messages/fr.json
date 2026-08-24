@@ -419,6 +419,7 @@
       "sites": "Sites",
       "fleetOverview": "Vue d'ensemble du parc",
       "fleetOverviewForSite": "Bornes installées sur le site {site}",
+      "viewChargePoint": "Voir la borne",
       "live": "En direct",
       "online": "en ligne",
       "offline": "hors ligne",
