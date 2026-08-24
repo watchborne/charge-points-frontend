@@ -534,6 +534,7 @@
         "fields": {
           "name": "Name",
           "namePlaceholder": "Ex: CP-001",
+          "nameCreatePlaceholder": "Optional — a name will be generated if left blank",
           "site": "Site",
           "technicalInformation": "Technical information",
           "vendor": "Vendor",
@@ -545,6 +546,13 @@
           "firmware": "Firmware",
           "firmwarePlaceholder": "Ex: 1.2.3"
         }
+      },
+      "connectionUrl": {
+        "title": "Charge point created",
+        "description": "Configure \"{name}\" by pasting this URL into the physical charge point's own OCPP configuration screen — that's the only step left.",
+        "copyCta": "Copy URL",
+        "hint": "This URL is shown only once — copy it before closing this window.",
+        "doneCta": "Done"
       },
       "detail": {
         "connectionStatus": "Connection status",

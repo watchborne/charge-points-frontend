@@ -45,23 +45,46 @@ type ChargePointFormDialogProps = {
   defaultSiteId?: string | null;
 };
 
-const chargePointSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  // A charge point may be left unassigned (no site) — an empty string, mapped
-  // to `null` by the page before it hits the API.
-  siteId: z.string(),
-  isActive: z.boolean(),
-  meta: z
-    .object({
-      vendor: z.string().optional(),
-      model: z.string().optional(),
-      serialNumber: z.string().optional(),
-      firmwareVersion: z.string().optional(),
-    })
-    .optional(),
+const metaSchema = z
+  .object({
+    vendor: z.string().optional(),
+    model: z.string().optional(),
+    serialNumber: z.string().optional(),
+    firmwareVersion: z.string().optional(),
+  })
+  .optional();
+
+// A charge point may be left unassigned (no site) — an empty string, mapped
+// to `null` by the page before it hits the API.
+const siteIdSchema = z.string();
+const isActiveSchema = z.boolean();
+
+/**
+ * `name` is optional on create (ADR 0010, charge-points-server): it is a
+ * cosmetic label with no uniqueness constraint, so an installer with no name
+ * in mind isn't forced to invent one — the backend generates a readable one
+ * instead. Renaming an existing charge point is still a deliberate act, so
+ * `edit` keeps the field required.
+ */
+const createChargePointSchema = z.object({
+  name: z.string().optional(),
+  siteId: siteIdSchema,
+  isActive: isActiveSchema,
+  meta: metaSchema,
 });
 
-export type ChargePointFormValues = z.infer<typeof chargePointSchema>;
+const editChargePointSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  siteId: siteIdSchema,
+  isActive: isActiveSchema,
+  meta: metaSchema,
+});
+
+// The wider of the two shapes (name optional): both `onSubmit` consumers
+// (create and edit) already forward `values.name` into an optional field —
+// `handleEdit`'s patch is `Partial<CreateChargePointBody>` — and edit mode's
+// own resolver is what actually enforces non-empty before submission.
+export type ChargePointFormValues = z.infer<typeof createChargePointSchema>;
 
 export const ChargePointFormDialog = ({
   open,
@@ -76,7 +99,7 @@ export const ChargePointFormDialog = ({
   const [metaOpen, setMetaOpen] = useState(false);
 
   const form = useForm<ChargePointFormValues>({
-    resolver: zodResolver(chargePointSchema),
+    resolver: zodResolver(mode === "create" ? createChargePointSchema : editChargePointSchema),
     defaultValues: {
       name: "",
       siteId: defaultSiteId ?? "",
@@ -139,8 +162,11 @@ export const ChargePointFormDialog = ({
                   <FormLabel>{t("appPage.chargePoints.form.fields.name")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("appPage.chargePoints.form.fields.namePlaceholder")}
-                      disabled={mode === "edit"}
+                      placeholder={
+                        mode === "create"
+                          ? t("appPage.chargePoints.form.fields.nameCreatePlaceholder")
+                          : t("appPage.chargePoints.form.fields.namePlaceholder")
+                      }
                       {...field}
                     />
                   </FormControl>

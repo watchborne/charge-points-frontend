@@ -13,12 +13,22 @@ import type {
   UpdateFirmwareStatusV201,
 } from "@watchborne/charge-points-types";
 
-import type { ChargePointWithConnectors, ChargePointWithSite } from "@/types/charge-point";
+import type {
+  ChargePointWithConnectors,
+  ChargePointWithSite,
+  CreatedChargePoint,
+} from "@/types/charge-point";
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 
 import { httpClient } from "./http-client";
 
-type CreateChargePointBody = Pick<ChargePoint, "name" | "siteId" | "meta" | "isActive"> & {
+type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
+  /**
+   * Optional since ADR 0010 (charge-points-server): a cosmetic label with no
+   * uniqueness constraint. Left out, the backend generates a readable one —
+   * an installer with no name in mind is never forced to invent one.
+   */
+  name?: ChargePoint["name"];
   /** Optional here unlike isActive: defaults to false server-side (opt-in),
    * and there is no creation-time UI for it — an installer sets it later via
    * the detail panel's toggle (a PATCH). */
@@ -128,11 +138,9 @@ export const chargePointApis = {
       throw error;
     }
   },
-  createChargePoint: async function (
-    body: CreateChargePointBody,
-  ): Promise<ChargePointWithConnectors> {
+  createChargePoint: async function (body: CreateChargePointBody): Promise<CreatedChargePoint> {
     try {
-      return await httpClient.post<ChargePointWithConnectors>("/api/charge-points", body);
+      return await httpClient.post<CreatedChargePoint>("/api/charge-points", body);
     } catch (error) {
       console.error("Failed to create charge point", error, body);
       throw error;
