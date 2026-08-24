@@ -13,7 +13,7 @@ export const WsStatusBadge = ({ status }: WsStatusBadgeProps) => {
 
   if (status === "CONNECTED") {
     return (
-      <Badge className="gap-1.5">
+      <Badge className="gap-1.5 text-nowrap">
         <LiveDot />
         {t("appPage.dashboard.live")}
       </Badge>
@@ -22,7 +22,7 @@ export const WsStatusBadge = ({ status }: WsStatusBadgeProps) => {
 
   if (status === "CONNECTING") {
     return (
-      <Badge variant="secondary" className="gap-1.5">
+      <Badge variant="secondary" className="text-nowrap gap-1.5">
         <Loader className="h-3 w-3 animate-spin" />
         {t("layout.navbar.app.wsStatus.connecting")}
       </Badge>
@@ -33,7 +33,7 @@ export const WsStatusBadge = ({ status }: WsStatusBadgeProps) => {
     return (
       <Badge
         variant="outline"
-        className="gap-1.5 border-status-error/30 text-status-error-foreground"
+        className="text-nowrap gap-1.5 border-status-error/30 text-status-error-foreground"
       >
         <span className="h-1.5 w-1.5 rounded-full bg-status-error" />
         {t("layout.navbar.app.wsStatus.error")}
@@ -42,7 +42,7 @@ export const WsStatusBadge = ({ status }: WsStatusBadgeProps) => {
   }
 
   return (
-    <Badge variant="outline" className="gap-1.5 text-muted-foreground">
+    <Badge variant="outline" className="text-nowrap gap-1.5 text-muted-foreground">
       <span className="h-1.5 w-1.5 rounded-full bg-status-offline" />
       {t("layout.navbar.app.wsStatus.disconnected")}
     </Badge>
