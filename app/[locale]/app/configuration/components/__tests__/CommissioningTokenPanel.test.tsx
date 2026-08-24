@@ -273,11 +273,7 @@ describe("CommissioningTokenPanel", () => {
     expect(
       screen.getByText("appPage.configuration.commissioningToken.recentActivity.outcomes.CLAIMED"),
     ).toBeTruthy();
-    expect(
-      screen.getByText(
-        /appPage.configuration.commissioningToken.recentActivity.stationLabel.*Station Nord/,
-      ),
-    ).toBeTruthy();
+    expect(screen.getByText("Station Nord")).toBeTruthy();
   });
 
   it("SHOULD render a refused claim WHEN the station belongs to another installer", async () => {
@@ -303,11 +299,7 @@ describe("CommissioningTokenPanel", () => {
       ),
     ).toBeTruthy();
     // Not in the caller's own chargePoints (belongs to someone else) — falls back to the raw id.
-    expect(
-      screen.getByText(
-        /appPage.configuration.commissioningToken.recentActivity.stationLabel.*cp-2/,
-      ),
-    ).toBeTruthy();
+    expect(screen.getByText("cp-2")).toBeTruthy();
   });
 
   it("SHOULD sort commissioning attempts newest first and cap the list at 5", async () => {
@@ -328,15 +320,7 @@ describe("CommissioningTokenPanel", () => {
 
     await screen.findByText("appPage.configuration.commissioningToken.recentActivity.title");
     // Newest (attempt-5, Jan 6th) is present; oldest (attempt-0, Jan 1st) is dropped by the 5-item cap.
-    expect(
-      screen.getByText(
-        /appPage.configuration.commissioningToken.recentActivity.stationLabel.*cp-5/,
-      ),
-    ).toBeTruthy();
-    expect(
-      screen.queryByText(
-        /appPage.configuration.commissioningToken.recentActivity.stationLabel.*cp-0/,
-      ),
-    ).toBeNull();
+    expect(screen.getByText("cp-5")).toBeTruthy();
+    expect(screen.queryByText("cp-0")).toBeNull();
   });
 });
