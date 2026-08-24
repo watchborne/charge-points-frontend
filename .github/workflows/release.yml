@@ -103,7 +103,7 @@ jobs:
           # that actually has non-blank content below its header — the
           # phantom, when one exists, never does (its range is always empty
           # in this job).
-          CHANGELOG=$(conventional-changelog -p angular --release-count 2 | awk '
+          CHANGELOG=$(conventional-changelog -p angular -n scripts/changelog-config.mjs --release-count 2 | awk '
             /^# |^## / {
               if (has_content) { print header; print body; exit }
               header = $0; body = ""; has_content = 0; next
