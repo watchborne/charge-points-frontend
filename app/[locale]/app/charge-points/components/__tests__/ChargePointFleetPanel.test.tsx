@@ -85,7 +85,7 @@ describe("ChargePointFleetPanel", () => {
   it("SHOULD show the empty state WHEN there are no charge points", () => {
     render(<ChargePointFleetPanel {...baseProps} sites={[]} chargePoints={[]} selected={null} />);
 
-    expect(screen.getByText("No charge point found")).toBeTruthy();
+    expect(screen.getByText("appPage.chargePoints.page.empty.noChargePointFound")).toBeTruthy();
   });
 
   it("SHOULD group charge points by site WHEN grouping by site", () => {
@@ -104,7 +104,9 @@ describe("ChargePointFleetPanel", () => {
     // "Paris" legitimately renders twice: as the group label and again as the
     // card's site Tag.
     expect(screen.getAllByText("Paris").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Unknown site").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("appPage.chargePoints.detail.unknownSite").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getByText("CP-cp-1")).toBeTruthy();
     expect(screen.getByText("CP-cp-2")).toBeTruthy();
   });
@@ -124,7 +126,7 @@ describe("ChargePointFleetPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: "Vendor" }));
+    fireEvent.click(screen.getByRole("tab", { name: "appPage.chargePoints.page.groupBy.vendor" }));
 
     // Each vendor name legitimately renders twice: as the group label and
     // again as the card's vendor/model subtitle.

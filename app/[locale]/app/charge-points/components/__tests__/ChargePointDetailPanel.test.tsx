@@ -179,9 +179,11 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
-      "true",
-    );
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
   });
 
   it("SHOULD switch the active tab WHEN a different tab is clicked", () => {
@@ -202,14 +204,18 @@ describe("ChargePointDetailPanel", () => {
     // Radix Tabs' default "automatic" activation switches on focus, not
     // click — jsdom doesn't move focus as a side effect of a synthetic
     // click the way a real browser does, so it's driven explicitly here.
-    const consumptionTab = screen.getByRole("tab", { name: "Consumption" });
+    const consumptionTab = screen.getByRole("tab", {
+      name: "appPage.chargePoints.detail.tabs.consumption",
+    });
     fireEvent.mouseDown(consumptionTab);
     consumptionTab.focus();
     fireEvent.click(consumptionTab);
 
     expect(consumptionTab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
-      "false",
-    );
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })
+        .getAttribute("aria-selected"),
+    ).toBe("false");
   });
 });

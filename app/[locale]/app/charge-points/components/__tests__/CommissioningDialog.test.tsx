@@ -53,7 +53,9 @@ describe("CommissioningDialog", () => {
     );
 
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "  Parking A  " } });
-    fireEvent.click(screen.getByRole("button", { name: "Commission" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.commissioning.dialog.submit" }),
+    );
 
     await waitFor(() =>
       // Name is trimmed; an empty site selection maps to null.

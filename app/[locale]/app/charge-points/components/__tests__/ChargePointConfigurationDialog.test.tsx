@@ -35,7 +35,9 @@ describe("ChargePointConfigurationDialog", () => {
     });
 
     render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
-    fireEvent.click(screen.getByRole("button", { name: "Configuration" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.configuration.button" }),
+    );
 
     await waitFor(() => expect(screen.getByText("HeartbeatInterval")).toBeTruthy());
     expect(screen.getByText("300")).toBeTruthy();
@@ -46,9 +48,15 @@ describe("ChargePointConfigurationDialog", () => {
     getSettings.mockResolvedValue({ ok: false, httpStatus: 409 });
 
     render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
-    fireEvent.click(screen.getByRole("button", { name: "Configuration" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.configuration.button" }),
+    );
 
-    await waitFor(() => expect(screen.getByText("Cannot read: offline.")).toBeTruthy());
+    await waitFor(() =>
+      expect(
+        screen.getByText("appPage.chargePoints.configuration.result.notConnected"),
+      ).toBeTruthy(),
+    );
   });
 
   it("SHOULD apply a key change then re-read the configuration WHEN Apply is clicked", async () => {
@@ -56,16 +64,30 @@ describe("ChargePointConfigurationDialog", () => {
     setSetting.mockResolvedValue({ ok: true, status: "Accepted" });
 
     render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
-    fireEvent.click(screen.getByRole("button", { name: "Configuration" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.configuration.button" }),
+    );
     await waitFor(() => expect(getSettings).toHaveBeenCalledTimes(1));
 
-    fireEvent.change(screen.getByPlaceholderText("Key"), {
-      target: { value: "HeartbeatInterval" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Value"), { target: { value: "600" } });
-    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    fireEvent.change(
+      screen.getByPlaceholderText("appPage.chargePoints.configuration.set.keyPlaceholder"),
+      {
+        target: { value: "HeartbeatInterval" },
+      },
+    );
+    fireEvent.change(
+      screen.getByPlaceholderText("appPage.chargePoints.configuration.set.valuePlaceholder"),
+      { target: { value: "600" } },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.configuration.set.button" }),
+    );
 
-    await waitFor(() => expect(screen.getByText("Change applied.")).toBeTruthy());
+    await waitFor(() =>
+      expect(
+        screen.getByText("appPage.chargePoints.configuration.set.result.accepted"),
+      ).toBeTruthy(),
+    );
     expect(setSetting).toHaveBeenCalledWith("cp-1", "HeartbeatInterval", "600");
     // Re-reads after a successful change.
     expect(getSettings).toHaveBeenCalledTimes(2);
