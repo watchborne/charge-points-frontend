@@ -135,23 +135,35 @@ export const FirmwarePanel = ({
 
           {firmware.lastCompleted ? (
             <div className="flex items-center justify-between gap-2">
-              <span className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 {t("appPage.chargePoints.firmware.lastUpdate")}
-              </span>
-              <span className="flex flex-col items-end text-sm font-medium">
-                <span className="flex items-center gap-1.5">
-                  {outcomeIcon(firmware.lastCompleted)}
-                  {formatDistanceToNow(new Date(firmware.lastCompleted.finishedAt!), {
-                    addSuffix: true,
-                    locale: enGB,
-                  })}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {format(new Date(firmware.lastCompleted.finishedAt!), "dd/MM/yyyy HH:mm")}
-                  {firmware.lastCompleted.toVersion &&
-                    ` · ${firmware.lastCompleted.fromVersion ?? "?"} → ${firmware.lastCompleted.toVersion}`}
-                </span>
-              </span>
+              </div>
+              <div className="flex gap-3 flex-wrap items-center justify-end">
+                <div className="flex flex-col items-end text-sm font-medium">
+                  <div className="flex items-center gap-1.5">
+                    {outcomeIcon(firmware.lastCompleted)}
+                    {formatDistanceToNow(new Date(firmware.lastCompleted.finishedAt!), {
+                      addSuffix: true,
+                      locale: enGB,
+                    })}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {format(new Date(firmware.lastCompleted.finishedAt!), "dd/MM/yyyy HH:mm")}
+                    {firmware.lastCompleted.toVersion &&
+                      ` · ${firmware.lastCompleted.fromVersion ?? "?"} → ${firmware.lastCompleted.toVersion}`}
+                  </div>
+                </div>
+
+                <UpdateFirmwareDialog
+                  chargePointId={chargePointId}
+                  ocppVersion={ocppVersion}
+                  // The backend refuses a second concurrent update (at most one
+                  // unfinished per charge point); disabling the trigger says so
+                  // before the installer fills a form that would be rejected.
+                  updateInProgress={firmware.active !== null}
+                  onStarted={() => void load(false)}
+                />
+              </div>
             </div>
           ) : (
             !firmware.active && (
@@ -170,16 +182,6 @@ export const FirmwarePanel = ({
               variant="error"
             />
           )}
-
-          <UpdateFirmwareDialog
-            chargePointId={chargePointId}
-            ocppVersion={ocppVersion}
-            // The backend refuses a second concurrent update (at most one
-            // unfinished per charge point); disabling the trigger says so
-            // before the installer fills a form that would be rejected.
-            updateInProgress={firmware.active !== null}
-            onStarted={() => void load(false)}
-          />
         </>
       )}
     </div>

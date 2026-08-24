@@ -159,7 +159,11 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
 
         {/* Filters in one row above the chart: window, then measurand, then view. */}
         <div className="flex flex-wrap items-center gap-2">
-          <Tabs value={range} onValueChange={(value) => setRange(value as ConsumptionRange)}>
+          <Tabs
+            value={range}
+            onValueChange={(value) => setRange(value as ConsumptionRange)}
+            className="overflow-auto"
+          >
             <TabsList>
               {CONSUMPTION_RANGES.map((option) => (
                 <TabsTrigger key={option} value={option} className="text-xs">

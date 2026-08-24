@@ -87,7 +87,11 @@ export const StatusHistoryPanel = ({
 
         <div className="flex flex-wrap items-center gap-2">
           {ranges.length > 1 && (
-            <Tabs value={range} onValueChange={(value) => setRange(value as StatusHistoryRange)}>
+            <Tabs
+              value={range}
+              onValueChange={(value) => setRange(value as StatusHistoryRange)}
+              className="overflow-auto"
+            >
               <TabsList>
                 {ranges.map((option) => (
                   <TabsTrigger key={option} value={option} className="text-xs">

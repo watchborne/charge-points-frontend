@@ -247,7 +247,11 @@ export const ChargePointDetailPanel = ({
         <Callout description={chargePoint.connection.statusMessage} variant="warning" />
       )}
 
-      <Tabs value={tab} onValueChange={(value) => setTab(value as DetailTab)}>
+      <Tabs
+        value={tab}
+        onValueChange={(value) => setTab(value as DetailTab)}
+        className="overflow-auto"
+      >
         <TabsList>
           {DETAIL_TABS.map((option) => (
             <TabsTrigger key={option} value={option}>
