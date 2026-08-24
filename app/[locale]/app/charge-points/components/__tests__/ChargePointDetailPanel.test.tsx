@@ -32,35 +32,13 @@ vi.mock("../../../../../../lib/api", () => ({
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.detail.connector": `Connector #${values?.connectorId}`,
-      "appPage.chargePoints.detail.lastMeterValue": "Last meter reading",
-      "appPage.chargePoints.detail.lastSeen": "Last seen",
-      "appPage.chargePoints.detail.never": "Never",
-      "appPage.chargePoints.detail.site": "Site",
-      "appPage.chargePoints.detail.unknownSite": "Unknown site",
-      "appPage.chargePoints.detail.tabs.main": "Overview",
-      "appPage.chargePoints.detail.tabs.consumption": "Consumption",
-      "appPage.chargePoints.detail.tabs.alerts": "Alerts",
-      "appPage.chargePoints.detail.tabs.security": "Security & history",
-      "appPage.chargePoints.availability.button": "Change availability",
-      "appPage.chargePoints.unlockConnector.button": "Unlock connector",
-      "appPage.chargePoints.statusHistory.title": "Status history",
-      "appPage.chargePoints.statusHistory.connectivity": "Connectivity",
-      "appPage.chargePoints.statusHistory.connectorStatus": `Connector ${values?.connectorId} status`,
-      "appPage.chargePoints.statusHistory.connectorLabel": "Connector",
-      "appPage.chargePoints.statusHistory.noData": "No data",
-      "appPage.chargePoints.statusHistory.truncated": "Truncated",
-      "appPage.chargePoints.statusHistory.error": "Failed to load status history.",
-      "appPage.chargePoints.statusHistory.ranges.day": "Today",
-      "appPage.chargePoints.statusHistory.ranges.7d": "7d",
-      "appPage.chargePoints.statusHistory.ranges.30d": "30d",
-      "appPage.chargePoints.statusHistory.table.timestamp": "Timestamp",
-      "appPage.chargePoints.statusHistory.table.status": "Status",
-      "appPage.chargePoints.statusHistory.table.duration": "Duration",
-      "appPage.chargePoints.consumption.connectorSeries": `Connector ${values?.connectorId}`,
-    };
-    return map[key] ?? key;
+    if (values && Object.keys(values).length > 0) {
+      const paramList = Object.entries(values)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(", ");
+      return `${key}(${paramList})`;
+    }
+    return key;
   },
 }));
 
@@ -172,7 +150,7 @@ describe("ChargePointDetailPanel", () => {
     // move focus as a side effect of a synthetic click the way a real
     // browser does, so it's driven explicitly here (see StatusHistoryPanel's
     // own tab-switching test for the same pattern).
-    const alertsTab = screen.getByRole("tab", { name: "Alerts" });
+    const alertsTab = screen.getByRole("tab", { name: "appPage.chargePoints.detail.tabs.alerts" });
     fireEvent.mouseDown(alertsTab);
     alertsTab.focus();
     fireEvent.click(alertsTab);
@@ -201,9 +179,11 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
-      "true",
-    );
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
   });
 
   it("SHOULD switch the active tab WHEN a different tab is clicked", () => {
@@ -224,14 +204,18 @@ describe("ChargePointDetailPanel", () => {
     // Radix Tabs' default "automatic" activation switches on focus, not
     // click — jsdom doesn't move focus as a side effect of a synthetic
     // click the way a real browser does, so it's driven explicitly here.
-    const consumptionTab = screen.getByRole("tab", { name: "Consumption" });
+    const consumptionTab = screen.getByRole("tab", {
+      name: "appPage.chargePoints.detail.tabs.consumption",
+    });
     fireEvent.mouseDown(consumptionTab);
     consumptionTab.focus();
     fireEvent.click(consumptionTab);
 
     expect(consumptionTab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe(
-      "false",
-    );
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })
+        .getAttribute("aria-selected"),
+    ).toBe("false");
   });
 });

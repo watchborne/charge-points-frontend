@@ -13,20 +13,7 @@ vi.mock("../../../../../../lib/api", () => ({
 }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.trigger.button": "Trigger a message",
-      "appPage.chargePoints.trigger.types.BootNotification": "Boot notification",
-      "appPage.chargePoints.trigger.types.DiagnosticsStatusNotification": "Diagnostics status",
-      "appPage.chargePoints.trigger.types.FirmwareStatusNotification": "Firmware status",
-      "appPage.chargePoints.trigger.types.Heartbeat": "Heartbeat",
-      "appPage.chargePoints.trigger.types.MeterValues": "Meter values",
-      "appPage.chargePoints.trigger.types.StatusNotification": "Status notification",
-      "appPage.chargePoints.trigger.result.accepted": "Accepted.",
-      "appPage.chargePoints.trigger.result.notConnectedOrRejected": "Cannot trigger.",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { TriggerMessageControl } from "../TriggerMessageControl";
@@ -55,12 +42,14 @@ describe("TriggerMessageControl", () => {
     triggerMessage.mockResolvedValue({ ok: true, status: "Accepted" });
 
     render(<TriggerMessageControl chargePointId="cp-1" />);
-    openMenu(/trigger a message/i);
+    openMenu(/appPage.chargePoints.trigger.button/i);
 
-    const item = await screen.findByText("Status notification");
+    const item = await screen.findByText("appPage.chargePoints.trigger.types.StatusNotification");
     fireEvent.click(item);
 
-    await waitFor(() => expect(screen.getByText("Accepted.")).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText("appPage.chargePoints.trigger.result.accepted")).toBeTruthy(),
+    );
     expect(triggerMessage).toHaveBeenCalledWith("cp-1", "StatusNotification");
   });
 
@@ -68,9 +57,13 @@ describe("TriggerMessageControl", () => {
     triggerMessage.mockResolvedValue({ ok: false, httpStatus: 409 });
 
     render(<TriggerMessageControl chargePointId="cp-1" />);
-    openMenu(/trigger a message/i);
-    fireEvent.click(await screen.findByText("Boot notification"));
+    openMenu(/appPage.chargePoints.trigger.button/i);
+    fireEvent.click(await screen.findByText("appPage.chargePoints.trigger.types.BootNotification"));
 
-    await waitFor(() => expect(screen.getByText("Cannot trigger.")).toBeTruthy());
+    await waitFor(() =>
+      expect(
+        screen.getByText("appPage.chargePoints.trigger.result.notConnectedOrRejected"),
+      ).toBeTruthy(),
+    );
   });
 });

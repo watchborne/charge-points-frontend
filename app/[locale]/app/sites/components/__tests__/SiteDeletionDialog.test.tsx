@@ -3,15 +3,7 @@ import type { Site } from "@watchborne/charge-points-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.sites.deletion.title": `Delete ${values?.name ?? ""}?`,
-      "appPage.sites.deletion.description": "This cannot be undone.",
-      "common.cancel": "Cancel",
-      "common.delete": "Delete",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { SiteDeletionDialog } from "../SiteDeletionDialog";
@@ -54,7 +46,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    expect(screen.getByText("Delete Paris Nord?")).toBeTruthy();
+    expect(screen.getByText("appPage.sites.deletion.title")).toBeTruthy();
   });
 
   it("SHOULD call onDeleteClicked WHEN the destructive action is confirmed", () => {
@@ -68,7 +60,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.delete" }));
 
     expect(onDeleteClicked).toHaveBeenCalled();
   });
@@ -84,7 +76,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.cancel" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

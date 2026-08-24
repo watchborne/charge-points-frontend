@@ -10,7 +10,7 @@ const STATUS_LABEL_KEY: Record<SiteHealthStatus, string> = {
   CRITICAL: "appPage.dashboard.siteHealth.status.critical",
 };
 
-/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill (issue #7). */
+/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill. */
 export const SiteHealthBadge = ({ status }: { status: SiteHealthStatus }) => {
   const t = useTranslations("");
   const tone = siteHealthStatusTone(status);

@@ -6,17 +6,13 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.sites.page.table.columns.actions": "Actions",
-      "common.edit": "Edit",
-      "common.delete": "Delete",
-      "appPage.sites.page.card.chargePointsWithCount": `${values?.count ?? ""} charge points`,
-      "appPage.sites.page.card.online": `${values?.count ?? ""} online`,
-      "appPage.sites.page.card.offline": `${values?.count ?? ""} offline`,
-      "appPage.sites.page.table.columns.installDate": "Installed",
-      "appPage.sites.page.table.columns.lastVisit": "Last visit",
-    };
-    return map[key] ?? key;
+    if (values && Object.keys(values).length > 0) {
+      const paramList = Object.entries(values)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(", ");
+      return `${key}(${paramList})`;
+    }
+    return key;
   },
   useFormatter: () => ({
     dateTime: (date: Date) => date.toISOString().slice(0, 10),
@@ -35,7 +31,7 @@ beforeAll(() => {
 });
 
 const openMenu = () => {
-  const trigger = screen.getByRole("button", { name: "Actions" });
+  const trigger = screen.getByRole("button", { name: "appPage.sites.page.table.columns.actions" });
   fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false, pointerType: "mouse" });
 };
 
@@ -88,8 +84,8 @@ describe("SiteCard", () => {
       />,
     );
 
-    expect(screen.getByText("1 online")).toBeTruthy();
-    expect(screen.getByText("1 offline")).toBeTruthy();
+    expect(screen.getByText("appPage.sites.page.card.online(count=1)")).toBeTruthy();
+    expect(screen.getByText("appPage.sites.page.card.offline(count=1)")).toBeTruthy();
   });
 
   it("SHOULD not show an online/offline breakdown WHEN there are no charge points", () => {
@@ -106,7 +102,7 @@ describe("SiteCard", () => {
       <SiteCard site={site} chargePoints={[]} onEditClicked={vi.fn()} onDeleteClicked={vi.fn()} />,
     );
 
-    expect(screen.getByText(/Last visit: —/)).toBeTruthy();
+    expect(screen.getByText(`appPage.sites.page.table.columns.lastVisit: —`)).toBeTruthy();
   });
 
   it("SHOULD call onEditClicked with the site WHEN Edit is chosen from the menu", async () => {
@@ -121,7 +117,7 @@ describe("SiteCard", () => {
     );
 
     openMenu();
-    fireEvent.click(await screen.findByText("Edit"));
+    fireEvent.click(await screen.findByText("common.edit"));
 
     expect(onEditClicked).toHaveBeenCalledWith(site);
   });
@@ -138,7 +134,7 @@ describe("SiteCard", () => {
     );
 
     openMenu();
-    fireEvent.click(await screen.findByText("Delete"));
+    fireEvent.click(await screen.findByText("common.delete"));
 
     expect(onDeleteClicked).toHaveBeenCalledWith(site);
   });

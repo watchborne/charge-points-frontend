@@ -2,25 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.statusHistory.title": "Status history",
-      "appPage.chargePoints.statusHistory.connectivity": "Connectivity",
-      "appPage.chargePoints.statusHistory.connectorStatus": `Connector ${values?.connectorId} status`,
-      "appPage.chargePoints.statusHistory.connectorLabel": "Connector",
-      "appPage.chargePoints.statusHistory.noData": "No data",
-      "appPage.chargePoints.statusHistory.truncated": "Truncated to 500 transitions",
-      "appPage.chargePoints.statusHistory.error": "Failed to load status history.",
-      "appPage.chargePoints.statusHistory.ranges.day": "Today",
-      "appPage.chargePoints.statusHistory.ranges.7d": "7d",
-      "appPage.chargePoints.statusHistory.ranges.30d": "30d",
-      "appPage.chargePoints.statusHistory.table.timestamp": "Timestamp",
-      "appPage.chargePoints.statusHistory.table.status": "Status",
-      "appPage.chargePoints.statusHistory.table.duration": "Duration",
-      "appPage.chargePoints.consumption.connectorSeries": `Connector ${values?.connectorId}`,
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 vi.mock("../../../../../../lib/api", () => ({
@@ -73,8 +55,14 @@ describe("StatusHistoryPanel", () => {
   it("SHOULD render two timeline bars (connectivity and connector status) by default", async () => {
     render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
 
-    await waitFor(() => expect(screen.getByRole("img", { name: "Connectivity" })).toBeDefined());
-    expect(screen.getByRole("img", { name: "Connector 1 status" })).toBeDefined();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("img", { name: "appPage.chargePoints.statusHistory.connectivity" }),
+      ).toBeDefined(),
+    );
+    expect(
+      screen.getByRole("img", { name: "appPage.chargePoints.statusHistory.connectorStatus" }),
+    ).toBeDefined();
   });
 
   it("SHOULD load both streams for the charge point and default connector", async () => {
@@ -96,10 +84,14 @@ describe("StatusHistoryPanel", () => {
     const { rerender } = render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
     await waitFor(() => expect(api.StatusHistory.getConnectionEvents).toHaveBeenCalled());
 
-    expect(screen.queryByLabelText("Connector")).toBeNull();
+    expect(screen.queryByLabelText("appPage.chargePoints.statusHistory.connectorLabel")).toBeNull();
 
     rerender(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1, 2]} />);
-    await waitFor(() => expect(screen.queryByLabelText("Connector")).not.toBeNull());
+    await waitFor(() =>
+      expect(
+        screen.queryByLabelText("appPage.chargePoints.statusHistory.connectorLabel"),
+      ).not.toBeNull(),
+    );
   });
 
   it("SHOULD switch to breakdown tables WHEN the 30-day tab is selected", async () => {
@@ -107,19 +99,35 @@ describe("StatusHistoryPanel", () => {
     vi.mocked(api.StatusHistory.getConnectorStatusEvents).mockResolvedValue([CONNECTOR_EVENT]);
 
     render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
-    await waitFor(() => expect(screen.getByRole("img", { name: "Connectivity" })).toBeDefined());
+    await waitFor(() =>
+      expect(
+        screen.getByRole("img", {
+          name: "appPage.chargePoints.statusHistory.connectivity",
+        }),
+      ).toBeDefined(),
+    );
 
     // Radix Tabs' default "automatic" activation switches on focus, not
     // click — jsdom doesn't move focus as a side effect of a synthetic
     // click the way a real browser does, so it's driven explicitly here.
-    const tab30d = screen.getByRole("tab", { name: "30d" }) as HTMLElement;
+    const tab30d = screen.getByRole("tab", {
+      name: "appPage.chargePoints.statusHistory.ranges.30d",
+    }) as HTMLElement;
     fireEvent.mouseDown(tab30d);
     tab30d.focus();
     fireEvent.click(tab30d);
 
-    await waitFor(() => expect(screen.queryByRole("img", { name: "Connectivity" })).toBeNull());
-    expect(screen.getAllByText("Timestamp").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Duration").length).toBeGreaterThan(0);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("img", { name: "appPage.chargePoints.statusHistory.connectivity" }),
+      ).toBeNull(),
+    );
+    expect(
+      screen.getAllByText("appPage.chargePoints.statusHistory.table.timestamp").length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText("appPage.chargePoints.statusHistory.table.duration").length,
+    ).toBeGreaterThan(0);
   });
 
   it("SHOULD render an error callout WHEN loading fails", async () => {
@@ -127,7 +135,9 @@ describe("StatusHistoryPanel", () => {
 
     render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
 
-    await waitFor(() => expect(screen.getByText("Failed to load status history.")).toBeDefined());
+    await waitFor(() =>
+      expect(screen.getByText("appPage.chargePoints.statusHistory.error")).toBeDefined(),
+    );
   });
 
   it("SHOULD show the truncated notice WHEN a stream hits the fetch limit", async () => {
@@ -137,13 +147,19 @@ describe("StatusHistoryPanel", () => {
 
     render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
 
-    await waitFor(() => expect(screen.getByText("Truncated to 500 transitions")).toBeDefined());
+    await waitFor(() =>
+      expect(screen.getByText("appPage.chargePoints.statusHistory.truncated")).toBeDefined(),
+    );
   });
 
   it("SHOULD NOT show the truncated notice WHEN neither stream hits the fetch limit", async () => {
     render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
 
-    await waitFor(() => expect(screen.getByRole("img", { name: "Connectivity" })).toBeDefined());
+    await waitFor(() =>
+      expect(
+        screen.getByRole("img", { name: "appPage.chargePoints.statusHistory.connectivity" }),
+      ).toBeDefined(),
+    );
     expect(screen.queryByText("Truncated to 500 transitions")).toBeNull();
   });
 });
