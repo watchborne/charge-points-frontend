@@ -46,7 +46,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    expect(screen.getByText("Delete Paris Nord?")).toBeTruthy();
+    expect(screen.getByText("appPage.sites.deletion.title")).toBeTruthy();
   });
 
   it("SHOULD call onDeleteClicked WHEN the destructive action is confirmed", () => {
@@ -60,7 +60,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.delete" }));
 
     expect(onDeleteClicked).toHaveBeenCalled();
   });
@@ -76,7 +76,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.cancel" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

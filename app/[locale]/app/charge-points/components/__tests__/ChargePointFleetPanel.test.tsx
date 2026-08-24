@@ -181,6 +181,6 @@ describe("ChargePointFleetPanel", () => {
   it("SHOULD show the select prompt WHEN nothing is selected", () => {
     render(<ChargePointFleetPanel {...baseProps} sites={[]} chargePoints={[]} selected={null} />);
 
-    expect(screen.getByText("Select a charge point")).toBeTruthy();
+    expect(screen.getByText("appPage.chargePoints.page.detail.selectPrompt")).toBeTruthy();
   });
 });

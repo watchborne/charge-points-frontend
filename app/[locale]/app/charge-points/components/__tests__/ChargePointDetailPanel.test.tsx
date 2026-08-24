@@ -150,7 +150,7 @@ describe("ChargePointDetailPanel", () => {
     // move focus as a side effect of a synthetic click the way a real
     // browser does, so it's driven explicitly here (see StatusHistoryPanel's
     // own tab-switching test for the same pattern).
-    const alertsTab = screen.getByRole("tab", { name: "Alerts" });
+    const alertsTab = screen.getByRole("tab", { name: "appPage.chargePoints.detail.tabs.alerts" });
     fireEvent.mouseDown(alertsTab);
     alertsTab.focus();
     fireEvent.click(alertsTab);

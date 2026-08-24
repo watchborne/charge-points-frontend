@@ -57,7 +57,7 @@ describe("SiteGrid", () => {
       <SiteGrid sites={[]} chargePoints={[]} onEditClicked={vi.fn()} onDeleteClicked={vi.fn()} />,
     );
 
-    expect(screen.getByText("No sites yet")).toBeTruthy();
+    expect(screen.getByText("appPage.sites.page.table.empty")).toBeTruthy();
   });
 
   it("SHOULD render one card per site", () => {
@@ -84,6 +84,8 @@ describe("SiteGrid", () => {
       />,
     );
 
-    expect(screen.getAllByText("1 charge points").length).toBe(2);
+    expect(
+      screen.getAllByText("appPage.sites.page.card.chargePointsWithCount(count=1)").length,
+    ).toBe(2);
   });
 });

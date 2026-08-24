@@ -52,7 +52,7 @@ const makeChargePoint = (
   }) as ChargePointWithConnectors;
 
 // A check row passes when its status icon carries the "available" success tone.
-const rowPassed = (label: string): boolean => {
+const rowPassed = (label: string | RegExp): boolean => {
   const icon = screen.getByText(label).parentElement?.querySelector("svg");
   return icon?.classList.contains("text-status-available-foreground") ?? false;
 };
@@ -75,7 +75,9 @@ describe("CommissioningChecklist", () => {
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.site")).toBe(true);
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(true);
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.bootAccepted")).toBe(true);
-    expect(rowPassed(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBe(true);
+    expect(rowPassed(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBe(
+      true,
+    );
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.connectors")).toBe(true);
   });
 
@@ -99,7 +101,7 @@ describe("CommissioningChecklist", () => {
 
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(false);
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.bootAccepted")).toBe(false);
-    expect(rowPassed("Connectors report their status")).toBe(true);
+    expect(rowPassed("appPage.chargePoints.commissioning.selfTest.connectors")).toBe(true);
   });
 
   it("SHOULD fail the site check WHEN the charge point has no siteId", () => {
@@ -133,7 +135,9 @@ describe("CommissioningChecklist", () => {
     );
 
     expect(rowPassed("appPage.chargePoints.commissioning.selfTest.online")).toBe(false);
-    expect(rowPassed(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBe(true);
+    expect(rowPassed(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBe(
+      true,
+    );
   });
 
   it("SHOULD name the negotiated OCPP dialect WHEN the version is confirmed", () => {
@@ -143,14 +147,22 @@ describe("CommissioningChecklist", () => {
       />,
     );
 
-    expect(screen.getByText(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*2.0.1/)).toBeTruthy();
-    expect(screen.queryByText("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown")).toBeNull();
+    expect(
+      screen.getByText(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*2.0.1/),
+    ).toBeTruthy();
+    expect(
+      screen.queryByText("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown"),
+    ).toBeNull();
   });
 
   it("SHOULD show the generic label, not a guessed version, WHEN the station has never connected", () => {
     render(<CommissioningChecklist chargePoint={makeChargePoint({ lastSeenAt: null })} />);
 
-    expect(screen.getByText("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown")).toBeTruthy();
-    expect(screen.queryByText(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/)).toBeNull();
+    expect(
+      screen.getByText("appPage.chargePoints.commissioning.selfTest.ocppVersionKnown"),
+    ).toBeTruthy();
+    expect(
+      screen.queryByText(/appPage.chargePoints.commissioning.selfTest.ocppVersionKnown.*1.6/),
+    ).toBeNull();
   });
 });
