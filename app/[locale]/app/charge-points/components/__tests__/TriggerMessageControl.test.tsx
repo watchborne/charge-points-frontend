@@ -47,7 +47,9 @@ describe("TriggerMessageControl", () => {
     const item = await screen.findByText("appPage.chargePoints.trigger.types.StatusNotification");
     fireEvent.click(item);
 
-    await waitFor(() => expect(screen.getByText("appPage.chargePoints.trigger.result.accepted")).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText("appPage.chargePoints.trigger.result.accepted")).toBeTruthy(),
+    );
     expect(triggerMessage).toHaveBeenCalledWith("cp-1", "StatusNotification");
   });
 
@@ -58,6 +60,10 @@ describe("TriggerMessageControl", () => {
     openMenu(/appPage.chargePoints.trigger.button/i);
     fireEvent.click(await screen.findByText("appPage.chargePoints.trigger.types.BootNotification"));
 
-    await waitFor(() => expect(screen.getByText("appPage.chargePoints.trigger.result.notConnectedOrRejected")).toBeTruthy());
+    await waitFor(() =>
+      expect(
+        screen.getByText("appPage.chargePoints.trigger.result.notConnectedOrRejected"),
+      ).toBeTruthy(),
+    );
   });
 });
