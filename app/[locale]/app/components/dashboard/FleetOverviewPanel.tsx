@@ -53,7 +53,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
 
   return (
     <div className="rounded-xl border bg-card shadow-2xl overflow-hidden">
-      <div className="grid md:grid-cols-3">
+      <div className="grid grid grid-cols-1 md:grid-cols-3">
         <div className="border-b bg-muted/30 p-4 sm:p-6 md:border-b-0 md:border-r">
           <div className="text-sm font-medium text-muted-foreground">
             {t("appPage.dashboard.sites")}

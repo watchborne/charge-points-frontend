@@ -487,6 +487,12 @@
           "addForThisSite": "Ajouter pour ce site",
           "search": "Chercher..."
         },
+        "filters": {
+          "status": "Statut",
+          "ocppVersion": "Version OCPP",
+          "allStatuses": "Tous les statuts",
+          "allVersions": "Toutes les versions"
+        },
         "labels": {
           "countText": "{count, plural, =1 {# borne de recharge} other {# bornes de recharge}}"
         },
@@ -547,7 +553,13 @@
         "never": "Jamais",
         "site": "Site",
         "unknownSite": "Site inconnu",
-        "inactive": "Inactif"
+        "inactive": "Inactif",
+        "tabs": {
+          "main": "Vue d'ensemble",
+          "consumption": "Consommation",
+          "alerts": "Alertes",
+          "security": "Sécurité & historique"
+        }
       },
       "commissioning": {
         "title": "À mettre en service",
@@ -561,7 +573,11 @@
         },
         "selfTest": {
           "title": "Vérification de mise en service",
+          "site": "Rattachée à un site",
           "online": "Borne connectée",
+          "bootAccepted": "Démarrage accepté par la borne",
+          "ocppVersionKnown": "Version OCPP confirmée",
+          "ocppVersionKnownWithVersion": "Version OCPP {version} confirmée",
           "connectors": "Les connecteurs remontent leur statut"
         }
       },
@@ -697,6 +713,12 @@
           "resolved": "Résolue"
         }
       },
+      "securityEvents": {
+        "title": "Événements de sécurité",
+        "loading": "Chargement des événements de sécurité…",
+        "loadError": "Impossible de charger l'historique des événements de sécurité de cette borne.",
+        "empty": "Aucun événement de sécurité récent."
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",
@@ -767,6 +789,47 @@
       "consumption": {
         "title": "Consommation",
         "measurandLabel": "Mesurande",
+        "measurands": {
+          "EnergyActiveImportRegister": "Énergie active consommée",
+          "EnergyActiveExportRegister": "Énergie active injectée",
+          "EnergyReactiveImportRegister": "Énergie réactive consommée",
+          "EnergyReactiveExportRegister": "Énergie réactive injectée",
+          "EnergyActiveImportInterval": "Énergie active consommée",
+          "EnergyReactiveImportInterval": "Énergie réactive consommée",
+          "PowerActiveImport": "Puissance active consommée",
+          "PowerActiveExport": "Puissance active injectée",
+          "PowerReactiveImport": "Puissance réactive consommée",
+          "PowerReactiveExport": "Puissance réactive injectée",
+          "PowerFactor": "Facteur de puissance",
+          "PowerOffered": "Puissance disponible",
+          "CurrentImport": "Courant consommé",
+          "CurrentExport": "Courant injecté",
+          "CurrentOffered": "Courant disponible",
+          "Voltage": "Tension",
+          "Frequency": "Fréquence réseau",
+          "SoC": "Niveau de charge batterie (%)",
+          "Temperature": "Température",
+          "RPM": "Vitesse de rotation (ventilateur/moteur)"
+        },
+        "phases": {
+          "L1": "Phase 1",
+          "L2": "Phase 2",
+          "L3": "Phase 3",
+          "N": "Neutre",
+          "L1-N": "Phase 1 - Neutre",
+          "L2-N": "Phase 2 - Neutre",
+          "L3-N": "Phase 3 - Neutre",
+          "L1-L2": "Phase 1 - Phase 2",
+          "L2-L3": "Phase 2 - Phase 3",
+          "L3-L1": "Phase 3 - Phase 1"
+        },
+        "locations": {
+          "Inlet": "Entrée borne (réseau)",
+          "Outlet": "Sortie borne",
+          "Body": "Intérieur borne",
+          "EV": "Véhicule",
+          "Cable": "Câble de charge"
+        },
         "connectorSeries": "Connecteur {connectorId}",
         "showTable": "Afficher le tableau des relevés",
         "showChart": "Afficher le graphique",
@@ -911,6 +974,16 @@
         "revokeConfirm": {
           "title": "Révoquer le jeton ?",
           "description": "Le jeton actuel cessera immédiatement de fonctionner et ne sera pas remplacé par un nouveau. Les bornes déjà mises en service ne sont pas affectées ; seule la mise en service automatique de nouvelles bornes avec ce jeton cessera de fonctionner."
+        },
+        "recentActivity": {
+          "title": "Activité de mise en service récente",
+          "stationLabel": "Borne : {station}",
+          "outcomes": {
+            "CLAIMED": "Borne mise en service avec succès grâce à votre jeton.",
+            "ALREADY_CLAIMED_BY_SELF": "Borne déjà à vous, recommissionnée avec un nouveau jeton.",
+            "ALREADY_CLAIMED_BY_OTHER": "Cette borne appartient déjà à un autre installateur — la mise en service a été refusée. Si elle devrait vous appartenir, demandez-en le transfert de propriété.",
+            "UNKNOWN_TOKEN": "Une borne a présenté un jeton inconnu, expiré ou révoqué."
+          }
         }
       },
       "association": {

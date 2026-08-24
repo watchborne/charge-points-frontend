@@ -115,7 +115,7 @@ export const ChargePointFleetPanel = ({
         </Tabs>
       </div>
 
-      <div className="grid md:grid-cols-3">
+      <div className="grid grid grid-cols-1 md:grid-cols-3">
         <div className="border-b bg-muted/30 p-4 sm:p-6 md:max-h-[70vh] md:overflow-y-auto md:border-b-0 md:border-r">
           {groups.length === 0 ? (
             <div className="rounded-lg border py-16 text-center text-sm text-muted-foreground">

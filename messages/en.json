@@ -487,6 +487,12 @@
           "addForThisSite": "Add for this site",
           "search": "Search..."
         },
+        "filters": {
+          "status": "Status",
+          "ocppVersion": "OCPP version",
+          "allStatuses": "All statuses",
+          "allVersions": "All versions"
+        },
         "labels": {
           "countText": "{count, plural, =1 {# charge point} other {# charge points}}"
         },
@@ -547,7 +553,13 @@
         "never": "Never",
         "site": "Site",
         "unknownSite": "Unknown site",
-        "inactive": "Inactive"
+        "inactive": "Inactive",
+        "tabs": {
+          "main": "Overview",
+          "consumption": "Consumption",
+          "alerts": "Alerts",
+          "security": "Security & history"
+        }
       },
       "commissioning": {
         "title": "Awaiting commissioning",
@@ -561,7 +573,11 @@
         },
         "selfTest": {
           "title": "Commissioning check",
+          "site": "Assigned to a site",
           "online": "Station connected",
+          "bootAccepted": "Boot accepted by the station",
+          "ocppVersionKnown": "OCPP version confirmed",
+          "ocppVersionKnownWithVersion": "OCPP {version} confirmed",
           "connectors": "Connectors report their status"
         }
       },
@@ -697,6 +713,12 @@
           "resolved": "Resolved"
         }
       },
+      "securityEvents": {
+        "title": "Security events",
+        "loading": "Loading security events…",
+        "loadError": "Could not load this charge point's security-event history.",
+        "empty": "No recent security events."
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
@@ -767,6 +789,47 @@
       "consumption": {
         "title": "Consumption",
         "measurandLabel": "Measurand",
+        "measurands": {
+          "EnergyActiveImportRegister": "Active energy imported",
+          "EnergyActiveExportRegister": "Active energy exported",
+          "EnergyReactiveImportRegister": "Reactive energy imported",
+          "EnergyReactiveExportRegister": "Reactive energy exported",
+          "EnergyActiveImportInterval": "Active energy imported",
+          "EnergyReactiveImportInterval": "Reactive energy imported",
+          "PowerActiveImport": "Active power imported",
+          "PowerActiveExport": "Active power exported",
+          "PowerReactiveImport": "Reactive power imported",
+          "PowerReactiveExport": "Reactive power exported",
+          "PowerFactor": "Power factor",
+          "PowerOffered": "Power available",
+          "CurrentImport": "Current imported",
+          "CurrentExport": "Current exported",
+          "CurrentOffered": "Current available",
+          "Voltage": "Voltage",
+          "Frequency": "Grid frequency",
+          "SoC": "Battery state of charge (%)",
+          "Temperature": "Temperature",
+          "RPM": "Rotation speed (fan/motor)"
+        },
+        "phases": {
+          "L1": "Phase 1",
+          "L2": "Phase 2",
+          "L3": "Phase 3",
+          "N": "Neutral",
+          "L1-N": "Phase 1 - Neutral",
+          "L2-N": "Phase 2 - Neutral",
+          "L3-N": "Phase 3 - Neutral",
+          "L1-L2": "Phase 1 - Phase 2",
+          "L2-L3": "Phase 2 - Phase 3",
+          "L3-L1": "Phase 3 - Phase 1"
+        },
+        "locations": {
+          "Inlet": "Charger inlet (grid side)",
+          "Outlet": "Charger outlet",
+          "Body": "Charger internal",
+          "EV": "Vehicle",
+          "Cable": "Charging cable"
+        },
         "connectorSeries": "Connector {connectorId}",
         "showTable": "Show the readings table",
         "showChart": "Show the chart",
@@ -911,6 +974,16 @@
         "revokeConfirm": {
           "title": "Revoke the token?",
           "description": "The current token will stop working immediately and won't be replaced with a new one. Charge points already commissioned aren't affected — this only stops auto-commissioning new charge points with it."
+        },
+        "recentActivity": {
+          "title": "Recent commissioning activity",
+          "stationLabel": "Charge point: {station}",
+          "outcomes": {
+            "CLAIMED": "Charge point commissioned successfully with your token.",
+            "ALREADY_CLAIMED_BY_SELF": "Charge point already yours, recommissioned with a new token.",
+            "ALREADY_CLAIMED_BY_OTHER": "This charge point already belongs to another installer — commissioning was refused. If it should be yours, request an ownership transfer.",
+            "UNKNOWN_TOKEN": "A charge point presented an unknown, expired, or revoked token."
+          }
         }
       },
       "association": {
