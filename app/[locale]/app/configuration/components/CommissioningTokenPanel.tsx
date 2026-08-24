@@ -270,7 +270,8 @@ export const CommissioningTokenPanel = () => {
                 <TableBody>
                   {[...attempts]
                     .sort(
-                      (a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime(),
+                      (a, b) =>
+                        new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime(),
                     )
                     .slice(0, 5)
                     .map((attempt) => {
