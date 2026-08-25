@@ -8,16 +8,10 @@ import { SiteCard } from "./SiteCard";
 type SiteGridProps = {
   sites: Site[];
   chargePoints: ChargePointWithConnectors[];
-  onEditClicked: (site: Site) => void;
-  onDeleteClicked: (site: Site) => void;
+  onSiteClicked: (site: Site) => void;
 };
 
-export const SiteGrid = ({
-  sites,
-  chargePoints,
-  onEditClicked,
-  onDeleteClicked,
-}: SiteGridProps) => {
+export const SiteGrid = ({ sites, chargePoints, onSiteClicked }: SiteGridProps) => {
   const t = useTranslations("");
 
   if (sites.length === 0) {
@@ -35,8 +29,7 @@ export const SiteGrid = ({
           key={site.id}
           site={site}
           chargePoints={chargePoints.filter((cp) => cp.siteId === site.id)}
-          onEditClicked={onEditClicked}
-          onDeleteClicked={onDeleteClicked}
+          onSiteClicked={onSiteClicked}
         />
       ))}
     </div>
