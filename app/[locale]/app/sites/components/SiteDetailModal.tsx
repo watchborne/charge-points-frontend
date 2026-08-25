@@ -18,6 +18,7 @@ import {
 import { useRouter } from "@/i18n/navigation";
 import { connectionStatusTone, toneDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
+
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
 type SiteDetailModalProps = {
