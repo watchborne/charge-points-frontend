@@ -11,9 +11,9 @@ import { api } from "@/lib/api";
 import type { ChargePoint, ChargePointMeta } from "@/types/charge-point";
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 
-import { UpdateFirmwareDialog } from "./UpdateFirmwareDialog";
 import { FirmwareTimeline } from "../../components/charge-points/FirmwareTimeline";
 import { useWebSocketContext } from "../../hooks/useWebSocketContext";
+import { UpdateFirmwareDialog } from "./UpdateFirmwareDialog";
 
 type FirmwarePanelProps = {
   chargePointId: ChargePoint["id"];

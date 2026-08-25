@@ -14,13 +14,13 @@ import {
 import { connectionStatusTone, connectorStatusTone } from "@/lib/status";
 import { computeSegments } from "@/lib/status-history";
 
-import { StatusHistoryTable } from "./StatusHistoryTable";
-import { StatusTimelineBar } from "./StatusTimelineBar";
 import {
   STATUS_HISTORY_RANGES,
   useStatusHistory,
   type StatusHistoryRange,
 } from "../../hooks/useStatusHistory";
+import { StatusHistoryTable } from "./StatusHistoryTable";
+import { StatusTimelineBar } from "./StatusTimelineBar";
 
 type Props = {
   chargePointId: string;
