@@ -20,13 +20,13 @@ import { isAwaitingCommissioning } from "@/lib/commissioning";
 import { CONNECTION_STATUSES } from "@/lib/status";
 import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/charge-point";
 
-import { useChargePoints } from "../hooks/useChargePoints";
-import { useSites } from "../hooks/useSites";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { CommissioningDialog } from "./components/CommissioningDialog";
 import { CommissioningQueue } from "./components/CommissioningQueue";
+import { useChargePoints } from "../hooks/useChargePoints";
+import { useSites } from "../hooks/useSites";
 import { FleetChargePointsPanelSkeleton } from "./components/FleetChargePointsPanelSkeleton";
 
 // useSearchParams() requires a Suspense boundary for this page to be

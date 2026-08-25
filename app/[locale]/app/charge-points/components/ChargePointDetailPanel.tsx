@@ -40,8 +40,6 @@ import {
 } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { StatusBadge } from "../../components/charge-points/StatusBadge";
-import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { AlertsPanel } from "./AlertsPanel";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
@@ -49,6 +47,8 @@ import { FirmwarePanel } from "./FirmwarePanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
+import { StatusBadge } from "../../components/charge-points/StatusBadge";
+import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
 type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };

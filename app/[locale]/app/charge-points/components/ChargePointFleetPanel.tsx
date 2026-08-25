@@ -12,8 +12,8 @@ import {
 import { connectionStatusTone, toneDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { useFlipReorder } from "../../hooks/useFlipReorder";
 import { ChargePointDetailPanel } from "./ChargePointDetailPanel";
+import { useFlipReorder } from "../../hooks/useFlipReorder";
 
 type GroupBy = "site" | "vendor";
 
