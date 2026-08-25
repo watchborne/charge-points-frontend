@@ -28,13 +28,13 @@ import {
 } from "@/components/ui/select";
 import { isCumulativeRegister, type MeterSampleSummary } from "@/lib/api-metering";
 
-import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
 import {
   CONSUMPTION_RANGES,
   MAX_CHART_SAMPLES,
   useConsumption,
   type ConsumptionRange,
 } from "../../hooks/useConsumption";
+import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
 
 /**
  * A headline metering figure. Local rather than `StatCard` from
