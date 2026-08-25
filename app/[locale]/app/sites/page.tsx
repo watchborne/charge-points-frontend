@@ -4,9 +4,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { Button, Input, Callout } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
 
