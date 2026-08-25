@@ -3,7 +3,7 @@ import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
-import { Calendar, ChevronDown, ExternalLink, MapPin, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ExternalLink, MapPin, Pencil, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
