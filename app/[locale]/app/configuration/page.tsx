@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, Button } from "@watchborne/electrons";
-import { ArrowRight, PlugZap, Server, Sparkles } from "lucide-react";
+import { Button } from "@watchborne/electrons";
+import { ArrowRight, PlugZap, Server } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
