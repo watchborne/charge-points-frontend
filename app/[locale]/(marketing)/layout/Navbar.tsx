@@ -1,19 +1,16 @@
 "use client";
 
-import { Button } from "@watchborne/electrons";
+import { Button, Skeleton } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { LogoutButton } from "@/app/auth/components/LogoutButton";
-import { useTheme } from "@/app/components/ThemeProvider";
-import { ThemeSwitcher } from "@/app/components/ThemeSwitcher";
 import { Navbar as LayoutNavbar, NavbarLink } from "@/app/components/layout/Navbar";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const t = useTranslations("");
-  const { theme, setTheme } = useTheme();
 
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,8 +36,9 @@ export function Navbar() {
 
   return (
     <LayoutNavbar links={links}>
-      <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
-      {!isLoading && user ? (
+      {isLoading ? (
+        <Skeleton className="h-8 w-[290px]" />
+      ) : user ? (
         <>
           <Button variant="info" size="sm" asChild>
             <Link href="/app/dashboard">{t("layout.navbar.actions.dashboard")}</Link>
@@ -48,7 +46,7 @@ export function Navbar() {
 
           <LogoutButton />
         </>
-      ) : !isLoading ? (
+      ) : (
         <>
           <Button variant="ghost" asChild>
             <Link href="/login">{t("layout.navbar.actions.login")}</Link>
@@ -58,7 +56,7 @@ export function Navbar() {
             <Link href="/signup">{t("layout.navbar.actions.requestAlphaAccess")}</Link>
           </Button>
         </>
-      ) : null}
+      )}
     </LayoutNavbar>
   );
 }

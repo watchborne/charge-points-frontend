@@ -3,8 +3,6 @@
 import { useTranslations } from "next-intl";
 
 import { LogoutButton } from "@/app/auth/components/LogoutButton";
-import { useTheme } from "@/app/components/ThemeProvider";
-import { ThemeSwitcher } from "@/app/components/ThemeSwitcher";
 import { Navbar, NavbarLink } from "@/app/components/layout/Navbar";
 import { WS_URL } from "@/lib/constants";
 
@@ -14,7 +12,6 @@ import { WsStatusBadge } from "../common/WsStatusBadge";
 export const Header = () => {
   const t = useTranslations("");
   const { status } = useWebSocket(WS_URL);
-  const { theme, setTheme } = useTheme();
 
   const links = [
     { key: "sites", label: t("layout.navbar.app.links.sites"), url: "/app/sites" },
@@ -35,7 +32,6 @@ export const Header = () => {
       <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:ml-auto content-stretch sm:content-start">
         <div className="flex gap-4 sm:justify-start justify-between items-center w-full">
           <WsStatusBadge status={status} />
-          <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
         </div>
         <LogoutButton className="w-full" />
       </div>
