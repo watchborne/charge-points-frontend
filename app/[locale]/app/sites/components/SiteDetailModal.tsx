@@ -124,7 +124,6 @@ export const SiteDetailModal = ({
                     count: siteChargePoints.length,
                   })}
                 </span>
-                <span className="font-medium">{siteChargePoints.length}</span>
               </div>
             </div>
           </div>
@@ -133,16 +132,14 @@ export const SiteDetailModal = ({
           {siteChargePoints.length > 0 && (
             <div className="space-y-3 border-t pt-4">
               <h4 className="text-sm font-semibold text-foreground">
-                {t("appPage.dashboard.chargePoints")}
+                {t("appPage.dashboard.chargePoints.sectionTitle")}
               </h4>
 
               <div className="space-y-2">
                 {siteChargePoints.map((chargePoint) => {
                   const tone = connectionStatusTone(chargePoint.connection.status);
                   const isExpanded = expandedIds.has(chargePoint.id);
-                  const isOnline = ["SYNCED", "CONNECTED"].includes(
-                    chargePoint.connection.status,
-                  );
+                  const isOnline = ["SYNCED", "CONNECTED"].includes(chargePoint.connection.status);
                   const lastSeenText = chargePoint.connection.lastSeenAt
                     ? formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
                         locale: enGB,
@@ -174,10 +171,7 @@ export const SiteDetailModal = ({
                         <div className="flex shrink-0 items-center gap-3">
                           <div className="flex items-center gap-2">
                             <div
-                              className={classNames(
-                                "h-2.5 w-2.5 rounded-full",
-                                toneDotClass[tone],
-                              )}
+                              className={classNames("h-2.5 w-2.5 rounded-full", toneDotClass[tone])}
                             />
                             <span className="text-sm capitalize">
                               {chargePoint.connection.status.toLowerCase()}
