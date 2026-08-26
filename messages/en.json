@@ -935,6 +935,10 @@
         "search": "Search for site...",
         "empty": "No site found.",
         "unassigned": "No site (unassigned)"
+      },
+      "detail": {
+        "information": "Site Information",
+        "noChargePoints": "No charge points assigned to this site"
       }
     },
     "deletion": {

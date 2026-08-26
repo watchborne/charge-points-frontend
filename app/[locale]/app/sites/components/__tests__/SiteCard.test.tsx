@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { Site } from "@watchborne/charge-points-types";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -20,20 +20,6 @@ vi.mock("next-intl", () => ({
 }));
 
 import { SiteCard } from "../SiteCard";
-
-// Radix DropdownMenu opens on pointer events and uses pointer-capture APIs jsdom
-// doesn't implement; polyfill them so the menu can open in tests.
-beforeAll(() => {
-  Element.prototype.hasPointerCapture = vi.fn(() => false);
-  Element.prototype.setPointerCapture = vi.fn();
-  Element.prototype.releasePointerCapture = vi.fn();
-  Element.prototype.scrollIntoView = vi.fn();
-});
-
-const openMenu = () => {
-  const trigger = screen.getByRole("button", { name: "appPage.sites.page.table.columns.actions" });
-  fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false, pointerType: "mouse" });
-};
 
 afterEach(() => cleanup());
 
@@ -66,9 +52,7 @@ const chargePoint = (id: string, status: string): ChargePointWithConnectors =>
 
 describe("SiteCard", () => {
   it("SHOULD render the site name and customer", () => {
-    render(
-      <SiteCard site={site} chargePoints={[]} onEditClicked={vi.fn()} onDeleteClicked={vi.fn()} />,
-    );
+    render(<SiteCard site={site} chargePoints={[]} onSiteClicked={vi.fn()} />);
 
     expect(screen.getByText("Paris Nord")).toBeTruthy();
     expect(screen.getByText("LVMH")).toBeTruthy();
@@ -79,8 +63,7 @@ describe("SiteCard", () => {
       <SiteCard
         site={site}
         chargePoints={[chargePoint("1", "SYNCED"), chargePoint("2", "OFFLINE")]}
-        onEditClicked={vi.fn()}
-        onDeleteClicked={vi.fn()}
+        onSiteClicked={vi.fn()}
       />,
     );
 
@@ -89,53 +72,25 @@ describe("SiteCard", () => {
   });
 
   it("SHOULD not show an online/offline breakdown WHEN there are no charge points", () => {
-    render(
-      <SiteCard site={site} chargePoints={[]} onEditClicked={vi.fn()} onDeleteClicked={vi.fn()} />,
-    );
+    render(<SiteCard site={site} chargePoints={[]} onSiteClicked={vi.fn()} />);
 
     expect(screen.queryByText(/online/)).toBeNull();
     expect(screen.queryByText(/offline/)).toBeNull();
   });
 
   it("SHOULD show a dash for the last visit WHEN the site has never been visited", () => {
-    render(
-      <SiteCard site={site} chargePoints={[]} onEditClicked={vi.fn()} onDeleteClicked={vi.fn()} />,
-    );
+    render(<SiteCard site={site} chargePoints={[]} onSiteClicked={vi.fn()} />);
 
     expect(screen.getByText(`appPage.sites.page.table.columns.lastVisit: —`)).toBeTruthy();
   });
 
-  it("SHOULD call onEditClicked with the site WHEN Edit is chosen from the menu", async () => {
-    const onEditClicked = vi.fn();
-    render(
-      <SiteCard
-        site={site}
-        chargePoints={[]}
-        onEditClicked={onEditClicked}
-        onDeleteClicked={vi.fn()}
-      />,
-    );
+  it("SHOULD call onSiteClicked with the site WHEN the card is clicked", () => {
+    const onSiteClicked = vi.fn();
+    render(<SiteCard site={site} chargePoints={[]} onSiteClicked={onSiteClicked} />);
 
-    openMenu();
-    fireEvent.click(await screen.findByText("common.edit"));
+    const cardButton = screen.getByRole("button");
+    fireEvent.click(cardButton);
 
-    expect(onEditClicked).toHaveBeenCalledWith(site);
-  });
-
-  it("SHOULD call onDeleteClicked with the site WHEN Delete is chosen from the menu", async () => {
-    const onDeleteClicked = vi.fn();
-    render(
-      <SiteCard
-        site={site}
-        chargePoints={[]}
-        onEditClicked={vi.fn()}
-        onDeleteClicked={onDeleteClicked}
-      />,
-    );
-
-    openMenu();
-    fireEvent.click(await screen.findByText("common.delete"));
-
-    expect(onDeleteClicked).toHaveBeenCalledWith(site);
+    expect(onSiteClicked).toHaveBeenCalledWith(site);
   });
 });

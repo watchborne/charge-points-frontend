@@ -1,27 +1,18 @@
 import { Site } from "@watchborne/charge-points-types";
-import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
-import { Battery, Calendar, MapPin, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Battery, Calendar, MapPin } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toneBadgeClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 type SiteCardProps = {
   site: Site;
   chargePoints: ChargePointWithConnectors[];
-  onEditClicked: (site: Site) => void;
-  onDeleteClicked: (site: Site) => void;
+  onSiteClicked: (site: Site) => void;
 };
 
-export const SiteCard = ({ site, chargePoints, onEditClicked, onDeleteClicked }: SiteCardProps) => {
+export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) => {
   const t = useTranslations("");
   const format = useFormatter();
 
@@ -31,38 +22,17 @@ export const SiteCard = ({ site, chargePoints, onEditClicked, onDeleteClicked }:
   const offlineCount = chargePoints.length - onlineCount;
 
   return (
-    <div className="flex flex-col rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-2 border-b p-4">
-        <div className="flex min-w-0 items-start gap-2">
-          <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-          <div className="min-w-0">
-            <p className="truncate font-semibold">{site.name}</p>
-            <p className="truncate text-sm text-muted-foreground">{site.customer}</p>
-          </div>
+    <button
+      type="button"
+      onClick={() => onSiteClicked(site)}
+      className="flex flex-col rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md text-left cursor-pointer"
+    >
+      <div className="flex items-start justify-start gap-2 border-b p-4">
+        <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
+        <div className="min-w-0">
+          <p className="truncate font-semibold">{site.name}</p>
+          <p className="truncate text-sm text-muted-foreground">{site.customer}</p>
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">{t("appPage.sites.page.table.columns.actions")}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEditClicked(site)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              {t("common.edit")}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDeleteClicked(site)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              {t("common.delete")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-4">
@@ -125,6 +95,6 @@ export const SiteCard = ({ site, chargePoints, onEditClicked, onDeleteClicked }:
           </span>
         </div>
       </div>
-    </div>
+    </button>
   );
 };

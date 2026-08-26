@@ -935,6 +935,10 @@
         "search": "Chercher un site...",
         "empty": "Aucun site trouvé.",
         "unassigned": "Aucun site (non affectée)"
+      },
+      "detail": {
+        "information": "Informations du site",
+        "noChargePoints": "Aucune borne affectée à ce site"
       }
     },
     "deletion": {

@@ -4,12 +4,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { Button, Input, Callout } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 
 import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
+import { SiteDetailModal } from "./components/SiteDetailModal";
 import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteGrid } from "./components/SiteGrid";
 import { SiteGridSkeleton } from "./components/SiteGridSkeleton";
@@ -17,8 +19,9 @@ import { SiteStats } from "../components/sites/SiteStats";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 
-export default function SitesPage() {
+function SitesPageContent() {
   const t = useTranslations("");
+  const searchParams = useSearchParams();
   const { sites, loading, error } = useSites();
   const { chargePoints } = useChargePoints();
   const [search, setSearch] = useState("");
@@ -36,8 +39,10 @@ export default function SitesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Site | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Site | null>(null);
+  const [detailTarget, setDetailTarget] = useState<Site | null>(null);
 
   const [filteredSites, setFilteredSites] = useState<Site[]>([]);
+
   useEffect(() => {
     if (!loading && !error) {
       setFilteredSites(sites);
@@ -47,6 +52,16 @@ export default function SitesPage() {
       setFilteredSites(sites.filter((s) => s.name.toLowerCase().includes(search.toLowerCase())));
     }
   }, [sites, search, error, loading]);
+
+  useEffect(() => {
+    const siteId = searchParams.get("id") || searchParams.get("siteId");
+    if (siteId && sites.length > 0) {
+      const site = sites.find((s) => s.id === siteId);
+      if (site) {
+        setDetailTarget(site);
+      }
+    }
+  }, [searchParams, sites]);
 
   const handleCreate = async (values: SiteFormValues) => {
     await createSiteMutation.mutateAsync(values);
@@ -109,8 +124,7 @@ export default function SitesPage() {
             <SiteGrid
               sites={filteredSites}
               chargePoints={chargePoints}
-              onEditClicked={(site) => setEditTarget(site)}
-              onDeleteClicked={(site) => setDeleteTarget(site)}
+              onSiteClicked={(site) => setDetailTarget(site)}
             />
           </div>
 
@@ -137,8 +151,40 @@ export default function SitesPage() {
             deleteTarget={deleteTarget}
             onDeleteClicked={handleDelete}
           />
+          <SiteDetailModal
+            open={!!detailTarget}
+            onOpenChange={(open) => !open && setDetailTarget(null)}
+            site={detailTarget}
+            chargePoints={chargePoints}
+            onEditClicked={(site) => {
+              setDetailTarget(null);
+              setEditTarget(site);
+            }}
+            onDeleteClicked={(site) => {
+              setDetailTarget(null);
+              setDeleteTarget(site);
+            }}
+          />
         </div>
       )}
     </>
+  );
+}
+
+export default function SitesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col gap-4 content-stretch">
+          <div className="flex items-center gap-3 w-full">
+            <div className="h-10 bg-muted rounded animate-pulse w-40" />
+            <div className="relative max-w-sm ml-auto h-10 bg-muted rounded animate-pulse w-60" />
+          </div>
+          <SiteGridSkeleton />
+        </div>
+      }
+    >
+      <SitesPageContent />
+    </Suspense>
   );
 }
