@@ -7,6 +7,9 @@ import { UrlObject } from "url";
 
 import { Link, usePathname } from "@/i18n/navigation";
 
+import { useTheme } from "../ThemeProvider";
+import { ThemeSwitcher } from "../ThemeSwitcher";
+
 export type NavbarLink = { key: string; label: string; url: string | UrlObject };
 
 type Props = {
@@ -16,6 +19,8 @@ type Props = {
 export function Navbar({ links, children }: Props) {
   const t = useTranslations("");
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const closeMobileMenu = () => {
@@ -51,18 +56,26 @@ export function Navbar({ links, children }: Props) {
           ))}
         </nav>
 
-        {children && <div className="hidden items-center gap-3 ml-auto md:flex">{children}</div>}
+        {children && (
+          <div className="hidden items-center gap-3 ml-auto md:flex">
+            {children}
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-auto md:hidden"
-          aria-label={t("layout.navbar.actions.menu")}
-          aria-expanded={isMobileMenuOpen}
-          onClick={() => setIsMobileMenuOpen((open) => !open)}
-        >
-          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+            <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
+          </div>
+        )}
+
+        <div className="ml-auto md:hidden flex items-center gap-2">
+          <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t("layout.navbar.actions.menu")}
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
 
       {isMobileMenuOpen ? (
