@@ -2,12 +2,30 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { Site, SiteHealth } from "@watchborne/charge-points-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { SiteHealthWatchlist } from "../SiteHealthWatchlist";
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
 }));
 
-import { SiteHealthWatchlist } from "../SiteHealthWatchlist";
+vi.mock("next-intl/navigation", () => ({
+  createNavigation: () => ({
+    Link: vi.fn(),
+    redirect: vi.fn(),
+    usePathname: () => "/en/app/dashboard",
+    useRouter: () => ({ push: vi.fn() }),
+    getPathname: vi.fn(),
+  }),
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  Link: vi.fn(),
+  redirect: vi.fn(),
+  usePathname: () => "/en/app/dashboard",
+  useRouter: () => ({ push: vi.fn() }),
+  getPathname: vi.fn(),
+}));
 
 const site = (id: string, name: string): Site =>
   ({

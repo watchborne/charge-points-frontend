@@ -46,7 +46,11 @@ export const SiteHealthList = ({ sitesWithHealth }: { sitesWithHealth: SiteWithH
         </TableHeader>
         <TableBody>
           {sitesWithHealth.map(({ site, health }) => (
-            <TableRow key={site.id} onClick={() => onRowClicked(site.id)}>
+            <TableRow
+              key={site.id}
+              onClick={() => onRowClicked(site.id)}
+              className="cursor-pointer"
+            >
               <TableCell className="font-medium">{site.name}</TableCell>
               <TableCell>
                 <SiteHealthBadge status={health.status} />

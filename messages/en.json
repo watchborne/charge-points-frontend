@@ -957,7 +957,7 @@
         "steps": {
           "openSettings": "Open the charge point's OCPP settings (sometimes called the \"Central System URL\"), usually found in its admin interface.",
           "enterAddress": "Enter the OCPP server address above.",
-          "appendId": "Suffix the address with the charge point's unique identifier, for example: {example}",
+          "appendId": "Suffix the address with the charge point's unique identifier, for example: <code>example</code>",
           "restart": "Save and restart the charge point: it will appear in Watchborne as soon as it first connects."
         }
       },
@@ -968,7 +968,8 @@
         "regenerateCta": "Regenerate",
         "copyCta": "Copy token",
         "exampleLabel": "Example address with your token",
-        "exampleUrlPlaceholder": "<charge-point-id>",
+        "exampleUrlPlaceholder": "'<charge-point-id>'",
+        "commissioningTokenPlaceholder": "'<commissioning-token>'",
         "createdAtLabel": "Token generated on {date}",
         "revealedWarning": "Copy this token now — it will never be shown in full again.",
         "revokeCta": "Revoke",
