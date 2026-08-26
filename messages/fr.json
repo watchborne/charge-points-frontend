@@ -957,7 +957,7 @@
         "steps": {
           "openSettings": "Ouvrez les paramètres OCPP (parfois appelés « Central System URL ») de la borne, généralement dans son interface d'administration.",
           "enterAddress": "Renseignez l'adresse du serveur OCPP ci-dessus.",
-          "appendId": "Suffixez l'adresse avec l'identifiant unique de la borne, par exemple : {example}",
+          "appendId": "Suffixez l'adresse avec l'identifiant unique de la borne, par exemple : <code>example</code>",
           "restart": "Enregistrez puis redémarrez la borne : elle apparaîtra dans Watchborne dès sa première connexion."
         }
       },
@@ -968,7 +968,8 @@
         "regenerateCta": "Régénérer",
         "copyCta": "Copier le jeton",
         "exampleLabel": "Exemple d'adresse avec votre jeton",
-        "exampleUrlPlaceholder": "<identifiant-de-la-borne>",
+        "exampleUrlPlaceholder": "'<identifiant-de-la-borne>'",
+        "commissioningTokenPlaceholder": "'<jeton-de-commissioning>'",
         "createdAtLabel": "Jeton généré le {date}",
         "revealedWarning": "Copiez ce jeton maintenant : il ne sera plus jamais affiché en clair.",
         "revokeCta": "Révoquer",

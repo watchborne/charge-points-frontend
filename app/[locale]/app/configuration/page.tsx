@@ -11,12 +11,23 @@ import { CommissioningTokenPanel } from "./components/CommissioningTokenPanel";
 
 export default function ConfigurationPage() {
   const t = useTranslations("");
-  const exampleUrl = `${OCPP_SERVER_URL}/CP-001`;
+
+  const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
+  const commissioningTokenPlaceholder = t(
+    "appPage.configuration.commissioningToken.commissioningTokenPlaceholder",
+  );
+  const exampleUrl = `${OCPP_SERVER_URL}/${stationIdPlaceholder}?token=${commissioningTokenPlaceholder}`;
 
   const connectionSteps = [
     t("appPage.configuration.connection.steps.openSettings"),
     t("appPage.configuration.connection.steps.enterAddress"),
-    t("appPage.configuration.connection.steps.appendId", { example: exampleUrl }),
+    t.rich("appPage.configuration.connection.steps.appendId", {
+      code: () => (
+        <code className="block w-full rounded-md bg-muted px-3 py-2 font-mono text-sm break-all mt-1.5">
+          {exampleUrl}
+        </code>
+      ),
+    }),
     t("appPage.configuration.connection.steps.restart"),
   ];
 
@@ -30,6 +41,8 @@ export default function ConfigurationPage() {
           {t("appPage.configuration.page.subtitle")}
         </p>
       </div>
+
+      <CommissioningTokenPanel />
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
@@ -63,8 +76,6 @@ export default function ConfigurationPage() {
         </div>
       </section>
 
-      <CommissioningTokenPanel />
-
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
           <PlugZap className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -82,23 +93,6 @@ export default function ConfigurationPage() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-dashed">
-        <div className="flex items-start gap-3 p-4">
-          <Sparkles className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="text-sm font-medium">
-                {t("appPage.configuration.comingSoon.title")}
-              </span>
-              <Badge variant="secondary">{t("appPage.configuration.comingSoon.badge")}</Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {t("appPage.configuration.comingSoon.description")}
-            </p>
-          </div>
         </div>
       </section>
     </div>
