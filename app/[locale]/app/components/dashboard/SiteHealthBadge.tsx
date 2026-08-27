@@ -1,7 +1,6 @@
 import { SiteHealthStatus } from "@watchborne/charge-points-types";
-import { StatusPill } from "@watchborne/electrons";
-import { useTranslations } from "next-intl";
 
+import { GenericStatusBadge } from "@/app/[locale]/app/components/common/GenericStatusBadge";
 import { siteHealthStatusTone } from "@/lib/status";
 
 const STATUS_LABEL_KEY: Record<SiteHealthStatus, string> = {
@@ -10,10 +9,10 @@ const STATUS_LABEL_KEY: Record<SiteHealthStatus, string> = {
   CRITICAL: "appPage.dashboard.siteHealth.status.critical",
 };
 
-/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill. */
-export const SiteHealthBadge = ({ status }: { status: SiteHealthStatus }) => {
-  const t = useTranslations("");
-  const tone = siteHealthStatusTone(status);
-
-  return <StatusPill tone={tone}>{t(STATUS_LABEL_KEY[status])}</StatusPill>;
-};
+export const SiteHealthBadge = ({ status }: { status: SiteHealthStatus }) => (
+  <GenericStatusBadge
+    status={status}
+    getTone={siteHealthStatusTone}
+    getLabelKey={(s) => STATUS_LABEL_KEY[s]}
+  />
+);
