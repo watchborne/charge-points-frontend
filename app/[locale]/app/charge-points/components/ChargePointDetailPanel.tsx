@@ -1,29 +1,8 @@
-import { AvailabilityType, ResetType, SampledValue, Site } from "@watchborne/charge-points-types";
-import {
-  Badge,
-  Button,
-  Switch,
-  Callout,
-  Tag,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@watchborne/electrons";
+import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
+import { Callout, Tag, Tabs, TabsList, TabsTrigger, Button } from "@watchborne/electrons";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
-import {
-  Battery,
-  CheckCircle2,
-  ChevronDown,
-  Clock,
-  Loader2,
-  Pencil,
-  Power,
-  RotateCcw,
-  Trash2,
-  Unlock,
-  Zap,
-} from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock, Loader2, Power, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -48,12 +27,12 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { AlertsPanel } from "./AlertsPanel";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
-import { FirmwarePanel } from "./FirmwarePanel";
+import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
+import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
+import { ConnectorStatusSection } from "./ConnectorStatusSection";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
-import { StatusBadge } from "../../components/charge-points/StatusBadge";
-import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
 type ResetState =
   | { status: "idle" }
@@ -80,9 +59,6 @@ const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok:
   status.status === "Scheduled"
     ? "appPage.chargePoints.availability.result.scheduled"
     : "appPage.chargePoints.availability.result.accepted";
-
-const formatSampledValue = (sample: SampledValue): string =>
-  sample.unit ? `${sample.value} ${sample.unit}` : sample.value;
 
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
@@ -170,42 +146,12 @@ export const ChargePointDetailPanel = ({
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h4 className="flex items-center gap-2 text-lg font-semibold">
-            <Battery className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <span className="truncate">{chargePoint.name}</span>
-            {!chargePoint.isActive && (
-              <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
-                {t("appPage.chargePoints.detail.inactive")}
-              </span>
-            )}
-          </h4>
-          <div className="mt-2 flex items-center gap-2">
-            <Badge>OCPP {chargePoint.ocppVersion}</Badge>
-            <StatusBadge status={chargePoint.connection.status} />
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-            {t("appPage.chargePoints.page.table.columns.active")}
-            <Switch
-              checked={chargePoint.isActive}
-              onCheckedChange={() => onToggleActive(chargePoint)}
-              aria-label={`Toggle ${chargePoint.name} active state`}
-            />
-          </label>
-          <Button size="sm" variant="outline" onClick={() => onEditClicked(chargePoint)}>
-            <Pencil className="mr-1.5 h-4 w-4" />
-            {t("common.edit")}
-          </Button>
-          <Button size="sm" variant="destructive" onClick={() => onDeleteClicked(chargePoint)}>
-            <Trash2 className="mr-1.5 h-4 w-4" />
-            {t("common.delete")}
-          </Button>
-        </div>
-      </div>
+      <ChargePointHeaderSection
+        chargePoint={chargePoint}
+        onToggleActive={onToggleActive}
+        onEditClicked={onEditClicked}
+        onDeleteClicked={onDeleteClicked}
+      />
 
       {chargePoint.connection.statusMessage && (
         <Callout description={chargePoint.connection.statusMessage} variant="warning" />
@@ -227,6 +173,7 @@ export const ChargePointDetailPanel = ({
 
       {tab === "main" && (
         <>
+<<<<<<< HEAD
           {chargePoint.connectors.length > 0 && (
             <div className="divide-y rounded-md border">
               {chargePoint.connectors.map((connector) => {
@@ -350,6 +297,15 @@ export const ChargePointDetailPanel = ({
               })}
             </div>
           )}
+=======
+          <ConnectorStatusSection
+            chargePoint={chargePoint}
+            availabilityState={availabilityState}
+            unlockConnectorState={unlockConnectorState}
+            onChangeAvailability={handleChangeAvailability}
+            onUnlockConnector={handleUnlockConnector}
+          />
+>>>>>>> origin/main
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
@@ -377,39 +333,7 @@ export const ChargePointDetailPanel = ({
             </span>
           </div>
 
-          {chargePoint.meta && (
-            <div className="divide-y rounded-md border">
-              {chargePoint.meta.vendor && (
-                <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">
-                    {t("appPage.chargePoints.form.fields.vendor")}
-                  </span>
-                  <span className="text-sm font-medium">{chargePoint.meta.vendor}</span>
-                </div>
-              )}
-              {chargePoint.meta.model && (
-                <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">
-                    {t("appPage.chargePoints.form.fields.model")}
-                  </span>
-                  <span className="text-sm font-medium">{chargePoint.meta.model}</span>
-                </div>
-              )}
-              {chargePoint.meta.serialNumber && (
-                <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-sm text-muted-foreground">
-                    {t("appPage.chargePoints.form.fields.serialNumber")}
-                  </span>
-                  <span className="font-mono text-sm">{chargePoint.meta.serialNumber}</span>
-                </div>
-              )}
-              <FirmwarePanel
-                chargePointId={chargePoint.id}
-                firmwareVersion={chargePoint.meta?.firmwareVersion}
-                ocppVersion={chargePoint.ocppVersion}
-              />
-            </div>
-          )}
+          <ChargePointMetadataSection chargePoint={chargePoint} />
 
           <StatusHistoryPanel
             chargePointId={chargePoint.id}
