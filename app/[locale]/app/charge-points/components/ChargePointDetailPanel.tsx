@@ -173,131 +173,6 @@ export const ChargePointDetailPanel = ({
 
       {tab === "main" && (
         <>
-<<<<<<< HEAD
-          {chargePoint.connectors.length > 0 && (
-            <div className="divide-y rounded-md border">
-              {chargePoint.connectors.map((connector) => {
-                const state = availabilityState[connector.id] ?? { status: "idle" };
-                const unlockState = unlockConnectorState[connector.id] ?? { status: "idle" };
-                return (
-                  <div key={connector.id} className="flex flex-col gap-1.5 px-3 py-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {t("appPage.chargePoints.detail.connector", {
-                          connectorId: connector.connectorId,
-                        })}
-                      </span>
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-1.5">
-                          <ConnectorStatusIcon status={connector.status} />
-                          <span className="text-sm font-medium">{connector.status}</span>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              disabled={state.status === "loading"}
-                              aria-label={t("appPage.chargePoints.availability.button")}
-                            >
-                              {state.status === "loading" ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              ) : (
-                                <Power className="h-3.5 w-3.5" />
-                              )}
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleChangeAvailability(
-                                  connector.id,
-                                  connector.connectorId,
-                                  "Operative",
-                                )
-                              }
-                            >
-                              {t("appPage.chargePoints.availability.types.operative")}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleChangeAvailability(
-                                  connector.id,
-                                  connector.connectorId,
-                                  "Inoperative",
-                                )
-                              }
-                            >
-                              {t("appPage.chargePoints.availability.types.inoperative")}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={unlockState.status === "loading"}
-                          aria-label={t("appPage.chargePoints.unlockConnector.button")}
-                          onClick={() => handleUnlockConnector(connector.id, connector.connectorId)}
-                        >
-                          {unlockState.status === "loading" ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Unlock className="h-3.5 w-3.5" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                    {connector.lastMeterValue && (
-                      <div
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                        title={t("appPage.chargePoints.detail.lastMeterValue")}
-                      >
-                        <Zap className="h-3 w-3 shrink-0" />
-                        <span>
-                          {connector.lastMeterValue.sampledValue
-                            .map(formatSampledValue)
-                            .join(" · ")}
-                        </span>
-                        <span>
-                          (
-                          {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
-                            addSuffix: true,
-                            locale: enGB,
-                          })}
-                          )
-                        </span>
-                      </div>
-                    )}
-                    {state.status === "done" &&
-                      (state.outcome.ok ? (
-                        <p className="text-xs font-medium text-status-available-foreground">
-                          {t(availabilitySuccessMessageKey(state.outcome))}
-                        </p>
-                      ) : (
-                        <Callout
-                          description={t(getAvailabilityErrorMessageKey(state.outcome.httpStatus))}
-                          variant="error"
-                        />
-                      ))}
-                    {unlockState.status === "done" &&
-                      (unlockState.outcome.ok ? (
-                        <p className="text-xs font-medium text-status-available-foreground">
-                          {t("appPage.chargePoints.unlockConnector.result.unlocked")}
-                        </p>
-                      ) : (
-                        <Callout
-                          description={t(
-                            getUnlockConnectorErrorMessageKey(unlockState.outcome.httpStatus),
-                          )}
-                          variant="error"
-                        />
-                      ))}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-=======
           <ConnectorStatusSection
             chargePoint={chargePoint}
             availabilityState={availabilityState}
@@ -305,7 +180,6 @@ export const ChargePointDetailPanel = ({
             onChangeAvailability={handleChangeAvailability}
             onUnlockConnector={handleUnlockConnector}
           />
->>>>>>> origin/main
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
