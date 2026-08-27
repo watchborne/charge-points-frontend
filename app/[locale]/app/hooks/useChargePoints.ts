@@ -4,6 +4,7 @@ import { useEffect, useCallback, useRef } from "react";
 
 import { useToastNotification } from "@/app/components/ToastNotification";
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import { ChargePointWithConnectors, isExpectedConnectorTransition } from "@/types/charge-point";
 
 import { useWebSocketContext } from "./useWebSocketContext";
@@ -14,8 +15,6 @@ export interface UseChargePointsReturn {
   error: string | null;
   refetch: () => Promise<void>;
 }
-
-const CHARGE_POINTS_QUERY_KEY = ["chargePoints"];
 
 export function useChargePoints(): UseChargePointsReturn {
   const t = useTranslations("");
@@ -39,7 +38,7 @@ export function useChargePoints(): UseChargePointsReturn {
     error,
     refetch,
   } = useQuery({
-    queryKey: CHARGE_POINTS_QUERY_KEY,
+    queryKey: queryKeys.chargePoints.all(),
     queryFn: api.ChargePoints.getChargePoints,
     retry: false,
   });
@@ -55,7 +54,10 @@ export function useChargePoints(): UseChargePointsReturn {
   const refetchSilently = useCallback(async () => {
     try {
       const freshData = await api.ChargePoints.getChargePoints();
-      queryClient.setQueryData<ChargePointWithConnectors[]>(CHARGE_POINTS_QUERY_KEY, freshData);
+      queryClient.setQueryData<ChargePointWithConnectors[]>(
+        queryKeys.chargePoints.all(),
+        freshData,
+      );
     } catch (err) {
       console.error("Failed to refetch charge points:", err);
     }
@@ -67,7 +69,7 @@ export function useChargePoints(): UseChargePointsReturn {
     if (!incoming) return;
 
     const previousChargePoints =
-      queryClient.getQueryData<ChargePointWithConnectors[]>(CHARGE_POINTS_QUERY_KEY) ?? [];
+      queryClient.getQueryData<ChargePointWithConnectors[]>(queryKeys.chargePoints.all()) ?? [];
     const previous = previousChargePoints.find((cp) => cp.id === incoming.id);
     if (previous) {
       for (const connector of incoming.connectors ?? []) {
@@ -90,13 +92,16 @@ export function useChargePoints(): UseChargePointsReturn {
       }
     }
 
-    queryClient.setQueryData<ChargePointWithConnectors[]>(CHARGE_POINTS_QUERY_KEY, (prev = []) => {
-      const idx = prev.findIndex((cp) => cp.id === incoming.id);
-      if (idx === -1) return [...prev, incoming];
-      const next = [...prev];
-      next[idx] = incoming;
-      return next;
-    });
+    queryClient.setQueryData<ChargePointWithConnectors[]>(
+      queryKeys.chargePoints.all(),
+      (prev = []) => {
+        const idx = prev.findIndex((cp) => cp.id === incoming.id);
+        if (idx === -1) return [...prev, incoming];
+        const next = [...prev];
+        next[idx] = incoming;
+        return next;
+      },
+    );
   }, [lastMessage, queryClient]);
 
   // Le WebSocket ne rejoue pas les événements manqués pendant une coupure : on
