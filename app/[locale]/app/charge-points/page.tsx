@@ -18,6 +18,7 @@ import { useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/api";
 import { isAwaitingCommissioning } from "@/lib/commissioning";
 import { CONNECTION_STATUSES } from "@/lib/status";
+import { queryKeys } from "@/lib/queryKeys";
 import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
@@ -66,7 +67,7 @@ function ChargePointsPageContent() {
   const queryClient = useQueryClient();
 
   const invalidateChargePoints = () =>
-    queryClient.invalidateQueries({ queryKey: ["chargePoints"] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
 
   const createChargePointMutation = useMutation({
     mutationFn: api.ChargePoints.createChargePoint,

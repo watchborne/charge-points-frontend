@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
 import { SiteDetailModal } from "./components/SiteDetailModal";
@@ -29,11 +30,11 @@ function SitesPageContent() {
 
   const createSiteMutation = useMutation({
     mutationFn: api.Sites.createSite,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sites"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
   });
   const deleteSiteMutation = useMutation({
     mutationFn: api.Sites.deleteSite,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sites"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
   });
 
   const [createOpen, setCreateOpen] = useState(false);
