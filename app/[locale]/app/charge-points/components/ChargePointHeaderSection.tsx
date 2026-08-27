@@ -1,7 +1,9 @@
 import { Badge, Button, Switch } from "@watchborne/electrons";
 import { Battery, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+
 import { ChargePointWithConnectors } from "@/types/charge-point";
+
 import { StatusBadge } from "../../components/charge-points/StatusBadge";
 
 type ChargePointHeaderSectionProps = {

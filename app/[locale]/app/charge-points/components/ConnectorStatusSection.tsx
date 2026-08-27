@@ -4,7 +4,6 @@ import { formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { Loader2, Power, Unlock, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
 
 import {
   DropdownMenu,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChangeAvailabilityOutcome, UnlockConnectorOutcome } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
+
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
 type AvailabilityState =
@@ -22,9 +22,7 @@ type AvailabilityState =
   | { status: "done"; outcome: ChangeAvailabilityOutcome };
 
 type UnlockConnectorState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: UnlockConnectorOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: UnlockConnectorOutcome };
 
 type ConnectorStatusSectionProps = {
   chargePoint: ChargePointWithConnectors;

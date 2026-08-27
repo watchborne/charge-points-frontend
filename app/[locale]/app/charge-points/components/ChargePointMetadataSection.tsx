@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
+
 import { ChargePointWithConnectors } from "@/types/charge-point";
+
 import { FirmwarePanel } from "./FirmwarePanel";
 
 type ChargePointMetadataSectionProps = {
