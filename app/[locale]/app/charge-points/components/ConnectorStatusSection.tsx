@@ -12,10 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ChangeAvailabilityOutcome,
-  UnlockConnectorOutcome,
-} from "@/lib/api-charge-points";
+import { ChangeAvailabilityOutcome, UnlockConnectorOutcome } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
@@ -25,17 +22,15 @@ type AvailabilityState =
   | { status: "done"; outcome: ChangeAvailabilityOutcome };
 
 type UnlockConnectorState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: UnlockConnectorOutcome };
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: UnlockConnectorOutcome };
 
 type ConnectorStatusSectionProps = {
   chargePoint: ChargePointWithConnectors;
   availabilityState: Record<string, AvailabilityState>;
   unlockConnectorState: Record<string, UnlockConnectorState>;
-  onChangeAvailability: (
-    key: string,
-    connectorId: number,
-    type: AvailabilityType,
-  ) => Promise<void>;
+  onChangeAvailability: (key: string, connectorId: number, type: AvailabilityType) => Promise<void>;
   onUnlockConnector: (key: string, connectorId: number) => Promise<void>;
 };
 
@@ -134,11 +129,7 @@ export const ConnectorStatusSection = ({
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        onChangeAvailability(
-                          connector.id,
-                          connector.connectorId,
-                          "Inoperative",
-                        )
+                        onChangeAvailability(connector.id, connector.connectorId, "Inoperative")
                       }
                     >
                       {t("appPage.chargePoints.availability.types.inoperative")}
@@ -167,9 +158,7 @@ export const ConnectorStatusSection = ({
               >
                 <Zap className="h-3 w-3 shrink-0" />
                 <span>
-                  {connector.lastMeterValue.sampledValue
-                    .map(formatSampledValue)
-                    .join(" · ")}
+                  {connector.lastMeterValue.sampledValue.map(formatSampledValue).join(" · ")}
                 </span>
                 <span>
                   (
@@ -199,9 +188,7 @@ export const ConnectorStatusSection = ({
                 </p>
               ) : (
                 <Callout
-                  description={t(
-                    unlockConnectorErrorMessageKey(unlockState.outcome.httpStatus),
-                  )}
+                  description={t(unlockConnectorErrorMessageKey(unlockState.outcome.httpStatus))}
                   variant="error"
                 />
               ))}

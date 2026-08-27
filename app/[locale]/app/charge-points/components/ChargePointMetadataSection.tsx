@@ -6,9 +6,7 @@ type ChargePointMetadataSectionProps = {
   chargePoint: ChargePointWithConnectors;
 };
 
-export const ChargePointMetadataSection = ({
-  chargePoint,
-}: ChargePointMetadataSectionProps) => {
+export const ChargePointMetadataSection = ({ chargePoint }: ChargePointMetadataSectionProps) => {
   const t = useTranslations("");
 
   if (!chargePoint.meta) {
