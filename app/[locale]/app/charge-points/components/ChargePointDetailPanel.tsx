@@ -17,6 +17,7 @@ import {
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
 } from "@/lib/api-charge-points";
+import { getResetErrorMessageKey, getAvailabilityErrorMessageKey } from "@/lib/error-messages";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { AlertsPanel } from "./AlertsPanel";
@@ -45,36 +46,6 @@ const WHOLE_CHARGE_POINT_KEY = "chargePoint";
 
 type DetailTab = "main" | "consumption" | "alerts" | "security";
 const DETAIL_TABS: readonly DetailTab[] = ["main", "consumption", "alerts", "security"];
-
-const resetErrorMessageKey = (httpStatus: number): string => {
-  switch (httpStatus) {
-    case 404:
-      return "appPage.chargePoints.reset.result.notFound";
-    case 409:
-      return "appPage.chargePoints.reset.result.notConnectedOrRejected";
-    case 502:
-      return "appPage.chargePoints.reset.result.stationError";
-    case 504:
-      return "appPage.chargePoints.reset.result.timeout";
-    default:
-      return "appPage.chargePoints.reset.result.genericError";
-  }
-};
-
-const availabilityErrorMessageKey = (httpStatus: number): string => {
-  switch (httpStatus) {
-    case 404:
-      return "appPage.chargePoints.availability.result.notFound";
-    case 409:
-      return "appPage.chargePoints.availability.result.notConnectedOrRejected";
-    case 502:
-      return "appPage.chargePoints.availability.result.stationError";
-    case 504:
-      return "appPage.chargePoints.availability.result.timeout";
-    default:
-      return "appPage.chargePoints.availability.result.genericError";
-  }
-};
 
 const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok: true }): string =>
   status.status === "Scheduled"
@@ -308,7 +279,7 @@ export const ChargePointDetailPanel = ({
                 </div>
               ) : (
                 <Callout
-                  description={t(resetErrorMessageKey(resetState.outcome.httpStatus))}
+                  description={t(getResetErrorMessageKey(resetState.outcome.httpStatus))}
                   variant="error"
                 />
               ))}
@@ -324,7 +295,7 @@ export const ChargePointDetailPanel = ({
               ) : (
                 <Callout
                   description={t(
-                    availabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
+                    getAvailabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
                   )}
                   variant="error"
                 />
