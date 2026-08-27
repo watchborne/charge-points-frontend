@@ -1,7 +1,6 @@
 import { AlertStatus } from "@watchborne/charge-points-types";
-import { StatusPill } from "@watchborne/electrons";
-import { useTranslations } from "next-intl";
 
+import { GenericStatusBadge } from "@/app/[locale]/app/components/common/GenericStatusBadge";
 import { alertStatusTone } from "@/lib/status";
 
 const STATUS_LABEL_KEY: Record<AlertStatus, string> = {
@@ -9,10 +8,10 @@ const STATUS_LABEL_KEY: Record<AlertStatus, string> = {
   RESOLVED: "appPage.chargePoints.alerts.status.resolved",
 };
 
-/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill. */
-export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => {
-  const t = useTranslations("");
-  const tone = alertStatusTone(status);
-
-  return <StatusPill tone={tone}>{t(STATUS_LABEL_KEY[status])}</StatusPill>;
-};
+export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => (
+  <GenericStatusBadge
+    status={status}
+    getTone={alertStatusTone}
+    getLabelKey={(s) => STATUS_LABEL_KEY[s]}
+  />
+);
