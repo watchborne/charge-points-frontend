@@ -19,8 +19,13 @@ import { api } from "@/lib/api";
 import { isAwaitingCommissioning } from "@/lib/commissioning";
 import { queryKeys } from "@/lib/queryKeys";
 import { CONNECTION_STATUSES } from "@/lib/status";
-import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/charge-point";
+import {
+  ChargePointConnectionStatus,
+  ChargePointWithConnectors,
+  CreatedChargePoint,
+} from "@/types/charge-point";
 
+import { ChargePointConnectionUrlDialog } from "./components/ChargePointConnectionUrlDialog";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
@@ -94,6 +99,10 @@ function ChargePointsPageContent() {
   const didAutoSwitch = useRef(false);
 
   const [createOpen, setCreateOpen] = useState(false);
+  // Set right after a successful create (ADR 0010, charge-points-server):
+  // opens ChargePointConnectionUrlDialog with the ready-to-paste connection
+  // URL, the pre-provisioning flow's one remaining installer step.
+  const [createdChargePoint, setCreatedChargePoint] = useState<CreatedChargePoint | null>(null);
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [commissionTarget, setCommissionTarget] = useState<ChargePointWithConnectors | null>(null);
@@ -158,7 +167,7 @@ function ChargePointsPageContent() {
   }, [highlightedId, chargePoints, loadingChargePoints, loadingSites]);
 
   const handleCreate = async (values: ChargePointFormValues) => {
-    await createChargePointMutation.mutateAsync({
+    const created = await createChargePointMutation.mutateAsync({
       name: values.name,
       // Empty selection means "unassigned" — send null, not "".
       siteId: values.siteId || null,
@@ -170,6 +179,7 @@ function ChargePointsPageContent() {
         firmwareVersion: values.meta?.firmwareVersion ?? "",
       },
     });
+    setCreatedChargePoint(created);
   };
 
   const handleEdit = async (values: ChargePointFormValues) => {
@@ -360,6 +370,11 @@ function ChargePointsPageContent() {
             mode="create"
             sites={sites}
             defaultSiteId={detailTarget?.siteId}
+          />
+          <ChargePointConnectionUrlDialog
+            open={!!createdChargePoint}
+            onOpenChange={(open) => !open && setCreatedChargePoint(null)}
+            chargePoint={createdChargePoint}
           />
           <ChargePointFormDialog
             open={!!editTarget}

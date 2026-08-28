@@ -534,6 +534,7 @@
         "fields": {
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
+          "nameCreatePlaceholder": "Optionnel — un nom sera généré si laissé vide",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",
@@ -545,6 +546,13 @@
           "firmware": "Firmware",
           "firmwarePlaceholder": "Ex: 1.2.3"
         }
+      },
+      "connectionUrl": {
+        "title": "Borne créée",
+        "description": "Configurez « {name} » en collant cette URL dans l'écran de configuration OCPP de la borne physique — c'est la seule étape restante.",
+        "copyCta": "Copier l'URL",
+        "hint": "Cette URL n'est affichée qu'une seule fois — copiez-la avant de fermer cette fenêtre.",
+        "doneCta": "Terminé"
       },
       "detail": {
         "connectionStatus": "Statut de connexion",
