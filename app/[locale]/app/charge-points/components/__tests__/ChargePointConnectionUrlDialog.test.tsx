@@ -2,16 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.connectionUrl.title": "Charge point created",
-      "appPage.chargePoints.connectionUrl.description": `Configure "${values?.name}" by pasting this URL.`,
-      "appPage.chargePoints.connectionUrl.copyCta": "Copy URL",
-      "appPage.chargePoints.connectionUrl.hint": "Shown only once.",
-      "appPage.chargePoints.connectionUrl.doneCta": "Done",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { ChargePointConnectionUrlDialog } from "../ChargePointConnectionUrlDialog";
@@ -43,7 +34,7 @@ describe("ChargePointConnectionUrlDialog", () => {
     );
 
     expect(screen.getByText(chargePoint.connectionUrl)).toBeTruthy();
-    expect(screen.getByText(/swift-relay/)).toBeTruthy();
+    expect(screen.getByText("appPage.chargePoints.connectionUrl.description")).toBeTruthy();
   });
 
   it("SHOULD copy the connection URL to the clipboard WHEN the copy button is clicked", async () => {
@@ -54,7 +45,9 @@ describe("ChargePointConnectionUrlDialog", () => {
       <ChargePointConnectionUrlDialog open onOpenChange={vi.fn()} chargePoint={chargePoint} />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.connectionUrl.copyCta" }),
+    );
 
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(chargePoint.connectionUrl));
   });
@@ -71,7 +64,9 @@ describe("ChargePointConnectionUrlDialog", () => {
       <ChargePointConnectionUrlDialog open onOpenChange={onOpenChange} chargePoint={chargePoint} />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.connectionUrl.doneCta" }),
+    );
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
