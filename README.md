@@ -120,11 +120,12 @@ only when:
 
 A production deploy is part of the release pipeline,
 [`release`](.github/workflows/release.yml): **Actions → Release → Run
-workflow**, one input (`version`, e.g. `1.4.0`). It tags `vX.Y.Z`, creates a
-GitHub Release with a changelog generated from Conventional Commits, then
-calls `deploy-production-netlify` to build and deploy that exact tag. No
-`package.json` version bump, no push to `main` — the git tag alone is the
-source of truth.
+workflow**, no inputs — always releases `main`'s current tip. The release
+version is that commit's short SHA (e.g. `a1b2c3d`); `gh release create
+--target <sha> --generate-notes` cuts the tag and drafts notes from merged
+PRs since the previous release, then `deploy-production-netlify` builds and
+deploys that exact tag. No `package.json` version bump, no push to `main` —
+the git tag alone is the source of truth.
 
 [`deploy-production-netlify`](.github/workflows/deploy-production-netlify.yml)
 is also independently dispatchable via **Actions → Deploy Frontend to
