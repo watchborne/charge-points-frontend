@@ -28,3 +28,14 @@ export type ChargePointWithConnectors = PackageChargePointWithConnectors & {
 export type ChargePointWithSite = PackageChargePointWithSite & {
   commissionedAt: string | null;
 };
+
+/**
+ * `POST /api/charge-points`'s response shape only (ADR 0010, charge-points-server):
+ * the created charge point plus the ready-to-paste OCPP connection URL to
+ * configure on the physical device. Not part of the persisted `ChargePoint`
+ * shape — every later read rebuilds it from `ocppIdentity` instead, so it is
+ * never returned again after creation.
+ */
+export type CreatedChargePoint = ChargePointWithConnectors & {
+  connectionUrl: string;
+};

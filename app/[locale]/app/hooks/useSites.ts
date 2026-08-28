@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 export interface UseSitesReturn {
   sites: Site[];
@@ -16,7 +17,7 @@ export function useSites(): UseSitesReturn {
   const t = useTranslations("");
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["sites"],
+    queryKey: queryKeys.sites.all(),
     queryFn: api.Sites.getSites,
     retry: false,
   });

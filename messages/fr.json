@@ -534,6 +534,7 @@
         "fields": {
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
+          "nameCreatePlaceholder": "Optionnel — un nom sera généré si laissé vide",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",
@@ -545,6 +546,13 @@
           "firmware": "Firmware",
           "firmwarePlaceholder": "Ex: 1.2.3"
         }
+      },
+      "connectionUrl": {
+        "title": "Borne créée",
+        "description": "Configurez « {name} » en collant cette URL dans l'écran de configuration OCPP de la borne physique — c'est la seule étape restante.",
+        "copyCta": "Copier l'URL",
+        "hint": "Cette URL n'est affichée qu'une seule fois — copiez-la avant de fermer cette fenêtre.",
+        "doneCta": "Terminé"
       },
       "detail": {
         "connectionStatus": "Statut de connexion",
@@ -957,7 +965,7 @@
         "steps": {
           "openSettings": "Ouvrez les paramètres OCPP (parfois appelés « Central System URL ») de la borne, généralement dans son interface d'administration.",
           "enterAddress": "Renseignez l'adresse du serveur OCPP ci-dessus.",
-          "appendId": "Suffixez l'adresse avec l'identifiant unique de la borne, par exemple : {example}",
+          "appendId": "Suffixez l'adresse avec l'identifiant unique de la borne, par exemple : <code>example</code>",
           "restart": "Enregistrez puis redémarrez la borne : elle apparaîtra dans Watchborne dès sa première connexion."
         }
       },
@@ -968,7 +976,8 @@
         "regenerateCta": "Régénérer",
         "copyCta": "Copier le jeton",
         "exampleLabel": "Exemple d'adresse avec votre jeton",
-        "exampleUrlPlaceholder": "<identifiant-de-la-borne>",
+        "exampleUrlPlaceholder": "'<identifiant-de-la-borne>'",
+        "commissioningTokenPlaceholder": "'<jeton-de-commissioning>'",
         "createdAtLabel": "Jeton généré le {date}",
         "revealedWarning": "Copiez ce jeton maintenant : il ne sera plus jamais affiché en clair.",
         "revokeCta": "Révoquer",

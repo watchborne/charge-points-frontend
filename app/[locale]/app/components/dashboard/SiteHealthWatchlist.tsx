@@ -1,6 +1,9 @@
 import { SiteHealth } from "@watchborne/charge-points-types";
+import { ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
+
+import { useRouter } from "@/i18n/navigation";
 
 import { SiteHealthBadge } from "./SiteHealthBadge";
 import { SiteWithHealth } from "./SiteHealthSection";
@@ -22,6 +25,7 @@ const affectedCount = (health: SiteHealth) =>
  * not a gap to fill. */
 export const SiteHealthWatchlist = ({ sitesWithHealth }: { sitesWithHealth: SiteWithHealth[] }) => {
   const t = useTranslations("");
+  const router = useRouter();
 
   const watchlist = useMemo(
     () =>
@@ -50,7 +54,18 @@ export const SiteHealthWatchlist = ({ sitesWithHealth }: { sitesWithHealth: Site
         <ul className="flex flex-col gap-3">
           {watchlist.map(({ site, health }) => (
             <li key={site.id} className="flex items-center justify-between gap-3">
-              <span className="truncate font-medium">{site.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="truncate font-medium">{site.name}</span>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/app/sites?id=${site.id}`)}
+                  aria-label={site.name}
+                  className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </button>
+              </div>
+
               <div className="flex shrink-0 items-center gap-2">
                 <span className="text-xs text-muted-foreground">
                   {t("appPage.dashboard.siteHealth.watchlist.affected", {
