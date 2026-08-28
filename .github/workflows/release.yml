@@ -1,13 +1,11 @@
 name: Release
 
 # Manual, one-shot release pipeline: create a GitHub Release for the commit ->
-# deploy that commit to production. Mirrors app-desktop's
-# trunk-build-test-deploy.yaml deploy-production job and
-# watchborne/charge-points-server's release.yml: the release version is the
-# short commit SHA (no semver input, no separate git tag push — `gh release
-# create --target <sha>` cuts the tag itself), and release notes come from
-# GitHub's own --generate-notes (merged PRs since the last release) instead of
-# conventional-changelog.
+# deploy that commit to production. Mirrors watchborne/charge-points-server's
+# release.yml: the release version is the short commit SHA (no semver input,
+# no separate git tag push — `gh release create --target <sha>` cuts the tag
+# itself), and release notes come from GitHub's own --generate-notes (merged
+# PRs since the last release) instead of conventional-changelog.
 on:
   workflow_dispatch: {}
 
