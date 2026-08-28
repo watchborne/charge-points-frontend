@@ -2,25 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const map: Record<string, string> = {
-      "appPage.chargePoints.form.createTitle": "Add a charge point",
-      "appPage.chargePoints.form.editTitle": "Edit the charge point",
-      "appPage.chargePoints.form.createDescription": "Fill in details.",
-      "appPage.chargePoints.form.editDescription": "Edit details.",
-      "appPage.chargePoints.form.buttons.create": "Create",
-      "appPage.chargePoints.form.buttons.save": "Save",
-      "appPage.chargePoints.form.buttons.cancel": "Cancel",
-      "appPage.chargePoints.form.fields.name": "Name",
-      "appPage.chargePoints.form.fields.namePlaceholder": "Ex: CP-001",
-      "appPage.chargePoints.form.fields.nameCreatePlaceholder":
-        "Optional — a name will be generated if left blank",
-      "appPage.chargePoints.form.fields.site": "Site",
-      "appPage.chargePoints.form.fields.technicalInformation": "Technical information",
-      "appPage.sites.siteCombobox.unassigned": "Unassigned",
-    };
-    return map[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 import { ChargePointFormDialog } from "../ChargePointFormDialog";
@@ -43,7 +25,10 @@ describe("ChargePointFormDialog", () => {
     // ADR 0010 (charge-points-server): renaming used to be locked outside
     // create mode because `name` doubled as the OCPP reconnection key. It no
     // longer does, so the field must stay editable here.
-    expect(screen.getByLabelText("Name")).toHaveProperty("disabled", false);
+    expect(screen.getByLabelText("appPage.chargePoints.form.fields.name")).toHaveProperty(
+      "disabled",
+      false,
+    );
   });
 
   it("SHOULD show the optional-name placeholder WHEN creating a charge point", () => {
@@ -58,7 +43,7 @@ describe("ChargePointFormDialog", () => {
     );
 
     expect(
-      screen.getByPlaceholderText("Optional — a name will be generated if left blank"),
+      screen.getByPlaceholderText("appPage.chargePoints.form.fields.nameCreatePlaceholder"),
     ).toBeTruthy();
   });
 
@@ -74,7 +59,9 @@ describe("ChargePointFormDialog", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "appPage.chargePoints.form.buttons.create" }),
+    );
 
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ name: "" })),
@@ -94,8 +81,10 @@ describe("ChargePointFormDialog", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.change(screen.getByLabelText("appPage.chargePoints.form.fields.name"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "appPage.chargePoints.form.buttons.save" }));
 
     await waitFor(() => expect(screen.getByText("Name is required")).toBeTruthy());
     expect(onSubmit).not.toHaveBeenCalled();
