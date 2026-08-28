@@ -53,7 +53,7 @@ export const SiteHealthWatchlist = ({ sitesWithHealth }: { sitesWithHealth: Site
       ) : (
         <ul className="flex flex-col gap-3">
           {watchlist.map(({ site, health }) => (
-            <li key={site.id} className="flex items-center justify-between gap-3">
+            <li key={site.id} className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="truncate font-medium">{site.name}</span>
                 <button
