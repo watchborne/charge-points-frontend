@@ -33,13 +33,13 @@ export const SiteHealthList = ({ sitesWithHealth }: { sitesWithHealth: SiteWithH
           <TableRow>
             <TableHead>{t("appPage.dashboard.siteHealth.list.columns.site")}</TableHead>
             <TableHead>{t("appPage.dashboard.siteHealth.list.columns.status")}</TableHead>
-            <TableHead className="text-right hidden sm:visible">
+            <TableHead className="text-right hidden sm:table-cell">
               {t("appPage.dashboard.siteHealth.list.columns.online")}
             </TableHead>
-            <TableHead className="text-right hidden sm:visible">
+            <TableHead className="text-right hidden sm:table-cell">
               {t("appPage.dashboard.siteHealth.list.columns.warning")}
             </TableHead>
-            <TableHead className="text-right hidden sm:visible">
+            <TableHead className="text-right hidden sm:table-cell">
               {t("appPage.dashboard.siteHealth.list.columns.offline")}
             </TableHead>
           </TableRow>
@@ -55,13 +55,13 @@ export const SiteHealthList = ({ sitesWithHealth }: { sitesWithHealth: SiteWithH
               <TableCell>
                 <SiteHealthBadge status={health.status} />
               </TableCell>
-              <TableCell className="text-right hidden sm:visible">
+              <TableCell className="text-right hidden sm:table-cell">
                 {health.chargePointsOnline}
               </TableCell>
-              <TableCell className="text-right hidden sm:visible">
+              <TableCell className="text-right hidden sm:table-cell">
                 {health.chargePointsWarning}
               </TableCell>
-              <TableCell className="text-right hidden sm:visible">
+              <TableCell className="text-right hidden sm:table-cell">
                 {health.chargePointsOffline}
               </TableCell>
             </TableRow>
