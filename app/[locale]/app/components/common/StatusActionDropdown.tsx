@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
-import { useTranslations } from "next-intl";
 
 import {
   DropdownMenu,
@@ -28,27 +27,23 @@ export const StatusActionDropdown = ({
   options,
   onStatusChange,
   disabled = false,
-}: StatusActionDropdownProps) => {
-  const t = useTranslations("");
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={disabled}>
-          {options.find((opt) => opt.value === currentStatus)?.label || currentStatus}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {options.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            onClick={() => onStatusChange(option.value)}
-            disabled={option.disabled || option.value === currentStatus}
-          >
-            {option.label}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
+}: StatusActionDropdownProps) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="outline" disabled={disabled}>
+        {options.find((opt) => opt.value === currentStatus)?.label || currentStatus}
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end">
+      {options.map((option) => (
+        <DropdownMenuItem
+          key={option.value}
+          onClick={() => onStatusChange(option.value)}
+          disabled={option.disabled || option.value === currentStatus}
+        >
+          {option.label}
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuContent>
+  </DropdownMenu>
+);

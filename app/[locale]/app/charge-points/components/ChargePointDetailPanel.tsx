@@ -26,7 +26,6 @@ import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
-import { FirmwarePanel } from "./FirmwarePanel";
 import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
