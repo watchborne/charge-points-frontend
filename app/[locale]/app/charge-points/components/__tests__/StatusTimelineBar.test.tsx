@@ -11,7 +11,10 @@ afterEach(() => cleanup());
 
 type TestStatus = "Available" | "Charging";
 
-const TONE_OF: Record<TestStatus, StatusTone> = { Available: "available", Charging: "charging" };
+const TONE_OF: Record<TestStatus, StatusTone> = {
+  Available: "green",
+  Charging: "blue",
+};
 const toneOf = (status: TestStatus) => TONE_OF[status];
 const label = (status: TestStatus) => status;
 
@@ -52,7 +55,7 @@ describe("StatusTimelineBar", () => {
 
     const blocks = container.querySelectorAll("[role='img'] > div");
     expect(blocks[0].className).toContain("bg-muted");
-    expect(blocks[1].className).toContain("bg-status-available");
+    expect(blocks[1].className).toContain("bg-green");
   });
 
   it("SHOULD name the bar for a screen reader via aria-label", () => {
