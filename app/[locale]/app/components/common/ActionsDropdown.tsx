@@ -24,7 +24,7 @@ export interface ActionsDropdownProps {
   actions: ActionItem[];
   onAction: (actionId: string) => void;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "lg";
 }
 
 export const ActionsDropdown = ({
