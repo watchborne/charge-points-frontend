@@ -27,7 +27,9 @@ import type { StartLogUploadOutcome } from "@/lib/api-charge-points";
 import type { ChargePoint } from "@/types/charge-point";
 
 type SubmitState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: StartLogUploadOutcome };
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: StartLogUploadOutcome };
 
 /** Schemes a station actually uploads to. Mirrors the backend. */
 const ALLOWED_PROTOCOLS = ["http:", "https:", "ftp:", "ftps:"];
