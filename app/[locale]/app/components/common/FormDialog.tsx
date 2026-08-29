@@ -1,6 +1,11 @@
 import { ReactNode } from "react";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+} from "@/components/ui/alert-dialog";
 
 export interface FormDialogProps {
   open: boolean;
