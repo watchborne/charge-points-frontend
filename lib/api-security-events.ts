@@ -28,14 +28,11 @@ export const securityEventApis = {
     chargePointId: ChargePoint["id"],
     limit?: number,
   ): Promise<SecurityEvent[]> {
-    return withErrorLogging(
-      () => {
-        const query = limit === undefined ? "" : `?limit=${limit}`;
-        return httpClient.get<SecurityEvent[]>(
-          `/api/charge-points/${chargePointId}/security-events${query}`,
-        );
-      },
-      `SecurityEvent.list(${chargePointId})`,
-    );
+    return withErrorLogging(() => {
+      const query = limit === undefined ? "" : `?limit=${limit}`;
+      return httpClient.get<SecurityEvent[]>(
+        `/api/charge-points/${chargePointId}/security-events${query}`,
+      );
+    }, `SecurityEvent.list(${chargePointId})`);
   },
 };

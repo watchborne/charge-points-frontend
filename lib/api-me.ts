@@ -9,7 +9,10 @@ import { httpClient } from "./http-client";
 // (an unresolved token can't be attributed to a caller — see charge-points-server issue #420) but
 // is kept in the union for completeness with the shared vocabulary.
 export type CommissioningOutcome =
-  "CLAIMED" | "UNKNOWN_TOKEN" | "ALREADY_CLAIMED_BY_OTHER" | "ALREADY_CLAIMED_BY_SELF";
+  | "CLAIMED"
+  | "UNKNOWN_TOKEN"
+  | "ALREADY_CLAIMED_BY_OTHER"
+  | "ALREADY_CLAIMED_BY_SELF";
 
 // One of the caller's own commissioning attempts (issue #420 /
 // charge-points-frontend#278) — a station either claimed successfully with
@@ -33,9 +36,6 @@ export type Me = {
 
 export const meApis = {
   getMe: async function (): Promise<Me> {
-    return withErrorLogging(
-      () => httpClient.get<Me>("/api/me"),
-      "Me.getMe",
-    );
+    return withErrorLogging(() => httpClient.get<Me>("/api/me"), "Me.getMe");
   },
 };

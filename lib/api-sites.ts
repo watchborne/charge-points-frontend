@@ -25,10 +25,7 @@ export const siteApis = {
     );
   },
   createSite: async function (body: CreateSiteBody): Promise<Site> {
-    return withErrorLogging(
-      () => httpClient.post<Site>("/api/sites", body),
-      "Sites.createSite",
-    );
+    return withErrorLogging(() => httpClient.post<Site>("/api/sites", body), "Sites.createSite");
   },
   updateSite: async function (siteId: Site["id"], patchBody: PatchSiteBody): Promise<Site> {
     return withErrorLogging(
