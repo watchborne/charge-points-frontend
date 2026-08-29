@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { VerifyOtpForm } from "../VerifyOtpForm";
+
 const { createBrowserClient, signInWithOtp, verifyOtp } = vi.hoisted(() => {
   const signInWithOtp = vi.fn();
   const verifyOtp = vi.fn();
@@ -11,54 +13,57 @@ const { createBrowserClient, signInWithOtp, verifyOtp } = vi.hoisted(() => {
   };
 });
 
+const { push } = vi.hoisted(() => {
+  return { push: vi.fn() };
+});
+
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push,
+  }),
+}));
+
+vi.mock("next-intl/navigation", () => ({
+  createNavigation: () => ({
+    useRouter: () => ({
+      push,
+    }),
+    Link: ({ href, children }: { href: string; children: React.ReactNode }) => (
+      <a href={href}>{children}</a>
+    ),
+    usePathname: () => "/",
+    redirect: vi.fn(),
+    getPathname: vi.fn(),
+  }),
+}));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
-  useTranslations: () => (key: string) => {
-    const translations: Record<string, string> = {
-      "loginPage.otp.description": "A 6-digit code has been sent to {email}.",
-      "loginPage.otp.codeLabel": "Verification code",
-      "loginPage.otp.codePlaceholder": "12345678",
-      "loginPage.otp.submit": "Verify",
-      "loginPage.otp.changeEmail": "Use a different address",
-      "loginPage.otp.resend": "Resend code",
-      "loginPage.otp.resendCooldown": "Resend code (wait)",
-      "loginPage.otp.error.invalid": "This code is invalid or has expired.",
-      "loginPage.otp.error.generic": "Verification failed. Please try again.",
-    };
-    return translations[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
-import { VerifyOtpForm } from "../VerifyOtpForm";
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({
+    push,
+  }),
+}));
 
 const onBack = vi.fn();
-const assign = vi.fn();
-const originalLocation = window.location;
 
 const typeCode = (value: string) =>
-  fireEvent.change(screen.getByLabelText("Verification code"), { target: { value } });
+  fireEvent.change(screen.getByLabelText("loginPage.otp.codeLabel"), { target: { value } });
 
 beforeEach(() => {
   signInWithOtp.mockReset();
   verifyOtp.mockReset();
   onBack.mockReset();
-  assign.mockReset();
-  // jsdom's window.location.assign can't be spied on directly, so swap in a
-  // stub that records the navigation target (same technique as LogoutButton.test.tsx).
-  Object.defineProperty(window, "location", {
-    configurable: true,
-    value: { ...originalLocation, assign },
-  });
+  push.mockReset();
 });
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "location", {
-    configurable: true,
-    value: originalLocation,
-  });
 });
 
 describe("VerifyOtpForm", () => {
@@ -67,9 +72,9 @@ describe("VerifyOtpForm", () => {
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
     typeCode("12345678");
-    fireEvent.click(screen.getByRole("button", { name: "Verify" }));
+    fireEvent.click(screen.getByRole("button", { name: "loginPage.otp.submit" }));
 
-    await waitFor(() => expect(assign).toHaveBeenCalledWith("/app/dashboard"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/app/dashboard"));
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "user@example.com",
       token: "12345678",
@@ -81,7 +86,7 @@ describe("VerifyOtpForm", () => {
     verifyOtp.mockResolvedValue({ error: null });
     render(<VerifyOtpForm email="dev@example.com" onBack={onBack} initialCode="99988877" />);
 
-    await waitFor(() => expect(assign).toHaveBeenCalledWith("/app/dashboard"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/app/dashboard"));
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "dev@example.com",
       token: "99988877",
@@ -94,7 +99,9 @@ describe("VerifyOtpForm", () => {
 
     typeCode("12a3-45–6789");
 
-    expect((screen.getByLabelText("Verification code") as HTMLInputElement).value).toBe("12345678");
+    expect((screen.getByLabelText("loginPage.otp.codeLabel") as HTMLInputElement).value).toBe(
+      "12345678",
+    );
   });
 
   it("SHOULD show the invalid-code error WHEN verifyOtp fails with otp_expired", async () => {
@@ -102,12 +109,10 @@ describe("VerifyOtpForm", () => {
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
     typeCode("00000000");
-    fireEvent.click(screen.getByRole("button", { name: "Verify" }));
+    fireEvent.click(screen.getByRole("button", { name: "loginPage.otp.submit" }));
 
-    await waitFor(() =>
-      expect(screen.getByText("This code is invalid or has expired.")).toBeTruthy(),
-    );
-    expect(assign).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByText("loginPage.otp.error.invalid")).toBeTruthy());
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("SHOULD show the generic error WHEN verifyOtp fails for another reason", async () => {
@@ -115,12 +120,10 @@ describe("VerifyOtpForm", () => {
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
     typeCode("00000000");
-    fireEvent.click(screen.getByRole("button", { name: "Verify" }));
+    fireEvent.click(screen.getByRole("button", { name: "loginPage.otp.submit" }));
 
-    await waitFor(() =>
-      expect(screen.getByText("Verification failed. Please try again.")).toBeTruthy(),
-    );
-    expect(assign).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByText("loginPage.otp.error.generic")).toBeTruthy());
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("SHOULD disable the submit button WHILE verification is in flight", async () => {
@@ -133,20 +136,20 @@ describe("VerifyOtpForm", () => {
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
     typeCode("12345678");
-    fireEvent.click(screen.getByRole("button", { name: "Verify" }));
+    fireEvent.click(screen.getByRole("button", { name: "loginPage.otp.submit" }));
 
-    expect((screen.getByRole("button", { name: "Verify" }) as HTMLButtonElement).disabled).toBe(
-      true,
-    );
+    expect(
+      (screen.getByRole("button", { name: "loginPage.otp.submit" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
 
     resolveVerify({ error: null });
-    await waitFor(() => expect(assign).toHaveBeenCalledWith("/app/dashboard"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/app/dashboard"));
   });
 
   it("SHOULD call onBack WHEN the change-email action is clicked", () => {
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    fireEvent.click(screen.getByText("Use a different address"));
+    fireEvent.click(screen.getByText("loginPage.otp.changeEmail"));
 
     expect(onBack).toHaveBeenCalled();
   });
@@ -155,7 +158,7 @@ describe("VerifyOtpForm", () => {
     signInWithOtp.mockResolvedValue({ error: null });
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    fireEvent.click(screen.getByText("Resend code"));
+    fireEvent.click(screen.getByText("loginPage.otp.resend"));
 
     await waitFor(() =>
       expect(signInWithOtp).toHaveBeenCalledWith({
@@ -164,7 +167,7 @@ describe("VerifyOtpForm", () => {
       }),
     );
 
-    const resendButton = screen.getByText("Resend code (wait)") as HTMLButtonElement;
+    const resendButton = screen.getByText("loginPage.otp.resendCooldown") as HTMLButtonElement;
     expect(resendButton.disabled).toBe(true);
   });
 
@@ -174,10 +177,8 @@ describe("VerifyOtpForm", () => {
     });
     render(<VerifyOtpForm email="user@example.com" onBack={onBack} />);
 
-    fireEvent.click(screen.getByText("Resend code"));
+    fireEvent.click(screen.getByText("loginPage.otp.resend"));
 
-    await waitFor(() =>
-      expect(screen.getByText("Verification failed. Please try again.")).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByText("loginPage.otp.error.generic")).toBeTruthy());
   });
 });

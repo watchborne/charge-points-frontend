@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -29,6 +30,7 @@ interface VerifyOtpFormProps {
 export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps) {
   const t = useTranslations("");
   const locale = useLocale();
+  const router = useRouter();
   const [code, setCode] = useState(initialCode ?? "");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -66,7 +68,7 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     // Full-page navigation, not a router push: same reasoning as
     // LogoutButton — components elsewhere resolve session state once on
     // mount, so a hard reload is what reliably picks up the new session.
-    window.location.assign("/app/dashboard");
+    router.push("/app/dashboard");
   };
 
   useEffect(() => {

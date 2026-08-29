@@ -17,10 +17,17 @@ const { useWebSocket } = vi.hoisted(() => ({
   useWebSocket: vi.fn(),
 }));
 
+const { push } = vi.hoisted(() => {
+  return { push: vi.fn() };
+});
+
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 vi.mock("../../../../../../i18n/navigation", () => ({
   usePathname: () => "/app/dashboard",
+  useRouter: () => ({
+    push,
+  }),
   Link: ({
     href,
     children,
@@ -99,7 +106,7 @@ describe("Header", () => {
     fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
     await waitFor(() => expect(signOut).toHaveBeenCalled());
-    await waitFor(() => expect(assign).toHaveBeenCalledWith("/"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
   });
 
   describe("WebSocket connection status", () => {
