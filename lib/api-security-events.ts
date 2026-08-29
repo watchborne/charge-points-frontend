@@ -1,5 +1,6 @@
 import type { ChargePoint } from "@watchborne/charge-points-types";
 
+import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
 // The security-event history's response shape. Not part of
@@ -23,22 +24,15 @@ export type SecurityEvent = {
 };
 
 export const securityEventApis = {
-  /** The charge point's security-event history, newest report first. */
   list: async function (
     chargePointId: ChargePoint["id"],
     limit?: number,
   ): Promise<SecurityEvent[]> {
-    try {
+    return withErrorLogging(() => {
       const query = limit === undefined ? "" : `?limit=${limit}`;
-      return await httpClient.get<SecurityEvent[]>(
+      return httpClient.get<SecurityEvent[]>(
         `/api/charge-points/${chargePointId}/security-events${query}`,
       );
-    } catch (error) {
-      console.error(
-        `Failed to fetch security-event history of charge point ${chargePointId}`,
-        error,
-      );
-      throw error;
-    }
+    }, `SecurityEvent.list(${chargePointId})`);
   },
 };
