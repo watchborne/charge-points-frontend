@@ -8,13 +8,11 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  *
  * Both the network connection status and the OCPP connector status collapse
  * onto a shared, finite set of visual colors — `ColorName`, owned by
- * `@watchborne/electrons` rather than redeclared here, so this
- * file and `ColorPill`'s own color variants can never drift apart. Each color
- * is backed by the `--<color>*` CSS variables (see `@watchborne/electrons`'s
- * `tokens.css`) and exposed through Tailwind's `<color>` colour family.
- * Components must colour statuses through the class maps below (or
- * `ColorPill` directly) rather than hardcoding raw colours, so the
- * marketing site and the app stay in sync.
+ * `@watchborne/electrons` rather than redeclared here. Each color is backed by
+ * the `--<color>*` CSS variables (see `@watchborne/electrons`'s `tokens.css`)
+ * and exposed through Tailwind's `<color>-*` colour family. Components must
+ * colour statuses through the class maps below (or `ColorPill` directly) rather
+ * than hardcoding raw colours, so the marketing site and the app stay in sync.
  */
 export type { ColorName };
 
@@ -124,3 +122,12 @@ export const colorTextClass: Record<ColorName, string> = {
   gray: "text-gray-foreground",
   purple: "text-purple-foreground",
 };
+
+// Backward compatibility aliases for gradual migration
+export const connectionStatusTone = connectionStatusColor;
+export const connectorStatusTone = connectorStatusColor;
+export const siteHealthStatusTone = siteHealthStatusColor;
+export const alertStatusTone = alertStatusColor;
+export const toneBadgeClass = colorBadgeClass;
+export const toneDotClass = colorDotClass;
+export const toneTextClass = colorTextClass;
