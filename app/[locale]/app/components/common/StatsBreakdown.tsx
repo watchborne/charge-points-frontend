@@ -33,7 +33,7 @@ export const StatsBreakdown = ({ title, subtitle, buckets, columns = 4 }: StatsB
             key={index}
             icon={bucket.icon}
             title={bucket.label}
-            value={bucket.value.toString()}
+            value={bucket.value}
             subtitle={bucket.subtitle}
           />
         ))}
