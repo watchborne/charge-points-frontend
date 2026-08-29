@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import type { AvailabilityType, ChargePoint, ResetType } from "@watchborne/charge-points-types";
+import type { AvailabilityType, ResetType } from "@watchborne/charge-points-types";
+import type { ChargePoint } from "@watchborne/charge-points-types";
 import { useCallback } from "react";
 
 import { api } from "@/lib/api";
