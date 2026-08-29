@@ -2,6 +2,7 @@ import type { ChargePoint } from "@watchborne/charge-points-types";
 
 import type { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
+import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
 // The status-history reads' response shapes. Not part of
@@ -71,29 +72,24 @@ export const statusHistoryApis = {
     chargePointId: ChargePoint["id"],
     query: StatusHistoryQuery = {},
   ): Promise<ConnectionStateEvent[]> {
-    try {
-      return await httpClient.get<ConnectionStateEvent[]>(
-        `/api/charge-points/${chargePointId}/connection-events${buildQuery(query)}`,
-      );
-    } catch (error) {
-      console.error(`Failed to fetch connection events of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () =>
+        httpClient.get<ConnectionStateEvent[]>(
+          `/api/charge-points/${chargePointId}/connection-events${buildQuery(query)}`,
+        ),
+      `StatusHistory.getConnectionEvents(${chargePointId})`,
+    );
   },
   getConnectorStatusEvents: async function (
     chargePointId: ChargePoint["id"],
     query: ConnectorStatusHistoryQuery = {},
   ): Promise<ConnectorStatusEvent[]> {
-    try {
-      return await httpClient.get<ConnectorStatusEvent[]>(
-        `/api/charge-points/${chargePointId}/connector-status-events${buildQuery(query)}`,
-      );
-    } catch (error) {
-      console.error(
-        `Failed to fetch connector-status events of charge point ${chargePointId}`,
-        error,
-      );
-      throw error;
-    }
+    return withErrorLogging(
+      () =>
+        httpClient.get<ConnectorStatusEvent[]>(
+          `/api/charge-points/${chargePointId}/connector-status-events${buildQuery(query)}`,
+        ),
+      `StatusHistory.getConnectorStatusEvents(${chargePointId})`,
+    );
   },
 };

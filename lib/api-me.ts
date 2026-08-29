@@ -1,5 +1,6 @@
 import { ChargePoint } from "@watchborne/charge-points-types";
 
+import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
 // Mirrors charge-points-server's CommissioningOutcome (src/domain/commissioning-attempt.ts).
@@ -32,11 +33,9 @@ export type Me = {
 
 export const meApis = {
   getMe: async function (): Promise<Me> {
-    try {
-      return await httpClient.get<Me>("/api/me");
-    } catch (error) {
-      console.error("Failed to fetch the current user", error);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.get<Me>("/api/me"),
+      "Me.getMe",
+    );
   },
 };

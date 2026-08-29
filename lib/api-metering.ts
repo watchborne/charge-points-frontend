@@ -1,5 +1,6 @@
 import type { ChargePoint } from "@watchborne/charge-points-types";
 
+import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
 // The metering reads' response shapes. Not part of
@@ -93,26 +94,24 @@ export const meteringApis = {
     chargePointId: ChargePoint["id"],
     query: MeterSamplesQuery = {},
   ): Promise<MeterSample[]> {
-    try {
-      return await httpClient.get<MeterSample[]>(
-        `/api/charge-points/${chargePointId}/meter-samples${buildQuery(query)}`,
-      );
-    } catch (error) {
-      console.error(`Failed to fetch meter samples of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () =>
+        httpClient.get<MeterSample[]>(
+          `/api/charge-points/${chargePointId}/meter-samples${buildQuery(query)}`,
+        ),
+      `Metering.getMeterSamples(${chargePointId})`,
+    );
   },
   getConsumption: async function (
     chargePointId: ChargePoint["id"],
     query: Omit<MeterSamplesQuery, "limit"> = {},
   ): Promise<ChargePointConsumption> {
-    try {
-      return await httpClient.get<ChargePointConsumption>(
-        `/api/charge-points/${chargePointId}/consumption${buildQuery(query)}`,
-      );
-    } catch (error) {
-      console.error(`Failed to fetch consumption of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () =>
+        httpClient.get<ChargePointConsumption>(
+          `/api/charge-points/${chargePointId}/consumption${buildQuery(query)}`,
+        ),
+      `Metering.getConsumption(${chargePointId})`,
+    );
   },
 };
