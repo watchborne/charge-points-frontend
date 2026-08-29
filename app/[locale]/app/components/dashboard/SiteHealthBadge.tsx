@@ -1,7 +1,7 @@
 import { SiteHealthStatus } from "@watchborne/charge-points-types";
 
 import { GenericStatusBadge } from "@/app/[locale]/app/components/common/GenericStatusBadge";
-import { siteHealthStatusTone } from "@/lib/status";
+import { siteHealthStatusColor } from "@/lib/status";
 
 const STATUS_LABEL_KEY: Record<SiteHealthStatus, string> = {
   HEALTHY: "appPage.dashboard.siteHealth.status.healthy",
@@ -12,7 +12,7 @@ const STATUS_LABEL_KEY: Record<SiteHealthStatus, string> = {
 export const SiteHealthBadge = ({ status }: { status: SiteHealthStatus }) => (
   <GenericStatusBadge
     status={status}
-    getTone={siteHealthStatusTone}
+    getTone={siteHealthStatusColor}
     getLabelKey={(s) => STATUS_LABEL_KEY[s]}
   />
 );

@@ -1,18 +1,18 @@
 import { StatusPill } from "@watchborne/electrons";
 
-import { connectionStatusTone } from "@/lib/status";
+import { connectionStatusColor } from "@/lib/status";
 import { ChargePointConnectionStatus } from "@/types/charge-point";
 
 interface StatusBadgeProps {
   status: ChargePointConnectionStatus;
 }
 
-/** Thin domain-to-tone mapper over @watchborne/electrons's StatusPill. */
+/** Thin domain-to-color mapper over @watchborne/electrons's StatusPill. */
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const tone = connectionStatusTone(status);
+  const color = connectionStatusColor(status);
 
   return (
-    <StatusPill tone={tone} className="capitalize">
+    <StatusPill tone={color} className="capitalize">
       {status.toLowerCase()}
     </StatusPill>
   );

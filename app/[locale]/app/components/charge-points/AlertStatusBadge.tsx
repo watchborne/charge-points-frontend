@@ -1,7 +1,7 @@
 import { AlertStatus } from "@watchborne/charge-points-types";
 
 import { GenericStatusBadge } from "@/app/[locale]/app/components/common/GenericStatusBadge";
-import { alertStatusTone } from "@/lib/status";
+import { alertStatusColor } from "@/lib/status";
 
 const STATUS_LABEL_KEY: Record<AlertStatus, string> = {
   OPEN: "appPage.chargePoints.alerts.status.open",
@@ -11,7 +11,7 @@ const STATUS_LABEL_KEY: Record<AlertStatus, string> = {
 export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => (
   <GenericStatusBadge
     status={status}
-    getTone={alertStatusTone}
+    getTone={alertStatusColor}
     getLabelKey={(s) => STATUS_LABEL_KEY[s]}
   />
 );

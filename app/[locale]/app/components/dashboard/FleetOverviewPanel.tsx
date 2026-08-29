@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
-import { connectionStatusTone, toneDotClass } from "@/lib/status";
+import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ConnectorStatusIcon } from "../common/ConnectorStatusIcon";
@@ -111,7 +111,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
 
           <div className="space-y-4">
             {displayedChargePoints.map((chargePoint) => {
-              const tone = connectionStatusTone(chargePoint.connection.status);
+              const color = connectionStatusColor(chargePoint.connection.status);
               const isExpanded = expandedIds.has(chargePoint.id);
               const isOnline = ["SYNCED", "CONNECTED"].includes(chargePoint.connection.status);
               const lastSeenText = chargePoint.connection.lastSeenAt
@@ -143,7 +143,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                     <div className="flex shrink-0 items-center gap-3">
                       <div className="flex items-center gap-2">
                         <div
-                          className={classNames("h-2.5 w-2.5 rounded-full", toneDotClass[tone])}
+                          className={classNames("h-2.5 w-2.5 rounded-full", colorDotClass[color])}
                         />
                         <span className="text-sm capitalize">
                           {chargePoint.connection.status.toLowerCase()}

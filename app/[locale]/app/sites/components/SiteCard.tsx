@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { Battery, Calendar, MapPin } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
-import { toneBadgeClass } from "@/lib/status";
+import { colorBadgeClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 type SiteCardProps = {
@@ -49,7 +49,7 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
               <span
                 className={classNames(
                   "rounded-full px-2 py-0.5 text-xs font-medium",
-                  toneBadgeClass.available,
+                  colorBadgeClass.green,
                 )}
               >
                 {t("appPage.sites.page.card.online", { count: onlineCount })}
@@ -59,7 +59,7 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
               <span
                 className={classNames(
                   "rounded-full px-2 py-0.5 text-xs font-medium",
-                  toneBadgeClass.offline,
+                  colorBadgeClass.gray,
                 )}
               >
                 {t("appPage.sites.page.card.offline", { count: offlineCount })}
