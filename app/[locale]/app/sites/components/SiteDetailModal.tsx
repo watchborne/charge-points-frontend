@@ -171,7 +171,10 @@ export const SiteDetailModal = ({
                         <div className="flex shrink-0 items-center gap-3">
                           <div className="flex items-center gap-2">
                             <div
-                              className={classNames("h-2.5 w-2.5 rounded-full", colorDotClass[color])}
+                              className={classNames(
+                                "h-2.5 w-2.5 rounded-full",
+                                colorDotClass[color],
+                              )}
                             />
                             <span className="text-sm capitalize">
                               {chargePoint.connection.status.toLowerCase()}
