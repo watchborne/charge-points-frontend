@@ -9,7 +9,7 @@ import {
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
 } from "@/lib/api-charge-points";
-import { connectionStatusTone, toneDotClass } from "@/lib/status";
+import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDetailPanel } from "./ChargePointDetailPanel";
@@ -138,7 +138,7 @@ export const ChargePointFleetPanel = ({
 
                   <div className="space-y-2">
                     {group.chargePoints.map((chargePoint) => {
-                      const tone = connectionStatusTone(chargePoint.connection.status);
+                      const color = connectionStatusColor(chargePoint.connection.status);
                       const vendorModel = [chargePoint.meta?.vendor, chargePoint.meta?.model]
                         .filter(Boolean)
                         .join(" ");
@@ -170,7 +170,7 @@ export const ChargePointFleetPanel = ({
                             <span
                               className={classNames(
                                 "mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full",
-                                toneDotClass[tone],
+                                colorDotClass[color],
                               )}
                             />
                           </div>

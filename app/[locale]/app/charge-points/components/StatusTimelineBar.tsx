@@ -2,14 +2,14 @@
 
 import { format } from "date-fns";
 
-import { toneDotClass, type StatusTone } from "@/lib/status";
+import { colorDotClass, type ColorName } from "@/lib/status";
 import { formatDurationShort, type StatusSegment } from "@/lib/status-history";
 
 type Props<S extends string> = {
   segments: StatusSegment<S>[];
   windowStart: Date;
   windowEnd: Date;
-  toneOf: (status: S) => StatusTone;
+  toneOf: (status: S) => ColorName;
   /** Renders a status value as display text — the caller's translation, not this component's. */
   label: (status: S) => string;
   /** Names the whole bar for a screen reader — the segments are an SVG-less colour strip it can't otherwise narrate. */
@@ -25,8 +25,8 @@ type Props<S extends string> = {
  * with every other status indicator in the app.
  *
  * Generic over the status type so one component serves both connection
- * state (`lib/status.ts`'s `connectionStatusTone`) and connector status
- * (`connectorStatusTone`) — `StatusHistoryPanel` supplies which.
+ * state (`lib/status.ts`'s `connectionStatusColor`) and connector status
+ * (`connectorStatusColor`) — `StatusHistoryPanel` supplies which.
  */
 export const StatusTimelineBar = <S extends string>({
   segments,
@@ -76,7 +76,7 @@ export const StatusTimelineBar = <S extends string>({
               className={
                 segment.status === null
                   ? "h-full bg-muted"
-                  : `h-full ${toneDotClass[toneOf(segment.status)]}`
+                  : `h-full ${colorDotClass[toneOf(segment.status)]}`
               }
             />
           );
@@ -92,7 +92,7 @@ export const StatusTimelineBar = <S extends string>({
             >
               <span
                 aria-hidden
-                className={`inline-block h-2 w-2 shrink-0 rounded-full ${toneDotClass[toneOf(status)]}`}
+                className={`inline-block h-2 w-2 shrink-0 rounded-full ${colorDotClass[toneOf(status)]}`}
               />
               {label(status)}
             </span>

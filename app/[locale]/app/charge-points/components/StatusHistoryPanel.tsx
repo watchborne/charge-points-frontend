@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { connectionStatusTone, connectorStatusTone } from "@/lib/status";
+import { connectionStatusColor, connectorStatusColor } from "@/lib/status";
 import { computeSegments } from "@/lib/status-history";
 
 import { StatusHistoryTable } from "./StatusHistoryTable";
@@ -139,7 +139,7 @@ export const StatusHistoryPanel = ({
             {range === "30d" ? (
               <StatusHistoryTable
                 segments={connectionSegments}
-                toneOf={connectionStatusTone}
+                toneOf={connectionStatusColor}
                 label={(status) => status}
                 unknownLabel={unknownLabel}
                 timestampHeader={t("appPage.chargePoints.statusHistory.table.timestamp")}
@@ -151,7 +151,7 @@ export const StatusHistoryPanel = ({
                 segments={connectionSegments}
                 windowStart={windowStart}
                 windowEnd={windowEnd}
-                toneOf={connectionStatusTone}
+                toneOf={connectionStatusColor}
                 label={(status) => status}
                 ariaLabel={t("appPage.chargePoints.statusHistory.connectivity")}
                 unknownLabel={unknownLabel}
@@ -166,7 +166,7 @@ export const StatusHistoryPanel = ({
             {range === "30d" ? (
               <StatusHistoryTable
                 segments={connectorSegments}
-                toneOf={connectorStatusTone}
+                toneOf={connectorStatusColor}
                 label={(status) => status}
                 unknownLabel={unknownLabel}
                 timestampHeader={t("appPage.chargePoints.statusHistory.table.timestamp")}
@@ -178,7 +178,7 @@ export const StatusHistoryPanel = ({
                 segments={connectorSegments}
                 windowStart={windowStart}
                 windowEnd={windowEnd}
-                toneOf={connectorStatusTone}
+                toneOf={connectorStatusColor}
                 label={(status) => status}
                 ariaLabel={t("appPage.chargePoints.statusHistory.connectorStatus", { connectorId })}
                 unknownLabel={unknownLabel}

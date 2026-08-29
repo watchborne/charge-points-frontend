@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  type StatusTone,
+  type ColorName,
 } from "@watchborne/electrons";
 import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -28,20 +28,20 @@ import {
 import { api } from "@/lib/api";
 import { CommissioningAttempt, CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
-import { toneDotClass } from "@/lib/status";
+import { colorDotClass } from "@/lib/status";
 
-// available: the attempt is what an installer wants to see (a fresh claim, or
-// an already-owned station recommissioned with a new token). error: refused
+// green: the attempt is what an installer wants to see (a fresh claim, or
+// an already-owned station recommissioned with a new token). red: refused
 // because the station already belongs to someone else — the one outcome
-// worth flagging as wrong, not just routine. warning: a stale/unknown token
+// worth flagging as wrong, not just routine. orange: a stale/unknown token
 // was presented — never actually returned by GET /api/me (it can't be
 // attributed to any caller, see charge-points-server issue #420), kept here
 // only so the mapping stays total over the shared outcome union.
-const OUTCOME_TONE: Record<CommissioningOutcome, StatusTone> = {
-  CLAIMED: "available",
-  ALREADY_CLAIMED_BY_SELF: "available",
-  ALREADY_CLAIMED_BY_OTHER: "error",
-  UNKNOWN_TOKEN: "warning",
+const OUTCOME_COLOR: Record<CommissioningOutcome, ColorName> = {
+  CLAIMED: "green",
+  ALREADY_CLAIMED_BY_SELF: "green",
+  ALREADY_CLAIMED_BY_OTHER: "red",
+  UNKNOWN_TOKEN: "orange",
 };
 
 /**
@@ -297,7 +297,7 @@ export const CommissioningTokenPanel = () => {
                             <span className="inline-flex items-start gap-1.5">
                               <span
                                 aria-hidden
-                                className={`mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full ${toneDotClass[OUTCOME_TONE[attempt.outcome]]}`}
+                                className={`mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full ${colorDotClass[OUTCOME_COLOR[attempt.outcome]]}`}
                               />
                               {t(outcomeKey)}
                             </span>

@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 
-import { connectorStatusTone, toneTextClass } from "@/lib/status";
+import { connectorStatusColor, colorTextClass } from "@/lib/status";
 import { ConnectorStatus } from "@/types/charge-point";
 
 interface ConnectorStatusIconProps {
@@ -18,7 +18,7 @@ interface ConnectorStatusIconProps {
 }
 
 export const ConnectorStatusIcon = ({ status, size = 16 }: ConnectorStatusIconProps) => {
-  const className = toneTextClass[connectorStatusTone(status)];
+  const className = colorTextClass[connectorStatusColor(status)];
 
   switch (status) {
     case "Available":

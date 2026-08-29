@@ -10,12 +10,12 @@ import {
 } from "@watchborne/electrons";
 import { format } from "date-fns";
 
-import { toneBadgeClass, toneDotClass, type StatusTone } from "@/lib/status";
+import { colorBadgeClass, colorDotClass, type ColorName } from "@/lib/status";
 import { computeDurations, formatDurationShort, type StatusSegment } from "@/lib/status-history";
 
 type Props<S extends string> = {
   segments: StatusSegment<S>[];
-  toneOf: (status: S) => StatusTone;
+  toneOf: (status: S) => ColorName;
   label: (status: S) => string;
   unknownLabel: string;
   timestampHeader: string;
@@ -48,11 +48,11 @@ export const StatusHistoryTable = <S extends string>({
           {durations.map(({ status, ms }) => (
             <span
               key={status}
-              className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${toneBadgeClass[toneOf(status)]}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${colorBadgeClass[toneOf(status)]}`}
             >
               <span
                 aria-hidden
-                className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${toneDotClass[toneOf(status)]}`}
+                className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${colorDotClass[toneOf(status)]}`}
               />
               {label(status)} · {formatDurationShort(ms)}
             </span>
@@ -81,7 +81,7 @@ export const StatusHistoryTable = <S extends string>({
                     {segment.status !== null && (
                       <span
                         aria-hidden
-                        className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${toneDotClass[toneOf(segment.status)]}`}
+                        className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${colorDotClass[toneOf(segment.status)]}`}
                       />
                     )}
                     {segment.status === null ? unknownLabel : label(segment.status)}

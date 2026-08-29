@@ -1,5 +1,5 @@
 import { AlertStatus, SiteHealthStatus } from "@watchborne/charge-points-types";
-import type { StatusTone } from "@watchborne/electrons";
+import type { ColorName } from "@watchborne/electrons";
 
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
@@ -7,16 +7,16 @@ import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-poi
  * Charge-point status design tokens.
  *
  * Both the network connection status and the OCPP connector status collapse
- * onto a shared, finite set of visual "tones" — `StatusTone`, owned by
+ * onto a shared, finite set of visual colors — `ColorName`, owned by
  * `@watchborne/electrons` rather than redeclared here, so this
- * file and `StatusPill`'s own tone variants can never drift apart. Each tone
- * is backed by the `--status-*` CSS variables (see `@watchborne/electrons`'s
- * `tokens.css`) and exposed through Tailwind's `status-<tone>` colour family.
+ * file and `ColorPill`'s own color variants can never drift apart. Each color
+ * is backed by the `--<color>*` CSS variables (see `@watchborne/electrons`'s
+ * `tokens.css`) and exposed through Tailwind's `<color>` colour family.
  * Components must colour statuses through the class maps below (or
- * `StatusPill` directly) rather than hardcoding raw colours, so the
+ * `ColorPill` directly) rather than hardcoding raw colours, so the
  * marketing site and the app stay in sync.
  */
-export type { StatusTone };
+export type { ColorName };
 
 /** Every value `ChargePoint.connection.status` can take, for filter/select controls. */
 export const CONNECTION_STATUSES: readonly ChargePointConnectionStatus[] = [
@@ -27,100 +27,100 @@ export const CONNECTION_STATUSES: readonly ChargePointConnectionStatus[] = [
 ];
 
 /** Network connectivity of a station (`ChargePoint.connection.status`). */
-export const connectionStatusTone = (status: ChargePointConnectionStatus): StatusTone => {
+export const connectionStatusColor = (status: ChargePointConnectionStatus): ColorName => {
   switch (status) {
     case "SYNCED":
-      return "available";
+      return "green";
     case "CONNECTED":
-      return "pending";
+      return "amber";
     case "WARNING":
-      return "warning";
+      return "orange";
     case "OFFLINE":
-      return "offline";
+      return "gray";
     default:
-      return "offline";
+      return "gray";
   }
 };
 
 /** Live OCPP state of a single connector (`Connector.status`). */
-export const connectorStatusTone = (status: ConnectorStatus): StatusTone => {
+export const connectorStatusColor = (status: ConnectorStatus): ColorName => {
   switch (status) {
     case "Available":
-      return "available";
+      return "green";
     case "Charging":
     case "Occupied":
     case "Finishing":
-      return "charging";
+      return "blue";
     case "Preparing":
     case "SuspendedEV":
     case "SuspendedEVSE":
-      return "pending";
+      return "amber";
     case "Reserved":
-      return "reserved";
+      return "purple";
     case "Unavailable":
-      return "warning";
+      return "orange";
     case "Faulted":
-      return "error";
+      return "red";
     default:
-      return "offline";
+      return "gray";
   }
 };
 
 /** Aggregated per-site health bucket (`SiteHealth.status`). */
-export const siteHealthStatusTone = (status: SiteHealthStatus): StatusTone => {
+export const siteHealthStatusColor = (status: SiteHealthStatus): ColorName => {
   switch (status) {
     case "HEALTHY":
-      return "available";
+      return "green";
     case "DEGRADED":
-      return "warning";
+      return "orange";
     case "CRITICAL":
-      return "error";
+      return "red";
     default:
-      return "offline";
+      return "gray";
   }
 };
 
 /** An alert's lifecycle state (`Alert.status`): open needs attention, resolved doesn't. */
-export const alertStatusTone = (status: AlertStatus): StatusTone => {
+export const alertStatusColor = (status: AlertStatus): ColorName => {
   switch (status) {
     case "OPEN":
-      return "error";
+      return "red";
     case "RESOLVED":
-      return "available";
+      return "green";
     default:
-      return "offline";
+      return "gray";
   }
 };
 
 /** Soft pill styling: tinted background + accessible foreground text. */
-export const toneBadgeClass: Record<StatusTone, string> = {
-  available: "bg-status-available-soft text-status-available-foreground",
-  charging: "bg-status-charging-soft text-status-charging-foreground",
-  pending: "bg-status-pending-soft text-status-pending-foreground",
-  warning: "bg-status-warning-soft text-status-warning-foreground",
-  error: "bg-status-error-soft text-status-error-foreground",
-  offline: "bg-status-offline-soft text-status-offline-foreground",
-  reserved: "bg-status-reserved-soft text-status-reserved-foreground",
+export const colorBadgeClass: Record<ColorName, string> = {
+  green: "bg-green-soft text-green-foreground",
+  blue: "bg-blue-soft text-blue-foreground",
+  amber: "bg-amber-soft text-amber-foreground",
+  orange: "bg-orange-soft text-orange-foreground",
+  red: "bg-red-soft text-red-foreground",
+  gray: "bg-gray-soft text-gray-foreground",
+  purple: "bg-purple-soft text-purple-foreground",
 };
 
 /** Solid dot / indicator fill. */
-export const toneDotClass: Record<StatusTone, string> = {
-  available: "bg-status-available",
-  charging: "bg-status-charging",
-  pending: "bg-status-pending",
-  warning: "bg-status-warning",
-  error: "bg-status-error",
-  offline: "bg-status-offline",
-  reserved: "bg-status-reserved",
+export const colorDotClass: Record<ColorName, string> = {
+  green: "bg-green",
+  blue: "bg-blue",
+  amber: "bg-amber",
+  orange: "bg-orange",
+  red: "bg-red",
+  gray: "bg-gray",
+  purple: "bg-purple",
 };
 
 /** Icon / text colour on a light surface (AA on white). */
-export const toneTextClass: Record<StatusTone, string> = {
-  available: "text-status-available-foreground",
-  charging: "text-status-charging-foreground",
-  pending: "text-status-pending-foreground",
-  warning: "text-status-warning-foreground",
-  error: "text-status-error-foreground",
-  offline: "text-status-offline-foreground",
-  reserved: "text-status-reserved-foreground",
+export const colorTextClass: Record<ColorName, string> = {
+  green: "text-green-foreground",
+  blue: "text-blue-foreground",
+  amber: "text-amber-foreground",
+  orange: "text-orange-foreground",
+  red: "text-red-foreground",
+  gray: "text-gray-foreground",
+  purple: "text-purple-foreground",
 };
