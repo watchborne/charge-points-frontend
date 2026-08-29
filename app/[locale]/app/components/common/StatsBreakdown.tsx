@@ -14,12 +14,7 @@ export interface StatsBreakdownProps {
   columns?: 2 | 3 | 4;
 }
 
-export const StatsBreakdown = ({
-  title,
-  subtitle,
-  buckets,
-  columns = 4,
-}: StatsBreakdownProps) => {
+export const StatsBreakdown = ({ title, subtitle, buckets, columns = 4 }: StatsBreakdownProps) => {
   const colsClass = {
     2: "grid-cols-2",
     3: "grid-cols-3",
