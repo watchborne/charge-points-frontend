@@ -1,9 +1,9 @@
-import type { AvailabilityType, ResetType } from "@watchborne/charge-points-types";
-import type { ChargePoint } from "@watchborne/charge-points-types";
+import type { AvailabilityType, ChargePoint, ResetType } from "@watchborne/charge-points-types";
+
 import { useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
-import { useQueryClient } from "@tanstack/react-query";
 
 export interface ChargePointActions {
   toggleActive: () => Promise<void>;
