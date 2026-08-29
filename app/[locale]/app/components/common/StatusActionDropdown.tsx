@@ -21,7 +21,6 @@ export interface StatusActionDropdownProps {
   options: StatusActionOption[];
   onStatusChange: (value: string) => void;
   disabled?: boolean;
-  /** Overrides the default status-label trigger, e.g. to keep a call site's own icon button. */
   trigger?: ReactNode;
   align?: "start" | "end";
 }
