@@ -9,39 +9,51 @@ const { createBrowserClient, signOut } = vi.hoisted(() => {
   };
 });
 
+const { push } = vi.hoisted(() => {
+  return { push: vi.fn() };
+});
+
 vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push,
+  }),
+}));
+
+vi.mock("next-intl/navigation", () => ({
+  createNavigation: () => ({
+    useRouter: () => ({
+      push,
+    }),
+    Link: ({ href, children }: { href: string; children: React.ReactNode }) => (
+      <a href={href}>{children}</a>
+    ),
+    usePathname: () => "/",
+    redirect: vi.fn(),
+    getPathname: vi.fn(),
+  }),
+}));
+
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => {
-    const translations: Record<string, string> = {
-      "layout.navbar.actions.logout": "Logout",
-    };
-    return translations[key] ?? key;
-  },
+  useTranslations: () => (key: string) => key,
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({
+    push,
+  }),
 }));
 
 import { LogoutButton } from "../LogoutButton";
 
-const assign = vi.fn();
-const originalLocation = window.location;
-
 beforeEach(() => {
   signOut.mockReset().mockResolvedValue({ error: null });
-  assign.mockReset();
-  // jsdom's window.location.assign can't be spied on directly, so swap in a
-  // stub that records the navigation target.
-  Object.defineProperty(window, "location", {
-    configurable: true,
-    value: { ...originalLocation, assign },
-  });
+  push.mockReset();
 });
 
 afterEach(() => {
   cleanup();
-  Object.defineProperty(window, "location", {
-    configurable: true,
-    value: originalLocation,
-  });
 });
 
 describe("LogoutButton", () => {
@@ -51,13 +63,15 @@ describe("LogoutButton", () => {
     fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
     await waitFor(() => expect(signOut).toHaveBeenCalled());
-    await waitFor(() => expect(assign).toHaveBeenCalledWith("/"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
   });
 
   it("SHOULD disable the button WHILE logging out", async () => {
     render(<LogoutButton />);
 
-    const button = screen.getByRole("button", { name: /logout/i }) as HTMLButtonElement;
+    const button = screen.getByRole("button", {
+      name: "layout.navbar.actions.logout",
+    }) as HTMLButtonElement;
     fireEvent.click(button);
 
     expect(button.disabled).toBe(true);

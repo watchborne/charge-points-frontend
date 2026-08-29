@@ -4,10 +4,12 @@ import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export const LogoutButton = ({ className }: { className?: string }) => {
   const t = useTranslations("");
+  const router = useRouter();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -22,7 +24,7 @@ export const LogoutButton = ({ className }: { className?: string }) => {
     // leave it showing the stale "Go to dashboard" link and keep this button
     // stuck disabled. A hard reload remounts everything against the now-cleared
     // session.
-    window.location.assign("/");
+    router.push("/");
   };
 
   return (
