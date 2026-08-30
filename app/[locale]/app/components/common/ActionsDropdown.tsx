@@ -26,7 +26,6 @@ export interface ActionsDropdownProps {
   onAction: (actionId: string) => void;
   disabled?: boolean;
   size?: "sm" | "lg";
-  /** Overrides the default kebab-icon trigger, e.g. to keep a call site's own labeled button. */
   trigger?: ReactNode;
   align?: "start" | "end";
 }
