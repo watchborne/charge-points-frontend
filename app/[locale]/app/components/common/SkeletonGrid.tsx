@@ -5,9 +5,7 @@ interface SkeletonGridProps {
   columns?: 2 | 3 | 4;
   count?: number;
   cellHeight?: string;
-  /** Overrides the grid wrapper's own layout classes, e.g. for a responsive column count or a vertical list. */
   className?: string;
-  /** Overrides the default filled-box cell with custom placeholder content (e.g. a card's own skeleton lines). */
   renderItem?: (index: number) => ReactNode;
 }
 
