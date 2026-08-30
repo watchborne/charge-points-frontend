@@ -5,16 +5,11 @@ import { enGB } from "date-fns/locale";
 import { Loader2, Power, Unlock, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ChangeAvailabilityOutcome, UnlockConnectorOutcome } from "@/lib/api-charge-points";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
+import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 
 type AvailabilityState =
   | { status: "idle" }
@@ -102,8 +97,10 @@ export const ConnectorStatusSection = ({
                   <ConnectorStatusIcon status={connector.status} />
                   <span className="text-sm font-medium">{connector.status}</span>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                <StatusActionDropdown
+                  currentStatus=""
+                  disabled={state.status === "loading"}
+                  trigger={
                     <Button
                       variant="secondary"
                       size="sm"
@@ -116,24 +113,25 @@ export const ConnectorStatusSection = ({
                         <Power className="h-3.5 w-3.5" />
                       )}
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        onChangeAvailability(connector.id, connector.connectorId, "Operative")
-                      }
-                    >
-                      {t("appPage.chargePoints.availability.types.operative")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        onChangeAvailability(connector.id, connector.connectorId, "Inoperative")
-                      }
-                    >
-                      {t("appPage.chargePoints.availability.types.inoperative")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  }
+                  options={[
+                    {
+                      value: "Operative",
+                      label: t("appPage.chargePoints.availability.types.operative"),
+                    },
+                    {
+                      value: "Inoperative",
+                      label: t("appPage.chargePoints.availability.types.inoperative"),
+                    },
+                  ]}
+                  onStatusChange={(value) =>
+                    onChangeAvailability(
+                      connector.id,
+                      connector.connectorId,
+                      value as AvailabilityType,
+                    )
+                  }
+                />
                 <Button
                   variant="secondary"
                   size="sm"

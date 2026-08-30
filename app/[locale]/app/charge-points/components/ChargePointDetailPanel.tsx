@@ -7,12 +7,6 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ChangeAvailabilityOutcome,
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
@@ -30,6 +24,8 @@ import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
+import { ActionsDropdown } from "../../components/common/ActionsDropdown";
+import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 
 type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };
@@ -210,8 +206,10 @@ export const ChargePointDetailPanel = ({
 
           <div className="flex flex-col gap-2">
             <div className="flex items-stretch gap-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <ActionsDropdown
+                align="start"
+                disabled={resetState.status === "loading"}
+                trigger={
                   <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
                     {resetState.status === "loading" ? (
                       <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
@@ -221,24 +219,24 @@ export const ChargePointDetailPanel = ({
                     {t("appPage.chargePoints.reset.button")}
                     <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={() => handleReset("Hard")}>
-                    {t("appPage.chargePoints.reset.types.hard")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleReset("Soft")}>
-                    {t("appPage.chargePoints.reset.types.soft")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                }
+                actions={[
+                  { id: "Hard", label: t("appPage.chargePoints.reset.types.hard") },
+                  { id: "Soft", label: t("appPage.chargePoints.reset.types.soft") },
+                ]}
+                onAction={(actionId) => handleReset(actionId as ResetType)}
+              />
 
               <ChargePointConfigurationDialog
                 chargePointId={chargePoint.id}
                 chargePointName={chargePoint.name}
               />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <StatusActionDropdown
+                align="start"
+                currentStatus=""
+                disabled={wholeChargePointAvailability.status === "loading"}
+                trigger={
                   <Button
                     variant="outline"
                     size="sm"
@@ -252,22 +250,21 @@ export const ChargePointDetailPanel = ({
                     {t("appPage.chargePoints.availability.wholeChargePoint")}
                     <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem
-                    onClick={() => handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, "Operative")}
-                  >
-                    {t("appPage.chargePoints.availability.types.operative")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, "Inoperative")
-                    }
-                  >
-                    {t("appPage.chargePoints.availability.types.inoperative")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                }
+                options={[
+                  {
+                    value: "Operative",
+                    label: t("appPage.chargePoints.availability.types.operative"),
+                  },
+                  {
+                    value: "Inoperative",
+                    label: t("appPage.chargePoints.availability.types.inoperative"),
+                  },
+                ]}
+                onStatusChange={(value) =>
+                  handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, value as AvailabilityType)
+                }
+              />
             </div>
 
             <TriggerMessageControl chargePointId={chargePoint.id} />
