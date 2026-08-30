@@ -17,9 +17,7 @@ type AvailabilityState =
   | { status: "done"; outcome: ChangeAvailabilityOutcome };
 
 type UnlockConnectorState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: UnlockConnectorOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: UnlockConnectorOutcome };
 
 type ConnectorStatusSectionProps = {
   chargePoint: ChargePointWithConnectors;

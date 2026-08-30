@@ -29,9 +29,7 @@ import { StatusActionDropdown } from "../../components/common/StatusActionDropdo
 import { useChargePointActions } from "../hooks/useChargePointActions";
 
 type ResetState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: ResetChargePointOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };
 
 type AvailabilityState =
   | { status: "idle" }
@@ -39,9 +37,7 @@ type AvailabilityState =
   | { status: "done"; outcome: ChangeAvailabilityOutcome };
 
 type UnlockConnectorState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: UnlockConnectorOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: UnlockConnectorOutcome };
 
 /** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
 const WHOLE_CHARGE_POINT_KEY = "chargePoint";

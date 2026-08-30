@@ -18,14 +18,10 @@ import { GetSettingsOutcome, SetSettingOutcome } from "@/lib/api-charge-points";
 import { ChargePoint } from "@/types/charge-point";
 
 type FetchState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: GetSettingsOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetSettingsOutcome };
 
 type SetState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: SetSettingOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: SetSettingOutcome };
 
 const readErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {

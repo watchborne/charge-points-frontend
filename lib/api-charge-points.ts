@@ -50,8 +50,7 @@ type PatchChargePointBody = Partial<CreateChargePointBody>;
  * failure that never reached the proxy.
  */
 export type ResetChargePointOutcome =
-  | { ok: true; status: ResetStatus }
-  | { ok: false; httpStatus: number };
+  { ok: true; status: ResetStatus } | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -59,8 +58,7 @@ export type ResetChargePointOutcome =
  * needs the specific outcome (accepted/scheduled vs. offline/rejected/timeout).
  */
 export type ChangeAvailabilityOutcome =
-  | { ok: true; status: ChangeAvailabilityStatus }
-  | { ok: false; httpStatus: number };
+  { ok: true; status: ChangeAvailabilityStatus } | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -68,8 +66,7 @@ export type ChangeAvailabilityOutcome =
  * needs the specific outcome (unlocked vs. offline/unlock-failed/not-supported/timeout).
  */
 export type UnlockConnectorOutcome =
-  | { ok: true; status: UnlockConnectorStatus }
-  | { ok: false; httpStatus: number };
+  { ok: true; status: UnlockConnectorStatus } | { ok: false; httpStatus: number };
 
 /**
  * Reading a station's settings is a request/response OCPP read: on success it
@@ -90,8 +87,7 @@ export type GetSettingsOutcome =
  * it (see its `ocpp-supported-actions.md` §15).
  */
 export type SetSettingOutcome =
-  | { ok: true; status: ChangeConfigurationStatus }
-  | { ok: false; httpStatus: number };
+  { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -99,8 +95,7 @@ export type SetSettingOutcome =
  * the specific outcome (accepted vs. offline/rejected/not-implemented/timeout).
  */
 export type TriggerMessageOutcome =
-  | { ok: true; status: TriggerMessageStatus }
-  | { ok: false; httpStatus: number };
+  { ok: true; status: TriggerMessageStatus } | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, plus one wrinkle

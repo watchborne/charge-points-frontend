@@ -10,16 +10,14 @@ export type AccessRequestInput = {
 // says why not, for LoginForm's copy. `NOT_INVITED` covers both "never
 // applied" and "rejected" — the backend deliberately doesn't distinguish them.
 export type LoginAccessCheck =
-  | { allowed: true }
-  | { allowed: false; code: "ACCESS_PENDING" | "NOT_INVITED" };
+  { allowed: true } | { allowed: false; code: "ACCESS_PENDING" | "NOT_INVITED" };
 
 // The confirmation link's destination (charge-points-server ADR 0007):
 // `verified: true` means the email is now (or was already) confirmed;
 // otherwise `code` says why not, for /signup/verify's copy. Mirrors
 // LoginAccessCheck's shape.
 export type EmailVerificationResult =
-  | { verified: true }
-  | { verified: false; code: "INVALID_TOKEN" | "EXPIRED_TOKEN" };
+  { verified: true } | { verified: false; code: "INVALID_TOKEN" | "EXPIRED_TOKEN" };
 
 export const accessRequestApis = {
   // Records a pending alpha access request. The backend is idempotent on the

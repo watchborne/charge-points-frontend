@@ -13,9 +13,7 @@ import { ChargePoint } from "@/types/charge-point";
 import { ActionsDropdown } from "../../components/common/ActionsDropdown";
 
 type TriggerState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; outcome: TriggerMessageOutcome };
+  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: TriggerMessageOutcome };
 
 const errorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
