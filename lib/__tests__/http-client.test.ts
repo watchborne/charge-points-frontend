@@ -2,10 +2,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { httpClient } from "../http-client";
 
+// Every request refreshes the browser session first (issue #349). Mocked here
+// so these tests stay about the HTTP layer; the refresh itself — and its
+// deduplication — is covered in lib/supabase/__tests__/ensure-session.test.ts.
+const { ensureFreshSession } = vi.hoisted(() => ({ ensureFreshSession: vi.fn() }));
+
+vi.mock("@/lib/supabase/ensure-session", () => ({ ensureFreshSession }));
+
 const mockFetch = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal("fetch", mockFetch);
+  ensureFreshSession.mockReset();
+  ensureFreshSession.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -19,6 +28,37 @@ function okResponse(body: unknown) {
 function errorResponse(status: number) {
   return Promise.resolve(new Response(null, { status }));
 }
+
+describe("session refresh", () => {
+  it("SHOULD refresh the session BEFORE issuing the request", async () => {
+    const order: string[] = [];
+    ensureFreshSession.mockImplementation(async () => {
+      order.push("refresh");
+    });
+    mockFetch.mockImplementation(() => {
+      order.push("fetch");
+      return okResponse({});
+    });
+
+    await httpClient.get("/api/items");
+
+    // Ordering is the whole point: the request authenticates with the cookie
+    // the browser holds when it goes out, so a refresh after the fetch would
+    // be worthless.
+    expect(order).toEqual(["refresh", "fetch"]);
+  });
+
+  it("SHOULD refresh the session on every verb", async () => {
+    mockFetch.mockReturnValue(okResponse({}));
+
+    await httpClient.get("/api/items");
+    await httpClient.post("/api/items", {});
+    await httpClient.patch("/api/items/1", {});
+    await httpClient.delete("/api/items/1");
+
+    expect(ensureFreshSession).toHaveBeenCalledTimes(4);
+  });
+});
 
 describe("httpClient.get", () => {
   it("SHOULD call fetch with GET and JSON headers", async () => {

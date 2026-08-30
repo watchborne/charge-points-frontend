@@ -5,18 +5,6 @@ import { defaultLocale, localizedPath, locales, type Locale } from "@/i18n/local
 import { routing } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/middleware";
 
-// API routes reachable without a Supabase session. access-requests is
-// submitted from /signup by an unauthenticated visitor (still forwards the
-// shared API key server-side). check-login is called by LoginForm to decide
-// whether the visitor may even attempt to sign in — before any session
-// exists (charge-points-server ADR 0006). verify-email is the confirmation
-// link's destination — reachable before approval, let alone a session (ADR 0007).
-const PUBLIC_API_PATHS = [
-  "/api/access-requests",
-  "/api/access-requests/check-login",
-  "/api/access-requests/verify-email",
-];
-
 // The .fr domain is retired in favor of .com; visitors are redirected there
 // permanently. No `?lang=` needed — an unprefixed path on .com already means
 // fr, the default locale.
@@ -81,19 +69,6 @@ async function getSessionUser(supabase: ReturnType<typeof createClient>["supabas
   }
 }
 
-async function gateApiRequest(request: NextRequest) {
-  const { supabase, supabaseResponse } = createClient(request);
-  const user = await getSessionUser(supabase);
-
-  if (!user) {
-    const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
-    return response;
-  }
-
-  return supabaseResponse;
-}
-
 /**
  * Global proxy (Next's renamed `middleware.ts` file convention as of Next 16
  * — https://nextjs.org/docs/messages/middleware-to-proxy; `lib/supabase/middleware.ts`
@@ -102,14 +77,25 @@ async function gateApiRequest(request: NextRequest) {
  * surface — refreshing the Supabase session as it does so.
  *
  * The Supabase session lookup (`getUser()`, a network round-trip) only runs
- * for the authenticated surface (`/api`, `/app`, `/login`, `/signup`);
- * public marketing pages skip it entirely.
+ * for the authenticated *page* surface (`/app`, `/login`, `/signup`); public
+ * marketing pages skip it entirely, and so does `/api/*` — see below.
+ *
+ * `/api/*` is deliberately **not** gated here. `getUser()` revalidates the
+ * token against Supabase Auth on every call, which measured at ~400–530 ms
+ * per request, to reach a verdict the backend reaches again immediately
+ * afterwards: it verifies the same JWT, resolves the caller's `AccessScope`
+ * from it and fails closed with 401 when there is none (charge-points-server
+ * ADR 0002). One authority, not two — the backend is the one that owns the
+ * data, so it is the one that decides. `lib/proxy-request.ts` forwards
+ * whatever session the request carries; an unauthenticated call reaches the
+ * backend without an `Authorization` header and comes back 401 (issue #349).
+ * The page gates below are untouched, so an unauthenticated visitor still
+ * cannot reach the dashboard UI in the first place.
  *
  * - `watch-borne.fr` redirects (308) to `watch-borne.com` first — see `redirectFrHostToCom`.
  * - `/api/*`/`/auth/*` sit outside `[locale]` (no prefix): they skip
- *   next-intl's routing, going straight to the Supabase gate (`/api/*`) or
- *   through untouched (`/auth/*`, which handles its own redirects — see
- *   app/auth/callback/route.ts).
+ *   next-intl's routing and pass through untouched (`/auth/*` handles its own
+ *   redirects — see app/auth/callback/route.ts).
  * - Everything else goes through `handleI18nRouting` first; a redirect from
  *   that (URL normalization) returns immediately (`isRedirect`). Otherwise
  *   `/app/*`, `/login`, `/signup` are gated as before, redirect targets
@@ -125,9 +111,6 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!isLocaleRoutedPath(pathname)) {
-    if (pathname.startsWith("/api") && !PUBLIC_API_PATHS.includes(pathname)) {
-      return gateApiRequest(request);
-    }
     return NextResponse.next({ request });
   }
 

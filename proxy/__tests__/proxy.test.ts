@@ -57,13 +57,19 @@ afterEach(() => {
 });
 
 describe("proxy auth guard", () => {
-  it("SHOULD return 401 for /api/* WHEN there is no session", async () => {
+  // /api/* is no longer gated here (issue #349): getUser() cost ~400-530 ms
+  // per request to reach a verdict the backend reaches again anyway, since it
+  // verifies the same JWT and fails closed with 401 (charge-points-server ADR
+  // 0002). What these assert is that the proxy neither answers nor calls
+  // Supabase on the /api surface — the backend does both.
+  it("SHOULD let /api/* through WHEN there is no session", async () => {
     setUser(null);
     const { proxy } = await import("../../proxy");
 
     const res = await proxy(request("/api/charge-points"));
 
-    expect(res.status).toBe(401);
+    expect(res.status).not.toBe(401);
+    expect(res.headers.get("location")).toBeNull();
   });
 
   it("SHOULD let /api/* through WHEN there is a session", async () => {
@@ -76,37 +82,34 @@ describe("proxy auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
-  it("SHOULD let the public /api/access-requests route through WHEN there is no session", async () => {
-    setUser(null);
+  it("SHOULD NOT call Supabase Auth for /api/*", async () => {
+    setUser({ id: "user-1" });
     const { proxy } = await import("../../proxy");
 
-    const res = await proxy(request("/api/access-requests"));
+    await proxy(request("/api/charge-points"));
 
-    // The alpha access request is submitted by an unauthenticated visitor, so
-    // this endpoint is exempt from the /api/* session gate (no 401).
-    expect(res.status).not.toBe(401);
+    // The round trip this change exists to remove. A regression here is
+    // invisible in behaviour and only shows up as latency, so it is asserted
+    // directly rather than through a status code.
+    expect(getUser).not.toHaveBeenCalled();
+    expect(createServerClient).not.toHaveBeenCalled();
   });
 
-  it("SHOULD let the public /api/access-requests/check-login route through WHEN there is no session", async () => {
+  // These three were reachable without a session before the gate was removed
+  // and must stay so: the access request is submitted by an unauthenticated
+  // visitor, check-login runs before a session can exist (charge-points-server
+  // ADR 0006), and verify-email is the confirmation link's destination
+  // (ADR 0007).
+  it.each([
+    "/api/access-requests",
+    "/api/access-requests/check-login",
+    "/api/access-requests/verify-email",
+  ])("SHOULD let the public %s route through WHEN there is no session", async (path) => {
     setUser(null);
     const { proxy } = await import("../../proxy");
 
-    const res = await proxy(request("/api/access-requests/check-login"));
+    const res = await proxy(request(path));
 
-    // LoginForm calls this before the visitor has a session — that's the
-    // whole point of it — so it must be exempt too (charge-points-server ADR
-    // 0006).
-    expect(res.status).not.toBe(401);
-  });
-
-  it("SHOULD let the public /api/access-requests/verify-email route through WHEN there is no session", async () => {
-    setUser(null);
-    const { proxy } = await import("../../proxy");
-
-    const res = await proxy(request("/api/access-requests/verify-email"));
-
-    // The confirmation link's destination, reachable before approval, let
-    // alone a session (charge-points-server ADR 0007).
     expect(res.status).not.toBe(401);
   });
 
@@ -178,12 +181,15 @@ describe("proxy auth guard resilience", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
   });
 
-  it("SHOULD return 401 for /api/* WHEN supabase.auth.getUser() throws", async () => {
+  it("SHOULD let /api/* through WHEN supabase.auth.getUser() throws", async () => {
     const { proxy } = await import("../../proxy");
 
     const res = await proxy(request("/api/charge-points"));
 
-    expect(res.status).toBe(401);
+    // Unreachable Supabase Auth no longer breaks the API surface at all: the
+    // proxy does not consult it there, so a request still reaches the backend
+    // and gets a real answer instead of a blanket 401 (issue #349).
+    expect(res.status).not.toBe(401);
   });
 
   it("SHOULD still render /login WHEN supabase.auth.getUser() throws", async () => {
