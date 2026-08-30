@@ -2,6 +2,7 @@
 
 import { Button } from "@watchborne/electrons";
 import { MoreVertical } from "lucide-react";
+import { ReactNode } from "react";
 
 import {
   DropdownMenu,
@@ -25,6 +26,9 @@ export interface ActionsDropdownProps {
   onAction: (actionId: string) => void;
   disabled?: boolean;
   size?: "sm" | "lg";
+  /** Overrides the default kebab-icon trigger, e.g. to keep a call site's own labeled button. */
+  trigger?: ReactNode;
+  align?: "start" | "end";
 }
 
 export const ActionsDropdown = ({
@@ -32,15 +36,19 @@ export const ActionsDropdown = ({
   onAction,
   disabled = false,
   size = "sm",
+  trigger,
+  align = "end",
 }: ActionsDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={size} disabled={disabled} className="h-8 w-8 p-0">
-          <MoreVertical className="h-4 w-4" />
-        </Button>
+        {trigger ?? (
+          <Button variant="ghost" size={size} disabled={disabled} className="h-8 w-8 p-0">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align={align}>
         {actions.map((action, index) => (
           <div key={action.id}>
             {action.divider && index > 0 && <DropdownMenuSeparator />}

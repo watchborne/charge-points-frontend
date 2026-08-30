@@ -6,15 +6,11 @@ import { CheckCircle2, ChevronDown, Loader2, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { api } from "@/lib/api";
 import { TriggerMessageOutcome } from "@/lib/api-charge-points";
 import { ChargePoint } from "@/types/charge-point";
+
+import { ActionsDropdown } from "../../components/common/ActionsDropdown";
 
 type TriggerState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: TriggerMessageOutcome };
@@ -55,8 +51,10 @@ export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlPr
 
   return (
     <div className="flex flex-col gap-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      <ActionsDropdown
+        align="start"
+        disabled={state.status === "loading"}
+        trigger={
           <Button variant="outline" size="sm" disabled={state.status === "loading"}>
             {state.status === "loading" ? (
               <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
@@ -66,15 +64,13 @@ export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlPr
             {t("appPage.chargePoints.trigger.button")}
             <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {TRIGGER_MESSAGE_TYPES.map((type) => (
-            <DropdownMenuItem key={type} onClick={() => handleTrigger(type)}>
-              {t(`appPage.chargePoints.trigger.types.${type}`)}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        }
+        actions={TRIGGER_MESSAGE_TYPES.map((type) => ({
+          id: type,
+          label: t(`appPage.chargePoints.trigger.types.${type}`),
+        }))}
+        onAction={(actionId) => handleTrigger(actionId as TriggerMessageType)}
+      />
 
       {state.status === "done" &&
         (state.outcome.ok ? (
