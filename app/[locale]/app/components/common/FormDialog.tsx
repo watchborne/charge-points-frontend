@@ -1,11 +1,14 @@
+import { Button } from "@watchborne/electrons";
 import { ReactNode } from "react";
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export interface FormDialogProps {
   open: boolean;
@@ -14,11 +17,13 @@ export interface FormDialogProps {
   description?: string;
   icon?: ReactNode;
   form: ReactNode;
-  submitLabel?: string;
-  cancelLabel?: string;
-  onSubmit?: () => void | Promise<void>;
+  submitLabel: string;
+  cancelLabel: string;
+  onSubmit: () => void | Promise<void>;
   isLoading?: boolean;
   isSubmitDisabled?: boolean;
+  /** Overrides DialogContent's own width classes, e.g. `sm:max-w-[520px]`. */
+  className?: string;
 }
 
 export const FormDialog = ({
@@ -28,36 +33,40 @@ export const FormDialog = ({
   description,
   icon,
   form,
-  submitLabel = "Submit",
-  cancelLabel = "Cancel",
+  submitLabel,
+  cancelLabel,
   onSubmit,
   isLoading = false,
   isSubmitDisabled = false,
+  className,
 }: FormDialogProps) => {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <div className="flex items-start gap-4">
-          {icon && <div className="flex-shrink-0">{icon}</div>}
-          <div className="flex-grow space-y-4">
-            <div>
-              <h2 className="text-lg font-semibold">{title}</h2>
-              {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
-            </div>
-            <div className="mt-4">{form}</div>
-          </div>
-        </div>
-        <div className="flex justify-end gap-3 border-t pt-4">
-          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
-          <AlertDialogAction
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={className}>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {icon}
+            {title}
+          </DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
+        </DialogHeader>
+
+        {form}
+
+        <DialogFooter className="pt-2">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            {cancelLabel}
+          </Button>
+          <Button
+            type="button"
             onClick={onSubmit}
             disabled={isSubmitDisabled || isLoading}
             aria-busy={isLoading}
           >
-            {isLoading ? "Loading..." : submitLabel}
-          </AlertDialogAction>
-        </div>
-      </AlertDialogContent>
-    </AlertDialog>
+            {submitLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

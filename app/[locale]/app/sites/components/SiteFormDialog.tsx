@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input } from "@watchborne/electrons";
+import { Input } from "@watchborne/electrons";
 import { Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -8,14 +8,6 @@ import z from "zod";
 
 import { Datepicker } from "@/components/ui/datepicker";
 import {
-  DialogHeader,
-  DialogFooter,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +15,8 @@ import {
   FormMessage,
   Form,
 } from "@/components/ui/form";
+
+import { FormDialog } from "../../components/common/FormDialog";
 
 const siteFormSchema = z.object({
   name: z.string(),
@@ -76,22 +70,27 @@ export const SiteFormDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-primary" />
-            {mode === "create"
-              ? t("appPage.sites.form.createTitle")
-              : t("appPage.sites.form.editTitle")}
-          </DialogTitle>
-          <DialogDescription>
-            {mode === "create"
-              ? t("appPage.sites.form.createDescription")
-              : t("appPage.sites.form.editDescription")}
-          </DialogDescription>
-        </DialogHeader>
-
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      className="sm:max-w-[480px]"
+      icon={<Globe className="h-5 w-5 text-primary" />}
+      title={
+        mode === "create" ? t("appPage.sites.form.createTitle") : t("appPage.sites.form.editTitle")
+      }
+      description={
+        mode === "create"
+          ? t("appPage.sites.form.createDescription")
+          : t("appPage.sites.form.editDescription")
+      }
+      cancelLabel={t("appPage.sites.form.buttons.cancel")}
+      submitLabel={
+        mode === "create"
+          ? t("appPage.sites.form.buttons.create")
+          : t("appPage.sites.form.buttons.save")
+      }
+      onSubmit={() => form.handleSubmit(handleSubmit)()}
+      form={
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
             <FormField
@@ -166,20 +165,9 @@ export const SiteFormDialog = ({
                 )}
               />
             </div>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                {t("appPage.sites.form.buttons.cancel")}
-              </Button>
-              <Button type="submit">
-                {mode === "create"
-                  ? t("appPage.sites.form.buttons.create")
-                  : t("appPage.sites.form.buttons.save")}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      }
+    />
   );
 };

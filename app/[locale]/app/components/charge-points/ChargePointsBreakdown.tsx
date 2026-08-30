@@ -1,8 +1,9 @@
-import { StatCard } from "@watchborne/electrons";
 import { Battery, PlugZap, RefreshCw, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
+
+import { StatsBreakdown } from "../common/StatsBreakdown";
 
 export const ChargePointsBreakdown = ({
   chargePoints,
@@ -22,33 +23,34 @@ export const ChargePointsBreakdown = ({
     chargePoints.length > 0 ? `${Math.round((count / chargePoints.length) * 100)}%` : "0%";
 
   return (
-    <div className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{t("appPage.dashboard.chargePoints.sectionTitle")}</h2>
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <StatCard
-          title={t("appPage.chargePoints.stats.total")}
-          value={chargePoints.length}
-          icon={<Battery className="h-5 w-5 text-muted-foreground" />}
-        />
-        <StatCard
-          title={t("appPage.chargePoints.stats.connected")}
-          value={connectedDevices.length}
-          icon={<PlugZap className="h-5 w-5 text-status-pending-foreground" />}
-          subtitle={makePercentage(connectedDevices.length)}
-        />
-        <StatCard
-          title={t("appPage.chargePoints.stats.error")}
-          value={errorDevices.length}
-          icon={<X className="h-5 w-5 text-status-error-foreground" />}
-          subtitle={makePercentage(errorDevices.length)}
-        />
-        <StatCard
-          title={t("appPage.chargePoints.stats.offline")}
-          value={offlineDevices.length}
-          icon={<RefreshCw className="h-5 w-5 text-status-offline-foreground" />}
-          subtitle={makePercentage(offlineDevices.length)}
-        />
-      </div>
-    </div>
+    <StatsBreakdown
+      title={t("appPage.dashboard.chargePoints.sectionTitle")}
+      className="grid gap-4 grid-cols-2 md:grid-cols-4"
+      buckets={[
+        {
+          label: t("appPage.chargePoints.stats.total"),
+          value: chargePoints.length,
+          icon: <Battery className="h-5 w-5 text-muted-foreground" />,
+        },
+        {
+          label: t("appPage.chargePoints.stats.connected"),
+          value: connectedDevices.length,
+          icon: <PlugZap className="h-5 w-5 text-status-pending-foreground" />,
+          subtitle: makePercentage(connectedDevices.length),
+        },
+        {
+          label: t("appPage.chargePoints.stats.error"),
+          value: errorDevices.length,
+          icon: <X className="h-5 w-5 text-status-error-foreground" />,
+          subtitle: makePercentage(errorDevices.length),
+        },
+        {
+          label: t("appPage.chargePoints.stats.offline"),
+          value: offlineDevices.length,
+          icon: <RefreshCw className="h-5 w-5 text-status-offline-foreground" />,
+          subtitle: makePercentage(offlineDevices.length),
+        },
+      ]}
+    />
   );
 };

@@ -17,14 +17,6 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   FormField,
   FormItem,
   FormLabel,
@@ -34,6 +26,7 @@ import {
 } from "@/components/ui/form";
 
 import { SiteCombobox } from "./SiteCombobox";
+import { FormDialog } from "../../components/common/FormDialog";
 
 type ChargePointFormDialogProps = {
   open: boolean;
@@ -136,22 +129,29 @@ export const ChargePointFormDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            {mode === "create"
-              ? t("appPage.chargePoints.form.createTitle")
-              : t("appPage.chargePoints.form.editTitle")}
-          </DialogTitle>
-          <DialogDescription>
-            {mode === "create"
-              ? t("appPage.chargePoints.form.createDescription")
-              : t("appPage.chargePoints.form.editDescription")}
-          </DialogDescription>
-        </DialogHeader>
-
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      className="sm:max-w-[520px]"
+      icon={<Zap className="h-5 w-5 text-primary" />}
+      title={
+        mode === "create"
+          ? t("appPage.chargePoints.form.createTitle")
+          : t("appPage.chargePoints.form.editTitle")
+      }
+      description={
+        mode === "create"
+          ? t("appPage.chargePoints.form.createDescription")
+          : t("appPage.chargePoints.form.editDescription")
+      }
+      cancelLabel={t("appPage.chargePoints.form.buttons.cancel")}
+      submitLabel={
+        mode === "create"
+          ? t("appPage.chargePoints.form.buttons.create")
+          : t("appPage.chargePoints.form.buttons.save")
+      }
+      onSubmit={() => form.handleSubmit(handleSubmit)()}
+      form={
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
             <FormField
@@ -279,20 +279,9 @@ export const ChargePointFormDialog = ({
                 </div>
               </CollapsibleContent>
             </Collapsible>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                {t("appPage.chargePoints.form.buttons.cancel")}
-              </Button>
-              <Button type="submit">
-                {mode === "create"
-                  ? t("appPage.chargePoints.form.buttons.create")
-                  : t("appPage.chargePoints.form.buttons.save")}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      }
+    />
   );
 };
