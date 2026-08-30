@@ -24,6 +24,7 @@ import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 import type { ChargePointLogUpload, LogUploadView } from "@/types/log-upload";
 
 import { httpClient } from "./http-client";
+import { withErrorLogging } from "./api-error-wrapper";
 
 type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
   /**
@@ -154,44 +155,35 @@ export const chargePointApis = {
   getChargePoint: async function (
     ChargePointId: ChargePoint["id"],
   ): Promise<ChargePointWithSite | undefined> {
-    try {
-      return await httpClient.get<ChargePointWithSite | undefined>(
-        `/api/charge-points/${ChargePointId}`,
-      );
-    } catch (error) {
-      console.error(`Failed to fetch charge point ${ChargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.get<ChargePointWithSite | undefined>(`/api/charge-points/${ChargePointId}`),
+      "ChargePoint.getChargePoint",
+    );
   },
   createChargePoint: async function (body: CreateChargePointBody): Promise<CreatedChargePoint> {
-    try {
-      return await httpClient.post<CreatedChargePoint>("/api/charge-points", body);
-    } catch (error) {
-      console.error("Failed to create charge point", error, body);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.post<CreatedChargePoint>("/api/charge-points", body),
+      "ChargePoint.createChargePoint",
+    );
   },
   updateChargePoint: async function (
     chargePointId: ChargePoint["id"],
     patchBody: PatchChargePointBody,
   ): Promise<ChargePointWithConnectors> {
-    try {
-      return await httpClient.patch<ChargePointWithConnectors>(
-        `/api/charge-points/${chargePointId}`,
-        patchBody,
-      );
-    } catch (error) {
-      console.error(`Failed to update charge point ${chargePointId}`, error, patchBody);
-      throw error;
-    }
+    return withErrorLogging(
+      () =>
+        httpClient.patch<ChargePointWithConnectors>(
+          `/api/charge-points/${chargePointId}`,
+          patchBody,
+        ),
+      "ChargePoint.updateChargePoint",
+    );
   },
   deleteChargePoint: async function (chargePointId: ChargePoint["id"]): Promise<void> {
-    try {
-      await httpClient.delete(`/api/charge-points/${chargePointId}`);
-    } catch (error) {
-      console.error(`Failed to delete charge point ${chargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.delete(`/api/charge-points/${chargePointId}`),
+      "ChargePoint.deleteChargePoint",
+    );
   },
   resetChargePoint: async function (
     chargePointId: ChargePoint["id"],
@@ -329,29 +321,22 @@ export const chargePointApis = {
    * caller's scope (both fields `null`), so there is no 404 to handle either.
    */
   getFirmware: async function (chargePointId: ChargePoint["id"]): Promise<ChargePointFirmware> {
-    try {
-      return await httpClient.get<ChargePointFirmware>(
-        `/api/charge-points/${chargePointId}/firmware`,
-      );
-    } catch (error) {
-      console.error(`Failed to fetch firmware state of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.get<ChargePointFirmware>(`/api/charge-points/${chargePointId}/firmware`),
+      "ChargePoint.getFirmware",
+    );
   },
   /** The charge point's firmware update history, newest start first. */
   listFirmwareUpdates: async function (
     chargePointId: ChargePoint["id"],
     limit?: number,
   ): Promise<FirmwareUpdateView[]> {
-    try {
+    return withErrorLogging(() => {
       const query = limit === undefined ? "" : `?limit=${limit}`;
-      return await httpClient.get<FirmwareUpdateView[]>(
+      return httpClient.get<FirmwareUpdateView[]>(
         `/api/charge-points/${chargePointId}/firmware-updates${query}`,
       );
-    } catch (error) {
-      console.error(`Failed to fetch firmware history of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    }, "ChargePoint.listFirmwareUpdates");
   },
   /**
    * The charge point's alert history, newest opened first — every OPEN and
@@ -361,13 +346,10 @@ export const chargePointApis = {
    * caller's scope, so there is no 404 to handle.
    */
   getAlerts: async function (chargePointId: ChargePoint["id"], limit?: number): Promise<Alert[]> {
-    try {
+    return withErrorLogging(() => {
       const query = limit === undefined ? "" : `?limit=${limit}`;
-      return await httpClient.get<Alert[]>(`/api/charge-points/${chargePointId}/alerts${query}`);
-    } catch (error) {
-      console.error(`Failed to fetch alert history of charge point ${chargePointId}`, error);
-      throw error;
-    }
+      return httpClient.get<Alert[]>(`/api/charge-points/${chargePointId}/alerts${query}`);
+    }, "ChargePoint.getAlerts");
   },
   /**
    * Starts a firmware update. Like the other OCPP commands this reads the raw HTTP
@@ -410,29 +392,22 @@ export const chargePointApis = {
    * caller's scope (both fields `null`), so there is no 404 to handle either.
    */
   getLogUpload: async function (chargePointId: ChargePoint["id"]): Promise<ChargePointLogUpload> {
-    try {
-      return await httpClient.get<ChargePointLogUpload>(
-        `/api/charge-points/${chargePointId}/log-upload`,
-      );
-    } catch (error) {
-      console.error(`Failed to fetch log upload state of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.get<ChargePointLogUpload>(`/api/charge-points/${chargePointId}/log-upload`),
+      "ChargePoint.getLogUpload",
+    );
   },
   /** The charge point's log-upload history, newest start first. */
   listLogUploads: async function (
     chargePointId: ChargePoint["id"],
     limit?: number,
   ): Promise<LogUploadView[]> {
-    try {
+    return withErrorLogging(() => {
       const query = limit === undefined ? "" : `?limit=${limit}`;
-      return await httpClient.get<LogUploadView[]>(
+      return httpClient.get<LogUploadView[]>(
         `/api/charge-points/${chargePointId}/log-uploads${query}`,
       );
-    } catch (error) {
-      console.error(`Failed to fetch log upload history of charge point ${chargePointId}`, error);
-      throw error;
-    }
+    }, "ChargePoint.listLogUploads");
   },
   /**
    * Starts a remote log upload (OCPP `GetDiagnostics`/`GetLog`). Like the other
