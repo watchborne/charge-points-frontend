@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
+import { ReactNode } from "react";
 
 import {
   DropdownMenu,
@@ -20,6 +21,9 @@ export interface StatusActionDropdownProps {
   options: StatusActionOption[];
   onStatusChange: (value: string) => void;
   disabled?: boolean;
+  /** Overrides the default status-label trigger, e.g. to keep a call site's own icon button. */
+  trigger?: ReactNode;
+  align?: "start" | "end";
 }
 
 export const StatusActionDropdown = ({
@@ -27,14 +31,18 @@ export const StatusActionDropdown = ({
   options,
   onStatusChange,
   disabled = false,
+  trigger,
+  align = "end",
 }: StatusActionDropdownProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
-      <Button variant="outline" disabled={disabled}>
-        {options.find((opt) => opt.value === currentStatus)?.label || currentStatus}
-      </Button>
+      {trigger ?? (
+        <Button variant="outline" disabled={disabled}>
+          {options.find((opt) => opt.value === currentStatus)?.label || currentStatus}
+        </Button>
+      )}
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
+    <DropdownMenuContent align={align}>
       {options.map((option) => (
         <DropdownMenuItem
           key={option.value}

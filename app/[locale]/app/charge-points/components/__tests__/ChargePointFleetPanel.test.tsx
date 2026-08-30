@@ -68,17 +68,11 @@ const chargePoint = (
   }) as ChargePointWithConnectors;
 
 const noop = () => {};
-const asyncNoop = async () => ({}) as never;
 
 const baseProps = {
   onSelect: vi.fn(),
-  onToggleActive: noop,
-  onToggleRealtimeAlerts: noop,
   onEditClicked: noop,
   onDeleteClicked: noop,
-  onResetClicked: asyncNoop,
-  onChangeAvailability: asyncNoop,
-  onUnlockConnector: asyncNoop,
 };
 
 describe("ChargePointFleetPanel", () => {

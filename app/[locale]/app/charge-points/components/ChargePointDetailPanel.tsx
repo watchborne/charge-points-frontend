@@ -7,12 +7,6 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ChangeAvailabilityOutcome,
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
@@ -30,6 +24,9 @@ import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
+import { ActionsDropdown } from "../../components/common/ActionsDropdown";
+import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
+import { useChargePointActions } from "../hooks/useChargePointActions";
 
 type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };
@@ -56,37 +53,24 @@ const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok:
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
-  onToggleActive: (cp: ChargePointWithConnectors) => void;
-  onToggleRealtimeAlerts: (cp: ChargePointWithConnectors) => void;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
-  onResetClicked: (
-    cp: ChargePointWithConnectors,
-    type: ResetType,
-  ) => Promise<ResetChargePointOutcome>;
-  onChangeAvailability: (
-    cp: ChargePointWithConnectors,
-    connectorId: number,
-    type: AvailabilityType,
-  ) => Promise<ChangeAvailabilityOutcome>;
-  onUnlockConnector: (
-    cp: ChargePointWithConnectors,
-    connectorId: number,
-  ) => Promise<UnlockConnectorOutcome>;
 };
 
 export const ChargePointDetailPanel = ({
   chargePoint,
   site,
-  onToggleActive,
-  onToggleRealtimeAlerts,
   onEditClicked,
   onDeleteClicked,
-  onResetClicked,
-  onChangeAvailability,
-  onUnlockConnector,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
+
+  const actions = useChargePointActions({
+    chargePointId: chargePoint.id,
+    currentChargePoint: chargePoint,
+    onEditClick: () => onEditClicked(chargePoint),
+    onDeleteClick: () => onDeleteClicked(chargePoint),
+  });
 
   const [tab, setTab] = useState<DetailTab>("main");
   const [resetState, setResetState] = useState<ResetState>({ status: "idle" });
@@ -106,7 +90,7 @@ export const ChargePointDetailPanel = ({
 
   const handleReset = async (type: ResetType) => {
     setResetState({ status: "loading" });
-    const outcome = await onResetClicked(chargePoint, type);
+    const outcome = await actions.reset(type);
     setResetState({ status: "done", outcome });
   };
 
@@ -116,13 +100,13 @@ export const ChargePointDetailPanel = ({
     type: AvailabilityType,
   ) => {
     setAvailabilityState((prev) => ({ ...prev, [key]: { status: "loading" } }));
-    const outcome = await onChangeAvailability(chargePoint, connectorId, type);
+    const outcome = await actions.changeAvailability(connectorId, type);
     setAvailabilityState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
   };
 
   const handleUnlockConnector = async (key: string, connectorId: number) => {
     setUnlockConnectorState((prev) => ({ ...prev, [key]: { status: "loading" } }));
-    const outcome = await onUnlockConnector(chargePoint, connectorId);
+    const outcome = await actions.unlockConnector(connectorId);
     setUnlockConnectorState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
   };
 
@@ -141,7 +125,7 @@ export const ChargePointDetailPanel = ({
     <div className="flex h-full flex-col gap-4">
       <ChargePointHeaderSection
         chargePoint={chargePoint}
-        onToggleActive={onToggleActive}
+        onToggleActive={() => actions.toggleActive()}
         onEditClicked={onEditClicked}
         onDeleteClicked={onDeleteClicked}
       />
@@ -210,8 +194,10 @@ export const ChargePointDetailPanel = ({
 
           <div className="flex flex-col gap-2">
             <div className="flex items-stretch gap-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <ActionsDropdown
+                align="start"
+                disabled={resetState.status === "loading"}
+                trigger={
                   <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
                     {resetState.status === "loading" ? (
                       <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
@@ -221,24 +207,24 @@ export const ChargePointDetailPanel = ({
                     {t("appPage.chargePoints.reset.button")}
                     <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={() => handleReset("Hard")}>
-                    {t("appPage.chargePoints.reset.types.hard")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleReset("Soft")}>
-                    {t("appPage.chargePoints.reset.types.soft")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                }
+                actions={[
+                  { id: "Hard", label: t("appPage.chargePoints.reset.types.hard") },
+                  { id: "Soft", label: t("appPage.chargePoints.reset.types.soft") },
+                ]}
+                onAction={(actionId) => handleReset(actionId as ResetType)}
+              />
 
               <ChargePointConfigurationDialog
                 chargePointId={chargePoint.id}
                 chargePointName={chargePoint.name}
               />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <StatusActionDropdown
+                align="start"
+                currentStatus=""
+                disabled={wholeChargePointAvailability.status === "loading"}
+                trigger={
                   <Button
                     variant="outline"
                     size="sm"
@@ -252,22 +238,21 @@ export const ChargePointDetailPanel = ({
                     {t("appPage.chargePoints.availability.wholeChargePoint")}
                     <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem
-                    onClick={() => handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, "Operative")}
-                  >
-                    {t("appPage.chargePoints.availability.types.operative")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, "Inoperative")
-                    }
-                  >
-                    {t("appPage.chargePoints.availability.types.inoperative")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                }
+                options={[
+                  {
+                    value: "Operative",
+                    label: t("appPage.chargePoints.availability.types.operative"),
+                  },
+                  {
+                    value: "Inoperative",
+                    label: t("appPage.chargePoints.availability.types.inoperative"),
+                  },
+                ]}
+                onStatusChange={(value) =>
+                  handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, value as AvailabilityType)
+                }
+              />
             </div>
 
             <TriggerMessageControl chargePointId={chargePoint.id} />
@@ -312,7 +297,7 @@ export const ChargePointDetailPanel = ({
           chargePointId={chargePoint.id}
           chargePointName={chargePoint.name}
           realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
-          onToggleRealtimeAlerts={() => onToggleRealtimeAlerts(chargePoint)}
+          onToggleRealtimeAlerts={() => actions.toggleRealtimeAlerts()}
         />
       )}
 

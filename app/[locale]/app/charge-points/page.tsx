@@ -64,7 +64,6 @@ function ChargePointsPageContent() {
     chargePoints,
     loading: loadingChargePoints,
     error: errorChargePoints,
-    refetch: refetchChargePoints,
   } = useChargePoints();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ChargePointConnectionStatus | "all">("all");
@@ -213,20 +212,6 @@ function ChargePointsPageContent() {
     setCommissionTarget(null);
   };
 
-  const handleToggleActive = async (cp: ChargePointWithConnectors) => {
-    await updateChargePointMutation.mutateAsync({
-      id: cp.id,
-      patch: { isActive: !cp.isActive },
-    });
-  };
-
-  const handleToggleRealtimeAlerts = async (cp: ChargePointWithConnectors) => {
-    await api.ChargePoints.updateChargePoint(cp.id, {
-      realtimeAlertsEnabled: !cp.realtimeAlertsEnabled,
-    });
-    await refetchChargePoints();
-  };
-
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
@@ -341,17 +326,8 @@ function ChargePointsPageContent() {
               chargePoints={filteredChargePoints}
               selected={detailTarget}
               onSelect={updateDetailTarget}
-              onToggleActive={handleToggleActive}
-              onToggleRealtimeAlerts={handleToggleRealtimeAlerts}
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
-              onResetClicked={(cp, type) => api.ChargePoints.resetChargePoint(cp.id, type)}
-              onChangeAvailability={(cp, connectorId, type) =>
-                api.ChargePoints.changeAvailability(cp.id, connectorId, type)
-              }
-              onUnlockConnector={(cp, connectorId) =>
-                api.ChargePoints.unlockConnector(cp.id, connectorId)
-              }
             />
           </div>
 
