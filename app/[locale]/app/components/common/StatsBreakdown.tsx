@@ -12,9 +12,17 @@ export interface StatsBreakdownProps {
   subtitle?: string;
   buckets: StatsBucket[];
   columns?: 2 | 3 | 4;
+  /** Overrides the bucket grid's own layout classes, e.g. for a responsive column count. */
+  className?: string;
 }
 
-export const StatsBreakdown = ({ title, subtitle, buckets, columns = 4 }: StatsBreakdownProps) => {
+export const StatsBreakdown = ({
+  title,
+  subtitle,
+  buckets,
+  columns = 4,
+  className,
+}: StatsBreakdownProps) => {
   const colsClass = {
     2: "grid-cols-2",
     3: "grid-cols-3",
@@ -27,7 +35,7 @@ export const StatsBreakdown = ({ title, subtitle, buckets, columns = 4 }: StatsB
         <h3 className="text-lg font-semibold">{title}</h3>
         {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
       </div>
-      <div className={`grid gap-4 ${colsClass[columns]}`}>
+      <div className={className ?? `grid gap-4 ${colsClass[columns]}`}>
         {buckets.map((bucket, index) => (
           <StatCard
             key={index}
