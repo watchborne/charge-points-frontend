@@ -1,5 +1,11 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+
+const { updateChargePoint } = vi.hoisted(() => ({
+  updateChargePoint: vi.fn().mockResolvedValue({}),
+}));
 
 // The detail panel now nests ChargePointConsumptionPanel, StatusHistoryPanel,
 // AlertsPanel and SecurityEventsPanel which fetch on mount and format numbers
@@ -18,6 +24,7 @@ vi.mock("../../../../../../lib/api", () => ({
     },
     ChargePoints: {
       getAlerts: vi.fn().mockResolvedValue([]),
+      updateChargePoint,
     },
     StatusHistory: {
       getConnectionEvents: vi.fn().mockResolvedValue([]),
@@ -64,7 +71,15 @@ beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  updateChargePoint.mockClear();
+});
+
+// useChargePointActions reads/invalidates through useQueryClient, which
+// requires a provider in the tree.
+const renderWithQueryClient = (ui: ReactElement) =>
+  render(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>);
 
 const CONNECTOR = {
   id: "connector-1",
@@ -94,17 +109,12 @@ const CHARGE_POINT = {
 
 describe("ChargePointDetailPanel", () => {
   it("SHOULD display the connector's lastMeterValue snapshot WHEN one is present", () => {
-    render(
+    renderWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={CHARGE_POINT}
         site={undefined}
-        onToggleActive={vi.fn()}
-        onToggleRealtimeAlerts={vi.fn()}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
-        onResetClicked={vi.fn()}
-        onChangeAvailability={vi.fn()}
-        onUnlockConnector={vi.fn()}
       />,
     );
 
@@ -117,37 +127,25 @@ describe("ChargePointDetailPanel", () => {
       connectors: [{ ...CONNECTOR, lastMeterValue: undefined }],
     } as unknown;
 
-    render(
+    renderWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={chargePointWithoutMeterValue}
         site={undefined}
-        onToggleActive={vi.fn()}
-        onToggleRealtimeAlerts={vi.fn()}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
-        onResetClicked={vi.fn()}
-        onChangeAvailability={vi.fn()}
-        onUnlockConnector={vi.fn()}
       />,
     );
 
     expect(screen.queryByTitle("Last meter reading")).toBeNull();
   });
 
-  it("SHOULD forward the charge point to onToggleRealtimeAlerts WHEN its switch is toggled", async () => {
-    const onToggleRealtimeAlerts = vi.fn();
-
-    render(
+  it("SHOULD toggle realtime alerts through the API WHEN its switch is toggled", async () => {
+    renderWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={CHARGE_POINT}
         site={undefined}
-        onToggleActive={vi.fn()}
-        onToggleRealtimeAlerts={onToggleRealtimeAlerts}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
-        onResetClicked={vi.fn()}
-        onChangeAvailability={vi.fn()}
-        onUnlockConnector={vi.fn()}
       />,
     );
 
@@ -167,21 +165,16 @@ describe("ChargePointDetailPanel", () => {
     const switches = await screen.findAllByRole("switch");
     fireEvent.click(switches[1]!);
 
-    expect(onToggleRealtimeAlerts).toHaveBeenCalledWith(CHARGE_POINT);
+    expect(updateChargePoint).toHaveBeenCalledWith("cp-1", { realtimeAlertsEnabled: true });
   });
 
   it("SHOULD default to the Overview tab", () => {
-    render(
+    renderWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={CHARGE_POINT}
         site={undefined}
-        onToggleActive={vi.fn()}
-        onToggleRealtimeAlerts={vi.fn()}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
-        onResetClicked={vi.fn()}
-        onChangeAvailability={vi.fn()}
-        onUnlockConnector={vi.fn()}
       />,
     );
 
@@ -193,17 +186,12 @@ describe("ChargePointDetailPanel", () => {
   });
 
   it("SHOULD switch the active tab WHEN a different tab is clicked", () => {
-    render(
+    renderWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={CHARGE_POINT}
         site={undefined}
-        onToggleActive={vi.fn()}
-        onToggleRealtimeAlerts={vi.fn()}
         onEditClicked={vi.fn()}
         onDeleteClicked={vi.fn()}
-        onResetClicked={vi.fn()}
-        onChangeAvailability={vi.fn()}
-        onUnlockConnector={vi.fn()}
       />,
     );
 

@@ -1,14 +1,9 @@
-import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
+import { Site } from "@watchborne/charge-points-types";
 import { Badge, Tabs, TabsList, TabsTrigger, Tag } from "@watchborne/electrons";
 import classNames from "classnames";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import {
-  ChangeAvailabilityOutcome,
-  ResetChargePointOutcome,
-  UnlockConnectorOutcome,
-} from "@/lib/api-charge-points";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -28,23 +23,8 @@ interface ChargePointFleetPanelProps {
   chargePoints: ChargePointWithConnectors[];
   selected: ChargePointWithConnectors | null;
   onSelect: (chargePoint: ChargePointWithConnectors | null) => void;
-  onToggleActive: (chargePoint: ChargePointWithConnectors) => void;
-  onToggleRealtimeAlerts: (chargePoint: ChargePointWithConnectors) => void;
   onEditClicked: (chargePoint: ChargePointWithConnectors) => void;
   onDeleteClicked: (chargePoint: ChargePointWithConnectors) => void;
-  onResetClicked: (
-    cp: ChargePointWithConnectors,
-    type: ResetType,
-  ) => Promise<ResetChargePointOutcome>;
-  onChangeAvailability: (
-    cp: ChargePointWithConnectors,
-    connectorId: number,
-    type: AvailabilityType,
-  ) => Promise<ChangeAvailabilityOutcome>;
-  onUnlockConnector: (
-    cp: ChargePointWithConnectors,
-    connectorId: number,
-  ) => Promise<UnlockConnectorOutcome>;
 }
 
 export const ChargePointFleetPanel = ({
@@ -52,13 +32,8 @@ export const ChargePointFleetPanel = ({
   chargePoints,
   selected,
   onSelect,
-  onToggleActive,
-  onToggleRealtimeAlerts,
   onEditClicked,
   onDeleteClicked,
-  onResetClicked,
-  onChangeAvailability,
-  onUnlockConnector,
 }: ChargePointFleetPanelProps) => {
   const t = useTranslations("");
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
@@ -196,13 +171,8 @@ export const ChargePointFleetPanel = ({
             <ChargePointDetailPanel
               chargePoint={selected}
               site={sites.find((site) => site.id === selected.siteId)}
-              onToggleActive={onToggleActive}
-              onToggleRealtimeAlerts={onToggleRealtimeAlerts}
               onEditClicked={onEditClicked}
               onDeleteClicked={onDeleteClicked}
-              onResetClicked={onResetClicked}
-              onChangeAvailability={onChangeAvailability}
-              onUnlockConnector={onUnlockConnector}
             />
           ) : (
             <div className="flex h-full min-h-48 items-center justify-center text-sm text-muted-foreground">

@@ -26,6 +26,7 @@ import { StatusHistoryPanel } from "./StatusHistoryPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { ActionsDropdown } from "../../components/common/ActionsDropdown";
 import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
+import { useChargePointActions } from "../hooks/useChargePointActions";
 
 type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };
@@ -52,37 +53,24 @@ const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok:
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
-  onToggleActive: (cp: ChargePointWithConnectors) => void;
-  onToggleRealtimeAlerts: (cp: ChargePointWithConnectors) => void;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
-  onResetClicked: (
-    cp: ChargePointWithConnectors,
-    type: ResetType,
-  ) => Promise<ResetChargePointOutcome>;
-  onChangeAvailability: (
-    cp: ChargePointWithConnectors,
-    connectorId: number,
-    type: AvailabilityType,
-  ) => Promise<ChangeAvailabilityOutcome>;
-  onUnlockConnector: (
-    cp: ChargePointWithConnectors,
-    connectorId: number,
-  ) => Promise<UnlockConnectorOutcome>;
 };
 
 export const ChargePointDetailPanel = ({
   chargePoint,
   site,
-  onToggleActive,
-  onToggleRealtimeAlerts,
   onEditClicked,
   onDeleteClicked,
-  onResetClicked,
-  onChangeAvailability,
-  onUnlockConnector,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
+
+  const actions = useChargePointActions({
+    chargePointId: chargePoint.id,
+    currentChargePoint: chargePoint,
+    onEditClick: () => onEditClicked(chargePoint),
+    onDeleteClick: () => onDeleteClicked(chargePoint),
+  });
 
   const [tab, setTab] = useState<DetailTab>("main");
   const [resetState, setResetState] = useState<ResetState>({ status: "idle" });
@@ -102,7 +90,7 @@ export const ChargePointDetailPanel = ({
 
   const handleReset = async (type: ResetType) => {
     setResetState({ status: "loading" });
-    const outcome = await onResetClicked(chargePoint, type);
+    const outcome = await actions.reset(type);
     setResetState({ status: "done", outcome });
   };
 
@@ -112,13 +100,13 @@ export const ChargePointDetailPanel = ({
     type: AvailabilityType,
   ) => {
     setAvailabilityState((prev) => ({ ...prev, [key]: { status: "loading" } }));
-    const outcome = await onChangeAvailability(chargePoint, connectorId, type);
+    const outcome = await actions.changeAvailability(connectorId, type);
     setAvailabilityState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
   };
 
   const handleUnlockConnector = async (key: string, connectorId: number) => {
     setUnlockConnectorState((prev) => ({ ...prev, [key]: { status: "loading" } }));
-    const outcome = await onUnlockConnector(chargePoint, connectorId);
+    const outcome = await actions.unlockConnector(connectorId);
     setUnlockConnectorState((prev) => ({ ...prev, [key]: { status: "done", outcome } }));
   };
 
@@ -137,7 +125,7 @@ export const ChargePointDetailPanel = ({
     <div className="flex h-full flex-col gap-4">
       <ChargePointHeaderSection
         chargePoint={chargePoint}
-        onToggleActive={onToggleActive}
+        onToggleActive={() => actions.toggleActive()}
         onEditClicked={onEditClicked}
         onDeleteClicked={onDeleteClicked}
       />
@@ -309,7 +297,7 @@ export const ChargePointDetailPanel = ({
           chargePointId={chargePoint.id}
           chargePointName={chargePoint.name}
           realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
-          onToggleRealtimeAlerts={() => onToggleRealtimeAlerts(chargePoint)}
+          onToggleRealtimeAlerts={() => actions.toggleRealtimeAlerts()}
         />
       )}
 
