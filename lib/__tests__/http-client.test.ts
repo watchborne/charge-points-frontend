@@ -2,19 +2,32 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { httpClient } from "../http-client";
 
-// Every request refreshes the browser session first (issue #349). Mocked here
-// so these tests stay about the HTTP layer; the refresh itself — and its
-// deduplication — is covered in lib/supabase/__tests__/ensure-session.test.ts.
-const { ensureFreshSession } = vi.hoisted(() => ({ ensureFreshSession: vi.fn() }));
+// Every request refreshes the browser session first (issue #349). Mocked at
+// the external @supabase/ssr boundary (a bare specifier — reliably
+// intercepted), so the real ensureFreshSession runs and `getSession` stands in
+// for the refresh here; its deduplication is covered on its own in
+// lib/supabase/__tests__/ensure-session.test.ts.
+const { createBrowserClient, getSession } = vi.hoisted(() => {
+  const getSession = vi.fn();
+  return {
+    getSession,
+    createBrowserClient: vi.fn(() => ({ auth: { getSession } })),
+  };
+});
 
-vi.mock("@/lib/supabase/ensure-session", () => ({ ensureFreshSession }));
+vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
 const mockFetch = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal("fetch", mockFetch);
-  ensureFreshSession.mockReset();
-  ensureFreshSession.mockResolvedValue(undefined);
+  // Re-established every time: the afterEach below calls restoreAllMocks,
+  // which can strip the implementation and leave the factory returning
+  // undefined — the client would then throw on `.auth` and the refresh would
+  // be silently swallowed instead of observed.
+  createBrowserClient.mockImplementation(() => ({ auth: { getSession } }));
+  getSession.mockReset();
+  getSession.mockResolvedValue({ data: { session: null } });
 });
 
 afterEach(() => {
@@ -32,8 +45,9 @@ function errorResponse(status: number) {
 describe("session refresh", () => {
   it("SHOULD refresh the session BEFORE issuing the request", async () => {
     const order: string[] = [];
-    ensureFreshSession.mockImplementation(async () => {
+    getSession.mockImplementation(async () => {
       order.push("refresh");
+      return { data: { session: null } };
     });
     mockFetch.mockImplementation(() => {
       order.push("fetch");
@@ -49,14 +63,17 @@ describe("session refresh", () => {
   });
 
   it("SHOULD refresh the session on every verb", async () => {
-    mockFetch.mockReturnValue(okResponse({}));
+    // mockImplementation, not mockReturnValue: each call needs its own
+    // Response — a single one has its body read by the first request and
+    // throws "Body is unusable" on the second.
+    mockFetch.mockImplementation(() => okResponse({}));
 
     await httpClient.get("/api/items");
     await httpClient.post("/api/items", {});
     await httpClient.patch("/api/items/1", {});
     await httpClient.delete("/api/items/1");
 
-    expect(ensureFreshSession).toHaveBeenCalledTimes(4);
+    expect(getSession).toHaveBeenCalledTimes(4);
   });
 });
 

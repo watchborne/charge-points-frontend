@@ -82,19 +82,6 @@ describe("proxy auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
-  it("SHOULD NOT call Supabase Auth for /api/*", async () => {
-    setUser({ id: "user-1" });
-    const { proxy } = await import("../../proxy");
-
-    await proxy(request("/api/charge-points"));
-
-    // The round trip this change exists to remove. A regression here is
-    // invisible in behaviour and only shows up as latency, so it is asserted
-    // directly rather than through a status code.
-    expect(getUser).not.toHaveBeenCalled();
-    expect(createServerClient).not.toHaveBeenCalled();
-  });
-
   // These three were reachable without a session before the gate was removed
   // and must stay so: the access request is submitted by an unauthenticated
   // visitor, check-login runs before a session can exist (charge-points-server
@@ -280,12 +267,18 @@ describe("Supabase session lookup scoping", () => {
     expect(getUser).toHaveBeenCalledTimes(1);
   });
 
-  it("SHOULD hit Supabase for an /api route", async () => {
+  it("SHOULD NOT hit Supabase for an /api route", async () => {
     setUser({ id: "user-1" });
     const { proxy } = await import("../../proxy");
 
     await proxy(request("/api/charge-points"));
 
-    expect(getUser).toHaveBeenCalledTimes(1);
+    // The ~400-530 ms round trip this change removes (issue #349). The
+    // backend verifies the same JWT and fails closed with 401 on its own
+    // (charge-points-server ADR 0002), so re-checking here bought nothing.
+    // Asserted directly because a regression would be invisible in behaviour
+    // and show up only as latency.
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(getUser).not.toHaveBeenCalled();
   });
 });

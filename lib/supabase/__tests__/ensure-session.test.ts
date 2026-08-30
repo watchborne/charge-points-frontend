@@ -1,32 +1,36 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mocks the browser client factory this module builds on, so the tests drive
-// getSession()'s timing and outcome without a real Supabase project.
-const { createClient, getSession } = vi.hoisted(() => {
+// Mock the external @supabase/ssr (a bare specifier — reliably intercepted,
+// unlike an aliased path to one of our own modules). The real
+// lib/supabase/client and ensure-session run against it, so the deduplication
+// and the failure handling are exercised for real; `getSession` is controlled
+// per test.
+const { createBrowserClient, getSession } = vi.hoisted(() => {
   const getSession = vi.fn();
   return {
     getSession,
-    createClient: vi.fn(() => ({ auth: { getSession } })),
+    createBrowserClient: vi.fn(() => ({ auth: { getSession } })),
   };
 });
 
-vi.mock("@/lib/supabase/client", () => ({ createClient }));
+vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
 
-/** A getSession() that stays pending until the returned `resolve` is called. */
+/** A getSession() that stays pending until the returned `release` is called. */
 function deferredSession() {
-  let resolve!: () => void;
-  const pending = new Promise<void>((r) => {
-    resolve = () => r();
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = () => resolve();
   });
   getSession.mockReturnValue(pending.then(() => ({ data: { session: null } })));
-  return resolve;
+  return release;
 }
 
 beforeEach(() => {
   // The module holds the in-flight refresh in module scope — each test needs
   // its own instance, or the deduplication state leaks between them.
   vi.resetModules();
-  createClient.mockClear();
+  createBrowserClient.mockClear();
+  createBrowserClient.mockImplementation(() => ({ auth: { getSession } }));
   getSession.mockReset();
   getSession.mockResolvedValue({ data: { session: null } });
 });
@@ -66,14 +70,14 @@ describe("ensureFreshSession", () => {
   });
 
   it("SHOULD resolve WHEN constructing the client throws", async () => {
-    createClient.mockImplementationOnce(() => {
+    createBrowserClient.mockImplementationOnce(() => {
       throw new Error("supabaseUrl is required");
     });
     const { ensureFreshSession } = await import("../ensure-session");
 
-    // createClient() throws synchronously when the Supabase env vars are
-    // unset; it is constructed inside the promise chain so that surfaces as a
-    // swallowed refresh failure rather than a rejected API call.
+    // createBrowserClient() throws synchronously when the Supabase env vars
+    // are unset; the client is constructed inside the promise chain so that
+    // surfaces as a swallowed refresh failure, not a rejected API call.
     await expect(ensureFreshSession()).resolves.toBeUndefined();
   });
 
