@@ -1,6 +1,15 @@
 import { Skeleton } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 
+import { SkeletonGrid } from "../../components/common/SkeletonGrid";
+
+const SITE_CARD_SKELETON = () => (
+  <div className="rounded-lg border p-3 bg-background overflow-hidden">
+    <Skeleton className="h-6 w-32" />
+    <Skeleton className="h-5 w-20 mt-2" />
+  </div>
+);
+
 export const FleetChargePointsPanelSkeleton = () => {
   const t = useTranslations("");
 
@@ -19,25 +28,11 @@ export const FleetChargePointsPanelSkeleton = () => {
         <div className="border-b bg-muted/30 p-4 sm:p-6 md:border-b-0 md:border-r">
           <Skeleton className="h-5 w-32 mb-2" />
 
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="rounded-lg border p-3 bg-background overflow-hidden">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-5 w-20 mt-2" />
-              </div>
-            ))}
-          </div>
+          <SkeletonGrid className="space-y-4" count={3} renderItem={SITE_CARD_SKELETON} />
 
           <Skeleton className="h-5 w-32 mb-2 mt-6" />
 
-          <div className="space-y-4">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="rounded-lg border p-3 bg-background overflow-hidden">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-5 w-20 mt-2" />
-              </div>
-            ))}
-          </div>
+          <SkeletonGrid className="space-y-4" count={2} renderItem={SITE_CARD_SKELETON} />
         </div>
 
         {/* Right content - charge points list */}
