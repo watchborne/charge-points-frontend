@@ -23,8 +23,8 @@ import type {
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 import type { ChargePointLogUpload, LogUploadView } from "@/types/log-upload";
 
-import { httpClient } from "./http-client";
 import { withErrorLogging } from "./api-error-wrapper";
+import { httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
   /**
