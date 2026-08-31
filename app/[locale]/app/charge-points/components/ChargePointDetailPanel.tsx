@@ -19,6 +19,7 @@ import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
+import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
 import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
@@ -42,8 +43,8 @@ type UnlockConnectorState =
 /** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
 const WHOLE_CHARGE_POINT_KEY = "chargePoint";
 
-type DetailTab = "main" | "consumption" | "alerts" | "security";
-const DETAIL_TABS: readonly DetailTab[] = ["main", "consumption", "alerts", "security"];
+type DetailTab = "main" | "consumption" | "sessions" | "alerts" | "security";
+const DETAIL_TABS: readonly DetailTab[] = ["main", "consumption", "sessions", "alerts", "security"];
 
 const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok: true }): string =>
   status.status === "Scheduled"
@@ -291,6 +292,8 @@ export const ChargePointDetailPanel = ({
       )}
 
       {tab === "consumption" && <ChargePointConsumptionPanel chargePointId={chargePoint.id} />}
+
+      {tab === "sessions" && <ChargingSessionsPanel chargePointId={chargePoint.id} />}
 
       {tab === "alerts" && (
         <AlertsPanel

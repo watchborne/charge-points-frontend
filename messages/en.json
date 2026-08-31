@@ -566,6 +566,7 @@
         "tabs": {
           "main": "Overview",
           "consumption": "Consumption",
+          "sessions": "Sessions",
           "alerts": "Alerts",
           "security": "Security & history"
         }
@@ -752,6 +753,45 @@
             "timeout": "The station did not answer in time.",
             "genericError": "The upload could not be started."
           }
+        }
+      },
+      "chargingSessions": {
+        "title": "Charging sessions",
+        "loading": "Loading charging sessions…",
+        "loadError": "Could not load this charge point's charging-session history.",
+        "empty": "No charging sessions yet",
+        "connector": "Connector",
+        "status": "Status",
+        "startedAt": "Started",
+        "duration": "Duration",
+        "energy": "Energy",
+        "statuses": {
+          "ACTIVE": "Active",
+          "ENDED": "Ended"
+        },
+        "stoppedReasons": {
+          "DeAuthorized": "De-authorized",
+          "EmergencyStop": "Emergency stop",
+          "EnergyLimitReached": "Energy limit reached",
+          "EVDisconnected": "Vehicle unplugged",
+          "GroundFault": "Ground fault",
+          "HardReset": "Hard reset",
+          "ImmediateReset": "Immediate reset",
+          "Local": "Stopped at the station",
+          "LocalOutOfCredit": "Out of credit",
+          "MasterPass": "Master card",
+          "Other": "Other",
+          "OvercurrentFault": "Overcurrent fault",
+          "PowerLoss": "Power loss",
+          "PowerQuality": "Power quality issue",
+          "Reboot": "Station rebooted",
+          "Remote": "Stopped remotely",
+          "SOCLimitReached": "Battery limit reached",
+          "SoftReset": "Soft reset",
+          "StoppedByEV": "Stopped by the vehicle",
+          "TimeLimitReached": "Time limit reached",
+          "Timeout": "Timed out",
+          "UnlockCommand": "Connector unlocked"
         }
       },
       "alerts": {

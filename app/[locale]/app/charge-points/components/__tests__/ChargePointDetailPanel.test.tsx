@@ -62,6 +62,12 @@ vi.mock("../LogUploadPanel", () => ({
   LogUploadPanel: () => null,
 }));
 
+// Stubbed out for the same reason: it fetches its own charging-session
+// history. Its own behaviour is covered by ChargingSessionsPanel.test.tsx.
+vi.mock("../ChargingSessionsPanel", () => ({
+  ChargingSessionsPanel: () => <div data-testid="charging-sessions-panel" />,
+}));
+
 import { ChargePointDetailPanel } from "../ChargePointDetailPanel";
 
 beforeAll(() => {
@@ -211,5 +217,26 @@ describe("ChargePointDetailPanel", () => {
         .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })
         .getAttribute("aria-selected"),
     ).toBe("false");
+  });
+
+  it("SHOULD render the charging-session history WHEN the Sessions tab is active", () => {
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    const sessionsTab = screen.getByRole("tab", {
+      name: "appPage.chargePoints.detail.tabs.sessions",
+    });
+    fireEvent.mouseDown(sessionsTab);
+    sessionsTab.focus();
+    fireEvent.click(sessionsTab);
+
+    expect(sessionsTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByTestId("charging-sessions-panel")).toBeTruthy();
   });
 });
