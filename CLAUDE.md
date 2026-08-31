@@ -42,18 +42,26 @@ app/
                            #   checklist, fleet panel, config dialog, trigger message,
                            #   AlertsPanel: alert history + real-time-alerts opt-in,
                            #   StatusHistoryPanel: connection/connector status timeline,
-                           #   SecurityEventsPanel: OCPP SecurityEventNotification history).
-                           #   ChargePointDetailPanel is the tabbed container these render
-                           #   into. The page itself wraps its useSearchParams() usage in
-                           #   Suspense — required for static rendering, and also drives
-                           #   status/OCPP connector filters off the search params.
-      sites/components/    # page-scoped components: SiteFormDialog, SiteCard,
-                           #   SiteGrid, SiteGridSkeleton, SiteDeletionDialog
+                           #   SecurityEventsPanel: OCPP SecurityEventNotification history,
+                           #   LogUploadPanel/StartLogUploadDialog: remote log/diagnostics
+                           #   retrieval via GetLog/GetDiagnostics,
+                           #   ChargePointConnectionUrlDialog: reveals the OCPP connection
+                           #   URL). ChargePointDetailPanel is the tabbed container these
+                           #   render into, itself decomposed into ChargePointHeaderSection,
+                           #   ChargePointMetadataSection, and ConnectorStatusSection. The
+                           #   page itself wraps its useSearchParams() usage in Suspense —
+                           #   required for static rendering, and also drives status/OCPP
+                           #   connector filters off the search params.
+                           #   hooks/useChargePointActions.ts centralizes the action
+                           #   handlers ChargePointDetailPanel and ChargePointFleetPanel share.
+      sites/components/    # page-scoped components: SiteFormDialog, SiteCard, SiteGrid,
+                           #   SiteGridSkeleton, SiteDeletionDialog, SiteDetailModal
       components/         # shared feature + common + layout components
-                          #   (common/: ConnectorStatusIcon, WsStatusBadge —
-                          #   app-specific, tied to domain types/state; the
-                          #   generic display primitives that used to live here
-                          #   moved to @watchborne/electrons; dashboard/:
+                          #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
+                          #   tied to domain types/state; plus generic display/interaction
+                          #   primitives not yet promoted to @watchborne/electrons:
+                          #   ActionsDropdown, StatusActionDropdown, FormDialog,
+                          #   StatsBreakdown, GenericStatusBadge, SkeletonGrid; dashboard/:
                           #   FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile — and DashboardOnboarding;
                           #   charge-points/: ChargePointsBreakdown,
@@ -100,7 +108,9 @@ lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # mostly thin re-exports of @watchborne/charge-points-types;
                         #   charge-point.ts also extends ChargePointWithConnectors/
                         #   ChargePointWithSite with server-local `commissionedAt`
-                        #   (Membership queue/audit state, not in the shared package)
+                        #   (Membership queue/audit state, not in the shared package);
+                        #   log-upload.ts is the local response-type surface for the
+                        #   remote log/diagnostics feature (api-charge-points.ts)
 i18n/locale.ts          # Locale type, defaultLocale, isLocale, localizedPath (edge-safe)
 i18n/routing.ts         # next-intl defineRouting: locales, defaultLocale,
                         #   localePrefix: "as-needed" (fr unprefixed, /en/... prefixed),
@@ -170,6 +180,14 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   station's OCPP `SecurityEventNotification` history. Its response type is
   declared locally too, same reasoning as `Me`/`ConnectionStateEvent` above:
   the backend keeps `SecurityEvent` server-local (its ADR 0009).
+- `lib/api-error-wrapper.ts` — the standardized error-handling wrapper the
+  `lib/api-*.ts` methods above are built on, so a failed request surfaces a
+  consistent shape regardless of which method threw.
+- `lib/error-messages.ts` — centralizes the mapping from API error codes/shapes
+  to user-facing messages, pulled out of `ChargePointDetailPanel`.
+- `lib/queryKeys.ts` — centralizes TanStack Query key construction; `useChargePoints`/
+  `useSites` and their mutations build keys from here rather than ad hoc arrays,
+  so an invalidation can't drift from the key a query was registered under.
 - `app/app/providers/QueryProvider.tsx` wraps the dashboard (`app/[locale]/app/layout.tsx`)
   in a TanStack Query `QueryClientProvider` (plus devtools). `useChargePoints` /
   `useSites` and their create/update/delete flows are `useQuery` / `useMutation`
