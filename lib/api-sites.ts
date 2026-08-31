@@ -1,4 +1,4 @@
-import { Site, SiteHealth, SiteWithChargePoints } from "@watchborne/charge-points-types";
+import { Site, SiteWithChargePoints } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
@@ -37,13 +37,6 @@ export const siteApis = {
     return withErrorLogging(
       () => httpClient.delete(`/api/sites/${siteId}`),
       `Sites.deleteSite(${siteId})`,
-    );
-  },
-  /** The health of every site visible to the caller (`GET /api/sites/health`). */
-  getSitesHealth: async function (): Promise<SiteHealth[]> {
-    return withErrorLogging(
-      () => httpClient.get<SiteHealth[]>("/api/sites/health"),
-      "Sites.getSitesHealth",
     );
   },
 };

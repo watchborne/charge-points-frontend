@@ -5,6 +5,7 @@ import { useMemo } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import { isAwaitingCommissioning } from "@/lib/commissioning";
+import { deriveSitesHealth } from "@/lib/derive-site-health";
 
 import { CommissioningQueue } from "../charge-points/components/CommissioningQueue";
 import { ChargePointStatsSkeleton } from "../components/charge-points/ChargePointStatsSkeleton";
@@ -15,12 +16,10 @@ import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOvervie
 import { SiteHealthSection } from "../components/dashboard/SiteHealthSection";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
-import { useSitesHealth } from "../hooks/useSitesHealth";
 
 export default function DashboardPage() {
   const { chargePoints, loading, error } = useChargePoints();
   const { sites, loading: loadingSites, error: errorSites } = useSites();
-  const { sitesHealth, loading: loadingSitesHealth, error: errorSitesHealth } = useSitesHealth();
   const router = useRouter();
 
   const unassignedChargePoints = useMemo(
@@ -28,8 +27,15 @@ export default function DashboardPage() {
     [chargePoints],
   );
 
-  const isLoading = loading || loadingSites || loadingSitesHealth;
-  const hasError = error || errorSites || errorSitesHealth;
+  // Derived, not fetched: this used to be its own GET /api/sites/health call,
+  // redoing the same sites -> charge points -> connectors read /api/sites had
+  // just made for the same caller (charge-points-server#503 P4). chargePoints
+  // is already kept live over the dashboard WebSocket by useChargePoints, so
+  // this now updates in real time too, which the polling-only fetch never did.
+  const sitesHealth = useMemo(() => deriveSitesHealth(sites, chargePoints), [sites, chargePoints]);
+
+  const isLoading = loading || loadingSites;
+  const hasError = error || errorSites;
 
   return (
     <>
@@ -37,7 +43,6 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-2 content-stretch mb-4">
           {error && <Callout variant="error" description={error} />}
           {errorSites && <Callout variant="error" description={errorSites} />}
-          {errorSitesHealth && <Callout variant="error" description={errorSitesHealth} />}
         </div>
       )}
 
