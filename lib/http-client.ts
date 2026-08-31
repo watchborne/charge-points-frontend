@@ -1,3 +1,5 @@
+import { ensureFreshSession } from "@/lib/supabase/ensure-session";
+
 const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
@@ -22,6 +24,13 @@ export class HttpError extends Error {
 }
 
 const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> => {
+  // Before the fetch, not after: the request authenticates with the session
+  // cookie the browser holds at the moment it goes out. Refreshing here means
+  // one refresh per burst, serialized by the browser client, instead of one
+  // per parallel request in its own isolated edge invocation — see
+  // ensureFreshSession.
+  await ensureFreshSession();
+
   const response = await fetch(url, options);
 
   if (!response.ok) {
