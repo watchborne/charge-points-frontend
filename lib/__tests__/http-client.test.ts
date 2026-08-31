@@ -2,10 +2,32 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { httpClient } from "../http-client";
 
+// Every request refreshes the browser session first (issue #349). Mocked at
+// the external @supabase/ssr boundary (a bare specifier — reliably
+// intercepted), so the real ensureFreshSession runs and `getSession` stands in
+// for the refresh here; its deduplication is covered on its own in
+// lib/supabase/__tests__/ensure-session.test.ts.
+const { createBrowserClient, getSession } = vi.hoisted(() => {
+  const getSession = vi.fn();
+  return {
+    getSession,
+    createBrowserClient: vi.fn(() => ({ auth: { getSession } })),
+  };
+});
+
+vi.mock("@supabase/ssr", () => ({ createBrowserClient }));
+
 const mockFetch = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal("fetch", mockFetch);
+  // Re-established every time: the afterEach below calls restoreAllMocks,
+  // which can strip the implementation and leave the factory returning
+  // undefined — the client would then throw on `.auth` and the refresh would
+  // be silently swallowed instead of observed.
+  createBrowserClient.mockImplementation(() => ({ auth: { getSession } }));
+  getSession.mockReset();
+  getSession.mockResolvedValue({ data: { session: null } });
 });
 
 afterEach(() => {
@@ -19,6 +41,41 @@ function okResponse(body: unknown) {
 function errorResponse(status: number) {
   return Promise.resolve(new Response(null, { status }));
 }
+
+describe("session refresh", () => {
+  it("SHOULD refresh the session BEFORE issuing the request", async () => {
+    const order: string[] = [];
+    getSession.mockImplementation(async () => {
+      order.push("refresh");
+      return { data: { session: null } };
+    });
+    mockFetch.mockImplementation(() => {
+      order.push("fetch");
+      return okResponse({});
+    });
+
+    await httpClient.get("/api/items");
+
+    // Ordering is the whole point: the request authenticates with the cookie
+    // the browser holds when it goes out, so a refresh after the fetch would
+    // be worthless.
+    expect(order).toEqual(["refresh", "fetch"]);
+  });
+
+  it("SHOULD refresh the session on every verb", async () => {
+    // mockImplementation, not mockReturnValue: each call needs its own
+    // Response — a single one has its body read by the first request and
+    // throws "Body is unusable" on the second.
+    mockFetch.mockImplementation(() => okResponse({}));
+
+    await httpClient.get("/api/items");
+    await httpClient.post("/api/items", {});
+    await httpClient.patch("/api/items/1", {});
+    await httpClient.delete("/api/items/1");
+
+    expect(getSession).toHaveBeenCalledTimes(4);
+  });
+});
 
 describe("httpClient.get", () => {
   it("SHOULD call fetch with GET and JSON headers", async () => {
