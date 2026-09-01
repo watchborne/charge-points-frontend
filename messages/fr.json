@@ -781,6 +781,13 @@
         "loadError": "Impossible de charger l'historique des événements de sécurité de cette borne.",
         "empty": "Aucun événement de sécurité récent."
       },
+      "deviceEvents": {
+        "title": "Rapports d'événements",
+        "loading": "Chargement des rapports d'événements…",
+        "loadError": "Impossible de charger l'historique des rapports d'événements de cette borne.",
+        "empty": "Aucun rapport d'événement récent.",
+        "trigger": "Déclencheur"
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",

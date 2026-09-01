@@ -20,6 +20,7 @@ import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
+import { DeviceEventsPanel } from "./DeviceEventsPanel";
 import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
@@ -304,6 +305,10 @@ export const ChargePointDetailPanel = ({
       {tab === "security" && (
         <>
           <SecurityEventsPanel chargePointId={chargePoint.id} />
+
+          {chargePoint.ocppVersion === "2.0.1" && (
+            <DeviceEventsPanel chargePointId={chargePoint.id} />
+          )}
 
           <StatusHistoryPanel
             chargePointId={chargePoint.id}
