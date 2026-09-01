@@ -12,11 +12,11 @@ export type SiteWithHealth = { site: Site; health: SiteHealth };
  * first" shortlist, and the full per-site list — replaces the single
  * fleet-wide tile this used to be.
  *
- * Joins `sitesHealth` (`GET /api/sites/health`) against `sites` (already
- * fetched for the dashboard) by `siteId`, client-side — `SiteHealth` carries
- * no site name of its own on purpose (see `charge-points-types`). An entry
- * with no match on either side is dropped rather than shown half-filled;
- * this can only happen briefly while both reads settle independently.
+ * Joins `sitesHealth` (derived client-side from `chargePoints` — see
+ * `lib/derive-site-health.ts`) against `sites` (already fetched for the
+ * dashboard) by `siteId` — `SiteHealth` carries no site name of its own on
+ * purpose (see `charge-points-types`). An entry with no match on either side
+ * is dropped rather than shown half-filled.
  */
 export const SiteHealthSection = ({
   sites,

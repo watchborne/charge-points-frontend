@@ -3,10 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-const { useChargePoints, useSites, useSitesHealth } = vi.hoisted(() => ({
+const { useChargePoints, useSites } = vi.hoisted(() => ({
   useChargePoints: vi.fn(),
   useSites: vi.fn(),
-  useSitesHealth: vi.fn(),
 }));
 
 // Relative targets throughout, not the "@/" alias: this project's Vitest
@@ -15,7 +14,6 @@ const { useChargePoints, useSites, useSitesHealth } = vi.hoisted(() => ({
 // the same convention).
 vi.mock("../../hooks/useChargePoints", () => ({ useChargePoints }));
 vi.mock("../../hooks/useSites", () => ({ useSites }));
-vi.mock("../../hooks/useSitesHealth", () => ({ useSitesHealth }));
 vi.mock("../../../../../i18n/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 
 vi.mock("../../charge-points/components/CommissioningQueue", () => ({
@@ -71,9 +69,6 @@ const setHooks = ({
   sites = [],
   loadingSites = false,
   errorSites = null,
-  sitesHealth = [],
-  loadingSitesHealth = false,
-  errorSitesHealth = null,
 }: {
   chargePoints?: ChargePointWithConnectors[];
   loadingChargePoints?: boolean;
@@ -81,9 +76,6 @@ const setHooks = ({
   sites?: unknown[];
   loadingSites?: boolean;
   errorSites?: string | null;
-  sitesHealth?: unknown[];
-  loadingSitesHealth?: boolean;
-  errorSitesHealth?: string | null;
 }) => {
   useChargePoints.mockReturnValue({
     chargePoints,
@@ -97,22 +89,15 @@ const setHooks = ({
     error: errorSites,
     refetch: vi.fn(),
   });
-  useSitesHealth.mockReturnValue({
-    sitesHealth,
-    loading: loadingSitesHealth,
-    error: errorSitesHealth,
-    refetch: vi.fn(),
-  });
 };
 
 beforeEach(() => {
   useChargePoints.mockReset();
   useSites.mockReset();
-  useSitesHealth.mockReset();
 });
 
 describe("DashboardPage", () => {
-  it("SHOULD show skeletons WHEN any of the three reads is still loading", () => {
+  it("SHOULD show skeletons WHEN either of the two reads is still loading", () => {
     setHooks({ loadingChargePoints: true });
 
     render(<DashboardPage />);
