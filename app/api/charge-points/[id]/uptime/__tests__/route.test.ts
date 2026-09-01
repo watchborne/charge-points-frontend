@@ -61,8 +61,11 @@ describe("GET /api/charge-points/[id]/uptime", () => {
     );
 
     const [url] = fetchCall();
-    expect(url).toBe(
-      "http://localhost:3000/api/charge-points/cp-1/uptime?from=2026-08-01T00:00:00.000Z&to=2026-08-02T00:00:00.000Z",
+    const parsed = new URL(url);
+    expect(parsed.origin + parsed.pathname).toBe(
+      "http://localhost:3000/api/charge-points/cp-1/uptime",
     );
+    expect(parsed.searchParams.get("from")).toBe("2026-08-01T00:00:00.000Z");
+    expect(parsed.searchParams.get("to")).toBe("2026-08-02T00:00:00.000Z");
   });
 });
