@@ -626,6 +626,11 @@
           "genericError": "Le changement de disponibilité a échoué. Veuillez réessayer."
         }
       },
+      "reliability": {
+        "title": "Fiabilité",
+        "window": "7 derniers jours",
+        "noData": "Pas encore de données"
+      },
       "unlockConnector": {
         "button": "Déverrouiller",
         "result": {

@@ -19,6 +19,7 @@ import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
+import { ChargePointReliabilityTile } from "./ChargePointReliabilityTile";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
 import { DeviceEventsPanel } from "./DeviceEventsPanel";
 import { DeviceVariableReportsPanel } from "./DeviceVariableReportsPanel";
@@ -187,6 +188,8 @@ export const ChargePointDetailPanel = ({
           </div>
 
           <ChargePointMetadataSection chargePoint={chargePoint} />
+
+          <ChargePointReliabilityTile chargePointId={chargePoint.id} />
 
           <StatusHistoryPanel
             chargePointId={chargePoint.id}
