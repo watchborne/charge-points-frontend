@@ -19,6 +19,7 @@ import { useRouter } from "@/i18n/navigation";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
+import { SiteReliabilityValue } from "./SiteReliabilityValue";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
 type SiteDetailModalProps = {
@@ -125,6 +126,15 @@ export const SiteDetailModal = ({
                   })}
                 </span>
               </div>
+
+              {siteChargePoints.length > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    {t("appPage.sites.detail.reliability.label")}
+                  </span>
+                  <SiteReliabilityValue siteId={site.id} />
+                </div>
+              )}
             </div>
           </div>
 

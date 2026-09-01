@@ -1019,7 +1019,11 @@
       },
       "detail": {
         "information": "Informations du site",
-        "noChargePoints": "Aucune borne affectée à ce site"
+        "noChargePoints": "Aucune borne affectée à ce site",
+        "reliability": {
+          "label": "Fiabilité (7 derniers jours)",
+          "noData": "Pas encore de données"
+        }
       }
     },
     "deletion": {
