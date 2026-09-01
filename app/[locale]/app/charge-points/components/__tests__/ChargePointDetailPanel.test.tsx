@@ -33,6 +33,9 @@ vi.mock("../../../../../../lib/api", () => ({
     SecurityEvents: {
       list: vi.fn().mockResolvedValue([]),
     },
+    DeviceEvents: {
+      list: vi.fn().mockResolvedValue([]),
+    },
   },
 }));
 

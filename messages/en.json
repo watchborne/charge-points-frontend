@@ -781,6 +781,13 @@
         "loadError": "Could not load this charge point's security-event history.",
         "empty": "No recent security events."
       },
+      "deviceEvents": {
+        "title": "Event reports",
+        "loading": "Loading event reports…",
+        "loadError": "Could not load this charge point's event-report history.",
+        "empty": "No recent event reports.",
+        "trigger": "Trigger"
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
