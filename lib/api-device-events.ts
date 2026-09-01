@@ -38,7 +38,10 @@ export type DeviceEventEntry = {
   transactionId?: string;
   variableMonitoringId?: number;
   eventNotificationType:
-    "HardWiredNotification" | "HardWiredMonitor" | "PreconfiguredMonitor" | "CustomMonitor";
+    | "HardWiredNotification"
+    | "HardWiredMonitor"
+    | "PreconfiguredMonitor"
+    | "CustomMonitor";
   component: DeviceEventComponent;
   variable: DeviceEventVariable;
 };

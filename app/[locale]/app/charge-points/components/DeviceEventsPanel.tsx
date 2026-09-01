@@ -33,9 +33,7 @@ const flattenReports = (reports: DeviceEventReport[]): FlatEntry[] =>
   );
 
 const componentLabel = (entry: DeviceEventEntry): string =>
-  entry.variable.name
-    ? `${entry.component.name} · ${entry.variable.name}`
-    : entry.component.name;
+  entry.variable.name ? `${entry.component.name} · ${entry.variable.name}` : entry.component.name;
 
 /**
  * A charge point's `NotifyEvent` history (charge-points-server ADR 0011):
