@@ -768,7 +768,9 @@
         "types": {
           "OFFLINE": "Borne hors ligne",
           "CONNECTOR_FAULTED": "Connecteur en défaut",
-          "FIRMWARE_STALLED": "Mise à jour firmware bloquée"
+          "FIRMWARE_STALLED": "Mise à jour firmware bloquée",
+          "CONNECTOR_STUCK_UNAVAILABLE": "Connecteur bloqué indisponible",
+          "FIRMWARE_UPDATE_FAILED": "Échec de la mise à jour firmware"
         },
         "status": {
           "open": "Ouverte",

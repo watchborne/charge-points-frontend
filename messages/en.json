@@ -768,7 +768,9 @@
         "types": {
           "OFFLINE": "Station offline",
           "CONNECTOR_FAULTED": "Connector faulted",
-          "FIRMWARE_STALLED": "Firmware update stalled"
+          "FIRMWARE_STALLED": "Firmware update stalled",
+          "CONNECTOR_STUCK_UNAVAILABLE": "Connector stuck unavailable",
+          "FIRMWARE_UPDATE_FAILED": "Firmware update failed"
         },
         "status": {
           "open": "Open",
