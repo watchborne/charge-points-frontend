@@ -788,6 +788,12 @@
         "empty": "No recent event reports.",
         "trigger": "Trigger"
       },
+      "deviceVariableReports": {
+        "title": "Variable inventory",
+        "loading": "Loading variable inventory…",
+        "loadError": "Could not load this charge point's variable inventory.",
+        "empty": "No recent inventory reports."
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
