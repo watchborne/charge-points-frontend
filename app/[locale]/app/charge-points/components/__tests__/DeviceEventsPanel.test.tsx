@@ -54,7 +54,8 @@ const buildReport = (
 
 const resolveWith = (reports: DeviceEventReport[]) => list.mockResolvedValue(reports);
 
-const renderPanel = (chargePointId = CP_ID) => render(<DeviceEventsPanel chargePointId={chargePointId} />);
+const renderPanel = (chargePointId = CP_ID) =>
+  render(<DeviceEventsPanel chargePointId={chargePointId} />);
 
 beforeEach(() => {
   vi.clearAllMocks();

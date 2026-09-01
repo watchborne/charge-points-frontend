@@ -25,11 +25,17 @@ type FlatEntry = DeviceEventEntry & { reportId: string; generatedAt: string };
  * can bundle several unrelated component/variable reports together. */
 const flattenReports = (reports: DeviceEventReport[]): FlatEntry[] =>
   reports.flatMap((report) =>
-    report.events.map((event) => ({ ...event, reportId: report.id, generatedAt: report.generatedAt })),
+    report.events.map((event) => ({
+      ...event,
+      reportId: report.id,
+      generatedAt: report.generatedAt,
+    })),
   );
 
 const componentLabel = (entry: DeviceEventEntry): string =>
-  entry.variable.name ? `${entry.component.name} · ${entry.variable.name}` : entry.component.name;
+  entry.variable.name
+    ? `${entry.component.name} · ${entry.variable.name}`
+    : entry.component.name;
 
 /**
  * A charge point's `NotifyEvent` history (charge-points-server ADR 0011):
@@ -95,7 +101,10 @@ export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => 
       {!loading && !failed && entries.length > 0 && (
         <div className="divide-y rounded-md border">
           {entries.map((entry, index) => (
-            <div key={`${entry.reportId}-${entry.eventId}-${index}`} className="flex flex-col gap-1.5 px-3 py-2">
+            <div
+              key={`${entry.reportId}-${entry.eventId}-${index}`}
+              className="flex flex-col gap-1.5 px-3 py-2"
+            >
               <span className="flex items-center gap-1.5 text-sm font-medium">
                 {entry.cleared ? (
                   <CheckCircle2 className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -113,7 +122,10 @@ export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 shrink-0" />
                 <span>
-                  {formatDistanceToNow(new Date(entry.timestamp), { addSuffix: true, locale: enGB })}
+                  {formatDistanceToNow(new Date(entry.timestamp), {
+                    addSuffix: true,
+                    locale: enGB,
+                  })}
                 </span>
                 <span>({format(new Date(entry.timestamp), "dd/MM/yyyy HH:mm")})</span>
               </div>
