@@ -29,7 +29,9 @@ afterEach(() => cleanup());
 const CP_ID = "cp-1";
 const AT = new Date("2026-08-09T12:00:00Z");
 
-const buildEntry = (overrides: Partial<DeviceVariableReportEntry> = {}): DeviceVariableReportEntry => ({
+const buildEntry = (
+  overrides: Partial<DeviceVariableReportEntry> = {},
+): DeviceVariableReportEntry => ({
   component: { name: "ChargingStation" },
   variable: { name: "HeartbeatInterval" },
   attributes: [{ type: "Actual", value: "60" }],
