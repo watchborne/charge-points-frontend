@@ -36,6 +36,9 @@ vi.mock("../../../../../../lib/api", () => ({
     DeviceEvents: {
       list: vi.fn().mockResolvedValue([]),
     },
+    DeviceVariableReports: {
+      list: vi.fn().mockResolvedValue([]),
+    },
   },
 }));
 

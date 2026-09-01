@@ -788,6 +788,12 @@
         "empty": "Aucun rapport d'événement récent.",
         "trigger": "Déclencheur"
       },
+      "deviceVariableReports": {
+        "title": "Inventaire des variables",
+        "loading": "Chargement de l'inventaire des variables…",
+        "loadError": "Impossible de charger l'inventaire des variables de cette borne.",
+        "empty": "Aucun rapport d'inventaire récent."
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",

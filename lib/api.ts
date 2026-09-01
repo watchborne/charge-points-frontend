@@ -2,6 +2,7 @@ import { accessRequestApis } from "./api-access-requests";
 import { chargePointApis } from "./api-charge-points";
 import { commissioningTokenApis } from "./api-commissioning-token";
 import { deviceEventApis } from "./api-device-events";
+import { deviceVariableReportApis } from "./api-device-variable-reports";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { securityEventApis } from "./api-security-events";
@@ -18,4 +19,5 @@ export const api = {
   StatusHistory: statusHistoryApis,
   SecurityEvents: securityEventApis,
   DeviceEvents: deviceEventApis,
+  DeviceVariableReports: deviceVariableReportApis,
 };
