@@ -19,8 +19,8 @@ import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog
 import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
-import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
 import { ChargePointReliabilityTile } from "./ChargePointReliabilityTile";
+import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
 import { DeviceEventsPanel } from "./DeviceEventsPanel";
 import { DeviceVariableReportsPanel } from "./DeviceVariableReportsPanel";
