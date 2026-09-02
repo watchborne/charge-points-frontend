@@ -8,16 +8,18 @@ import { meteringApis } from "./api-metering";
 import { securityEventApis } from "./api-security-events";
 import { siteApis } from "./api-sites";
 import { statusHistoryApis } from "./api-status-history";
+import { uptimeApis } from "./api-uptime";
 
 export const api = {
   AccessRequests: accessRequestApis,
   ChargePoints: chargePointApis,
-  Sites: siteApis,
-  Me: meApis,
   CommissioningToken: commissioningTokenApis,
-  Metering: meteringApis,
-  StatusHistory: statusHistoryApis,
-  SecurityEvents: securityEventApis,
   DeviceEvents: deviceEventApis,
   DeviceVariableReports: deviceVariableReportApis,
+  Me: meApis,
+  Metering: meteringApis,
+  SecurityEvents: securityEventApis,
+  Sites: siteApis,
+  StatusHistory: statusHistoryApis,
+  Uptime: uptimeApis,
 };

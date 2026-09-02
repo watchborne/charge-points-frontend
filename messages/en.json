@@ -626,6 +626,11 @@
           "genericError": "The availability change failed. Please try again."
         }
       },
+      "reliability": {
+        "title": "Reliability",
+        "window": "Last 7 days",
+        "noData": "No data yet"
+      },
       "unlockConnector": {
         "button": "Unlock",
         "result": {
