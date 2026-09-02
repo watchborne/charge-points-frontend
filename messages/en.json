@@ -627,6 +627,11 @@
           "genericError": "The availability change failed. Please try again."
         }
       },
+      "reliability": {
+        "title": "Reliability",
+        "window": "Last 7 days",
+        "noData": "No data yet"
+      },
       "unlockConnector": {
         "button": "Unlock",
         "result": {
@@ -808,7 +813,9 @@
         "types": {
           "OFFLINE": "Station offline",
           "CONNECTOR_FAULTED": "Connector faulted",
-          "FIRMWARE_STALLED": "Firmware update stalled"
+          "FIRMWARE_STALLED": "Firmware update stalled",
+          "CONNECTOR_STUCK_UNAVAILABLE": "Connector stuck unavailable",
+          "FIRMWARE_UPDATE_FAILED": "Firmware update failed"
         },
         "status": {
           "open": "Open",
@@ -820,6 +827,19 @@
         "loading": "Loading security events…",
         "loadError": "Could not load this charge point's security-event history.",
         "empty": "No recent security events."
+      },
+      "deviceEvents": {
+        "title": "Event reports",
+        "loading": "Loading event reports…",
+        "loadError": "Could not load this charge point's event-report history.",
+        "empty": "No recent event reports.",
+        "trigger": "Trigger"
+      },
+      "deviceVariableReports": {
+        "title": "Variable inventory",
+        "loading": "Loading variable inventory…",
+        "loadError": "Could not load this charge point's variable inventory.",
+        "empty": "No recent inventory reports."
       },
       "configuration": {
         "button": "Configuration",
@@ -1039,7 +1059,11 @@
       },
       "detail": {
         "information": "Site Information",
-        "noChargePoints": "No charge points assigned to this site"
+        "noChargePoints": "No charge points assigned to this site",
+        "reliability": {
+          "label": "Reliability (last 7 days)",
+          "noData": "No data yet"
+        }
       }
     },
     "deletion": {

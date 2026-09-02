@@ -41,12 +41,31 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("GET /api/sites/health", () => {
-  it("SHOULD proxy the request to the backend /api/sites/health endpoint", async () => {
-    await GET(requestOf("/api/sites/health"));
+describe("GET /api/charge-points/[id]/uptime", () => {
+  it("SHOULD proxy to the backend endpoint scoped to the charge point id", async () => {
+    await GET(requestOf("/api/charge-points/cp-1/uptime"), {
+      params: Promise.resolve({ id: "cp-1" }),
+    });
 
     const [url, init] = fetchCall();
-    expect(url).toBe("http://localhost:3000/api/sites/health");
+    expect(url).toBe("http://localhost:3000/api/charge-points/cp-1/uptime");
     expect(init.method).toBe("GET");
+  });
+
+  it("SHOULD forward from/to query parameters", async () => {
+    await GET(
+      requestOf(
+        "/api/charge-points/cp-1/uptime?from=2026-08-01T00:00:00.000Z&to=2026-08-02T00:00:00.000Z",
+      ),
+      { params: Promise.resolve({ id: "cp-1" }) },
+    );
+
+    const [url] = fetchCall();
+    const parsed = new URL(url);
+    expect(parsed.origin + parsed.pathname).toBe(
+      "http://localhost:3000/api/charge-points/cp-1/uptime",
+    );
+    expect(parsed.searchParams.get("from")).toBe("2026-08-01T00:00:00.000Z");
+    expect(parsed.searchParams.get("to")).toBe("2026-08-02T00:00:00.000Z");
   });
 });

@@ -8,9 +8,9 @@ const { updateChargePoint } = vi.hoisted(() => ({
 }));
 
 // The detail panel now nests ChargePointConsumptionPanel, StatusHistoryPanel,
-// AlertsPanel and SecurityEventsPanel which fetch on mount and format numbers
-// per locale. All are stubbed here so this file stays about the detail panel:
-// each nested panel has its own tests.
+// AlertsPanel, SecurityEventsPanel and ChargePointReliabilityTile, which fetch
+// on mount and format numbers per locale. All are stubbed here so this file
+// stays about the detail panel: each nested panel has its own tests.
 vi.mock("../../../../../../lib/api", () => ({
   api: {
     Metering: {
@@ -32,6 +32,21 @@ vi.mock("../../../../../../lib/api", () => ({
     },
     SecurityEvents: {
       list: vi.fn().mockResolvedValue([]),
+    },
+    DeviceEvents: {
+      list: vi.fn().mockResolvedValue([]),
+    },
+    DeviceVariableReports: {
+      list: vi.fn().mockResolvedValue([]),
+    },
+    Uptime: {
+      getChargePointUptime: vi.fn().mockResolvedValue({
+        chargePointId: "cp-1",
+        from: new Date().toISOString(),
+        to: new Date().toISOString(),
+        onlineMs: 0,
+        totalMs: 0,
+      }),
     },
   },
 }));

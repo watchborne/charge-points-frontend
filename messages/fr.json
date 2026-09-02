@@ -627,6 +627,11 @@
           "genericError": "Le changement de disponibilité a échoué. Veuillez réessayer."
         }
       },
+      "reliability": {
+        "title": "Fiabilité",
+        "window": "7 derniers jours",
+        "noData": "Pas encore de données"
+      },
       "unlockConnector": {
         "button": "Déverrouiller",
         "result": {
@@ -808,7 +813,9 @@
         "types": {
           "OFFLINE": "Borne hors ligne",
           "CONNECTOR_FAULTED": "Connecteur en défaut",
-          "FIRMWARE_STALLED": "Mise à jour firmware bloquée"
+          "FIRMWARE_STALLED": "Mise à jour firmware bloquée",
+          "CONNECTOR_STUCK_UNAVAILABLE": "Connecteur bloqué indisponible",
+          "FIRMWARE_UPDATE_FAILED": "Échec de la mise à jour firmware"
         },
         "status": {
           "open": "Ouverte",
@@ -820,6 +827,19 @@
         "loading": "Chargement des événements de sécurité…",
         "loadError": "Impossible de charger l'historique des événements de sécurité de cette borne.",
         "empty": "Aucun événement de sécurité récent."
+      },
+      "deviceEvents": {
+        "title": "Rapports d'événements",
+        "loading": "Chargement des rapports d'événements…",
+        "loadError": "Impossible de charger l'historique des rapports d'événements de cette borne.",
+        "empty": "Aucun rapport d'événement récent.",
+        "trigger": "Déclencheur"
+      },
+      "deviceVariableReports": {
+        "title": "Inventaire des variables",
+        "loading": "Chargement de l'inventaire des variables…",
+        "loadError": "Impossible de charger l'inventaire des variables de cette borne.",
+        "empty": "Aucun rapport d'inventaire récent."
       },
       "configuration": {
         "button": "Configuration",
@@ -1039,7 +1059,11 @@
       },
       "detail": {
         "information": "Informations du site",
-        "noChargePoints": "Aucune borne affectée à ce site"
+        "noChargePoints": "Aucune borne affectée à ce site",
+        "reliability": {
+          "label": "Fiabilité (7 derniers jours)",
+          "noData": "Pas encore de données"
+        }
       }
     },
     "deletion": {
