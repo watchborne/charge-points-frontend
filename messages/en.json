@@ -1019,7 +1019,11 @@
       },
       "detail": {
         "information": "Site Information",
-        "noChargePoints": "No charge points assigned to this site"
+        "noChargePoints": "No charge points assigned to this site",
+        "reliability": {
+          "label": "Reliability (last 7 days)",
+          "noData": "No data yet"
+        }
       }
     },
     "deletion": {
