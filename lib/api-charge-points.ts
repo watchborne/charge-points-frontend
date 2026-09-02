@@ -4,6 +4,7 @@ import type {
   ChangeAvailabilityStatus,
   ChangeConfigurationStatus,
   ChargePoint,
+  ChargingSession,
   ConfigurationKey,
   GetLogStatusV201,
   GetLogTypeV201,
@@ -408,6 +409,25 @@ export const chargePointApis = {
         `/api/charge-points/${chargePointId}/log-uploads${query}`,
       );
     }, "ChargePoint.listLogUploads");
+  },
+  /**
+   * The charge point's charging-session history, newest start first, across
+   * every connector — including any session still `ACTIVE`. Unlike
+   * `LogUploadView`, `ChargingSession` is a shared-package type
+   * (`@watchborne/charge-points-types`), not a locally-declared response
+   * surface: `charge-points-server`'s ADR 0012 §8 added it there once this
+   * route existed for the frontend to consume.
+   */
+  listChargingSessions: async function (
+    chargePointId: ChargePoint["id"],
+    limit?: number,
+  ): Promise<ChargingSession[]> {
+    return withErrorLogging(() => {
+      const query = limit === undefined ? "" : `?limit=${limit}`;
+      return httpClient.get<ChargingSession[]>(
+        `/api/charge-points/${chargePointId}/charging-sessions${query}`,
+      );
+    }, "ChargePoint.listChargingSessions");
   },
   /**
    * Starts a remote log upload (OCPP `GetDiagnostics`/`GetLog`). Like the other

@@ -45,6 +45,9 @@ app/
                            #   SecurityEventsPanel: OCPP SecurityEventNotification history,
                            #   LogUploadPanel/StartLogUploadDialog: remote log/diagnostics
                            #   retrieval via GetLog/GetDiagnostics,
+                           #   ChargingSessionsPanel: charging-session history (one row per
+                           #   StartTransaction/StopTransaction or TransactionEvent lifecycle,
+                           #   charge-points-server's ADR 0012), on its own "Sessions" tab,
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
                            #   URL). ChargePointDetailPanel is the tabbed container these
                            #   render into, itself decomposed into ChargePointHeaderSection,
@@ -169,7 +172,13 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   (`api.StatusHistory`) reads the connection/connector status timeline behind
   `StatusHistoryPanel`; `lib/status.ts` / `lib/status-history.ts` hold the
   client-side status-display/derivation helpers it and `ConnectorStatusIcon`
-  share.
+  share. `api.ChargePoints.listChargingSessions` (`lib/api-charge-points.ts`)
+  reads `GET /api/charge-points/:id/charging-sessions` for
+  `ChargingSessionsPanel` — unlike `MeterSample`/`SecurityEvent` above,
+  `ChargingSession` is a **shared-package type**
+  (`@watchborne/charge-points-types`, added in ADR 0012 §8 once this route
+  existed to consume it), so there is no locally-declared response surface
+  for it.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so

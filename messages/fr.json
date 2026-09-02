@@ -566,6 +566,7 @@
         "tabs": {
           "main": "Vue d'ensemble",
           "consumption": "Consommation",
+          "sessions": "Sessions",
           "alerts": "Alertes",
           "security": "Sécurité & historique"
         }
@@ -757,6 +758,45 @@
             "timeout": "La borne n'a pas répondu à temps.",
             "genericError": "L'envoi n'a pas pu être lancé."
           }
+        }
+      },
+      "chargingSessions": {
+        "title": "Sessions de recharge",
+        "loading": "Chargement des sessions de recharge…",
+        "loadError": "Impossible de charger l'historique des sessions de recharge de cette borne.",
+        "empty": "Aucune session de recharge pour l'instant",
+        "connector": "Connecteur",
+        "status": "Statut",
+        "startedAt": "Démarrée",
+        "duration": "Durée",
+        "energy": "Énergie",
+        "statuses": {
+          "ACTIVE": "Active",
+          "ENDED": "Terminée"
+        },
+        "stoppedReasons": {
+          "DeAuthorized": "Désautorisée",
+          "EmergencyStop": "Arrêt d'urgence",
+          "EnergyLimitReached": "Limite d'énergie atteinte",
+          "EVDisconnected": "Véhicule débranché",
+          "GroundFault": "Défaut de terre",
+          "HardReset": "Redémarrage forcé",
+          "ImmediateReset": "Redémarrage immédiat",
+          "Local": "Arrêtée depuis la borne",
+          "LocalOutOfCredit": "Crédit épuisé",
+          "MasterPass": "Carte maîtresse",
+          "Other": "Autre",
+          "OvercurrentFault": "Défaut de surintensité",
+          "PowerLoss": "Coupure d'alimentation",
+          "PowerQuality": "Problème de qualité d'alimentation",
+          "Reboot": "Borne redémarrée",
+          "Remote": "Arrêtée à distance",
+          "SOCLimitReached": "Limite de batterie atteinte",
+          "SoftReset": "Redémarrage logiciel",
+          "StoppedByEV": "Arrêtée par le véhicule",
+          "TimeLimitReached": "Limite de temps atteinte",
+          "Timeout": "Délai dépassé",
+          "UnlockCommand": "Connecteur déverrouillé"
         }
       },
       "alerts": {
