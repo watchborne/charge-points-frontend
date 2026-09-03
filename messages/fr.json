@@ -126,9 +126,11 @@
       "badge": "Feuille de route",
       "title": "Ce qui arrive ensuite",
       "items": {
-        "eventHistory": "Historique des événements",
-        "realtimeNotifications": "Notifications en temps réel",
-        "maintenance": "Planification de la maintenance",
+        "alertCustomization": "Personnalisation des alertes",
+        "interventionTracking": "Suivi des interventions sur site",
+        "availabilityReportExport": "Export PDF des rapports de disponibilité",
+        "historyExport": "Export d'historique des événements OCPP, alertes et métriques",
+        "bulkActions": "Actions multi-bornes",
         "rbac": "Contrôle d'accès basé sur les rôles"
       }
     },
@@ -148,7 +150,12 @@
         "consumption": "Historique de consommation par borne",
         "firmware": "Suivi et déclenchement des mises à jour firmware",
         "siteHealth": "Vue d'ensemble de la santé des sites",
-        "alerting": "Alertes automatiques (déconnexion, panne, firmware)"
+        "reliability": "Taux de disponibilité des bornes et des sites (7 jours)",
+        "alerting": "Alertes automatiques en temps réel par email (déconnexion, panne, firmware)",
+        "statusHistory": "Historique des connexions et de l'état des connecteurs",
+        "chargingSessions": "Historique des sessions de charge",
+        "securityEvents": "Historique des événements de sécurité OCPP",
+        "logDiagnostics": "Récupération à distance des journaux et diagnostics"
       }
     },
     "cta": {
@@ -167,6 +174,38 @@
         "offline": "Hors ligne",
         "online": "En ligne"
       }
+    }
+  },
+  "productPreview": {
+    "badge": "Aperçu produit",
+    "title": "Une vue dédiée pour chaque besoin",
+    "subtitle": "Depuis la fiche détaillée d'une borne, retrouvez tout ce qu'il faut pour la superviser au quotidien.",
+    "main": {
+      "connectorsTitle": "Connecteurs",
+      "connector1": "Connecteur 1",
+      "connector2": "Connecteur 2",
+      "lastSeen": "Dernière connexion",
+      "lastSeenValue": "Il y a 2 minutes"
+    },
+    "consumption": {
+      "label": "Énergie délivrée (7 derniers jours)",
+      "total": "128,4 kWh",
+      "caption": "Détail par connecteur, jour par jour"
+    },
+    "sessions": {
+      "session1": "Terminée · 3h12 · 18,6 kWh",
+      "session2": "Terminée · 1h45 · 9,2 kWh",
+      "session3": "En cours · 0h48 · 4,1 kWh"
+    },
+    "alerts": {
+      "alert1": "Connecteur 2 hors ligne",
+      "alert1Meta": "2 destinataires notifiés · il y a 12 min",
+      "alert2": "Mise à jour firmware résolue",
+      "alert2Meta": "Résolue automatiquement · il y a 2 jours"
+    },
+    "security": {
+      "event1": "Nouveau certificat installé",
+      "event2": "Échec d'authentification détecté"
     }
   },
   "featuresPage": {
@@ -209,10 +248,11 @@
       "badge": "Feuille de route",
       "title": "Ce que nous construisons",
       "items": {
-        "eventHistory": "Historique détaillé des connexions et des connecteurs",
-        "realtimeNotifications": "Notifications en temps réel par email",
-        "maintenance": "Planification et suivi des interventions de maintenance",
-        "reporting": "Rapports automatisés pour vos clients",
+        "alertCustomization": "Personnalisation des alertes (seuils, canaux, destinataires)",
+        "interventionTracking": "Suivi des interventions de maintenance sur site",
+        "availabilityReportExport": "Export PDF des rapports de disponibilité pour vos clients",
+        "historyExport": "Export d'historique des événements OCPP, des alertes et des métriques",
+        "bulkActions": "Actions groupées sur plusieurs bornes à la fois",
         "rbac": "Gestion des accès par équipe et par site",
         "integrations": "Intégrations avec vos outils métier"
       }

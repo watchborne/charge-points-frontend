@@ -14,6 +14,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Locale } from "@/i18n/locale";
 import { Link } from "@/i18n/navigation";
 
+import { ChargePointPreviewTabs } from "./components/ChargePointPreviewTabs";
+
 type Props = {
   params: Promise<{ locale: string }>;
 };
@@ -212,6 +214,25 @@ export default async function HomePage({ params }: Props) {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <hr />
+
+      {/* PRODUCT PREVIEW */}
+      <section className="container mx-auto px-6 py-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <Badge variant="secondary" className="mb-4">
+            {t("productPreview.badge")}
+          </Badge>
+
+          <h2 className="text-4xl font-bold tracking-tight">{t("productPreview.title")}</h2>
+
+          <p className="mt-4 text-muted-foreground">{t("productPreview.subtitle")}</p>
+        </div>
+
+        <div className="mx-auto mt-12 max-w-4xl">
+          <ChargePointPreviewTabs />
         </div>
       </section>
 
