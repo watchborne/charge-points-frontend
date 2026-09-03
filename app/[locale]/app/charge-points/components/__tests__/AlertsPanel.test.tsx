@@ -100,6 +100,17 @@ describe("AlertsPanel", () => {
     expect(screen.getByText("appPage.chargePoints.alerts.status.open")).toBeTruthy();
   });
 
+  it("SHOULD render a SECURITY_EVENT alert as station-wide, with no connector qualifier", async () => {
+    resolveWith([buildAlert({ type: "SECURITY_EVENT", status: "RESOLVED", connectorId: null })]);
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("appPage.chargePoints.alerts.types.SECURITY_EVENT"),
+    ).toBeTruthy();
+    expect(screen.queryByText(/^Connector /)).toBeNull();
+  });
+
   it("SHOULD show the connector number WHEN the alert is connector-scoped", async () => {
     resolveWith([buildAlert({ type: "CONNECTOR_FAULTED", connectorId: 2 })]);
 
