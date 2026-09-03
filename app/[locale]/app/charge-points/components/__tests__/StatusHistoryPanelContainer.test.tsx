@@ -15,7 +15,7 @@ vi.mock("../../../../../../lib/api", () => ({
 }));
 
 import { api } from "../../../../../../lib/api";
-import { StatusHistoryPanel } from "../StatusHistoryPanel";
+import { StatusHistoryPanelContainer } from "../StatusHistoryPanelContainer";
 
 beforeAll(() => {
   Element.prototype.hasPointerCapture = vi.fn(() => false);
@@ -51,9 +51,9 @@ const CONNECTOR_EVENT = {
   createdAt: "2026-08-09T00:00:00.000Z",
 };
 
-describe("StatusHistoryPanel", () => {
+describe("StatusHistoryPanelContainer", () => {
   it("SHOULD render two timeline bars (connectivity and connector status) by default", async () => {
-    render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
+    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
 
     await waitFor(() =>
       expect(
@@ -66,7 +66,7 @@ describe("StatusHistoryPanel", () => {
   });
 
   it("SHOULD load both streams for the charge point and default connector", async () => {
-    render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1, 2]} />);
+    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1, 2]} />);
 
     await waitFor(() => expect(api.StatusHistory.getConnectionEvents).toHaveBeenCalled());
 
@@ -81,12 +81,14 @@ describe("StatusHistoryPanel", () => {
   });
 
   it("SHOULD show a connector selector only WHEN there is more than one connector", async () => {
-    const { rerender } = render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
+    const { rerender } = render(
+      <StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />,
+    );
     await waitFor(() => expect(api.StatusHistory.getConnectionEvents).toHaveBeenCalled());
 
     expect(screen.queryByLabelText("appPage.chargePoints.statusHistory.connectorLabel")).toBeNull();
 
-    rerender(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1, 2]} />);
+    rerender(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1, 2]} />);
     await waitFor(() =>
       expect(
         screen.queryByLabelText("appPage.chargePoints.statusHistory.connectorLabel"),
@@ -98,7 +100,7 @@ describe("StatusHistoryPanel", () => {
     vi.mocked(api.StatusHistory.getConnectionEvents).mockResolvedValue([CONNECTION_EVENT]);
     vi.mocked(api.StatusHistory.getConnectorStatusEvents).mockResolvedValue([CONNECTOR_EVENT]);
 
-    render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
+    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
     await waitFor(() =>
       expect(
         screen.getByRole("img", {
@@ -133,7 +135,7 @@ describe("StatusHistoryPanel", () => {
   it("SHOULD render an error callout WHEN loading fails", async () => {
     vi.mocked(api.StatusHistory.getConnectionEvents).mockRejectedValue(new Error("boom"));
 
-    render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
+    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
 
     await waitFor(() =>
       expect(screen.getByText("appPage.chargePoints.statusHistory.error")).toBeDefined(),
@@ -145,7 +147,7 @@ describe("StatusHistoryPanel", () => {
       Array.from({ length: 500 }, (_, i) => ({ ...CONNECTOR_EVENT, id: `${i}` })),
     );
 
-    render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
+    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
 
     await waitFor(() =>
       expect(screen.getByText("appPage.chargePoints.statusHistory.truncated")).toBeDefined(),
@@ -153,7 +155,7 @@ describe("StatusHistoryPanel", () => {
   });
 
   it("SHOULD NOT show the truncated notice WHEN neither stream hits the fetch limit", async () => {
-    render(<StatusHistoryPanel chargePointId="cp-1" connectorIds={[1]} />);
+    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
 
     await waitFor(() =>
       expect(

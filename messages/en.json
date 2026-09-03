@@ -126,9 +126,11 @@
       "badge": "Roadmap",
       "title": "What's coming next",
       "items": {
-        "eventHistory": "Event history",
-        "realtimeNotifications": "Real-time notifications",
-        "maintenance": "Maintenance scheduling",
+        "alertCustomization": "Alert customization",
+        "interventionTracking": "On-site intervention tracking",
+        "availabilityReportExport": "PDF export of availability reports",
+        "historyExport": "Export of OCPP event, alert & metric history",
+        "bulkActions": "Multi-station actions",
         "rbac": "Role-based access control"
       }
     },
@@ -148,7 +150,12 @@
         "consumption": "Per-station consumption history",
         "firmware": "Firmware update tracking & triggering",
         "siteHealth": "Site health overview",
-        "alerting": "Automatic alerts (offline, fault, firmware)"
+        "reliability": "7-day charge point & site availability rate",
+        "alerting": "Automatic real-time email alerts (offline, fault, firmware)",
+        "statusHistory": "Connection & connector status history",
+        "chargingSessions": "Charging session history",
+        "securityEvents": "OCPP security event history",
+        "logDiagnostics": "Remote log & diagnostics retrieval"
       }
     },
     "cta": {
@@ -168,6 +175,11 @@
         "online": "Online"
       }
     }
+  },
+  "productPreview": {
+    "badge": "Product preview",
+    "title": "A dedicated view for every need",
+    "subtitle": "From a charge point's detail panel, everything you need to supervise it day to day."
   },
   "featuresPage": {
     "badge": "Product under construction",
@@ -209,10 +221,11 @@
       "badge": "Roadmap",
       "title": "What we're building",
       "items": {
-        "eventHistory": "Detailed connection & connector history",
-        "realtimeNotifications": "Real-time email notifications",
-        "maintenance": "Maintenance intervention planning and tracking",
-        "reporting": "Automated reports for your customers",
+        "alertCustomization": "Alert customization (thresholds, channels, recipients)",
+        "interventionTracking": "On-site maintenance intervention tracking",
+        "availabilityReportExport": "PDF export of availability reports for your customers",
+        "historyExport": "Export of OCPP event, alert & metric history",
+        "bulkActions": "Bulk actions across multiple charge points",
         "rbac": "Team- and site-level access management",
         "integrations": "Integrations with your business tools"
       }

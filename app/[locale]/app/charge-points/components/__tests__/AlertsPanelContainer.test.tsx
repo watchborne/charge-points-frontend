@@ -31,7 +31,7 @@ vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getAlerts } },
 }));
 
-import { AlertsPanel } from "../AlertsPanel";
+import { AlertsPanelContainer } from "../AlertsPanelContainer";
 
 afterEach(() => cleanup());
 
@@ -69,7 +69,7 @@ const renderPanel = ({
   onToggleRealtimeAlerts?: () => void;
 } = {}) =>
   render(
-    <AlertsPanel
+    <AlertsPanelContainer
       chargePointId={chargePointId}
       chargePointName="CP-001"
       realtimeAlertsEnabled={realtimeAlertsEnabled}
@@ -82,7 +82,7 @@ beforeEach(() => {
   resolveWith([]);
 });
 
-describe("AlertsPanel", () => {
+describe("AlertsPanelContainer", () => {
   it("SHOULD say there are no alerts WHEN the history is empty", async () => {
     renderPanel();
 
@@ -174,7 +174,7 @@ describe("AlertsPanel", () => {
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith(CP_ID, 5));
 
     rerender(
-      <AlertsPanel
+      <AlertsPanelContainer
         chargePointId="cp-2"
         chargePointName="CP-002"
         realtimeAlertsEnabled={false}
@@ -188,16 +188,14 @@ describe("AlertsPanel", () => {
   it("SHOULD reflect realtimeAlertsEnabled in the toggle's checked state", async () => {
     renderPanel({ realtimeAlertsEnabled: true });
 
-    await waitFor(() => expect(getAlerts).toHaveBeenCalled());
-    expect(screen.getByRole("switch").getAttribute("aria-checked")).toBe("true");
+    expect((await screen.findByRole("switch")).getAttribute("aria-checked")).toBe("true");
   });
 
   it("SHOULD call onToggleRealtimeAlerts WHEN the toggle is clicked", async () => {
     const onToggleRealtimeAlerts = vi.fn();
     renderPanel({ realtimeAlertsEnabled: false, onToggleRealtimeAlerts });
 
-    await waitFor(() => expect(getAlerts).toHaveBeenCalled());
-    fireEvent.click(screen.getByRole("switch"));
+    fireEvent.click(await screen.findByRole("switch"));
 
     expect(onToggleRealtimeAlerts).toHaveBeenCalledTimes(1);
   });

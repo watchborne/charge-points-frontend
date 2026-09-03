@@ -14,19 +14,19 @@ import {
 import { getResetErrorMessageKey, getAvailabilityErrorMessageKey } from "@/lib/error-messages";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { AlertsPanel } from "./AlertsPanel";
+import { AlertsPanelContainer } from "./AlertsPanelContainer";
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
-import { ChargePointConsumptionPanel } from "./ChargePointConsumptionPanel";
+import { ChargePointConsumptionPanelContainer } from "./ChargePointConsumptionPanelContainer";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
 import { ChargePointReliabilityTile } from "./ChargePointReliabilityTile";
-import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
+import { ChargingSessionsPanelContainer } from "./ChargingSessionsPanelContainer";
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
 import { DeviceEventsPanel } from "./DeviceEventsPanel";
 import { DeviceVariableReportsPanel } from "./DeviceVariableReportsPanel";
 import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
-import { StatusHistoryPanel } from "./StatusHistoryPanel";
+import { StatusHistoryPanelContainer } from "./StatusHistoryPanelContainer";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { ActionsDropdown } from "../../components/common/ActionsDropdown";
 import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
@@ -192,7 +192,7 @@ export const ChargePointDetailPanel = ({
 
           <ChargePointReliabilityTile chargePointId={chargePoint.id} />
 
-          <StatusHistoryPanel
+          <StatusHistoryPanelContainer
             chargePointId={chargePoint.id}
             connectorIds={chargePoint.connectors.map((connector) => connector.connectorId)}
             ranges={["day"]}
@@ -296,12 +296,14 @@ export const ChargePointDetailPanel = ({
         </>
       )}
 
-      {tab === "consumption" && <ChargePointConsumptionPanel chargePointId={chargePoint.id} />}
+      {tab === "consumption" && (
+        <ChargePointConsumptionPanelContainer chargePointId={chargePoint.id} />
+      )}
 
-      {tab === "sessions" && <ChargingSessionsPanel chargePointId={chargePoint.id} />}
+      {tab === "sessions" && <ChargingSessionsPanelContainer chargePointId={chargePoint.id} />}
 
       {tab === "alerts" && (
-        <AlertsPanel
+        <AlertsPanelContainer
           chargePointId={chargePoint.id}
           chargePointName={chargePoint.name}
           realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
@@ -320,7 +322,7 @@ export const ChargePointDetailPanel = ({
             </>
           )}
 
-          <StatusHistoryPanel
+          <StatusHistoryPanelContainer
             chargePointId={chargePoint.id}
             connectorIds={chargePoint.connectors.map((connector) => connector.connectorId)}
           />

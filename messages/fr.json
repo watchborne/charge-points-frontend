@@ -126,9 +126,11 @@
       "badge": "Feuille de route",
       "title": "Ce qui arrive ensuite",
       "items": {
-        "eventHistory": "Historique des événements",
-        "realtimeNotifications": "Notifications en temps réel",
-        "maintenance": "Planification de la maintenance",
+        "alertCustomization": "Personnalisation des alertes",
+        "interventionTracking": "Suivi des interventions sur site",
+        "availabilityReportExport": "Export PDF des rapports de disponibilité",
+        "historyExport": "Export d'historique des événements OCPP, alertes et métriques",
+        "bulkActions": "Actions multi-bornes",
         "rbac": "Contrôle d'accès basé sur les rôles"
       }
     },
@@ -148,7 +150,12 @@
         "consumption": "Historique de consommation par borne",
         "firmware": "Suivi et déclenchement des mises à jour firmware",
         "siteHealth": "Vue d'ensemble de la santé des sites",
-        "alerting": "Alertes automatiques (déconnexion, panne, firmware)"
+        "reliability": "Taux de disponibilité des bornes et des sites (7 jours)",
+        "alerting": "Alertes automatiques en temps réel par email (déconnexion, panne, firmware)",
+        "statusHistory": "Historique des connexions et de l'état des connecteurs",
+        "chargingSessions": "Historique des sessions de charge",
+        "securityEvents": "Historique des événements de sécurité OCPP",
+        "logDiagnostics": "Récupération à distance des journaux et diagnostics"
       }
     },
     "cta": {
@@ -168,6 +175,11 @@
         "online": "En ligne"
       }
     }
+  },
+  "productPreview": {
+    "badge": "Aperçu produit",
+    "title": "Une vue dédiée pour chaque besoin",
+    "subtitle": "Depuis la fiche détaillée d'une borne, retrouvez tout ce qu'il faut pour la superviser au quotidien."
   },
   "featuresPage": {
     "badge": "Produit en construction",
@@ -209,10 +221,11 @@
       "badge": "Feuille de route",
       "title": "Ce que nous construisons",
       "items": {
-        "eventHistory": "Historique détaillé des connexions et des connecteurs",
-        "realtimeNotifications": "Notifications en temps réel par email",
-        "maintenance": "Planification et suivi des interventions de maintenance",
-        "reporting": "Rapports automatisés pour vos clients",
+        "alertCustomization": "Personnalisation des alertes (seuils, canaux, destinataires)",
+        "interventionTracking": "Suivi des interventions de maintenance sur site",
+        "availabilityReportExport": "Export PDF des rapports de disponibilité pour vos clients",
+        "historyExport": "Export d'historique des événements OCPP, des alertes et des métriques",
+        "bulkActions": "Actions groupées sur plusieurs bornes à la fois",
         "rbac": "Gestion des accès par équipe et par site",
         "integrations": "Intégrations avec vos outils métier"
       }

@@ -3,7 +3,6 @@
 import type { ChargingSession } from "@watchborne/charge-points-types";
 import {
   Badge,
-  Callout,
   Table,
   TableBody,
   TableCell,
@@ -12,27 +11,34 @@ import {
   TableRow,
 } from "@watchborne/electrons";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
 
-import { api } from "@/lib/api";
 import { formatDurationShort } from "@/lib/status-history";
-import type { ChargePoint } from "@/types/charge-point";
 
-type ChargingSessionsPanelProps = {
-  chargePointId: ChargePoint["id"];
+/**
+ * The fields this panel actually reads off `ChargingSession` — narrow enough
+ * that `ChargingSessionsPanelContainer`'s real fetch and a caller supplying
+ * plain literals (the marketing site's product preview) both satisfy it
+ * without either one fabricating the full shared-package shape.
+ * `startedAt`/`endedAt` accept `Date | string` since this panel only ever
+ * wraps them in `new Date(...)`, which accepts both.
+ */
+export type ChargingSessionListEntry = Pick<
+  ChargingSession,
+  "id" | "connectorId" | "status" | "stoppedReason" | "meterStart" | "meterStop"
+> & {
+  startedAt: Date | string;
+  endedAt: Date | string | null;
 };
 
-/** A glance at recent activity, not a full audit log — same role
- * `VISIBLE_HISTORY_COUNT` plays for `LogUploadPanel`, scaled up: a session
- * opens on every plug-in, far more often than a log upload. */
-const VISIBLE_HISTORY_COUNT = 20;
+type ChargingSessionsPanelProps = {
+  sessions: ChargingSessionListEntry[];
+};
 
 /** Wh when the wire actually carried both bounds — 1.6-only (ADR 0012 in
  * charge-points-server); a 2.0.1 session has neither, and this is never
  * guessed from anything else. */
-const energyDelivered = (session: ChargingSession): number | null =>
+const energyDelivered = (session: ChargingSessionListEntry): number | null =>
   session.meterStart !== undefined && session.meterStop !== undefined
     ? session.meterStop - session.meterStart
     : null;
@@ -44,38 +50,14 @@ const energyDelivered = (session: ChargingSession): number | null =>
  * every connector — the `charge-points-server` ADR 0012 REST read
  * (`GET /api/charge-points/:id/charging-sessions`) surfaced directly.
  *
- * Self-contained and fetch-once, like `AlertsPanel`/`SecurityEventsPanel`/
- * `LogUploadPanel`: there is no dedicated WebSocket broadcast for this yet.
+ * Purely presentational — `ChargingSessionsPanelContainer` owns the fetch
+ * and renders its own loading/error state in place of this component, so
+ * `sessions` here is always the loaded list; the marketing site's product
+ * preview can render this directly with static data instead of duplicating
+ * the markup.
  */
-export const ChargingSessionsPanel = ({ chargePointId }: ChargingSessionsPanelProps) => {
+export const ChargingSessionsPanel = ({ sessions }: ChargingSessionsPanelProps) => {
   const t = useTranslations("");
-
-  const [sessions, setSessions] = useState<ChargingSession[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      setFailed(false);
-      const recent = await api.ChargePoints.listChargingSessions(
-        chargePointId,
-        VISIBLE_HISTORY_COUNT,
-      );
-      setSessions(recent);
-    } catch {
-      setFailed(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [chargePointId]);
-
-  useEffect(() => {
-    // Reset before refetching so a different station's sessions are never
-    // shown under this one while the request is in flight.
-    setSessions([]);
-    setLoading(true);
-    void load();
-  }, [load]);
 
   return (
     <div className="flex flex-col gap-3 p-3">
@@ -83,27 +65,13 @@ export const ChargingSessionsPanel = ({ chargePointId }: ChargingSessionsPanelPr
         {t("appPage.chargePoints.chargingSessions.title")}
       </span>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          {t("appPage.chargePoints.chargingSessions.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout
-          description={t("appPage.chargePoints.chargingSessions.loadError")}
-          variant="error"
-        />
-      )}
-
-      {!loading && !failed && sessions.length === 0 && (
+      {sessions.length === 0 && (
         <span className="text-sm text-muted-foreground">
           {t("appPage.chargePoints.chargingSessions.empty")}
         </span>
       )}
 
-      {!loading && !failed && sessions.length > 0 && (
+      {sessions.length > 0 && (
         <div className="max-h-[420px] overflow-auto rounded-md border">
           <Table>
             <TableHeader>
