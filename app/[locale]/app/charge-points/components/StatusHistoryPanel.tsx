@@ -1,6 +1,6 @@
 "use client";
 
-import { Callout, Skeleton, Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
+import { Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
@@ -38,8 +38,6 @@ type Props = {
   connectionEvents: ConnectionStateEvent[];
   connectorEvents: ConnectorStatusEvent[];
   truncated: boolean;
-  loading: boolean;
-  failed: boolean;
 };
 
 /**
@@ -51,10 +49,11 @@ type Props = {
  * (`docs/ai/domain-model.md`'s Critical Domain Rule), never one chart.
  *
  * Purely presentational — `StatusHistoryPanelContainer` owns the range/connector
- * selection and the fetch behind it, so the marketing site's product preview
- * can render this directly with static events instead of duplicating the
- * markup. `computeSegments` stays here since it is a pure derivation from
- * props, not a side effect.
+ * selection and the fetch behind it, and renders its own loading/error state
+ * in place of this component, so the marketing site's product preview can
+ * render this directly with static events instead of duplicating the markup.
+ * `computeSegments` stays here since it is a pure derivation from props, not
+ * a side effect.
  */
 export const StatusHistoryPanel = ({
   range,
@@ -68,8 +67,6 @@ export const StatusHistoryPanel = ({
   connectionEvents,
   connectorEvents,
   truncated,
-  loading,
-  failed,
 }: Props) => {
   const t = useTranslations("");
 
@@ -81,10 +78,6 @@ export const StatusHistoryPanel = ({
     () => computeSegments(connectorEvents, windowStart, windowEnd),
     [connectorEvents, windowStart, windowEnd],
   );
-
-  if (failed) {
-    return <Callout description={t("appPage.chargePoints.statusHistory.error")} variant="error" />;
-  }
 
   const unknownLabel = t("appPage.chargePoints.statusHistory.noData");
 
@@ -133,74 +126,67 @@ export const StatusHistoryPanel = ({
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex flex-col gap-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium text-muted-foreground">
-              {t("appPage.chargePoints.statusHistory.connectivity")}
-            </p>
-            {range === "30d" ? (
-              <StatusHistoryTable
-                segments={connectionSegments}
-                toneOf={connectionStatusColor}
-                label={(status) => status}
-                unknownLabel={unknownLabel}
-                timestampHeader={t("appPage.chargePoints.statusHistory.table.timestamp")}
-                statusHeader={t("appPage.chargePoints.statusHistory.table.status")}
-                durationHeader={t("appPage.chargePoints.statusHistory.table.duration")}
-              />
-            ) : (
-              <StatusTimelineBar
-                segments={connectionSegments}
-                windowStart={windowStart}
-                windowEnd={windowEnd}
-                toneOf={connectionStatusColor}
-                label={(status) => status}
-                ariaLabel={t("appPage.chargePoints.statusHistory.connectivity")}
-                unknownLabel={unknownLabel}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium text-muted-foreground">
-              {t("appPage.chargePoints.statusHistory.connectorStatus", { connectorId })}
-            </p>
-            {range === "30d" ? (
-              <StatusHistoryTable
-                segments={connectorSegments}
-                toneOf={connectorStatusColor}
-                label={(status) => status}
-                unknownLabel={unknownLabel}
-                timestampHeader={t("appPage.chargePoints.statusHistory.table.timestamp")}
-                statusHeader={t("appPage.chargePoints.statusHistory.table.status")}
-                durationHeader={t("appPage.chargePoints.statusHistory.table.duration")}
-              />
-            ) : (
-              <StatusTimelineBar
-                segments={connectorSegments}
-                windowStart={windowStart}
-                windowEnd={windowEnd}
-                toneOf={connectorStatusColor}
-                label={(status) => status}
-                ariaLabel={t("appPage.chargePoints.statusHistory.connectorStatus", { connectorId })}
-                unknownLabel={unknownLabel}
-              />
-            )}
-          </div>
-
-          {truncated && (
-            <p className="text-[11px] text-muted-foreground">
-              {t("appPage.chargePoints.statusHistory.truncated")}
-            </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("appPage.chargePoints.statusHistory.connectivity")}
+          </p>
+          {range === "30d" ? (
+            <StatusHistoryTable
+              segments={connectionSegments}
+              toneOf={connectionStatusColor}
+              label={(status) => status}
+              unknownLabel={unknownLabel}
+              timestampHeader={t("appPage.chargePoints.statusHistory.table.timestamp")}
+              statusHeader={t("appPage.chargePoints.statusHistory.table.status")}
+              durationHeader={t("appPage.chargePoints.statusHistory.table.duration")}
+            />
+          ) : (
+            <StatusTimelineBar
+              segments={connectionSegments}
+              windowStart={windowStart}
+              windowEnd={windowEnd}
+              toneOf={connectionStatusColor}
+              label={(status) => status}
+              ariaLabel={t("appPage.chargePoints.statusHistory.connectivity")}
+              unknownLabel={unknownLabel}
+            />
           )}
         </div>
-      )}
+
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("appPage.chargePoints.statusHistory.connectorStatus", { connectorId })}
+          </p>
+          {range === "30d" ? (
+            <StatusHistoryTable
+              segments={connectorSegments}
+              toneOf={connectorStatusColor}
+              label={(status) => status}
+              unknownLabel={unknownLabel}
+              timestampHeader={t("appPage.chargePoints.statusHistory.table.timestamp")}
+              statusHeader={t("appPage.chargePoints.statusHistory.table.status")}
+              durationHeader={t("appPage.chargePoints.statusHistory.table.duration")}
+            />
+          ) : (
+            <StatusTimelineBar
+              segments={connectorSegments}
+              windowStart={windowStart}
+              windowEnd={windowEnd}
+              toneOf={connectorStatusColor}
+              label={(status) => status}
+              ariaLabel={t("appPage.chargePoints.statusHistory.connectorStatus", { connectorId })}
+              unknownLabel={unknownLabel}
+            />
+          )}
+        </div>
+
+        {truncated && (
+          <p className="text-[11px] text-muted-foreground">
+            {t("appPage.chargePoints.statusHistory.truncated")}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

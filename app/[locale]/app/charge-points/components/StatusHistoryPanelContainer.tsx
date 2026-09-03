@@ -1,5 +1,7 @@
 "use client";
 
+import { Callout, Skeleton } from "@watchborne/electrons";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { StatusHistoryPanel } from "./StatusHistoryPanel";
@@ -23,15 +25,19 @@ type Props = {
 };
 
 /**
- * Owns the range/connector selection and the fetch behind it (`useStatusHistory`),
- * handing the reduced result to `StatusHistoryPanel` — the data-owning half
- * of that container/presentational split.
+ * Owns the range/connector selection and the fetch behind it
+ * (`useStatusHistory`), handing the reduced result to `StatusHistoryPanel` —
+ * the data-owning half of that container/presentational split. Also owns the
+ * loading/error templates, so `StatusHistoryPanel` only ever renders the
+ * loaded timeline.
  */
 export const StatusHistoryPanelContainer = ({
   chargePointId,
   connectorIds,
   ranges = STATUS_HISTORY_RANGES,
 }: Props) => {
+  const t = useTranslations("");
+
   const [range, setRange] = useState<StatusHistoryRange>(ranges[0]);
   const [connectorId, setConnectorId] = useState<number>(connectorIds[0] ?? 1);
 
@@ -47,6 +53,19 @@ export const StatusHistoryPanelContainer = ({
   const { windowStart, windowEnd, connectionEvents, connectorEvents, truncated, loading, failed } =
     useStatusHistory(chargePointId, range, connectorId);
 
+  if (failed) {
+    return <Callout description={t("appPage.chargePoints.statusHistory.error")} variant="error" />;
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-3">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    );
+  }
+
   return (
     <StatusHistoryPanel
       range={range}
@@ -60,8 +79,6 @@ export const StatusHistoryPanelContainer = ({
       connectionEvents={connectionEvents}
       connectorEvents={connectorEvents}
       truncated={truncated}
-      loading={loading}
-      failed={failed}
     />
   );
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, AlertType } from "@watchborne/charge-points-types";
-import { Callout, Switch } from "@watchborne/electrons";
+import { Switch } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import {
@@ -44,8 +44,6 @@ type AlertsPanelProps = {
   realtimeAlertsEnabled: ChargePoint["realtimeAlertsEnabled"];
   onToggleRealtimeAlerts: () => void;
   alerts: AlertListEntry[];
-  loading: boolean;
-  failed: boolean;
 };
 
 const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
@@ -77,19 +75,18 @@ const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
  * station warrants paging, so the toggle lives here rather than in the
  * panel's admin header alongside `isActive`.
  *
- * Purely presentational — `alerts`/`loading`/`failed` are `AlertsPanelContainer`'s
- * to own, so the marketing site's product preview can render this directly
- * with static data instead of duplicating the markup. The toggle's own state
- * (`realtimeAlertsEnabled`) is owned further up, same as `FirmwarePanel`
- * receiving `firmwareVersion`/`ocppVersion` as props already.
+ * Purely presentational — `AlertsPanelContainer` owns the fetch and renders
+ * its own loading/error state in place of this component, so `alerts` here
+ * is always the loaded list; the marketing site's product preview can render
+ * this directly with static data instead of duplicating the markup. The
+ * toggle's own state (`realtimeAlertsEnabled`) is owned further up, same as
+ * `FirmwarePanel` receiving `firmwareVersion`/`ocppVersion` as props already.
  */
 export const AlertsPanel = ({
   chargePointName,
   realtimeAlertsEnabled,
   onToggleRealtimeAlerts,
   alerts,
-  loading,
-  failed,
 }: AlertsPanelProps) => {
   const t = useTranslations("");
 
@@ -107,24 +104,13 @@ export const AlertsPanel = ({
         </label>
       </div>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 animate-pulse" />
-          {t("appPage.chargePoints.alerts.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout description={t("appPage.chargePoints.alerts.loadError")} variant="error" />
-      )}
-
-      {!loading && !failed && alerts.length === 0 && (
+      {alerts.length === 0 && (
         <span className="text-sm text-muted-foreground">
           {t("appPage.chargePoints.alerts.empty")}
         </span>
       )}
 
-      {!loading && !failed && alerts.length > 0 && (
+      {alerts.length > 0 && (
         <div className="divide-y rounded-md border">
           {alerts.map((alert) => {
             const TypeIcon = TYPE_ICON[alert.type];

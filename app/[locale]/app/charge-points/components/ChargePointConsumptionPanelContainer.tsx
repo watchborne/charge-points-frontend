@@ -1,5 +1,7 @@
 "use client";
 
+import { Callout, Skeleton } from "@watchborne/electrons";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { isCumulativeRegister } from "@/lib/api-metering";
@@ -15,9 +17,12 @@ type Props = {
  * Owns the range/measurand selection and the fetch behind it
  * (`useConsumption`), handing the reduced result to
  * `ChargePointConsumptionPanel` — the data-owning half of that
- * container/presentational split.
+ * container/presentational split. Also owns the loading/error templates, so
+ * `ChargePointConsumptionPanel` only ever renders the loaded data.
  */
 export const ChargePointConsumptionPanelContainer = ({ chargePointId }: Props) => {
+  const t = useTranslations("");
+
   const [range, setRange] = useState<ConsumptionRange>("24h");
   const [measurand, setMeasurand] = useState<string | undefined>(undefined);
 
@@ -35,6 +40,19 @@ export const ChargePointConsumptionPanelContainer = ({ chargePointId }: Props) =
     setMeasurand(measurands.find(isCumulativeRegister) ?? measurands[0]);
   }, [measurands, measurand]);
 
+  if (failed) {
+    return <Callout description={t("errors.loadingConsumption")} variant="error" />;
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-3">
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-[220px] w-full" />
+      </div>
+    );
+  }
+
   return (
     <ChargePointConsumptionPanel
       range={range}
@@ -46,8 +64,6 @@ export const ChargePointConsumptionPanelContainer = ({ chargePointId }: Props) =
       measurands={measurands}
       measurandLabels={measurandLabels}
       truncated={truncated}
-      loading={loading}
-      failed={failed}
     />
   );
 };

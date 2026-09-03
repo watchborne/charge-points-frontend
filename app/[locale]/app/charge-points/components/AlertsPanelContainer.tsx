@@ -1,5 +1,8 @@
 "use client";
 
+import { Callout } from "@watchborne/electrons";
+import { Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
@@ -21,10 +24,12 @@ type AlertsPanelContainerProps = {
 
 /**
  * Fetches one charge point's alert history and hands it to `AlertsPanel` —
- * the data-owning half of that container/presentational split. Self-contained
- * and fetch-once, like `ChargePointConsumptionPanelContainer`: unlike
- * `FirmwarePanel` there is no dedicated WebSocket broadcast for alert changes
- * yet, so this does not subscribe to the dashboard socket.
+ * the data-owning half of that container/presentational split. Also owns the
+ * loading/error templates, so `AlertsPanel` only ever renders the loaded
+ * list. Self-contained and fetch-once, like
+ * `ChargePointConsumptionPanelContainer`: unlike `FirmwarePanel` there is no
+ * dedicated WebSocket broadcast for alert changes yet, so this does not
+ * subscribe to the dashboard socket.
  */
 export const AlertsPanelContainer = ({
   chargePointId,
@@ -32,6 +37,8 @@ export const AlertsPanelContainer = ({
   realtimeAlertsEnabled,
   onToggleRealtimeAlerts,
 }: AlertsPanelContainerProps) => {
+  const t = useTranslations("");
+
   const [alerts, setAlerts] = useState<AlertListEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -61,14 +68,25 @@ export const AlertsPanelContainer = ({
     };
   }, [chargePointId]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Clock className="h-4 w-4 animate-pulse" />
+        {t("appPage.chargePoints.alerts.loading")}
+      </div>
+    );
+  }
+
+  if (failed) {
+    return <Callout description={t("appPage.chargePoints.alerts.loadError")} variant="error" />;
+  }
+
   return (
     <AlertsPanel
       chargePointName={chargePointName}
       realtimeAlertsEnabled={realtimeAlertsEnabled}
       onToggleRealtimeAlerts={onToggleRealtimeAlerts}
       alerts={alerts}
-      loading={loading}
-      failed={failed}
     />
   );
 };

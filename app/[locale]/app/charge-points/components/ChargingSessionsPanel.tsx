@@ -3,7 +3,6 @@
 import type { ChargingSession } from "@watchborne/charge-points-types";
 import {
   Badge,
-  Callout,
   Table,
   TableBody,
   TableCell,
@@ -12,7 +11,6 @@ import {
   TableRow,
 } from "@watchborne/electrons";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { formatDurationShort } from "@/lib/status-history";
@@ -35,8 +33,6 @@ export type ChargingSessionListEntry = Pick<
 
 type ChargingSessionsPanelProps = {
   sessions: ChargingSessionListEntry[];
-  loading: boolean;
-  failed: boolean;
 };
 
 /** Wh when the wire actually carried both bounds — 1.6-only (ADR 0012 in
@@ -54,16 +50,13 @@ const energyDelivered = (session: ChargingSessionListEntry): number | null =>
  * every connector — the `charge-points-server` ADR 0012 REST read
  * (`GET /api/charge-points/:id/charging-sessions`) surfaced directly.
  *
- * Purely presentational — `sessions`/`loading`/`failed` are
- * `ChargingSessionsPanelContainer`'s to own, so the marketing site's product
+ * Purely presentational — `ChargingSessionsPanelContainer` owns the fetch
+ * and renders its own loading/error state in place of this component, so
+ * `sessions` here is always the loaded list; the marketing site's product
  * preview can render this directly with static data instead of duplicating
  * the markup.
  */
-export const ChargingSessionsPanel = ({
-  sessions,
-  loading,
-  failed,
-}: ChargingSessionsPanelProps) => {
+export const ChargingSessionsPanel = ({ sessions }: ChargingSessionsPanelProps) => {
   const t = useTranslations("");
 
   return (
@@ -72,27 +65,13 @@ export const ChargingSessionsPanel = ({
         {t("appPage.chargePoints.chargingSessions.title")}
       </span>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          {t("appPage.chargePoints.chargingSessions.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout
-          description={t("appPage.chargePoints.chargingSessions.loadError")}
-          variant="error"
-        />
-      )}
-
-      {!loading && !failed && sessions.length === 0 && (
+      {sessions.length === 0 && (
         <span className="text-sm text-muted-foreground">
           {t("appPage.chargePoints.chargingSessions.empty")}
         </span>
       )}
 
-      {!loading && !failed && sessions.length > 0 && (
+      {sessions.length > 0 && (
         <div className="max-h-[420px] overflow-auto rounded-md border">
           <Table>
             <TableHeader>

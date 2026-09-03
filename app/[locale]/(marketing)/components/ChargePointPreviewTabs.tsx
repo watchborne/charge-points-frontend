@@ -281,8 +281,6 @@ export const ChargePointPreviewTabs = () => {
             connectionEvents={statusHistory.connectionEvents}
             connectorEvents={statusHistory.connectorEventsByConnector[connectorId] ?? []}
             truncated={false}
-            loading={false}
-            failed={false}
           />
         )}
 
@@ -301,14 +299,10 @@ export const ChargePointPreviewTabs = () => {
               ),
             }}
             truncated={false}
-            loading={false}
-            failed={false}
           />
         )}
 
-        {tab === "sessions" && (
-          <ChargingSessionsPanel sessions={sessions} loading={false} failed={false} />
-        )}
+        {tab === "sessions" && <ChargingSessionsPanel sessions={sessions} />}
 
         {tab === "alerts" && (
           <AlertsPanel
@@ -316,8 +310,6 @@ export const ChargePointPreviewTabs = () => {
             realtimeAlertsEnabled={realtimeAlertsEnabled}
             onToggleRealtimeAlerts={() => setRealtimeAlertsEnabled((enabled) => !enabled)}
             alerts={alerts}
-            loading={false}
-            failed={false}
           />
         )}
       </div>

@@ -3,7 +3,6 @@
 import {
   Button,
   Callout,
-  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -78,8 +77,6 @@ type Props = {
   measurands: string[];
   measurandLabels: Record<string, string>;
   truncated: boolean;
-  loading: boolean;
-  failed: boolean;
 };
 
 /**
@@ -93,7 +90,8 @@ type Props = {
  * hardcoded OCPP vocabulary, so a station with only an energy register shows exactly one option.
  *
  * Purely presentational — `ChargePointConsumptionPanelContainer` owns the
- * range/measurand selection and the fetch behind it, so the marketing site's
+ * range/measurand selection and the fetch behind it, and renders its own
+ * loading/error state in place of this component, so the marketing site's
  * product preview can render this directly with static data instead of
  * duplicating the markup. `view` (chart vs. table) stays local: it never
  * affects what's fetched, only how the same data is displayed.
@@ -108,8 +106,6 @@ export const ChargePointConsumptionPanel = ({
   measurands,
   measurandLabels,
   truncated,
-  loading,
-  failed,
 }: Props) => {
   const t = useTranslations("");
   const locale = useLocale();
@@ -163,10 +159,6 @@ export const ChargePointConsumptionPanel = ({
           }),
           icon: <Gauge className="h-3.5 w-3.5 text-muted-foreground" />,
         };
-
-  if (failed) {
-    return <Callout description={t("errors.loadingConsumption")} variant="error" />;
-  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -229,18 +221,11 @@ export const ChargePointConsumptionPanel = ({
         </div>
       </div>
 
-      {loading && (
-        <div className="flex flex-col gap-3">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-[220px] w-full" />
-        </div>
-      )}
-
-      {!loading && selectedSeries.length === 0 && (
+      {selectedSeries.length === 0 && (
         <Callout description={t("appPage.chargePoints.consumption.empty")} variant="info" />
       )}
 
-      {!loading && selectedSeries.length > 0 && measurand && (
+      {selectedSeries.length > 0 && measurand && (
         <>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {chartedSeries.map((series) => {
