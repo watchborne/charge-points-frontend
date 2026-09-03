@@ -17,7 +17,7 @@ import {
 import { format } from "date-fns";
 import { BarChart3, Gauge, TableIcon, Zap } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Select,
@@ -26,13 +26,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isCumulativeRegister, type MeterSampleSummary } from "@/lib/api-metering";
+import {
+  isCumulativeRegister,
+  type ChargePointConsumption,
+  type MeterSample,
+  type MeterSampleSummary,
+} from "@/lib/api-metering";
 
 import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
 import {
   CONSUMPTION_RANGES,
   MAX_CHART_SAMPLES,
-  useConsumption,
   type ConsumptionRange,
 } from "../../hooks/useConsumption";
 
@@ -65,7 +69,17 @@ const ConsumptionTile = ({
 );
 
 type Props = {
-  chargePointId: string;
+  range: ConsumptionRange;
+  onRangeChange: (range: ConsumptionRange) => void;
+  measurand: string | undefined;
+  onMeasurandChange: (measurand: string) => void;
+  consumption: ChargePointConsumption | null;
+  samples: MeterSample[];
+  measurands: string[];
+  measurandLabels: Record<string, string>;
+  truncated: boolean;
+  loading: boolean;
+  failed: boolean;
 };
 
 /**
@@ -77,28 +91,30 @@ type Props = {
  * a correlation the meter never reported. The selector is built from what
  * the station actually reported in the window (the summary read), never a
  * hardcoded OCPP vocabulary, so a station with only an energy register shows exactly one option.
+ *
+ * Purely presentational — `ChargePointConsumptionPanelContainer` owns the
+ * range/measurand selection and the fetch behind it, so the marketing site's
+ * product preview can render this directly with static data instead of
+ * duplicating the markup. `view` (chart vs. table) stays local: it never
+ * affects what's fetched, only how the same data is displayed.
  */
-export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
+export const ChargePointConsumptionPanel = ({
+  range,
+  onRangeChange,
+  measurand,
+  onMeasurandChange,
+  consumption,
+  samples,
+  measurands,
+  measurandLabels,
+  truncated,
+  loading,
+  failed,
+}: Props) => {
   const t = useTranslations("");
   const locale = useLocale();
 
-  const [range, setRange] = useState<ConsumptionRange>("24h");
-  const [measurand, setMeasurand] = useState<string | undefined>(undefined);
   const [view, setView] = useState<"chart" | "table">("chart");
-
-  const { consumption, samples, measurands, measurandLabels, truncated, loading, failed } =
-    useConsumption(chargePointId, range, measurand);
-
-  // The station decides which measurands exist, so selection follows the
-  // data: default to the energy register ("consumption" to an installer),
-  // fall back to alphabetically first. Re-runs on window change since a
-  // shorter window can drop a measurand entirely.
-  useEffect(() => {
-    if (measurands.length === 0) return;
-    if (measurand && measurands.includes(measurand)) return;
-
-    setMeasurand(measurands.find(isCumulativeRegister) ?? measurands[0]);
-  }, [measurands, measurand]);
 
   const formatNumber = useMemo(() => {
     const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
@@ -161,7 +177,7 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
         <div className="flex flex-wrap items-center gap-2">
           <Tabs
             value={range}
-            onValueChange={(value) => setRange(value as ConsumptionRange)}
+            onValueChange={(value) => onRangeChange(value as ConsumptionRange)}
             className="overflow-auto"
           >
             <TabsList>
@@ -174,7 +190,7 @@ export const ChargePointConsumptionPanel = ({ chargePointId }: Props) => {
           </Tabs>
 
           {measurands.length > 1 && measurand && (
-            <Select value={measurand} onValueChange={setMeasurand}>
+            <Select value={measurand} onValueChange={onMeasurandChange}>
               <SelectTrigger
                 className="h-8 w-[210px] text-xs"
                 aria-label={t("appPage.chargePoints.consumption.measurandLabel")}

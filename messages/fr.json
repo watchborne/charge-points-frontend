@@ -179,34 +179,7 @@
   "productPreview": {
     "badge": "Aperçu produit",
     "title": "Une vue dédiée pour chaque besoin",
-    "subtitle": "Depuis la fiche détaillée d'une borne, retrouvez tout ce qu'il faut pour la superviser au quotidien.",
-    "main": {
-      "connectorsTitle": "Connecteurs",
-      "connector1": "Connecteur 1",
-      "connector2": "Connecteur 2",
-      "lastSeen": "Dernière connexion",
-      "lastSeenValue": "Il y a 2 minutes"
-    },
-    "consumption": {
-      "label": "Énergie délivrée (7 derniers jours)",
-      "total": "128,4 kWh",
-      "caption": "Détail par connecteur, jour par jour"
-    },
-    "sessions": {
-      "session1": "Terminée · 3h12 · 18,6 kWh",
-      "session2": "Terminée · 1h45 · 9,2 kWh",
-      "session3": "En cours · 0h48 · 4,1 kWh"
-    },
-    "alerts": {
-      "alert1": "Connecteur 2 hors ligne",
-      "alert1Meta": "2 destinataires notifiés · il y a 12 min",
-      "alert2": "Mise à jour firmware résolue",
-      "alert2Meta": "Résolue automatiquement · il y a 2 jours"
-    },
-    "security": {
-      "event1": "Nouveau certificat installé",
-      "event2": "Échec d'authentification détecté"
-    }
+    "subtitle": "Depuis la fiche détaillée d'une borne, retrouvez tout ce qu'il faut pour la superviser au quotidien."
   },
   "featuresPage": {
     "badge": "Produit en construction",

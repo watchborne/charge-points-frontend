@@ -31,7 +31,7 @@ vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getAlerts } },
 }));
 
-import { AlertsPanel } from "../AlertsPanel";
+import { AlertsPanelContainer } from "../AlertsPanelContainer";
 
 afterEach(() => cleanup());
 
@@ -69,7 +69,7 @@ const renderPanel = ({
   onToggleRealtimeAlerts?: () => void;
 } = {}) =>
   render(
-    <AlertsPanel
+    <AlertsPanelContainer
       chargePointId={chargePointId}
       chargePointName="CP-001"
       realtimeAlertsEnabled={realtimeAlertsEnabled}
@@ -82,7 +82,7 @@ beforeEach(() => {
   resolveWith([]);
 });
 
-describe("AlertsPanel", () => {
+describe("AlertsPanelContainer", () => {
   it("SHOULD say there are no alerts WHEN the history is empty", async () => {
     renderPanel();
 
@@ -174,7 +174,7 @@ describe("AlertsPanel", () => {
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith(CP_ID, 5));
 
     rerender(
-      <AlertsPanel
+      <AlertsPanelContainer
         chargePointId="cp-2"
         chargePointName="CP-002"
         realtimeAlertsEnabled={false}

@@ -15,24 +15,38 @@ import {
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
-import { api } from "@/lib/api";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { AlertStatusBadge } from "../../components/charge-points/AlertStatusBadge";
 
+/**
+ * The fields this panel actually reads off `Alert` — narrow enough that
+ * `AlertsPanelContainer`'s real fetch and a caller supplying plain literals
+ * (the marketing site's product preview) both satisfy it without either one
+ * fabricating the full domain shape from `@watchborne/charge-points-types`.
+ * `openedAt`/`resolvedAt`/`lastNotifiedAt` accept `Date | string` since the
+ * shared package's own timestamp type is irrelevant here — this panel only
+ * ever wraps them in `new Date(...)`, which accepts both.
+ */
+export type AlertListEntry = Pick<
+  Alert,
+  "id" | "type" | "status" | "connectorId" | "notificationCount"
+> & {
+  openedAt: Date | string;
+  resolvedAt: Date | string | null;
+  lastNotifiedAt: Date | string | null;
+  notifiedRecipients: { email: string }[];
+};
+
 type AlertsPanelProps = {
-  chargePointId: ChargePoint["id"];
   chargePointName: ChargePoint["name"];
   realtimeAlertsEnabled: ChargePoint["realtimeAlertsEnabled"];
   onToggleRealtimeAlerts: () => void;
+  alerts: AlertListEntry[];
+  loading: boolean;
+  failed: boolean;
 };
-
-/** How many recent alerts (open or resolved) the panel shows — a glance at
- * recent activity, not a full audit log (`api.ChargePoints.getAlerts`
- * supports a much longer history if a fuller browser is ever built). */
-const VISIBLE_ALERT_COUNT = 5;
 
 const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
   OFFLINE: WifiOff,
@@ -63,49 +77,21 @@ const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
  * station warrants paging, so the toggle lives here rather than in the
  * panel's admin header alongside `isActive`.
  *
- * The alert list itself is self-contained and fetch-once, like
- * `ChargePointConsumptionPanel`: unlike `FirmwarePanel` there is no
- * dedicated WebSocket broadcast for alert changes yet, so this does not
- * subscribe to the dashboard socket. The toggle's own state
- * (`realtimeAlertsEnabled`) is owned by the parent, same as `FirmwarePanel`
+ * Purely presentational — `alerts`/`loading`/`failed` are `AlertsPanelContainer`'s
+ * to own, so the marketing site's product preview can render this directly
+ * with static data instead of duplicating the markup. The toggle's own state
+ * (`realtimeAlertsEnabled`) is owned further up, same as `FirmwarePanel`
  * receiving `firmwareVersion`/`ocppVersion` as props already.
  */
 export const AlertsPanel = ({
-  chargePointId,
   chargePointName,
   realtimeAlertsEnabled,
   onToggleRealtimeAlerts,
+  alerts,
+  loading,
+  failed,
 }: AlertsPanelProps) => {
   const t = useTranslations("");
-
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    // Reset before refetching so a different station's alerts are never shown
-    // under this one's name while the request is in flight.
-    setAlerts([]);
-    setLoading(true);
-    setFailed(false);
-
-    void (async () => {
-      try {
-        const result = await api.ChargePoints.getAlerts(chargePointId, VISIBLE_ALERT_COUNT);
-        if (!cancelled) setAlerts(result);
-      } catch {
-        if (!cancelled) setFailed(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId]);
 
   return (
     <div className="flex flex-col gap-3">

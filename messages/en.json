@@ -179,34 +179,7 @@
   "productPreview": {
     "badge": "Product preview",
     "title": "A dedicated view for every need",
-    "subtitle": "From a charge point's detail panel, everything you need to supervise it day to day.",
-    "main": {
-      "connectorsTitle": "Connectors",
-      "connector1": "Connector 1",
-      "connector2": "Connector 2",
-      "lastSeen": "Last seen",
-      "lastSeenValue": "2 minutes ago"
-    },
-    "consumption": {
-      "label": "Energy delivered (last 7 days)",
-      "total": "128.4 kWh",
-      "caption": "Breakdown by connector, day by day"
-    },
-    "sessions": {
-      "session1": "Completed · 3h12 · 18.6 kWh",
-      "session2": "Completed · 1h45 · 9.2 kWh",
-      "session3": "In progress · 0h48 · 4.1 kWh"
-    },
-    "alerts": {
-      "alert1": "Connector 2 offline",
-      "alert1Meta": "2 recipients notified · 12 min ago",
-      "alert2": "Firmware update resolved",
-      "alert2Meta": "Auto-resolved · 2 days ago"
-    },
-    "security": {
-      "event1": "New certificate installed",
-      "event2": "Authentication failure detected"
-    }
+    "subtitle": "From a charge point's detail panel, everything you need to supervise it day to day."
   },
   "featuresPage": {
     "badge": "Product under construction",

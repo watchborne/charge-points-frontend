@@ -2,7 +2,7 @@
 
 import { Callout, Skeleton, Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import {
   Select,
@@ -11,28 +11,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { ConnectionStateEvent, ConnectorStatusEvent } from "@/lib/api-status-history";
 import { connectionStatusColor, connectorStatusColor } from "@/lib/status";
 import { computeSegments } from "@/lib/status-history";
 
 import { StatusHistoryTable } from "./StatusHistoryTable";
 import { StatusTimelineBar } from "./StatusTimelineBar";
-import {
-  STATUS_HISTORY_RANGES,
-  useStatusHistory,
-  type StatusHistoryRange,
-} from "../../hooks/useStatusHistory";
+import type { StatusHistoryRange } from "../../hooks/useStatusHistory";
 
 type Props = {
-  chargePointId: string;
+  range: StatusHistoryRange;
+  /**
+   * Windows offered by the range picker. A single-element array (e.g.
+   * `["day"]`) locks the panel to that window and hides the picker — used by
+   * the charge point detail view's main tab, which only wants "today" at a
+   * glance.
+   */
+  ranges: readonly StatusHistoryRange[];
+  onRangeChange: (range: StatusHistoryRange) => void;
+  connectorId: number;
   /** The charge point's connector ordinals — its `connectors[].connectorId`, not the connector rows themselves. */
   connectorIds: number[];
-  /**
-   * Windows offered by the range picker. Defaults to all of
-   * `STATUS_HISTORY_RANGES`; pass a single-element array (e.g. `["day"]`) to
-   * lock the panel to that window and hide the picker — used by the charge
-   * point detail view's main tab, which only wants "today" at a glance.
-   */
-  ranges?: readonly StatusHistoryRange[];
+  onConnectorIdChange: (connectorId: number) => void;
+  windowStart: Date;
+  windowEnd: Date;
+  connectionEvents: ConnectionStateEvent[];
+  connectorEvents: ConnectorStatusEvent[];
+  truncated: boolean;
+  loading: boolean;
+  failed: boolean;
 };
 
 /**
@@ -42,28 +49,29 @@ type Props = {
  * each status, and when". Both streams render stacked, always together —
  * connectivity and connector activity are two different questions
  * (`docs/ai/domain-model.md`'s Critical Domain Rule), never one chart.
+ *
+ * Purely presentational — `StatusHistoryPanelContainer` owns the range/connector
+ * selection and the fetch behind it, so the marketing site's product preview
+ * can render this directly with static events instead of duplicating the
+ * markup. `computeSegments` stays here since it is a pure derivation from
+ * props, not a side effect.
  */
 export const StatusHistoryPanel = ({
-  chargePointId,
+  range,
+  ranges,
+  onRangeChange,
+  connectorId,
   connectorIds,
-  ranges = STATUS_HISTORY_RANGES,
+  onConnectorIdChange,
+  windowStart,
+  windowEnd,
+  connectionEvents,
+  connectorEvents,
+  truncated,
+  loading,
+  failed,
 }: Props) => {
   const t = useTranslations("");
-
-  const [range, setRange] = useState<StatusHistoryRange>(ranges[0]);
-  const [connectorId, setConnectorId] = useState<number>(connectorIds[0] ?? 1);
-
-  // Follows the charge point's own connectors: a selection that no longer
-  // exists (station swapped, or the initial default before connectorIds
-  // loaded) falls back to the first one rather than querying a stale id.
-  useEffect(() => {
-    if (connectorIds.length > 0 && !connectorIds.includes(connectorId)) {
-      setConnectorId(connectorIds[0]);
-    }
-  }, [connectorIds, connectorId]);
-
-  const { windowStart, windowEnd, connectionEvents, connectorEvents, truncated, loading, failed } =
-    useStatusHistory(chargePointId, range, connectorId);
 
   const connectionSegments = useMemo(
     () => computeSegments(connectionEvents, windowStart, windowEnd),
@@ -89,7 +97,7 @@ export const StatusHistoryPanel = ({
           {ranges.length > 1 && (
             <Tabs
               value={range}
-              onValueChange={(value) => setRange(value as StatusHistoryRange)}
+              onValueChange={(value) => onRangeChange(value as StatusHistoryRange)}
               className="overflow-auto"
             >
               <TabsList>
@@ -105,7 +113,7 @@ export const StatusHistoryPanel = ({
           {connectorIds.length > 1 && (
             <Select
               value={String(connectorId)}
-              onValueChange={(value) => setConnectorId(Number(value))}
+              onValueChange={(value) => onConnectorIdChange(Number(value))}
             >
               <SelectTrigger
                 className="h-8 w-[150px] text-xs"

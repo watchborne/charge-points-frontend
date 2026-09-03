@@ -20,7 +20,7 @@ vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { listChargingSessions } },
 }));
 
-import { ChargingSessionsPanel } from "../ChargingSessionsPanel";
+import { ChargingSessionsPanelContainer } from "../ChargingSessionsPanelContainer";
 
 afterEach(() => cleanup());
 
@@ -50,9 +50,9 @@ beforeEach(() => {
   listChargingSessions.mockResolvedValue([]);
 });
 
-const renderPanel = () => render(<ChargingSessionsPanel chargePointId={CP_ID} />);
+const renderPanel = () => render(<ChargingSessionsPanelContainer chargePointId={CP_ID} />);
 
-describe("ChargingSessionsPanel", () => {
+describe("ChargingSessionsPanelContainer", () => {
   it("SHOULD show a loading state WHILE fetching", () => {
     renderPanel();
 
@@ -112,7 +112,7 @@ describe("ChargingSessionsPanel", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(listChargingSessions).toHaveBeenCalledWith(CP_ID, 20));
 
-    rerender(<ChargingSessionsPanel chargePointId="cp-2" />);
+    rerender(<ChargingSessionsPanelContainer chargePointId="cp-2" />);
 
     await waitFor(() => expect(listChargingSessions).toHaveBeenCalledWith("cp-2", 20));
   });
