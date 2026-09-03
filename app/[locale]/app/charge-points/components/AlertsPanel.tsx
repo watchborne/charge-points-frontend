@@ -4,7 +4,16 @@ import { Alert, AlertType } from "@watchborne/charge-points-types";
 import { Callout, Switch } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
-import { AlertTriangle, Ban, CheckCircle2, Clock, Shield, WifiOff, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  CheckCircle2,
+  Clock,
+  Shield,
+  ShieldAlert,
+  WifiOff,
+  XCircle,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -35,15 +44,18 @@ const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
   // Distinct from CONNECTOR_FAULTED's Shield — a connector stuck Unavailable
   // hasn't faulted, it just never came back.
   CONNECTOR_STUCK_UNAVAILABLE: Ban,
-  // One-shot, point-in-time (ADR 0012) — distinct from FIRMWARE_STALLED's
+  // One-shot, point-in-time (ADR 0013) — distinct from FIRMWARE_STALLED's
   // AlertTriangle, which reads as still in-flight.
   FIRMWARE_UPDATE_FAILED: XCircle,
+  // One-shot too (ADR 0013) — distinct from CONNECTOR_FAULTED's plain Shield,
+  // since this is the "something to actually worry about" security signal.
+  SECURITY_EVENT: ShieldAlert,
 };
 
 /**
  * The alerting section of a charge point's detail panel: recent OFFLINE /
  * CONNECTOR_FAULTED / FIRMWARE_STALLED / CONNECTOR_STUCK_UNAVAILABLE /
- * FIRMWARE_UPDATE_FAILED activity, and — the "✔️ sent, to whom, when" read the
+ * FIRMWARE_UPDATE_FAILED / SECURITY_EVENT activity, and — the "✔️ sent, to whom, when" read the
  * feature exists for — whether each one actually notified
  * anyone, who, and when. Also hosts the opt-in switch for the real-time
  * channel itself (`ChargePoint.realtimeAlertsEnabled`) — the alerting

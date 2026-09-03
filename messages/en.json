@@ -815,7 +815,8 @@
           "CONNECTOR_FAULTED": "Connector faulted",
           "FIRMWARE_STALLED": "Firmware update stalled",
           "CONNECTOR_STUCK_UNAVAILABLE": "Connector stuck unavailable",
-          "FIRMWARE_UPDATE_FAILED": "Firmware update failed"
+          "FIRMWARE_UPDATE_FAILED": "Firmware update failed",
+          "SECURITY_EVENT": "Security event"
         },
         "status": {
           "open": "Open",

@@ -815,7 +815,8 @@
           "CONNECTOR_FAULTED": "Connecteur en défaut",
           "FIRMWARE_STALLED": "Mise à jour firmware bloquée",
           "CONNECTOR_STUCK_UNAVAILABLE": "Connecteur bloqué indisponible",
-          "FIRMWARE_UPDATE_FAILED": "Échec de la mise à jour firmware"
+          "FIRMWARE_UPDATE_FAILED": "Échec de la mise à jour firmware",
+          "SECURITY_EVENT": "Événement de sécurité"
         },
         "status": {
           "open": "Ouverte",
