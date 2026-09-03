@@ -8,9 +8,7 @@ import {
   AlertsPanel,
   type AlertListEntry,
 } from "@/app/[locale]/app/charge-points/components/AlertsPanel";
-import {
-  ChargePointConsumptionPanel,
-} from "@/app/[locale]/app/charge-points/components/ChargePointConsumptionPanel";
+import { ChargePointConsumptionPanel } from "@/app/[locale]/app/charge-points/components/ChargePointConsumptionPanel";
 import {
   ChargingSessionsPanel,
   type ChargingSessionListEntry,
