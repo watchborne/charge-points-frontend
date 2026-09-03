@@ -5,7 +5,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { Clock, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 import type {
@@ -13,6 +13,8 @@ import type {
   DeviceVariableReportEntry,
 } from "@/lib/api-device-variable-reports";
 import type { ChargePoint } from "@/types/charge-point";
+
+import { RequestDeviceReportDialog } from "./RequestDeviceReportDialog";
 
 type DeviceVariableReportsPanelProps = {
   chargePointId: ChargePoint["id"];
@@ -48,10 +50,11 @@ const attributesLabel = (entry: DeviceVariableReportEntry): string =>
 
 /**
  * A charge point's `NotifyReport` history (charge-points-server ADR 0011):
- * variable-inventory reports a 2.0.1 station sends, unsolicited from this
- * supervisor's perspective (no `GetBaseReport`/`GetReport` is implemented),
- * store-only. Fetch-once and self-contained, the same shape as
- * `DeviceEventsPanel`.
+ * variable-inventory reports a 2.0.1 station sends. Every frame is recorded
+ * regardless of whether it correlates to a `GetBaseReport`/`GetReport` this
+ * supervisor sent — `RequestDeviceReportDialog` triggers one, but a station
+ * may still report unsolicited (ADR 0014). Fetch-once and self-contained,
+ * the same shape as `DeviceEventsPanel`.
  */
 export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableReportsPanelProps) => {
   const t = useTranslations("");
@@ -60,36 +63,37 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const load = useCallback(
+    async (showLoading: boolean) => {
+      if (showLoading) setLoading(true);
+      try {
+        const result = await api.DeviceVariableReports.list(chargePointId, VISIBLE_REPORT_COUNT);
+        setEntries(flattenReports(result));
+        setFailed(false);
+      } catch {
+        setFailed(true);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [chargePointId],
+  );
 
+  useEffect(() => {
     // Reset before refetching so a different station's entries are never
     // shown under this one while the request is in flight.
     setEntries([]);
-    setLoading(true);
-    setFailed(false);
-
-    void (async () => {
-      try {
-        const result = await api.DeviceVariableReports.list(chargePointId, VISIBLE_REPORT_COUNT);
-        if (!cancelled) setEntries(flattenReports(result));
-      } catch {
-        if (!cancelled) setFailed(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId]);
+    void load(true);
+  }, [load]);
 
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-sm font-semibold">
-        {t("appPage.chargePoints.deviceVariableReports.title")}
-      </h4>
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-semibold">
+          {t("appPage.chargePoints.deviceVariableReports.title")}
+        </h4>
+        <RequestDeviceReportDialog chargePointId={chargePointId} onRequested={() => load(false)} />
+      </div>
 
       {loading && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

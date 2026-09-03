@@ -1,5 +1,5 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   DeviceVariableReport,
@@ -12,17 +12,24 @@ vi.mock("next-intl", () => ({
 
 // `vi.hoisted` because vi.mock factories are hoisted above these declarations —
 // the repo's existing pattern (see SecurityEventsPanel.test.tsx).
-const { list } = vi.hoisted(() => ({ list: vi.fn() }));
+const { list, requestReport } = vi.hoisted(() => ({ list: vi.fn(), requestReport: vi.fn() }));
 
 // Mocked via the relative module path, not the "@/lib/api" alias: this project's
 // Vitest config does not alias "@/" for the mock resolver, so an aliased target
 // silently fails to intercept and the real fetch runs. Repo convention — see
 // SecurityEventsPanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
-  api: { DeviceVariableReports: { list } },
+  api: { DeviceVariableReports: { list, requestReport } },
 }));
 
 import { DeviceVariableReportsPanel } from "../DeviceVariableReportsPanel";
+
+beforeAll(() => {
+  Element.prototype.hasPointerCapture = vi.fn(() => false);
+  Element.prototype.setPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+});
 
 afterEach(() => cleanup());
 
@@ -61,6 +68,7 @@ const renderPanel = (chargePointId = CP_ID) =>
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
+  requestReport.mockResolvedValue({ ok: true, status: "Accepted", reportRequest: {} });
 });
 
 describe("DeviceVariableReportsPanel", () => {
@@ -127,5 +135,17 @@ describe("DeviceVariableReportsPanel", () => {
     rerender(<DeviceVariableReportsPanel chargePointId="cp-2" />);
 
     await waitFor(() => expect(list).toHaveBeenCalledWith("cp-2", 5));
+  });
+
+  it("SHOULD refetch the history WHEN a report request is accepted through the trigger dialog", async () => {
+    renderPanel();
+    await waitFor(() => expect(list).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByText("appPage.chargePoints.deviceVariableReports.request.button"));
+    fireEvent.click(screen.getByText("appPage.chargePoints.deviceVariableReports.request.submit"));
+
+    await waitFor(() => expect(requestReport).toHaveBeenCalledWith(CP_ID));
+    // A silent refetch (no loading spinner shown again), same as LogUploadPanel's own trigger.
+    await waitFor(() => expect(list).toHaveBeenCalledTimes(2));
   });
 });
