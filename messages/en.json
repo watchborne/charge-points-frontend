@@ -853,7 +853,37 @@
         "title": "Variable inventory",
         "loading": "Loading variable inventory…",
         "loadError": "Could not load this charge point's variable inventory.",
-        "empty": "No recent inventory reports."
+        "empty": "No recent inventory reports.",
+        "request": {
+          "button": "Request report",
+          "title": "Request a device report",
+          "description": "The station answers immediately with an accept or refuse only — the actual inventory arrives later, and appears in the list below once received.",
+          "submit": "Send request",
+          "close": "Close",
+          "fields": {
+            "kind": "Report type",
+            "reportBase": "Report base"
+          },
+          "kinds": {
+            "full": "Full report (everything)",
+            "base": "Base report (choose a flavor)"
+          },
+          "reportBases": {
+            "ConfigurationInventory": "Configuration inventory",
+            "FullInventory": "Full inventory",
+            "SummaryInventory": "Summary inventory"
+          },
+          "result": {
+            "accepted": "Request accepted by the station.",
+            "emptyResultSet": "The station has nothing to report for this request.",
+            "invalidRequest": "Invalid request.",
+            "notFound": "Unknown charge point.",
+            "notConnectedOrBusy": "Station not connected, a report request is already in progress, or the station refused or does not support this.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The request could not be sent."
+          }
+        }
       },
       "configuration": {
         "button": "Configuration",

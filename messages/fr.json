@@ -853,7 +853,37 @@
         "title": "Inventaire des variables",
         "loading": "Chargement de l'inventaire des variables…",
         "loadError": "Impossible de charger l'inventaire des variables de cette borne.",
-        "empty": "Aucun rapport d'inventaire récent."
+        "empty": "Aucun rapport d'inventaire récent.",
+        "request": {
+          "button": "Demander un rapport",
+          "title": "Demander un rapport d'inventaire",
+          "description": "La borne répond immédiatement par une simple acceptation ou un refus — l'inventaire lui-même arrive plus tard et apparaît dans la liste ci-dessous une fois reçu.",
+          "submit": "Envoyer la demande",
+          "close": "Fermer",
+          "fields": {
+            "kind": "Type de rapport",
+            "reportBase": "Base du rapport"
+          },
+          "kinds": {
+            "full": "Rapport complet (tout)",
+            "base": "Rapport de base (choisir une variante)"
+          },
+          "reportBases": {
+            "ConfigurationInventory": "Inventaire de configuration",
+            "FullInventory": "Inventaire complet",
+            "SummaryInventory": "Inventaire résumé"
+          },
+          "result": {
+            "accepted": "Demande acceptée par la borne.",
+            "emptyResultSet": "La borne n'a rien à signaler pour cette demande.",
+            "invalidRequest": "Requête invalide.",
+            "notFound": "Borne de recharge inconnue.",
+            "notConnectedOrBusy": "Borne non connectée, une demande de rapport est déjà en cours, ou la borne a refusé ou ne prend pas cela en charge.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "La demande n'a pas pu être envoyée."
+          }
+        }
       },
       "configuration": {
         "button": "Configuration",
