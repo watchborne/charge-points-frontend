@@ -78,9 +78,9 @@ vi.mock("../LogUploadPanel", () => ({
 }));
 
 // Stubbed out for the same reason: it fetches its own charging-session
-// history. Its own behaviour is covered by ChargingSessionsPanel.test.tsx.
-vi.mock("../ChargingSessionsPanel", () => ({
-  ChargingSessionsPanel: () => <div data-testid="charging-sessions-panel" />,
+// history. Its own behaviour is covered by ChargingSessionsPanelContainer.test.tsx.
+vi.mock("../ChargingSessionsPanelContainer", () => ({
+  ChargingSessionsPanelContainer: () => <div data-testid="charging-sessions-panel" />,
 }));
 
 import { ChargePointDetailPanel } from "../ChargePointDetailPanel";
@@ -180,11 +180,14 @@ describe("ChargePointDetailPanel", () => {
     alertsTab.focus();
     fireEvent.click(alertsTab);
 
-    // Two switches render once the Alerts tab is active: isActive (header,
-    // shown on every tab) and the AlertsPanel's real-time toggle — the
-    // latter is the second one.
-    const switches = await screen.findAllByRole("switch");
-    fireEvent.click(switches[1]!);
+    // Two switches exist once the Alerts tab is active: isActive (header,
+    // shown on every tab) and AlertsPanel's real-time toggle — the latter
+    // only mounts once AlertsPanelContainer's fetch resolves, so target it
+    // by its own label rather than racing on ordinal position.
+    const realtimeToggle = await screen.findByRole("switch", {
+      name: "Toggle real-time alerts for CP-001",
+    });
+    fireEvent.click(realtimeToggle);
 
     expect(updateChargePoint).toHaveBeenCalledWith("cp-1", { realtimeAlertsEnabled: true });
   });
