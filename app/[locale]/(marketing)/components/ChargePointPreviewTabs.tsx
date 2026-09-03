@@ -252,10 +252,10 @@ export const ChargePointPreviewTabs = () => {
   // StatusHistoryPanelContainer owns for the real dashboard.
   const [connectorId, setConnectorId] = useState(DEMO_CONNECTOR_IDS[0]);
 
-  const statusHistory = useMemo(buildStatusHistoryFixture, []);
-  const { consumption, samples } = useMemo(buildConsumptionFixture, []);
-  const sessions = useMemo(buildSessionsFixture, []);
-  const alerts = useMemo(buildAlertsFixture, []);
+  const statusHistory = useMemo(() => buildStatusHistoryFixture(), []);
+  const { consumption, samples } = useMemo(() => buildConsumptionFixture(), []);
+  const sessions = useMemo(() => buildSessionsFixture(), []);
+  const alerts = useMemo(() => buildAlertsFixture(), []);
 
   return (
     <div className="rounded-3xl border bg-muted/30 p-6 md:p-10">
