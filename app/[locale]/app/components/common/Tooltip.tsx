@@ -1,5 +1,12 @@
 import type { CSSProperties, ReactNode } from "react";
 
+import {
+  Tooltip as TooltipRoot,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 type TooltipProps = {
   /** The element the tooltip is anchored to. */
   children?: ReactNode;
@@ -7,19 +14,19 @@ type TooltipProps = {
   className?: string;
   style?: CSSProperties;
   /** Passed through so the anchor can be made keyboard-focusable — hover has
-   * no keyboard equivalent, `group-focus-within` is what reveals the bubble
-   * for a keyboard user. */
+   * no keyboard equivalent, focus is what reveals the bubble for a keyboard
+   * user. */
   tabIndex?: number;
   "aria-label"?: string;
 };
 
 /**
- * A styled `div` wrapping its `children` that also carries a hover/focus
- * tooltip bubble, shown via CSS (`group-hover`/`group-focus-within`) rather
- * than JS-driven open state — no portal, no dependency, and the bubble stays
- * in the DOM at all times so it's reachable by a screen reader and trivially
- * queryable in tests (Testing Library doesn't gate queries on CSS
- * visibility).
+ * A styled anchor wrapping `children` with a hover/focus tooltip bubble,
+ * built on shadcn/ui's Radix `Tooltip` primitive (`components/ui/tooltip.tsx`)
+ * rather than a hand-rolled CSS `group-hover` bubble — Radix positions the
+ * bubble in a portal via floating-ui, so it's never clipped by an ancestor's
+ * `overflow-hidden`, and it manages open state itself instead of relying on
+ * a CSS pseudo-class.
  */
 export const Tooltip = ({
   children,
@@ -29,18 +36,14 @@ export const Tooltip = ({
   tabIndex,
   "aria-label": ariaLabel,
 }: TooltipProps) => (
-  <div
-    className={`group/tooltip relative ${className ?? ""}`}
-    style={style}
-    tabIndex={tabIndex}
-    aria-label={ariaLabel}
-  >
-    {children}
-    <span
-      role="tooltip"
-      className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-2 py-1 text-[11px] text-popover-foreground shadow-card group-hover/tooltip:block group-focus-within/tooltip:block"
-    >
-      {content}
-    </span>
-  </div>
+  <TooltipProvider delayDuration={200}>
+    <TooltipRoot>
+      <TooltipTrigger asChild>
+        <div className={className} style={style} tabIndex={tabIndex} aria-label={ariaLabel}>
+          {children}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>{content}</TooltipContent>
+    </TooltipRoot>
+  </TooltipProvider>
 );
