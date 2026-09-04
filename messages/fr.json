@@ -578,6 +578,7 @@
         "inactive": "Inactif",
         "tabs": {
           "main": "Vue d'ensemble",
+          "actions": "Actions",
           "consumption": "Consommation",
           "sessions": "Sessions",
           "alerts": "Alertes",
