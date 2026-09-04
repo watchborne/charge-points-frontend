@@ -1,8 +1,8 @@
 import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
-import { Callout, Tag, Tabs, TabsList, TabsTrigger, Button } from "@watchborne/electrons";
+import { Callout, Tag, Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
 import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
-import { CheckCircle2, ChevronDown, Clock, Loader2, Power, RotateCcw } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -11,11 +11,10 @@ import {
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
 } from "@/lib/api-charge-points";
-import { getResetErrorMessageKey, getAvailabilityErrorMessageKey } from "@/lib/error-messages";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { AlertsPanelContainer } from "./AlertsPanelContainer";
-import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
+import { ChargePointActionsSection } from "./ChargePointActionsSection";
 import { ChargePointConsumptionPanelContainer } from "./ChargePointConsumptionPanelContainer";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
@@ -27,9 +26,6 @@ import { DeviceVariableReportsPanel } from "./DeviceVariableReportsPanel";
 import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanelContainer } from "./StatusHistoryPanelContainer";
-import { TriggerMessageControl } from "./TriggerMessageControl";
-import { ActionsDropdown } from "../../components/common/ActionsDropdown";
-import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 import { useChargePointActions } from "../hooks/useChargePointActions";
 
 type ResetState =
@@ -46,13 +42,15 @@ type UnlockConnectorState =
 /** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
 const WHOLE_CHARGE_POINT_KEY = "chargePoint";
 
-type DetailTab = "main" | "consumption" | "sessions" | "alerts" | "security";
-const DETAIL_TABS: readonly DetailTab[] = ["main", "consumption", "sessions", "alerts", "security"];
-
-const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok: true }): string =>
-  status.status === "Scheduled"
-    ? "appPage.chargePoints.availability.result.scheduled"
-    : "appPage.chargePoints.availability.result.accepted";
+type DetailTab = "main" | "actions" | "consumption" | "sessions" | "alerts" | "security";
+const DETAIL_TABS: readonly DetailTab[] = [
+  "main",
+  "actions",
+  "consumption",
+  "sessions",
+  "alerts",
+  "security",
+];
 
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
@@ -197,103 +195,18 @@ export const ChargePointDetailPanel = ({
             connectorIds={chargePoint.connectors.map((connector) => connector.connectorId)}
             ranges={["day"]}
           />
-
-          <div className="flex flex-col gap-2">
-            <div className="flex items-stretch gap-4">
-              <ActionsDropdown
-                align="start"
-                disabled={resetState.status === "loading"}
-                trigger={
-                  <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
-                    {resetState.status === "loading" ? (
-                      <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                    ) : (
-                      <RotateCcw className="h-4 w-4 mr-1.5" />
-                    )}
-                    {t("appPage.chargePoints.reset.button")}
-                    <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
-                  </Button>
-                }
-                actions={[
-                  { id: "Hard", label: t("appPage.chargePoints.reset.types.hard") },
-                  { id: "Soft", label: t("appPage.chargePoints.reset.types.soft") },
-                ]}
-                onAction={(actionId) => handleReset(actionId as ResetType)}
-              />
-
-              <ChargePointConfigurationDialog
-                chargePointId={chargePoint.id}
-                chargePointName={chargePoint.name}
-              />
-
-              <StatusActionDropdown
-                align="start"
-                currentStatus=""
-                disabled={wholeChargePointAvailability.status === "loading"}
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={wholeChargePointAvailability.status === "loading"}
-                  >
-                    {wholeChargePointAvailability.status === "loading" ? (
-                      <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                    ) : (
-                      <Power className="h-4 w-4 mr-1.5" />
-                    )}
-                    {t("appPage.chargePoints.availability.wholeChargePoint")}
-                    <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
-                  </Button>
-                }
-                options={[
-                  {
-                    value: "Operative",
-                    label: t("appPage.chargePoints.availability.types.operative"),
-                  },
-                  {
-                    value: "Inoperative",
-                    label: t("appPage.chargePoints.availability.types.inoperative"),
-                  },
-                ]}
-                onStatusChange={(value) =>
-                  handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, value as AvailabilityType)
-                }
-              />
-            </div>
-
-            <TriggerMessageControl chargePointId={chargePoint.id} />
-
-            {resetState.status === "done" &&
-              (resetState.outcome.ok ? (
-                <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" />
-                  <p className="font-medium">{t("appPage.chargePoints.reset.result.accepted")}</p>
-                </div>
-              ) : (
-                <Callout
-                  description={t(getResetErrorMessageKey(resetState.outcome.httpStatus))}
-                  variant="error"
-                />
-              ))}
-
-            {wholeChargePointAvailability.status === "done" &&
-              (wholeChargePointAvailability.outcome.ok ? (
-                <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" />
-                  <p className="font-medium">
-                    {t(availabilitySuccessMessageKey(wholeChargePointAvailability.outcome))}
-                  </p>
-                </div>
-              ) : (
-                <Callout
-                  description={t(
-                    getAvailabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
-                  )}
-                  variant="error"
-                />
-              ))}
-          </div>
         </>
+      )}
+
+      {tab === "actions" && (
+        <ChargePointActionsSection
+          chargePointId={chargePoint.id}
+          chargePointName={chargePoint.name}
+          resetState={resetState}
+          onReset={handleReset}
+          wholeChargePointAvailability={wholeChargePointAvailability}
+          onChangeAvailability={(type) => handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, type)}
+        />
       )}
 
       {tab === "consumption" && (
