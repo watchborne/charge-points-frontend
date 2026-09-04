@@ -8,6 +8,8 @@ const TooltipProvider = TooltipPrimitive.Provider;
 
 const Tooltip = TooltipPrimitive.Root;
 
+type TooltipPosition = "left" | "right" | "bottom" | "top";
+
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipContent = React.forwardRef<
@@ -28,4 +30,4 @@ const TooltipContent = React.forwardRef<
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export { Tooltip, TooltipTrigger, TooltipContent, type TooltipPosition, TooltipProvider };
