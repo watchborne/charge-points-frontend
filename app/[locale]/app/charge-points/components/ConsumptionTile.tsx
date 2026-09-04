@@ -1,9 +1,14 @@
 import { Gauge, Zap } from "lucide-react";
+import type { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { isCumulativeRegister, type MeterSampleSummary } from "@/lib/api-metering";
 
-type Translate = (key: string, values?: Record<string, unknown>) => string;
+/** next-intl's own translator type, not a hand-rolled shape — its `values`
+ * parameter is narrower than `Record<string, unknown>` (only
+ * `string | number | Date`), so a looser signature here fails to accept the
+ * real `t` under strict function-parameter checking. */
+type Translate = ReturnType<typeof useTranslations>;
 
 /**
  * A headline metering figure. Local rather than `StatCard` from
