@@ -1,5 +1,5 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
@@ -40,6 +40,13 @@ vi.mock("../../../../../../lib/api", () => ({
 
 import { api } from "../../../../../../lib/api";
 import { SessionConsumptionChart } from "../SessionConsumptionChart";
+
+beforeAll(() => {
+  Element.prototype.hasPointerCapture = vi.fn(() => false);
+  Element.prototype.setPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+});
 
 afterEach(() => {
   cleanup();
@@ -180,5 +187,64 @@ describe("SessionConsumptionChart", () => {
       await screen.findByText("appPage.chargePoints.chargingSessions.consumption.loadError"),
     ).toBeDefined();
     expect(screen.queryByTestId("chart")).toBeNull();
+  });
+
+  it("SHOULD show a tile for every measurand the connector reported, not just the plotted one", async () => {
+    given({
+      seriesList: [
+        series({ measurand: "Energy.Active.Import.Register", unit: "Wh", min: 1000, max: 4000 }),
+        series({ measurand: "Voltage", unit: "V", avg: 230, max: 235 }),
+      ],
+    });
+    render(
+      <SessionConsumptionChart
+        chargePointId="cp-1"
+        connectorId={1}
+        startedAt={STARTED_AT}
+        endedAt={ENDED_AT}
+      />,
+    );
+
+    // Delivered = max - min for the cumulative register; average for the spot reading.
+    expect(await screen.findByText("3,000 Wh")).toBeTruthy();
+    expect(screen.getByText("230 V")).toBeTruthy();
+  });
+
+  it("SHOULD show the measurand selector WHEN the connector reported more than one", async () => {
+    given({
+      seriesList: [
+        series({ measurand: "Energy.Active.Import.Register" }),
+        series({ measurand: "Voltage", unit: "V" }),
+      ],
+    });
+    render(
+      <SessionConsumptionChart
+        chargePointId="cp-1"
+        connectorId={1}
+        startedAt={STARTED_AT}
+        endedAt={ENDED_AT}
+      />,
+    );
+
+    expect(
+      await screen.findByLabelText("appPage.chargePoints.consumption.measurandLabel"),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD NOT show the measurand selector WHEN the connector reported only one", async () => {
+    given();
+    render(
+      <SessionConsumptionChart
+        chargePointId="cp-1"
+        connectorId={1}
+        startedAt={STARTED_AT}
+        endedAt={ENDED_AT}
+      />,
+    );
+
+    await screen.findByTestId("chart");
+    expect(
+      screen.queryByLabelText("appPage.chargePoints.consumption.measurandLabel"),
+    ).toBeNull();
   });
 });

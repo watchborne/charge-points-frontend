@@ -2,14 +2,26 @@
 
 import { Callout } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { api } from "@/lib/api";
-import { isCumulativeRegister, type MeterSample } from "@/lib/api-metering";
+import {
+  isCumulativeRegister,
+  type MeterSample,
+  type MeterSampleSummary,
+} from "@/lib/api-metering";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { ConsumptionChart } from "./ConsumptionChart";
+import { consumptionHeadline, ConsumptionTile } from "./ConsumptionTile";
 
 /** Row cap for one session's raw series read — a session rarely spans more
  * than a few hours, so this is far above what a real session ever reports;
@@ -20,7 +32,10 @@ type State =
   | { status: "loading" }
   | { status: "error" }
   | { status: "empty" }
-  | { status: "loaded"; samples: MeterSample[]; measurand: string; unit?: string };
+  /** Every measurand the session's connector reported, plus the raw samples
+   * behind all of them — unfiltered, since the measurand selector below
+   * switches which slice of `samples` the chart plots without a re-fetch. */
+  | { status: "loaded"; series: MeterSampleSummary[]; samples: MeterSample[] };
 
 type Props = {
   chargePointId: ChargePoint["id"];
@@ -30,15 +45,19 @@ type Props = {
 };
 
 /**
- * One charging session's meter readings, plotted with the same
- * `ConsumptionChart` the consumption tab uses — scoped to that session's own
+ * One charging session's meter readings: a tile per measurand the session's
+ * connector reported (same delivered-vs-average distinction
+ * `ChargePointConsumptionPanel` draws for the tab), a measurand selector
+ * when there's more than one, and the selected measurand plotted with the
+ * same `ConsumptionChart` the tab uses — scoped to that session's own
  * connector and timeframe (`endedAt ?? now` for a still-active session)
  * rather than the tab's rolling 24h/7d/30d windows.
  *
- * Defaults to the cumulative energy register when the station reported one
- * (the figure an installer actually wants for "how much did this session
- * deliver"), falling back to whichever measurand sorts first otherwise —
- * same precedence `ChargePointConsumptionPanelContainer` uses for the tab.
+ * Defaults the selector to the cumulative energy register when the station
+ * reported one (the figure an installer actually wants for "how much did
+ * this session deliver"), falling back to whichever measurand sorts first
+ * otherwise — same precedence `ChargePointConsumptionPanelContainer` uses
+ * for the tab.
  */
 export const SessionConsumptionChart = ({
   chargePointId,
@@ -47,8 +66,15 @@ export const SessionConsumptionChart = ({
   endedAt,
 }: Props) => {
   const t = useTranslations("");
+  const locale = useLocale();
 
   const [state, setState] = useState<State>({ status: "loading" });
+  const [selectedMeasurand, setSelectedMeasurand] = useState<string | undefined>(undefined);
+
+  const formatNumber = useMemo(() => {
+    const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
+    return (value: number) => formatter.format(value);
+  }, [locale]);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,19 +98,12 @@ export const SessionConsumptionChart = ({
 
         if (cancelled) return;
 
-        const measurands = Array.from(new Set(summary.series.map((series) => series.measurand)));
-        const measurand = measurands.find(isCumulativeRegister) ?? measurands[0];
-
-        if (!measurand) {
+        if (summary.series.length === 0) {
           setState({ status: "empty" });
           return;
         }
 
-        const samples = rows
-          .filter((sample) => sample.measurand === measurand)
-          .sort((a, b) => new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime());
-
-        setState({ status: "loaded", samples, measurand, unit: samples[0]?.unit });
+        setState({ status: "loaded", series: summary.series, samples: rows });
       } catch {
         if (!cancelled) setState({ status: "error" });
       }
@@ -94,6 +113,25 @@ export const SessionConsumptionChart = ({
       cancelled = true;
     };
   }, [chargePointId, connectorId, startedAt, endedAt]);
+
+  const measurands = useMemo(
+    () => (state.status === "loaded" ? state.series.map((series) => series.measurand) : []),
+    [state],
+  );
+
+  const measurandLabel = (measurand: string) =>
+    t(`appPage.chargePoints.consumption.measurands.${measurand.replaceAll(".", "")}`) ?? measurand;
+
+  // The station decides which measurands exist, so selection follows the
+  // data — same precedence ChargePointConsumptionPanelContainer uses for
+  // the tab: default to the energy register, fall back to alphabetically
+  // first. Re-runs whenever a fresh load changes what's available.
+  useEffect(() => {
+    if (measurands.length === 0) return;
+    if (selectedMeasurand && measurands.includes(selectedMeasurand)) return;
+
+    setSelectedMeasurand(measurands.find(isCumulativeRegister) ?? measurands[0]);
+  }, [measurands, selectedMeasurand]);
 
   if (state.status === "loading") {
     return (
@@ -123,17 +161,59 @@ export const SessionConsumptionChart = ({
     );
   }
 
+  if (!selectedMeasurand) return null;
+
+  const chartSamples = state.samples
+    .filter((sample) => sample.measurand === selectedMeasurand)
+    .sort((a, b) => new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime());
+  const chartUnit = state.series.find((series) => series.measurand === selectedMeasurand)?.unit;
   const spansDays =
     (endedAt ? new Date(endedAt) : new Date()).getTime() - new Date(startedAt).getTime() >
     86_400_000;
 
   return (
-    <div className="p-3">
+    <div className="flex flex-col gap-3 p-3">
+      {measurands.length > 1 && (
+        <div className="flex justify-end">
+          <Select value={selectedMeasurand} onValueChange={setSelectedMeasurand}>
+            <SelectTrigger
+              className="h-8 w-[210px] text-xs"
+              aria-label={t("appPage.chargePoints.consumption.measurandLabel")}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {measurands.map((option) => (
+                <SelectItem key={option} value={option} className="text-xs">
+                  {measurandLabel(option)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {state.series.map((series) => {
+          const { title, value, subtitle, icon } = consumptionHeadline(series, t, formatNumber);
+
+          return (
+            <ConsumptionTile
+              key={`${series.measurand}-${series.unit ?? ""}`}
+              title={`${title} · ${measurandLabel(series.measurand)}`}
+              value={value}
+              subtitle={subtitle}
+              icon={icon}
+            />
+          );
+        })}
+      </div>
+
       <ConsumptionChart
-        samples={state.samples}
+        samples={chartSamples}
         connectorIds={[connectorId]}
-        measurand={state.measurand}
-        unit={state.unit}
+        measurand={selectedMeasurand}
+        unit={chartUnit}
         spansDays={spansDays}
       />
     </div>
