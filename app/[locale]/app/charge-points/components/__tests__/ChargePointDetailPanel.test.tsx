@@ -129,7 +129,7 @@ const CHARGE_POINT = {
 } as Record<string, unknown>;
 
 describe("ChargePointDetailPanel", () => {
-  it("SHOULD display the connector's lastMeterValue snapshot WHEN one is present", () => {
+  it("SHOULD display the connector's lastMeterValue snapshot WHEN one is present", async () => {
     renderWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={CHARGE_POINT}
@@ -139,7 +139,11 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    expect(screen.getByText("1000 Wh")).toBeTruthy();
+    // The reading lives in a tooltip, which Radix only mounts once open —
+    // focus is the keyboard-equivalent trigger (no hover delay).
+    fireEvent.focus(screen.getByLabelText("appPage.chargePoints.detail.lastMeterValue"));
+
+    expect((await screen.findByRole("tooltip")).textContent).toContain("1000 Wh");
   });
 
   it("SHOULD render no meter value line WHEN the connector never reported one", () => {

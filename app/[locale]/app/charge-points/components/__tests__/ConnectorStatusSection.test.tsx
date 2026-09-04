@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import type { ChargePointWithConnectors } from "@/types/charge-point";
@@ -58,12 +58,16 @@ const renderSection = (connectors: Record<string, unknown>[]) =>
   );
 
 describe("ConnectorStatusSection", () => {
-  it("SHOULD carry the sampled values and relative time in a tooltip WHEN the connector reported one", () => {
-    const { container } = renderSection([CONNECTOR]);
+  it("SHOULD carry the sampled values and relative time in a tooltip WHEN the connector reported one", async () => {
+    renderSection([CONNECTOR]);
 
-    // The trigger itself only shows the icon — the reading lives in the tooltip.
-    expect(screen.getByText("1000 Wh")).toBeTruthy();
-    const tooltip = container.querySelector("[role='tooltip']") as HTMLElement;
+    // The trigger itself only shows the icon — the reading lives in the
+    // tooltip, which Radix only mounts once open. Focus is the
+    // keyboard-equivalent trigger (no hover delay, unlike a pointer hover).
+    const trigger = screen.getByLabelText("appPage.chargePoints.detail.lastMeterValue");
+    fireEvent.focus(trigger);
+
+    const tooltip = await screen.findByRole("tooltip");
     expect(tooltip.textContent).toContain("1000 Wh");
   });
 
