@@ -64,24 +64,35 @@ describe("StatusTimelineBar", () => {
     expect(screen.getByRole("img", { name: "Timeline" })).toBeDefined();
   });
 
-  it("SHOULD put the status, bounds and duration in each block's title", () => {
+  it("SHOULD put the status, bounds and duration in each block's tooltip", () => {
     const end = new Date("2026-08-10T02:30:00.000Z");
     const { container } = renderBar([{ status: "Charging", start: WINDOW_START, end }]);
 
-    const block = container.querySelector("[role='img'] > div") as HTMLElement;
+    const tooltip = container.querySelector("[role='tooltip']") as HTMLElement;
     // Formatted with the runner's own local timezone (date-fns's default),
     // matching how the component itself formats — not a hardcoded wall-clock
     // string, which would only pass in UTC.
-    expect(block.title).toBe(
+    expect(tooltip.textContent).toBe(
       `Charging · ${format(WINDOW_START, "dd/MM HH:mm")} → ${format(end, "dd/MM HH:mm")} (2h30m)`,
     );
   });
 
-  it("SHOULD use the unknown label in a null segment's title", () => {
+  it("SHOULD use the unknown label in a null segment's tooltip", () => {
     const { container } = renderBar([{ status: null, start: WINDOW_START, end: WINDOW_END }]);
 
+    const tooltip = container.querySelector("[role='tooltip']") as HTMLElement;
+    expect(tooltip.textContent).toContain("No data");
+  });
+
+  it("SHOULD keep each block focusable and named for a screen reader via aria-label", () => {
+    const end = new Date("2026-08-10T02:30:00.000Z");
+    const { container } = renderBar([{ status: "Charging", start: WINDOW_START, end }]);
+
     const block = container.querySelector("[role='img'] > div") as HTMLElement;
-    expect(block.title).toContain("No data");
+    expect(block.tabIndex).toBe(0);
+    expect(block.getAttribute("aria-label")).toBe(
+      `Charging · ${format(WINDOW_START, "dd/MM HH:mm")} → ${format(end, "dd/MM HH:mm")} (2h30m)`,
+    );
   });
 
   it("SHOULD list each status once in the legend, in first-appearance order", () => {

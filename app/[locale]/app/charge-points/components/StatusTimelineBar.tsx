@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import { colorDotClass, type ColorName } from "@/lib/status";
 import { formatDurationShort, type StatusSegment } from "@/lib/status-history";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 type Props<S extends string> = {
   segments: StatusSegment<S>[];
   windowStart: Date;
@@ -62,21 +64,24 @@ export const StatusTimelineBar = <S extends string>({
           // dividing by zero.
           const widthPercent = totalMs > 0 ? (durationMs / totalMs) * 100 : 100;
           const text = segment.status === null ? unknownLabel : label(segment.status);
+          // The one place the exact bounds are reachable without a legend
+          // entry for every segment individually.
+          const tooltipText = `${text} · ${format(segment.start, "dd/MM HH:mm")} → ${format(
+            segment.end,
+            "dd/MM HH:mm",
+          )} (${formatDurationShort(durationMs)})`;
 
           return (
-            <div
+            <Tooltip
               key={`${segment.start.getTime()}-${segment.status ?? "unknown"}`}
+              content={tooltipText}
+              tabIndex={0}
+              aria-label={tooltipText}
               style={{ width: `${widthPercent}%` }}
-              // Native tooltip: the one place the exact bounds are reachable
-              // without a legend entry for every segment individually.
-              title={`${text} · ${format(segment.start, "dd/MM HH:mm")} → ${format(
-                segment.end,
-                "dd/MM HH:mm",
-              )} (${formatDurationShort(durationMs)})`}
               className={
                 segment.status === null
-                  ? "h-full bg-muted"
-                  : `h-full ${colorDotClass[toneOf(segment.status)]}`
+                  ? "h-full bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  : `h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-ring ${colorDotClass[toneOf(segment.status)]}`
               }
             />
           );
