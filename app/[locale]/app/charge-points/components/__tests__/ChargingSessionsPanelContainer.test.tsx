@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ChargingSession } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -18,6 +18,15 @@ const { listChargingSessions } = vi.hoisted(() => ({
 // LogUploadPanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { listChargingSessions } },
+}));
+
+// Stubbed out: it fetches its own meter samples. Its own behaviour is
+// covered by SessionConsumptionChart.test.tsx — this suite only needs to
+// know the panel renders it once expanded.
+vi.mock("../SessionConsumptionChart", () => ({
+  SessionConsumptionChart: ({ connectorId }: { connectorId: number }) => (
+    <div data-testid="session-consumption-chart" data-connector={connectorId} />
+  ),
 }));
 
 import { ChargingSessionsPanelContainer } from "../ChargingSessionsPanelContainer";
@@ -106,6 +115,24 @@ describe("ChargingSessionsPanelContainer", () => {
     renderPanel();
 
     expect(await screen.findByText("appPage.chargePoints.chargingSessions.loadError")).toBeTruthy();
+  });
+
+  it("SHOULD expand a session's consumption chart WHEN its toggle is clicked", async () => {
+    listChargingSessions.mockResolvedValue([buildSession()]);
+
+    renderPanel();
+    await screen.findByText("appPage.chargePoints.chargingSessions.statuses.ENDED");
+
+    expect(screen.queryByTestId("session-consumption-chart")).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "appPage.chargePoints.chargingSessions.consumption.show",
+      }),
+    );
+
+    const chart = screen.getByTestId("session-consumption-chart");
+    expect(chart.getAttribute("data-connector")).toBe("1");
   });
 
   it("SHOULD refetch WHEN a different charge point is opened", async () => {

@@ -14,7 +14,7 @@ import {
   TabsTrigger,
 } from "@watchborne/electrons";
 import { format } from "date-fns";
-import { BarChart3, Gauge, TableIcon, Zap } from "lucide-react";
+import { BarChart3, TableIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -25,47 +25,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  isCumulativeRegister,
-  type ChargePointConsumption,
-  type MeterSample,
-  type MeterSampleSummary,
-} from "@/lib/api-metering";
+import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
 
 import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
+import { consumptionHeadline, ConsumptionTile } from "./ConsumptionTile";
 import {
   CONSUMPTION_RANGES,
   MAX_CHART_SAMPLES,
   type ConsumptionRange,
 } from "../../hooks/useConsumption";
-
-/**
- * A headline metering figure. Local rather than `StatCard` from
- * `@watchborne/electrons`: that primitive types `value` as a `number` and
- * prints it raw, but every figure here needs a locale-formatted number
- * *with its unit* ("1 620 Wh", not "1620") — same visual language, one slot
- * the shared component lacks.
- */
-const ConsumptionTile = ({
-  title,
-  value,
-  subtitle,
-  icon,
-}: {
-  title: string;
-  value: string;
-  subtitle: string;
-  icon: React.ReactNode;
-}) => (
-  <div className="flex flex-col rounded-lg border bg-card p-3">
-    <div className="mb-1 flex items-center justify-between gap-2">
-      <p className="text-xs font-medium text-muted-foreground">{title}</p>
-      {icon}
-    </div>
-    <p className="text-lg font-bold text-foreground">{value}</p>
-    <p className="mt-0.5 text-[11px] text-muted-foreground">{subtitle}</p>
-  </div>
-);
 
 type Props = {
   range: ConsumptionRange;
@@ -131,34 +99,6 @@ export const ChargePointConsumptionPanel = ({
 
   const withUnit = (value: number, seriesUnit?: string) =>
     seriesUnit ? `${formatNumber(value)} ${seriesUnit}` : formatNumber(value);
-
-  /**
-   * The one figure that leads for a series. A cumulative register only
-   * counts up, so `max - min` is what it delivered over the window — the
-   * number an installer actually wants. Every other measurand is a spot
-   * reading, where a difference between instants means nothing and the
-   * average is the honest headline. The tile names which one it's showing,
-   * rather than labelling both "consumption".
-   */
-  const headline = (series: MeterSampleSummary) =>
-    isCumulativeRegister(series.measurand)
-      ? {
-          title: t("appPage.chargePoints.consumption.tiles.delivered"),
-          value: withUnit(series.max - series.min, series.unit),
-          subtitle: t("appPage.chargePoints.consumption.tiles.deliveredRange", {
-            from: formatNumber(series.min),
-            to: formatNumber(series.max),
-          }),
-          icon: <Zap className="h-3.5 w-3.5 text-muted-foreground" />,
-        }
-      : {
-          title: t("appPage.chargePoints.consumption.tiles.average"),
-          value: withUnit(series.avg, series.unit),
-          subtitle: t("appPage.chargePoints.consumption.tiles.peak", {
-            value: withUnit(series.max, series.unit),
-          }),
-          icon: <Gauge className="h-3.5 w-3.5 text-muted-foreground" />,
-        };
 
   return (
     <div className="flex flex-col gap-3">
@@ -229,7 +169,7 @@ export const ChargePointConsumptionPanel = ({
         <>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {chartedSeries.map((series) => {
-              const { title, value, subtitle, icon } = headline(series);
+              const { title, value, subtitle, icon } = consumptionHeadline(series, t, formatNumber);
 
               return (
                 <ConsumptionTile
