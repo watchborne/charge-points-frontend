@@ -70,16 +70,12 @@ describe("ConnectorStatusSection", () => {
   it("SHOULD name the tooltip trigger for a screen reader via aria-label", () => {
     renderSection([CONNECTOR]);
 
-    expect(
-      screen.getByLabelText("appPage.chargePoints.detail.lastMeterValue"),
-    ).toBeTruthy();
+    expect(screen.getByLabelText("appPage.chargePoints.detail.lastMeterValue")).toBeTruthy();
   });
 
   it("SHOULD render no tooltip trigger WHEN the connector never reported a meter value", () => {
     renderSection([{ ...CONNECTOR, lastMeterValue: undefined }]);
 
-    expect(
-      screen.queryByLabelText("appPage.chargePoints.detail.lastMeterValue"),
-    ).toBeNull();
+    expect(screen.queryByLabelText("appPage.chargePoints.detail.lastMeterValue")).toBeNull();
   });
 });
