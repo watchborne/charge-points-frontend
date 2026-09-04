@@ -88,11 +88,56 @@ export const ConnectorStatusSection = ({
         return (
           <div key={connector.id} className="flex flex-col gap-1.5 px-3 py-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {t("appPage.chargePoints.detail.connector", {
-                  connectorId: connector.connectorId,
-                })}
-              </span>
+              <div className="flex flex-items flex-gap gap-2">
+                <p className="text-sm text-muted-foreground">
+                  {t("appPage.chargePoints.detail.connector", {
+                    connectorId: connector.connectorId,
+                  })}
+                </p>
+                {connector.lastMeterValue && (
+                  <Tooltip
+                    tabIndex={0}
+                    aria-label={t("appPage.chargePoints.detail.lastMeterValue")}
+                    side="right"
+                    className="inline-flex w-fit items-center rounded-md p-1 text-muted-foreground hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    content={
+                      <div className="flex flex-col content-stretch gap-2">
+                        <h4 className="font-bold text-[14px]">
+                          {t("appPage.chargePoints.detail.lastMeterValue")}
+                          <small className="ml-1 text-muted-foreground">
+                            (
+                            {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
+                              addSuffix: true,
+                              locale: enGB,
+                            })}
+                            )
+                          </small>
+                        </h4>
+                        <dl>
+                          {connector.lastMeterValue.sampledValue.map(
+                            ({ measurand, value, unit }) =>
+                              measurand && (
+                                <div key={measurand} className="flex flex-items gap-2">
+                                  <dt className="min-w-[200px]">
+                                    {t(
+                                      `appPage.chargePoints.consumption.measurands.${measurand.replaceAll(".", "")}`,
+                                    )}
+                                  </dt>
+                                  <dd className="ml-auto">
+                                    {[value, unit === "Percent" ? "%" : (unit ?? "")].join(" ")}
+                                  </dd>
+                                </div>
+                              ),
+                          )}
+                        </dl>
+                      </div>
+                    }
+                  >
+                    <Zap className="h-3 w-3 shrink-0" />
+                  </Tooltip>
+                )}
+              </div>
+
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-1.5">
                   <ConnectorStatusIcon status={connector.status} />
@@ -148,31 +193,6 @@ export const ConnectorStatusSection = ({
                 </Button>
               </div>
             </div>
-            {connector.lastMeterValue && (
-              <Tooltip
-                tabIndex={0}
-                aria-label={t("appPage.chargePoints.detail.lastMeterValue")}
-                className="inline-flex w-fit items-center rounded-md p-1 text-muted-foreground hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                content={
-                  <>
-                    <span>
-                      {connector.lastMeterValue.sampledValue.map(formatSampledValue).join(" · ")}
-                    </span>
-                    <span>
-                      {" "}
-                      (
-                      {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
-                        addSuffix: true,
-                        locale: enGB,
-                      })}
-                      )
-                    </span>
-                  </>
-                }
-              >
-                <Zap className="h-3 w-3 shrink-0" />
-              </Tooltip>
-            )}
             {state.status === "done" &&
               (state.outcome.ok ? (
                 <p className="text-xs font-medium text-status-available-foreground">
