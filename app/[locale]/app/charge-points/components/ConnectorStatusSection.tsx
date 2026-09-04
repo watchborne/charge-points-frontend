@@ -10,6 +10,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
+import { Tooltip } from "../../components/common/Tooltip";
 
 type AvailabilityState =
   | { status: "idle" }
@@ -148,23 +149,29 @@ export const ConnectorStatusSection = ({
               </div>
             </div>
             {connector.lastMeterValue && (
-              <div
-                className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                title={t("appPage.chargePoints.detail.lastMeterValue")}
+              <Tooltip
+                tabIndex={0}
+                aria-label={t("appPage.chargePoints.detail.lastMeterValue")}
+                className="inline-flex w-fit items-center rounded-md p-1 text-muted-foreground hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                content={
+                  <>
+                    <span>
+                      {connector.lastMeterValue.sampledValue.map(formatSampledValue).join(" · ")}
+                    </span>
+                    <span>
+                      {" "}
+                      (
+                      {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
+                        addSuffix: true,
+                        locale: enGB,
+                      })}
+                      )
+                    </span>
+                  </>
+                }
               >
                 <Zap className="h-3 w-3 shrink-0" />
-                <span>
-                  {connector.lastMeterValue.sampledValue.map(formatSampledValue).join(" · ")}
-                </span>
-                <span>
-                  (
-                  {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
-                    addSuffix: true,
-                    locale: enGB,
-                  })}
-                  )
-                </span>
-              </div>
+              </Tooltip>
             )}
             {state.status === "done" &&
               (state.outcome.ok ? (
