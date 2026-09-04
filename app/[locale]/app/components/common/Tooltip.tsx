@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import {
   Tooltip as TooltipRoot,
   TooltipContent,
+  TooltipPosition,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ type TooltipProps = {
   /** The element the tooltip is anchored to. */
   children?: ReactNode;
   content: ReactNode;
+  side?: TooltipPosition;
   className?: string;
   style?: CSSProperties;
   /** Passed through so the anchor can be made keyboard-focusable — hover has
@@ -31,6 +33,7 @@ type TooltipProps = {
 export const Tooltip = ({
   children,
   content,
+  side = "top",
   className,
   style,
   tabIndex,
@@ -43,7 +46,7 @@ export const Tooltip = ({
           {children}
         </div>
       </TooltipTrigger>
-      <TooltipContent>{content}</TooltipContent>
+      <TooltipContent side={side}>{content}</TooltipContent>
     </TooltipRoot>
   </TooltipProvider>
 );
