@@ -237,6 +237,41 @@ describe("ChargePointDetailPanel", () => {
     ).toBe("false");
   });
 
+  it("SHOULD NOT render the reset control on the Overview tab", () => {
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText("appPage.chargePoints.reset.button")).toBeNull();
+  });
+
+  it("SHOULD render the reset and availability controls WHEN the Actions tab is active", () => {
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    const actionsTab = screen.getByRole("tab", {
+      name: "appPage.chargePoints.detail.tabs.actions",
+    });
+    fireEvent.mouseDown(actionsTab);
+    actionsTab.focus();
+    fireEvent.click(actionsTab);
+
+    expect(actionsTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByText("appPage.chargePoints.reset.button")).toBeTruthy();
+    expect(screen.getByText("appPage.chargePoints.availability.wholeChargePoint")).toBeTruthy();
+  });
+
   it("SHOULD render the charging-session history WHEN the Sessions tab is active", () => {
     renderWithQueryClient(
       <ChargePointDetailPanel
