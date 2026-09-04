@@ -52,11 +52,7 @@ export const StatusTimelineBar = <S extends string>({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div
-        role="img"
-        aria-label={ariaLabel}
-        className="flex h-6 w-full overflow-hidden rounded-md border"
-      >
+      <div role="img" aria-label={ariaLabel} className="flex h-6 w-full rounded-md border">
         {segments.map((segment) => {
           const durationMs = segment.end.getTime() - segment.start.getTime();
           // A window with zero span (shouldn't happen — windowEnd is always
@@ -80,8 +76,8 @@ export const StatusTimelineBar = <S extends string>({
               style={{ width: `${widthPercent}%` }}
               className={
                 segment.status === null
-                  ? "h-full bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  : `h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-ring ${colorDotClass[toneOf(segment.status)]}`
+                  ? "h-full bg-muted first:rounded-l-md last:rounded-r-md focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  : `h-full first:rounded-l-md last:rounded-r-md focus:outline-none focus-visible:ring-1 focus-visible:ring-ring ${colorDotClass[toneOf(segment.status)]}`
               }
             />
           );
