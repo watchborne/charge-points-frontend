@@ -302,7 +302,9 @@ export const ChargePointPreviewTabs = () => {
           />
         )}
 
-        {tab === "sessions" && <ChargingSessionsPanel sessions={sessions} />}
+        {tab === "sessions" && (
+          <ChargingSessionsPanel chargePointId={DEMO_CHARGE_POINT_ID} sessions={sessions} />
+        )}
 
         {tab === "alerts" && (
           <AlertsPanel
