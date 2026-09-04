@@ -243,8 +243,6 @@ describe("SessionConsumptionChart", () => {
     );
 
     await screen.findByTestId("chart");
-    expect(
-      screen.queryByLabelText("appPage.chargePoints.consumption.measurandLabel"),
-    ).toBeNull();
+    expect(screen.queryByLabelText("appPage.chargePoints.consumption.measurandLabel")).toBeNull();
   });
 });
