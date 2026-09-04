@@ -784,6 +784,13 @@
         "startedAt": "Started",
         "duration": "Duration",
         "energy": "Energy",
+        "consumption": {
+          "show": "Show session consumption",
+          "hide": "Hide session consumption",
+          "loading": "Loading consumption…",
+          "loadError": "Could not load this session's consumption.",
+          "empty": "No consumption readings for this session."
+        },
         "statuses": {
           "ACTIVE": "Active",
           "ENDED": "Ended"

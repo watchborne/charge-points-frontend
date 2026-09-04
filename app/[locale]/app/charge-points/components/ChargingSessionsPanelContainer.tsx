@@ -74,5 +74,5 @@ export const ChargingSessionsPanelContainer = ({
     );
   }
 
-  return <ChargingSessionsPanel sessions={sessions} />;
+  return <ChargingSessionsPanel chargePointId={chargePointId} sessions={sessions} />;
 };
