@@ -1075,7 +1075,8 @@
         "card": {
           "chargePointsWithCount": "{count, plural, =0 {0 borne de recharge} =1 {1 borne de recharge} other {# bornes de recharge}}",
           "online": "{count} en ligne",
-          "offline": "{count} hors ligne"
+          "offline": "{count} hors ligne",
+          "visitOverdue": "Visite en retard"
         }
       },
       "form": {
@@ -1094,9 +1095,7 @@
           "customerName": "Nom du client",
           "customerNamePlaceholder": "Nom du client",
           "installDate": "Date d'installation",
-          "installDatePlaceholder": "Date d'installation...",
-          "lastVisit": "Dernière visite",
-          "lastVisitPlaceholder": "Dernière visite..."
+          "installDatePlaceholder": "Date d'installation..."
         }
       },
       "deletion": {
@@ -1115,6 +1114,24 @@
         "reliability": {
           "label": "Fiabilité (7 derniers jours)",
           "noData": "Pas encore de données"
+        },
+        "visits": {
+          "title": "Historique des visites",
+          "loading": "Chargement des visites...",
+          "loadError": "Impossible de charger l'historique des visites.",
+          "empty": "Aucune visite enregistrée.",
+          "logButton": "Enregistrer une visite",
+          "logDialog": {
+            "title": "Enregistrer une visite",
+            "description": "Renseignez la date de la visite et une note optionnelle.",
+            "submit": "Enregistrer",
+            "fields": {
+              "visitedAt": "Date de la visite",
+              "visitedAtPlaceholder": "Date de la visite...",
+              "note": "Note",
+              "notePlaceholder": "Ex: Inspection annuelle, câble connecteur 2 remplacé"
+            }
+          }
         }
       }
     },

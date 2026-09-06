@@ -3,6 +3,7 @@ import classNames from "classnames";
 import { Battery, Calendar, MapPin } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
+import { isSiteVisitOverdue } from "@/lib/derive-site-visit-overdue";
 import { colorBadgeClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -20,6 +21,7 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
     ["SYNCED", "CONNECTED"].includes(connection.status),
   ).length;
   const offlineCount = chargePoints.length - onlineCount;
+  const overdue = isSiteVisitOverdue(site);
 
   return (
     <button
@@ -43,7 +45,7 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
           </span>
         </div>
 
-        {chargePoints.length > 0 && (
+        {(chargePoints.length > 0 || overdue) && (
           <div className="flex flex-wrap gap-2">
             {onlineCount > 0 && (
               <span
@@ -63,6 +65,16 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
                 )}
               >
                 {t("appPage.sites.page.card.offline", { count: offlineCount })}
+              </span>
+            )}
+            {overdue && (
+              <span
+                className={classNames(
+                  "rounded-full px-2 py-0.5 text-xs font-medium",
+                  colorBadgeClass.orange,
+                )}
+              >
+                {t("appPage.sites.page.card.visitOverdue")}
               </span>
             )}
           </div>
