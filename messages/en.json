@@ -1075,7 +1075,8 @@
         "card": {
           "chargePointsWithCount": "{count, plural, =0 {0 charge point} =1 {1 charge point} other {# charge points}}",
           "online": "{count} online",
-          "offline": "{count} offline"
+          "offline": "{count} offline",
+          "visitOverdue": "Visit overdue"
         }
       },
       "form": {
@@ -1094,9 +1095,7 @@
           "customerName": "Customer name",
           "customerNamePlaceholder": "Customer name",
           "installDate": "Install date",
-          "installDatePlaceholder": "Install date...",
-          "lastVisit": "Last visit",
-          "lastVisitPlaceholder": "Last visit..."
+          "installDatePlaceholder": "Install date..."
         }
       },
       "deletion": {
@@ -1115,6 +1114,24 @@
         "reliability": {
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
+        },
+        "visits": {
+          "title": "Visit history",
+          "loading": "Loading visits...",
+          "loadError": "Could not load the visit history.",
+          "empty": "No visit recorded.",
+          "logButton": "Log a visit",
+          "logDialog": {
+            "title": "Log a visit",
+            "description": "Fill in the visit date and an optional note.",
+            "submit": "Log visit",
+            "fields": {
+              "visitedAt": "Visit date",
+              "visitedAtPlaceholder": "Visit date...",
+              "note": "Note",
+              "notePlaceholder": "Ex: Annual inspection, connector 2 cable replaced"
+            }
+          }
         }
       }
     },

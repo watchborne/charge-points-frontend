@@ -41,6 +41,10 @@ export const queryKeys = {
     chargePoint: (chargePointId: string) =>
       [...queryKeys.securityEvents.all(), chargePointId] as const,
   },
+  siteVisits: {
+    all: () => ["siteVisits"] as const,
+    site: (siteId: string) => [...queryKeys.siteVisits.all(), siteId] as const,
+  },
   me: {
     all: () => ["me"] as const,
   },

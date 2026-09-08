@@ -22,7 +22,6 @@ const siteFormSchema = z.object({
   name: z.string(),
   customer: z.string(),
   installedAt: z.date(),
-  lastVisitedAt: z.date(),
 });
 
 export type SiteFormValues = z.infer<typeof siteFormSchema>;
@@ -49,7 +48,6 @@ export const SiteFormDialog = ({
       name: initialValues?.name ?? "",
       customer: initialValues?.customer ?? "",
       installedAt: initialValues?.installedAt,
-      lastVisitedAt: initialValues?.lastVisitedAt,
     },
   });
 
@@ -59,7 +57,6 @@ export const SiteFormDialog = ({
         name: initialValues?.name ?? "",
         customer: initialValues?.customer ?? "",
         installedAt: initialValues?.installedAt,
-        lastVisitedAt: initialValues?.lastVisitedAt,
       });
     }
   }, [open, initialValues, form]);
@@ -127,44 +124,23 @@ export const SiteFormDialog = ({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="installedAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("appPage.sites.form.fields.installDate")}</FormLabel>
-                    <FormControl>
-                      <Datepicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={t("appPage.sites.form.fields.installDatePlaceholder")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="lastVisitedAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("appPage.sites.form.fields.lastVisit")}</FormLabel>
-                    <FormControl>
-                      <Datepicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={t("appPage.sites.form.fields.lastVisitPlaceholder")}
-                        disabled={(date) => date > new Date()}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="installedAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("appPage.sites.form.fields.installDate")}</FormLabel>
+                  <FormControl>
+                    <Datepicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={t("appPage.sites.form.fields.installDatePlaceholder")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
       }

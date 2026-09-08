@@ -3,7 +3,13 @@ import { Site, SiteWithChargePoints } from "@watchborne/charge-points-types";
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
-type CreateSiteBody = Omit<Site, "id" | "customerId" | "createdAt" | "updatedAt" | "deletedAt"> & {
+// `lastVisitedAt` is excluded: the backend derives it from the `SiteVisit`
+// history and silently ignores it on POST/PATCH (charge-points-server
+// ADR 0015) — log a visit via `api.SiteVisits.record` instead.
+type CreateSiteBody = Omit<
+  Site,
+  "id" | "customerId" | "createdAt" | "updatedAt" | "deletedAt" | "lastVisitedAt"
+> & {
   customerId?: Site["customerId"];
 };
 

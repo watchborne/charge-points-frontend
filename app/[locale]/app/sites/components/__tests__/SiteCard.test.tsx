@@ -84,6 +84,23 @@ describe("SiteCard", () => {
     expect(screen.getByText(`appPage.sites.page.table.columns.lastVisit: —`)).toBeTruthy();
   });
 
+  it("SHOULD show the overdue badge WHEN the site hasn't been visited within the window", () => {
+    render(<SiteCard site={site} chargePoints={[]} onSiteClicked={vi.fn()} />);
+
+    expect(screen.getByText("appPage.sites.page.card.visitOverdue")).toBeTruthy();
+  });
+
+  it("SHOULD NOT show the overdue badge WHEN the site was visited recently", () => {
+    const recentlyVisited: Site = {
+      ...site,
+      lastVisitedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    };
+
+    render(<SiteCard site={recentlyVisited} chargePoints={[]} onSiteClicked={vi.fn()} />);
+
+    expect(screen.queryByText("appPage.sites.page.card.visitOverdue")).toBeNull();
+  });
+
   it("SHOULD call onSiteClicked with the site WHEN the card is clicked", () => {
     const onSiteClicked = vi.fn();
     render(<SiteCard site={site} chargePoints={[]} onSiteClicked={onSiteClicked} />);
