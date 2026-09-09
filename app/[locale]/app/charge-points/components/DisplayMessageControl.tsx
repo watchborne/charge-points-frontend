@@ -38,7 +38,9 @@ import type { ChargePoint } from "@/types/charge-point";
 const DISPLAY_MESSAGE_ID = 1;
 
 type SetState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: SetDisplayMessageOutcome };
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; outcome: SetDisplayMessageOutcome };
 
 type ClearState =
   | { status: "idle" }
@@ -48,7 +50,8 @@ type ClearState =
 const SET_RESULT_KEY_BY_STATUS = {
   Accepted: "appPage.chargePoints.displayMessage.set.result.accepted",
   Rejected: "appPage.chargePoints.displayMessage.set.result.rejected",
-  NotSupportedMessageFormat: "appPage.chargePoints.displayMessage.set.result.notSupportedMessageFormat",
+  NotSupportedMessageFormat:
+    "appPage.chargePoints.displayMessage.set.result.notSupportedMessageFormat",
   NotSupportedPriority: "appPage.chargePoints.displayMessage.set.result.notSupportedPriority",
   NotSupportedState: "appPage.chargePoints.displayMessage.set.result.notSupportedState",
   UnknownTransaction: "appPage.chargePoints.displayMessage.set.result.unknownTransaction",
@@ -68,6 +71,9 @@ const setErrorMessageKey = (httpStatus: number): string => {
       return "appPage.chargePoints.displayMessage.set.result.genericError";
   }
 };
+
+const setResultKey = (outcome: SetDisplayMessageOutcome): string =>
+  outcome.ok ? SET_RESULT_KEY_BY_STATUS[outcome.status] : setErrorMessageKey(outcome.httpStatus);
 
 const clearErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
@@ -196,14 +202,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
                     {t(SET_RESULT_KEY_BY_STATUS.Accepted)}
                   </div>
                 ) : (
-                  <Callout
-                    description={t(
-                      setState.outcome.ok
-                        ? SET_RESULT_KEY_BY_STATUS[setState.outcome.status]
-                        : setErrorMessageKey(setState.outcome.httpStatus),
-                    )}
-                    variant="error"
-                  />
+                  <Callout description={t(setResultKey(setState.outcome))} variant="error" />
                 ))}
             </div>
 

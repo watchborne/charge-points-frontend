@@ -93,11 +93,14 @@ describe("chargePointApis.clearDisplayMessage", () => {
     expect(init.body).toBeUndefined();
   });
 
-  it.each(["Accepted", "Unknown"] as const)("SHOULD return the station's %s status", async (status) => {
-    respondWith({ status });
+  it.each(["Accepted", "Unknown"] as const)(
+    "SHOULD return the station's %s status",
+    async (status) => {
+      respondWith({ status });
 
-    expect(await chargePointApis.clearDisplayMessage("cp-1", 1)).toEqual({ ok: true, status });
-  });
+      expect(await chargePointApis.clearDisplayMessage("cp-1", 1)).toEqual({ ok: true, status });
+    },
+  );
 
   it("SHOULD surface the raw HTTP status WHEN the request fails", async () => {
     respondWith({ message: "not connected" }, false, 409);
