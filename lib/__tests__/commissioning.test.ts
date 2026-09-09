@@ -40,9 +40,7 @@ describe("isAwaitingCommissioning", () => {
 
   it("SHOULD report false WHEN renamed and a site is attached", () => {
     expect(
-      isAwaitingCommissioning(
-        chargePoint({ name: "Borne parking sous-sol", siteId: "site-1" }),
-      ),
+      isAwaitingCommissioning(chargePoint({ name: "Borne parking sous-sol", siteId: "site-1" })),
     ).toBe(false);
   });
 });
