@@ -46,13 +46,21 @@ import DashboardPage from "../page";
 
 afterEach(() => cleanup());
 
-const chargePoint = (id: string, commissionedAt: string | null): ChargePointWithConnectors =>
+// `awaitingCommissioning` drives the fields `isAwaitingCommissioning` (lib/commissioning.ts)
+// actually reads — no site and still named after the raw `ocppIdentity` — rather than
+// `commissionedAt`, which a commissioning-token self-claim now sets before a station has
+// either (charge-points-server's ClaimChargePointWithTokenCommandHandler).
+const chargePoint = (
+  id: string,
+  { awaitingCommissioning = false }: { awaitingCommissioning?: boolean } = {},
+): ChargePointWithConnectors =>
   ({
     id,
-    name: `CP-${id}`,
-    siteId: null,
+    ocppIdentity: `ocpp-${id}`,
+    name: awaitingCommissioning ? `ocpp-${id}` : `CP-${id}`,
+    siteId: awaitingCommissioning ? null : "site-1",
     isActive: true,
-    commissionedAt,
+    commissionedAt: "2024-01-01T00:00:00.000Z",
     connection: { status: "SYNCED", lastSeenAt: new Date() },
     ocppVersion: "1.6",
     meta: {},
@@ -125,7 +133,7 @@ describe("DashboardPage", () => {
   });
 
   it("SHOULD show the fleet overview panel WHEN there are charge points", () => {
-    setHooks({ chargePoints: [chargePoint("cp-1", "2024-01-01T00:00:00.000Z")] });
+    setHooks({ chargePoints: [chargePoint("cp-1")] });
 
     render(<DashboardPage />);
 
@@ -136,8 +144,8 @@ describe("DashboardPage", () => {
   it("SHOULD only pass charge points awaiting commissioning to the commissioning queue", () => {
     setHooks({
       chargePoints: [
-        chargePoint("cp-commissioned", "2024-01-01T00:00:00.000Z"),
-        chargePoint("cp-awaiting", null),
+        chargePoint("cp-commissioned"),
+        chargePoint("cp-awaiting", { awaitingCommissioning: true }),
       ],
     });
 
