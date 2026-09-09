@@ -202,6 +202,7 @@ export const ChargePointDetailPanel = ({
         <ChargePointActionsSection
           chargePointId={chargePoint.id}
           chargePointName={chargePoint.name}
+          ocppVersion={chargePoint.ocppVersion}
           resetState={resetState}
           onReset={handleReset}
           wholeChargePointAvailability={wholeChargePointAvailability}

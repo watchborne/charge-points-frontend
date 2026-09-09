@@ -943,6 +943,49 @@
           "genericError": "The request failed. Please try again."
         }
       },
+      "displayMessage": {
+        "set": {
+          "button": "Send a message",
+          "title": "Send a display message",
+          "description": "The message will appear on the station's screen (OCPP 2.0.1 only).",
+          "submit": "Send",
+          "close": "Close",
+          "fields": {
+            "content": "Message",
+            "priority": "Priority"
+          },
+          "priorities": {
+            "AlwaysFront": "Always in front",
+            "InFront": "In front once",
+            "NormalCycle": "Normal rotation"
+          },
+          "result": {
+            "accepted": "Message sent to the station.",
+            "rejected": "The station rejected the message.",
+            "notSupportedMessageFormat": "The station does not support this message format.",
+            "notSupportedPriority": "The station does not support this priority.",
+            "notSupportedState": "The station does not support this targeted state.",
+            "unknownTransaction": "Unknown transaction.",
+            "notFound": "Charge point not found.",
+            "notConnectedOrUnsupported": "The station is offline or does not speak OCPP 2.0.1.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The request failed. Please try again."
+          }
+        },
+        "clear": {
+          "button": "Clear the message",
+          "result": {
+            "accepted": "Message cleared.",
+            "unknown": "No message to clear on this station.",
+            "notFound": "Charge point not found.",
+            "notConnectedOrUnsupported": "The station is offline or does not speak OCPP 2.0.1.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "Clearing the message failed. Please try again."
+          }
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",

@@ -943,6 +943,49 @@
           "genericError": "La demande a échoué. Veuillez réessayer."
         }
       },
+      "displayMessage": {
+        "set": {
+          "button": "Envoyer un message",
+          "title": "Envoyer un message d'affichage",
+          "description": "Le message s'affichera sur l'écran de la borne (OCPP 2.0.1 uniquement).",
+          "submit": "Envoyer",
+          "close": "Fermer",
+          "fields": {
+            "content": "Message",
+            "priority": "Priorité"
+          },
+          "priorities": {
+            "AlwaysFront": "Toujours au premier plan",
+            "InFront": "Au premier plan une fois",
+            "NormalCycle": "Dans la rotation normale"
+          },
+          "result": {
+            "accepted": "Message envoyé à la borne.",
+            "rejected": "La borne a refusé le message.",
+            "notSupportedMessageFormat": "La borne ne prend pas en charge ce format de message.",
+            "notSupportedPriority": "La borne ne prend pas en charge cette priorité.",
+            "notSupportedState": "La borne ne prend pas en charge cet état ciblé.",
+            "unknownTransaction": "Transaction inconnue.",
+            "notFound": "Borne de recharge introuvable.",
+            "notConnectedOrUnsupported": "La borne est hors ligne ou ne parle pas OCPP 2.0.1.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "L'envoi a échoué. Veuillez réessayer."
+          }
+        },
+        "clear": {
+          "button": "Effacer le message",
+          "result": {
+            "accepted": "Message effacé.",
+            "unknown": "Aucun message à effacer sur cette borne.",
+            "notFound": "Borne de recharge introuvable.",
+            "notConnectedOrUnsupported": "La borne est hors ligne ou ne parle pas OCPP 2.0.1.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "L'effacement a échoué. Veuillez réessayer."
+          }
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",
