@@ -986,6 +986,20 @@
           }
         }
       },
+      "displayMessages": {
+        "title": "Messages affichés",
+        "loading": "Chargement des messages affichés…",
+        "loadError": "Impossible de charger les messages affichés de cette borne.",
+        "empty": "Aucun message récent.",
+        "refresh": "Actualiser (tous les messages)",
+        "result": {
+          "notFound": "Borne de recharge inconnue.",
+          "notConnectedOrUnsupported": "La borne est hors ligne ou ne parle pas OCPP 2.0.1.",
+          "stationError": "La borne a renvoyé une réponse invalide.",
+          "timeout": "La borne n'a pas répondu à temps.",
+          "genericError": "La demande n'a pas pu être envoyée."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connecté",
