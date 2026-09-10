@@ -936,7 +936,6 @@
         "button": "Notification",
         "types": {
           "BootNotification": "Notification de démarrage",
-          "DiagnosticsStatusNotification": "Statut des diagnostics",
           "FirmwareStatusNotification": "Statut du firmware",
           "Heartbeat": "Heartbeat",
           "MeterValues": "Valeurs de compteur",

@@ -1,6 +1,6 @@
 "use client";
 
-import { TRIGGER_MESSAGE_TYPES, TriggerMessageType } from "@watchborne/charge-points-types";
+import { TriggerMessageType } from "@watchborne/charge-points-types";
 import { Button, Callout } from "@watchborne/electrons";
 import { CheckCircle2, ChevronDown, Loader2, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -33,6 +33,23 @@ const errorMessageKey = (httpStatus: number): string => {
 type TriggerMessageControlProps = {
   chargePointId: ChargePoint["id"];
 };
+
+/**
+ * The `requestedMessage` values the backend can actually act on — narrower
+ * than `@watchborne/charge-points-types`' `TRIGGER_MESSAGE_TYPES`, which is
+ * the full per-dialect OCPP wire vocabulary. Mirrors
+ * `SUPPORTED_TRIGGER_MESSAGE_TYPES` in charge-points-server's
+ * `src/application/ports/trigger-message-vocabulary.ts`: the server has no
+ * handler for the rest and its REST schema rejects them outright (400), so
+ * offering them here would just be a dead-end button.
+ */
+const SUPPORTED_TRIGGER_MESSAGE_TYPES: readonly TriggerMessageType[] = [
+  "BootNotification",
+  "Heartbeat",
+  "StatusNotification",
+  "MeterValues",
+  "FirmwareStatusNotification",
+];
 
 /**
  * Asks a charge point to (re)send a message (TriggerMessage) — a whole-station
@@ -69,7 +86,7 @@ export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlPr
               <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
             </Button>
           }
-          actions={TRIGGER_MESSAGE_TYPES.map((type) => ({
+          actions={SUPPORTED_TRIGGER_MESSAGE_TYPES.map((type) => ({
             id: type,
             label: t(`appPage.chargePoints.trigger.types.${type}`),
           }))}

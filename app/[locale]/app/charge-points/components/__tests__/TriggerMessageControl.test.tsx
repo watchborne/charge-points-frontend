@@ -66,4 +66,19 @@ describe("TriggerMessageControl", () => {
       ).toBeTruthy(),
     );
   });
+
+  it("SHOULD NOT offer a message type the backend has no TriggerMessage handler for", async () => {
+    render(<TriggerMessageControl chargePointId="cp-1" />);
+    openMenu(/appPage.chargePoints.trigger.button/i);
+
+    await screen.findByText("appPage.chargePoints.trigger.types.BootNotification");
+
+    // The backend's SUPPORTED_TRIGGER_MESSAGE_TYPES vocabulary has no
+    // DiagnosticsStatusNotification entry — the REST schema rejects it
+    // (400) before it ever reaches a handler — so this dropdown must not
+    // offer it, even though it exists in the shared TriggerMessageType union.
+    expect(
+      screen.queryByText("appPage.chargePoints.trigger.types.DiagnosticsStatusNotification"),
+    ).toBeNull();
+  });
 });

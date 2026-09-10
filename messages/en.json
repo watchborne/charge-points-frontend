@@ -936,7 +936,6 @@
         "button": "Notification",
         "types": {
           "BootNotification": "Boot notification",
-          "DiagnosticsStatusNotification": "Diagnostics status",
           "FirmwareStatusNotification": "Firmware status",
           "Heartbeat": "Heartbeat",
           "MeterValues": "Meter values",
