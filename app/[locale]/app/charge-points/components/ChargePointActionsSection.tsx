@@ -9,6 +9,7 @@ import type { ChargePoint } from "@/types/charge-point";
 
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
 import { DisplayMessageControl } from "./DisplayMessageControl";
+import { DisplayMessagesPanel } from "./DisplayMessagesPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { ActionsDropdown } from "../../components/common/ActionsDropdown";
 import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
@@ -44,12 +45,15 @@ type ChargePointActionsSectionProps = {
  * `ConnectorStatusSection` on the main tab: they're about a specific
  * connector, not the station as a whole.
  *
- * Grouped into two labeled sections rather than one undifferentiated pile of
+ * Grouped into labeled sections rather than one undifferentiated pile of
  * buttons: "controls" (reset, configuration, availability — the station's
- * operative state) and "messaging" (trigger-message, display-message — what
- * it says or is told to (re)send). Each group's own outcome banner renders
- * directly under it instead of at the bottom of the whole tab, so feedback
- * stays next to the button that produced it.
+ * operative state), "messaging" (trigger-message), and, for 2.0.1 stations,
+ * "displayMessages" (`DisplayMessageControl`'s set/clear controls alongside
+ * `DisplayMessagesPanel`'s `NotifyDisplayMessages` history — moved here from
+ * the security tab so the write and read sides of display messages sit
+ * together). Each group's own outcome banner renders directly under it
+ * instead of at the bottom of the whole tab, so feedback stays next to the
+ * button that produced it.
  */
 export const ChargePointActionsSection = ({
   chargePointId,
@@ -174,6 +178,7 @@ export const ChargePointActionsSection = ({
           </h4>
 
           <DisplayMessageControl chargePointId={chargePointId} />
+          <DisplayMessagesPanel chargePointId={chargePointId} />
         </section>
       )}
     </div>

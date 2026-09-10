@@ -49,16 +49,18 @@ app/
                            #   StartTransaction/StopTransaction or TransactionEvent lifecycle,
                            #   charge-points-server's ADR 0012) with a per-session
                            #   SessionConsumptionChart, on its own "Sessions" tab,
-                           #   DeviceEventsPanel: OCPP 2.0.1 NotifyEvent history,
+                           #   DeviceEventsPanel: OCPP 2.0.1 NotifyEvent history, and
                            #   DeviceVariableReportsPanel/RequestDeviceReportDialog:
                            #   NotifyReport history + installer-triggered device report
-                           #   requests (GetBaseReport/GetReport), and DisplayMessagesPanel:
-                           #   GetDisplayMessages/NotifyDisplayMessages history — all three
-                           #   rendered in the "security" tab for OCPP 2.0.1 stations,
+                           #   requests (GetBaseReport/GetReport) — both rendered in the
+                           #   "security" tab for OCPP 2.0.1 stations,
                            #   ChargePointReliabilityTile: 7-day uptime % (main tab),
                            #   ChargePointActionsSection: the dedicated "Actions" tab
-                           #   (includes DisplayMessageControl: SetDisplayMessage/
-                           #   ClearDisplayMessage, 2.0.1-only),
+                           #   (includes, 2.0.1-only, DisplayMessageControl:
+                           #   SetDisplayMessage/ClearDisplayMessage alongside
+                           #   DisplayMessagesPanel: GetDisplayMessages/NotifyDisplayMessages
+                           #   history — moved here from the security tab so the write and
+                           #   read sides of display messages sit together),
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
                            #   URL). ChargePointDetailPanel is the tabbed container these
                            #   render into (tabs: main/actions/consumption/sessions/alerts/
