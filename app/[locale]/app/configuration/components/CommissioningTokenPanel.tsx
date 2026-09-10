@@ -324,7 +324,7 @@ export const CommissioningTokenPanel = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setConfirmRegenerateOpen(false)}>
-              {t("common.cancel")}
+              {t("common.actions.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction disabled={issuing} onClick={() => void issueToken()}>
               {t("common.confirm")}
@@ -345,7 +345,7 @@ export const CommissioningTokenPanel = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setConfirmRevokeOpen(false)}>
-              {t("common.cancel")}
+              {t("common.actions.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction disabled={revoking} onClick={() => void revokeToken()}>
               {t("common.confirm")}

@@ -128,7 +128,7 @@ export const CommissioningDialog = ({
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                {t("appPage.chargePoints.form.buttons.cancel")}
+                {t("common.actions.cancel")}
               </Button>
               <Button type="submit">{t("appPage.chargePoints.commissioning.dialog.submit")}</Button>
             </DialogFooter>

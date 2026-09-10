@@ -29,13 +29,13 @@ export const SiteDeletionDialog = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {deleteTarget && t("appPage.sites.deletion.title", { name: deleteTarget.name })}
+            {deleteTarget && t("common.deleteConfirmTitle", { name: deleteTarget.name })}
           </AlertDialogTitle>
           <AlertDialogDescription>{t("appPage.sites.deletion.description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => onOpenChange(false)}>
-            {t("common.cancel")}
+            {t("common.actions.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

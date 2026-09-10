@@ -41,7 +41,7 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
         <div className="flex items-center gap-2 text-sm">
           <Battery className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium">
-            {t("appPage.sites.page.card.chargePointsWithCount", { count: chargePoints.length })}
+            {t("common.chargePointWithCount", { count: chargePoints.length })}
           </span>
         </div>
 

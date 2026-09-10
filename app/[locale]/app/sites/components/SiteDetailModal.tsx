@@ -125,7 +125,7 @@ export const SiteDetailModal = ({
 
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
-                    {t("appPage.sites.page.card.chargePointsWithCount", {
+                    {t("common.chargePointWithCount", {
                       count: siteChargePoints.length,
                     })}
                   </span>
@@ -332,7 +332,7 @@ export const SiteDetailModal = ({
 
           <DialogFooter className="gap-2 pt-6 border-t">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {t("common.cancel")}
+              {t("common.actions.cancel")}
             </Button>
             <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
               <CalendarCheck className="h-4 w-4 mr-2" />

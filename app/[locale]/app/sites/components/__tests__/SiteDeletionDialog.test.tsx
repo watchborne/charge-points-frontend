@@ -46,7 +46,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    expect(screen.getByText("appPage.sites.deletion.title")).toBeTruthy();
+    expect(screen.getByText("common.deleteConfirmTitle")).toBeTruthy();
   });
 
   it("SHOULD call onDeleteClicked WHEN the destructive action is confirmed", () => {
@@ -76,7 +76,7 @@ describe("SiteDeletionDialog", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "common.cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.actions.cancel" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

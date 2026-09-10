@@ -77,10 +77,10 @@ export const ChargePointFleetPanel = ({
         <h3 className="text-lg font-semibold">{t("appPage.dashboard.fleetOverview")}</h3>
         <p className="text mt-1">
           {[
-            t("misc.chargePointWithCount", {
+            t("common.chargePointWithCount", {
               count: chargePoints.length,
             }),
-            t("misc.siteWithCount", { count: sites.length }),
+            t("common.siteWithCount", { count: sites.length }),
           ].join(" / ")}
         </p>
 
