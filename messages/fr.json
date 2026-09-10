@@ -893,6 +893,13 @@
           }
         }
       },
+      "actionsTab": {
+        "groups": {
+          "controls": "Contrôles de la borne",
+          "messaging": "Tests de notification",
+          "displayMessages": "Message d'affichage"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",
@@ -925,7 +932,8 @@
         }
       },
       "trigger": {
-        "button": "Déclencher un message",
+        "label": "Déclencher une notification",
+        "button": "Notification",
         "types": {
           "BootNotification": "Notification de démarrage",
           "DiagnosticsStatusNotification": "Statut des diagnostics",

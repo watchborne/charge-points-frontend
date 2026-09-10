@@ -145,7 +145,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
