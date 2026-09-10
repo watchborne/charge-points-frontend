@@ -13,8 +13,9 @@ import {
   ChargingSessionsPanel,
   type ChargingSessionListEntry,
 } from "@/app/[locale]/app/charge-points/components/ChargingSessionsPanel";
+import { SessionConsumptionChart } from "@/app/[locale]/app/charge-points/components/SessionConsumptionChart";
 import { StatusHistoryPanel } from "@/app/[locale]/app/charge-points/components/StatusHistoryPanel";
-import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
+import type { ChargePointConsumption, MeterSample, MeterSampleSummary } from "@/lib/api-metering";
 import type { ConnectionStateEvent, ConnectorStatusEvent } from "@/lib/api-status-history";
 
 type PreviewTab = "main" | "consumption" | "sessions" | "alerts";
@@ -119,18 +120,9 @@ const buildStatusHistoryFixture = () => {
   };
 };
 
-// ---------------------------------------------------------------------------
-// Consumption fixture: a synthetic but internally-consistent charging
-// history for both connectors, across several measurands, regenerated per
-// range (24h/7d/30d) the same way `ChargePointConsumptionPanelContainer`
-// re-fetches on a range change — this is what makes it "real world" rather
-// than a handful of hand-typed numbers: Energy.Active.Import.Register only
-// ever counts up and its rate of change matches Power.Active.Import at
-// every instant; Power only rises while a session is active (ramp →
-// plateau → taper, never a flat step); Current tracks Power at a roughly
-// constant Voltage; and SoC only exists while a session is active — a
-// station has no SoC to report from a vehicle that isn't plugged in.
-// ---------------------------------------------------------------------------
+const CONSUMPTION_MEASURAND = "Energy.Active.Import.Register";
+const CONSUMPTION_UNIT = "Wh";
+const SESSION_MEASURAND_POWER = "Power.Active.Import";
 
 const MEASURAND_ENERGY = "Energy.Active.Import.Register";
 const MEASURAND_POWER = "Power.Active.Import";
@@ -477,6 +469,99 @@ const buildSessionsFixture = (): ChargingSessionListEntry[] => {
   ];
 };
 
+/**
+ * A charging session's own meter readings, fed to the presentational
+ * `SessionConsumptionChart` — the marketing preview's counterpart to
+ * `SessionConsumptionChartContainer`'s real fetch, scoped to a real,
+ * synthetic session rather than one that doesn't exist on the backend.
+ * Power ramps up, holds a plateau, then tapers off toward the session's
+ * end (or "now", for the still-active demo session) rather than a flat
+ * step function; Energy is that Power curve's own integral, so it only
+ * ever counts up, same as the real register would.
+ */
+const buildSessionConsumptionFixture = (
+  connectorId: number,
+  startedAt: Date | string,
+  endedAt: Date | string | null,
+): { series: MeterSampleSummary[]; samples: MeterSample[] } => {
+  const start = new Date(startedAt).getTime();
+  const end = endedAt ? new Date(endedAt).getTime() : Date.now();
+  const duration = Math.max(end - start, 60_000);
+  const stepMs = 5 * 60 * 1000;
+  const plateauPowerW = connectorId === 1 ? 7_200 : 3_700;
+  const registerBaselineWh = connectorId === 1 ? 12_400 : 8_100;
+
+  const rampMs = Math.min(8 * 60 * 1000, duration * 0.2);
+  const taperMs = Math.min(15 * 60 * 1000, duration * 0.3);
+  const taperStart = duration - taperMs;
+
+  const powerAt = (t: number) => {
+    const elapsed = t - start;
+    if (elapsed < rampMs) return plateauPowerW * (elapsed / rampMs);
+    if (elapsed > taperStart) {
+      const taperFraction = (elapsed - taperStart) / taperMs;
+      return plateauPowerW * (1 - taperFraction * 0.75);
+    }
+    return plateauPowerW;
+  };
+
+  const times: number[] = [];
+  for (let t = start; t <= end; t += stepMs) times.push(t);
+  if (times[times.length - 1] !== end) times.push(end);
+
+  const makeSample = (measurand: string, unit: string, t: number, value: number): MeterSample => ({
+    id: `${measurand}-c${connectorId}-${t}`,
+    chargePointId: DEMO_CHARGE_POINT_ID,
+    connectorId,
+    measuredAt: new Date(t).toISOString(),
+    measurand,
+    unit,
+    value,
+    createdAt: new Date(t).toISOString(),
+  });
+
+  const power: MeterSample[] = [];
+  const energy: MeterSample[] = [];
+  let previousT = start;
+  let cumulativeWh = 0;
+
+  for (const t of times) {
+    const powerW = Math.max(0, powerAt(t));
+    power.push(makeSample(SESSION_MEASURAND_POWER, "W", t, Math.round(powerW)));
+
+    cumulativeWh += powerW * ((t - previousT) / (60 * 60 * 1000));
+    previousT = t;
+    energy.push(
+      makeSample(
+        CONSUMPTION_MEASURAND,
+        CONSUMPTION_UNIT,
+        t,
+        Math.round(registerBaselineWh + cumulativeWh),
+      ),
+    );
+  }
+
+  const summarize = (samples: MeterSample[]): MeterSampleSummary => {
+    const values = samples.map((sample) => sample.value);
+    return {
+      connectorId,
+      measurand: samples[0].measurand,
+      unit: samples[0].unit,
+      min: Math.min(...values),
+      max: Math.max(...values),
+      avg: values.reduce((sum, value) => sum + value, 0) / values.length,
+      sampleCount: values.length,
+      firstMeasuredAt: samples[0].measuredAt,
+      lastMeasuredAt: samples[samples.length - 1].measuredAt,
+    };
+  };
+
+  return {
+    series: [summarize(energy), summarize(power)],
+    samples: [...energy, ...power],
+  };
+};
+
 const buildAlertsFixture = (): AlertListEntry[] => {
   const now = Date.now();
   const hoursAgo = (h: number) => new Date(now - h * 60 * 60 * 1000).toISOString();
@@ -608,7 +693,27 @@ export const ChargePointPreviewTabs = () => {
         )}
 
         {tab === "sessions" && (
-          <ChargingSessionsPanel chargePointId={DEMO_CHARGE_POINT_ID} sessions={sessions} />
+          <ChargingSessionsPanel
+            chargePointId={DEMO_CHARGE_POINT_ID}
+            sessions={sessions}
+            renderSessionDetail={(session) => {
+              const { series, samples: sessionSamples } = buildSessionConsumptionFixture(
+                session.connectorId,
+                session.startedAt,
+                session.endedAt,
+              );
+
+              return (
+                <SessionConsumptionChart
+                  connectorId={session.connectorId}
+                  startedAt={session.startedAt}
+                  endedAt={session.endedAt}
+                  series={series}
+                  samples={sessionSamples}
+                />
+              );
+            }}
+          />
         )}
 
         {tab === "alerts" && (
