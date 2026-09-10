@@ -308,7 +308,11 @@ export const ChargePointPreviewTabs = () => {
 
   return (
     <div className="rounded-3xl border bg-muted/30 p-6 md:p-10">
-      <Tabs value={tab} onValueChange={(value) => setTab(value as PreviewTab)}>
+      <Tabs
+        value={tab}
+        onValueChange={(value) => setTab(value as PreviewTab)}
+        className="overflow-auto"
+      >
         <TabsList>
           {PREVIEW_TABS.map((option) => (
             <TabsTrigger key={option} value={option}>
