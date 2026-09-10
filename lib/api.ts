@@ -3,9 +3,11 @@ import { chargePointApis } from "./api-charge-points";
 import { commissioningTokenApis } from "./api-commissioning-token";
 import { deviceEventApis } from "./api-device-events";
 import { deviceVariableReportApis } from "./api-device-variable-reports";
+import { displayMessageApis } from "./api-display-messages";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { securityEventApis } from "./api-security-events";
+import { siteVisitApis } from "./api-site-visits";
 import { siteApis } from "./api-sites";
 import { statusHistoryApis } from "./api-status-history";
 import { uptimeApis } from "./api-uptime";
@@ -16,10 +18,12 @@ export const api = {
   CommissioningToken: commissioningTokenApis,
   DeviceEvents: deviceEventApis,
   DeviceVariableReports: deviceVariableReportApis,
+  DisplayMessages: displayMessageApis,
   Me: meApis,
   Metering: meteringApis,
   SecurityEvents: securityEventApis,
   Sites: siteApis,
+  SiteVisits: siteVisitApis,
   StatusHistory: statusHistoryApis,
   Uptime: uptimeApis,
 };

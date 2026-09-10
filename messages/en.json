@@ -943,6 +943,63 @@
           "genericError": "The request failed. Please try again."
         }
       },
+      "displayMessage": {
+        "set": {
+          "button": "Send a message",
+          "title": "Send a display message",
+          "description": "The message will appear on the station's screen (OCPP 2.0.1 only).",
+          "submit": "Send",
+          "close": "Close",
+          "fields": {
+            "content": "Message",
+            "priority": "Priority"
+          },
+          "priorities": {
+            "AlwaysFront": "Always in front",
+            "InFront": "In front once",
+            "NormalCycle": "Normal rotation"
+          },
+          "result": {
+            "accepted": "Message sent to the station.",
+            "rejected": "The station rejected the message.",
+            "notSupportedMessageFormat": "The station does not support this message format.",
+            "notSupportedPriority": "The station does not support this priority.",
+            "notSupportedState": "The station does not support this targeted state.",
+            "unknownTransaction": "Unknown transaction.",
+            "notFound": "Charge point not found.",
+            "notConnectedOrUnsupported": "The station is offline or does not speak OCPP 2.0.1.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The request failed. Please try again."
+          }
+        },
+        "clear": {
+          "button": "Clear the message",
+          "result": {
+            "accepted": "Message cleared.",
+            "unknown": "No message to clear on this station.",
+            "notFound": "Charge point not found.",
+            "notConnectedOrUnsupported": "The station is offline or does not speak OCPP 2.0.1.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "Clearing the message failed. Please try again."
+          }
+        }
+      },
+      "displayMessages": {
+        "title": "Display messages",
+        "loading": "Loading display messages…",
+        "loadError": "Could not load this charge point's display messages.",
+        "empty": "No recent messages.",
+        "refresh": "Refresh (all messages)",
+        "result": {
+          "notFound": "Unknown charge point.",
+          "notConnectedOrUnsupported": "The station is offline or does not speak OCPP 2.0.1.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "The request could not be sent."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",
@@ -1075,7 +1132,8 @@
         "card": {
           "chargePointsWithCount": "{count, plural, =0 {0 charge point} =1 {1 charge point} other {# charge points}}",
           "online": "{count} online",
-          "offline": "{count} offline"
+          "offline": "{count} offline",
+          "visitOverdue": "Visit overdue"
         }
       },
       "form": {
@@ -1094,9 +1152,7 @@
           "customerName": "Customer name",
           "customerNamePlaceholder": "Customer name",
           "installDate": "Install date",
-          "installDatePlaceholder": "Install date...",
-          "lastVisit": "Last visit",
-          "lastVisitPlaceholder": "Last visit..."
+          "installDatePlaceholder": "Install date..."
         }
       },
       "deletion": {
@@ -1115,6 +1171,24 @@
         "reliability": {
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
+        },
+        "visits": {
+          "title": "Visit history",
+          "loading": "Loading visits...",
+          "loadError": "Could not load the visit history.",
+          "empty": "No visit recorded.",
+          "logButton": "Log a visit",
+          "logDialog": {
+            "title": "Log a visit",
+            "description": "Fill in the visit date and an optional note.",
+            "submit": "Log visit",
+            "fields": {
+              "visitedAt": "Visit date",
+              "visitedAtPlaceholder": "Visit date...",
+              "note": "Note",
+              "notePlaceholder": "Ex: Annual inspection, connector 2 cable replaced"
+            }
+          }
         }
       }
     },
