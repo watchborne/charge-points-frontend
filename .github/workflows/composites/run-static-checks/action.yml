@@ -33,3 +33,10 @@ runs:
     - name: Run typecheck
       run: npm run typecheck
       shell: bash
+
+    # Catches the two consumers of @watchborne/charge-points-types drifting a
+    # minor version apart with nothing to flag it (issue #389) — a `^0.x`
+    # range pins the minor, so it never resolves to a newer one on its own.
+    - name: Check charge-points-types version drift
+      run: npm run check-types-version
+      shell: bash
