@@ -986,6 +986,20 @@
           }
         }
       },
+      "displayMessages": {
+        "title": "Display messages",
+        "loading": "Loading display messages…",
+        "loadError": "Could not load this charge point's display messages.",
+        "empty": "No recent messages.",
+        "refresh": "Refresh (all messages)",
+        "result": {
+          "notFound": "Unknown charge point.",
+          "notConnectedOrUnsupported": "The station is offline or does not speak OCPP 2.0.1.",
+          "stationError": "The station returned an invalid response.",
+          "timeout": "The station did not answer in time.",
+          "genericError": "The request could not be sent."
+        }
+      },
       "stats": {
         "total": "Total",
         "connected": "Connected",

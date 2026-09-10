@@ -23,6 +23,7 @@ import { ChargingSessionsPanelContainer } from "./ChargingSessionsPanelContainer
 import { ConnectorStatusSection } from "./ConnectorStatusSection";
 import { DeviceEventsPanel } from "./DeviceEventsPanel";
 import { DeviceVariableReportsPanel } from "./DeviceVariableReportsPanel";
+import { DisplayMessagesPanel } from "./DisplayMessagesPanel";
 import { LogUploadPanel } from "./LogUploadPanel";
 import { SecurityEventsPanel } from "./SecurityEventsPanel";
 import { StatusHistoryPanelContainer } from "./StatusHistoryPanelContainer";
@@ -233,6 +234,7 @@ export const ChargePointDetailPanel = ({
             <>
               <DeviceEventsPanel chargePointId={chargePoint.id} />
               <DeviceVariableReportsPanel chargePointId={chargePoint.id} />
+              <DisplayMessagesPanel chargePointId={chargePoint.id} />
             </>
           )}
 
