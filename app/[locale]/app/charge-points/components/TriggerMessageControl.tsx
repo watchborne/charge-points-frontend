@@ -50,37 +50,42 @@ export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlPr
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <ActionsDropdown
-        align="start"
-        disabled={state.status === "loading"}
-        trigger={
-          <Button variant="outline" size="sm" disabled={state.status === "loading"}>
-            {state.status === "loading" ? (
-              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-            ) : (
-              <Radio className="mr-1.5 h-4 w-4" />
-            )}
-            {t("appPage.chargePoints.trigger.button")}
-            <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
-          </Button>
-        }
-        actions={TRIGGER_MESSAGE_TYPES.map((type) => ({
-          id: type,
-          label: t(`appPage.chargePoints.trigger.types.${type}`),
-        }))}
-        onAction={(actionId) => handleTrigger(actionId as TriggerMessageType)}
-      />
-
-      {state.status === "done" &&
-        (state.outcome.ok ? (
-          <div className="flex items-center gap-2 text-sm text-status-available-foreground">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            {t("appPage.chargePoints.trigger.result.accepted")}
-          </div>
+    <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center">
+        {state.status === "loading" ? (
+          <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
         ) : (
-          <Callout description={t(errorMessageKey(state.outcome.httpStatus))} variant="error" />
-        ))}
+          <Radio className="mr-1.5 h-4 w-4" />
+        )}
+        <label className="text-sm font-medium">{t("appPage.chargePoints.trigger.label")}</label>
+      </div>
+      <div className="flex flex-col gap-2">
+        <ActionsDropdown
+          align="start"
+          disabled={state.status === "loading"}
+          trigger={
+            <Button variant="outline" size="sm" disabled={state.status === "loading"}>
+              {t("appPage.chargePoints.trigger.button")}
+              <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
+            </Button>
+          }
+          actions={TRIGGER_MESSAGE_TYPES.map((type) => ({
+            id: type,
+            label: t(`appPage.chargePoints.trigger.types.${type}`),
+          }))}
+          onAction={(actionId) => handleTrigger(actionId as TriggerMessageType)}
+        />
+
+        {state.status === "done" &&
+          (state.outcome.ok ? (
+            <div className="flex items-center gap-2 text-sm text-status-available-foreground">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              {t("appPage.chargePoints.trigger.result.accepted")}
+            </div>
+          ) : (
+            <Callout description={t(errorMessageKey(state.outcome.httpStatus))} variant="error" />
+          ))}
+      </div>
     </div>
   );
 };
