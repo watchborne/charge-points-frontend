@@ -896,7 +896,8 @@
       "actionsTab": {
         "groups": {
           "controls": "Contrôles de la borne",
-          "messaging": "Messagerie"
+          "messaging": "Tests de notification",
+          "displayMessages": "Message d'affichage"
         }
       },
       "configuration": {
@@ -931,7 +932,8 @@
         }
       },
       "trigger": {
-        "button": "Déclencher un message",
+        "label": "Déclencher une notification",
+        "button": "Notification",
         "types": {
           "BootNotification": "Notification de démarrage",
           "DiagnosticsStatusNotification": "Statut des diagnostics",

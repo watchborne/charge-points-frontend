@@ -164,12 +164,15 @@ export const ChargePointActionsSection = ({
         <h4 className="text-sm font-semibold text-muted-foreground">
           {t("appPage.chargePoints.actionsTab.groups.messaging")}
         </h4>
+        <TriggerMessageControl chargePointId={chargePointId} />
+      </section>
 
-        <div className="flex flex-col gap-3">
-          <TriggerMessageControl chargePointId={chargePointId} />
+      <section className="flex flex-col gap-3 rounded-lg border p-4">
+        <h4 className="text-sm font-semibold text-muted-foreground">
+          {t("appPage.chargePoints.actionsTab.groups.displayMessages")}
+        </h4>
 
-          {ocppVersion === "2.0.1" && <DisplayMessageControl chargePointId={chargePointId} />}
-        </div>
+        {ocppVersion === "2.0.1" && <DisplayMessageControl chargePointId={chargePointId} />}
       </section>
     </div>
   );

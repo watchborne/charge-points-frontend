@@ -896,7 +896,8 @@
       "actionsTab": {
         "groups": {
           "controls": "Charge point controls",
-          "messaging": "Messaging"
+          "messaging": "Testing notifications",
+          "displayMessages": "Display messages"
         }
       },
       "configuration": {
@@ -931,7 +932,8 @@
         }
       },
       "trigger": {
-        "button": "Trigger a message",
+        "label": "Trigger a notification",
+        "button": "Notification",
         "types": {
           "BootNotification": "Boot notification",
           "DiagnosticsStatusNotification": "Diagnostics status",
