@@ -120,51 +120,94 @@ const buildStatusHistoryFixture = () => {
 };
 
 const CONSUMPTION_MEASURAND = "Energy.Active.Import.Register";
-const CONSUMPTION_UNIT = "Wh";
+/**
+ * A second measurand purely so the demo's measurand selector — hidden
+ * whenever a station only reports one — actually renders and is reachable
+ * in the marketing preview, the same way a real multi-measurand station
+ * would show it.
+ */
+const CONSUMPTION_MEASURAND_POWER = "Power.Active.Import";
 
+type ConsumptionSeriesDef = {
+  measurand: string;
+  unit: string;
+  connectorValues: Record<number, number[]>;
+};
+
+const CONSUMPTION_SERIES_DEFS: ConsumptionSeriesDef[] = [
+  {
+    measurand: CONSUMPTION_MEASURAND,
+    unit: "Wh",
+    connectorValues: {
+      1: [12_000, 12_180, 12_420, 12_690, 12_980, 13_210, 13_450],
+      2: [8_000, 8_090, 8_210, 8_340, 8_420, 8_510, 8_600],
+    },
+  },
+  {
+    measurand: CONSUMPTION_MEASURAND_POWER,
+    unit: "W",
+    connectorValues: {
+      1: [7_200, 7_400, 7_100, 6_800, 7_300, 7_500, 7_200],
+      2: [3_600, 3_700, 3_550, 3_400, 3_650, 3_720, 3_600],
+    },
+  },
+];
+
+/**
+ * Builds the consumption fixture as fractions of "today so far" rather than
+ * fixed hours-ago clock times — same reasoning as
+ * `buildStatusHistoryFixture` above: raw `hoursAgo` offsets can reach back
+ * into yesterday depending on what time of day this loads, which the "24h"
+ * window this preview locks to should never do.
+ */
 const buildConsumptionFixture = (): {
   consumption: ChargePointConsumption;
   samples: MeterSample[];
 } => {
-  const now = Date.now();
-  const hoursAgo = (h: number) => new Date(now - h * 60 * 60 * 1000).toISOString();
-  const hoursBack = [12, 10, 8, 6, 4, 2, 0];
-  const connectorValues: Record<number, number[]> = {
-    1: [12_000, 12_180, 12_420, 12_690, 12_980, 13_210, 13_450],
-    2: [8_000, 8_090, 8_210, 8_340, 8_420, 8_510, 8_600],
-  };
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const elapsedMs = Math.max(Date.now() - start.getTime(), 60_000);
+  const at = (fraction: number) => new Date(start.getTime() + elapsedMs * fraction).toISOString();
+  // Seven evenly-spaced points from the start of today's window to now,
+  // oldest first.
+  const fractions = [0, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6, 1];
 
-  const samples: MeterSample[] = DEMO_CONNECTOR_IDS.flatMap((connectorId) =>
-    connectorValues[connectorId].map((value, index) => ({
-      id: `c${connectorId}-sample-${index}`,
-      chargePointId: DEMO_CHARGE_POINT_ID,
-      connectorId,
-      measuredAt: hoursAgo(hoursBack[index]),
-      measurand: CONSUMPTION_MEASURAND,
-      unit: CONSUMPTION_UNIT,
-      value,
-      createdAt: hoursAgo(hoursBack[index]),
-    })),
+  const samples: MeterSample[] = CONSUMPTION_SERIES_DEFS.flatMap(
+    ({ measurand, unit, connectorValues }) =>
+      DEMO_CONNECTOR_IDS.flatMap((connectorId) =>
+        connectorValues[connectorId].map((value, index) => ({
+          id: `${measurand}-c${connectorId}-sample-${index}`,
+          chargePointId: DEMO_CHARGE_POINT_ID,
+          connectorId,
+          measuredAt: at(fractions[index]),
+          measurand,
+          unit,
+          value,
+          createdAt: at(fractions[index]),
+        })),
+      ),
   );
 
   const consumption: ChargePointConsumption = {
     chargePointId: DEMO_CHARGE_POINT_ID,
-    from: hoursAgo(12),
-    to: hoursAgo(0),
-    series: DEMO_CONNECTOR_IDS.map((connectorId) => {
-      const values = connectorValues[connectorId];
-      return {
-        connectorId,
-        measurand: CONSUMPTION_MEASURAND,
-        unit: CONSUMPTION_UNIT,
-        min: Math.min(...values),
-        max: Math.max(...values),
-        avg: values.reduce((sum, value) => sum + value, 0) / values.length,
-        sampleCount: values.length,
-        firstMeasuredAt: hoursAgo(12),
-        lastMeasuredAt: hoursAgo(0),
-      };
-    }),
+    from: at(0),
+    to: at(1),
+    series: CONSUMPTION_SERIES_DEFS.flatMap(({ measurand, unit, connectorValues }) =>
+      DEMO_CONNECTOR_IDS.map((connectorId) => {
+        const values = connectorValues[connectorId];
+        return {
+          connectorId,
+          measurand,
+          unit,
+          min: Math.min(...values),
+          max: Math.max(...values),
+          avg: values.reduce((sum, value) => sum + value, 0) / values.length,
+          sampleCount: values.length,
+          firstMeasuredAt: at(0),
+          lastMeasuredAt: at(1),
+        };
+      }),
+    ),
   };
 
   return { consumption, samples };
@@ -251,7 +294,15 @@ export const ChargePointPreviewTabs = () => {
   const [connectorId, setConnectorId] = useState(DEMO_CONNECTOR_IDS[0]);
 
   const statusHistory = useMemo(() => buildStatusHistoryFixture(), []);
-  const { consumption, samples } = useMemo(() => buildConsumptionFixture(), []);
+  const { consumption, samples: consumptionSamples } = useMemo(() => buildConsumptionFixture(), []);
+  // Real stations only ever hand `ChargePointConsumptionPanel` samples for
+  // the one measurand currently selected (`useConsumption`'s raw read is
+  // itself scoped to `measurand`) — filter here too, or switching measurand
+  // in this preview would plot both series' values as one connector line.
+  const consumptionChartSamples = useMemo(
+    () => consumptionSamples.filter((sample) => sample.measurand === measurand),
+    [consumptionSamples, measurand],
+  );
   const sessions = useMemo(() => buildSessionsFixture(), []);
   const alerts = useMemo(() => buildAlertsFixture(), []);
 
@@ -291,11 +342,14 @@ export const ChargePointPreviewTabs = () => {
             measurand={measurand}
             onMeasurandChange={setMeasurand}
             consumption={consumption}
-            samples={samples}
-            measurands={[CONSUMPTION_MEASURAND]}
+            samples={consumptionChartSamples}
+            measurands={[CONSUMPTION_MEASURAND, CONSUMPTION_MEASURAND_POWER]}
             measurandLabels={{
               [CONSUMPTION_MEASURAND]: t(
                 "appPage.chargePoints.consumption.measurands.EnergyActiveImportRegister",
+              ),
+              [CONSUMPTION_MEASURAND_POWER]: t(
+                "appPage.chargePoints.consumption.measurands.PowerActiveImport",
               ),
             }}
             truncated={false}
