@@ -85,7 +85,11 @@ export const ChargingSessionsPanel = ({ chargePointId, sessions }: ChargingSessi
   };
 
   return (
-    <div className="flex flex-col gap-3 p-3">
+    // No padding of its own — StatusHistoryPanel/ChargePointConsumptionPanel/
+    // AlertsPanel (this tab's siblings) don't pad themselves either, relying
+    // on the detail panel's tab body for that; this one used to, doubling up
+    // with the marketing preview's own padded wrapper around it.
+    <div className="flex flex-col gap-3">
       <span className="text-sm text-muted-foreground">
         {t("appPage.chargePoints.chargingSessions.title")}
       </span>
