@@ -117,23 +117,23 @@ export const AlertsPanel = ({
             const recipientEmails = alert.notifiedRecipients.map((recipient) => recipient.email);
 
             return (
-              <div key={alert.id} className="flex flex-col gap-1.5 px-3 py-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1.5 text-sm font-medium">
+              <div key={alert.id} className="flex flex-col gap-2.5 px-3 py-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-sm font-medium flex-wrap">
                     <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
                     {t(`appPage.chargePoints.alerts.types.${alert.type}`)}
                     {alert.connectorId !== null && (
-                      <span className="text-xs font-normal text-muted-foreground">
+                      <div className="text-xs font-normal text-muted-foreground">
                         {t("appPage.chargePoints.alerts.connector", {
                           connectorId: alert.connectorId,
                         })}
-                      </span>
+                      </div>
                     )}
-                  </span>
+                  </div>
                   <AlertStatusBadge status={alert.status} />
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted-foreground mt-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
                   <span>
                     {alert.status === "OPEN"
@@ -153,11 +153,11 @@ export const AlertsPanel = ({
                   <span>({format(new Date(alert.openedAt), "dd/MM/yyyy HH:mm")})</span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs">
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
                   {alert.notificationCount > 0 && alert.lastNotifiedAt ? (
                     <>
                       <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-status-available-foreground" />
-                      <span className="font-medium">
+                      <span className="font-medium break-words">
                         {t("appPage.chargePoints.alerts.notifiedTo", {
                           emails: recipientEmails.join(", "),
                         })}
