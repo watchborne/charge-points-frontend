@@ -42,6 +42,11 @@ NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon key>
 ENABLE_DEV_LOGIN=<optional, local dev only — see below>
 SUPABASE_SERVICE_ROLE_KEY=<optional, local dev only — see below>
+NEXT_PUBLIC_SENTRY_DSN=<optional, unset disables Sentry entirely>
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=<optional, overrides NODE_ENV as the Sentry "environment" tag>
+SENTRY_ORG=<optional, CI/build only — source map upload>
+SENTRY_PROJECT=<optional, CI/build only — source map upload>
+SENTRY_AUTH_TOKEN=<optional, CI/build only, secret — source map upload>
 ```
 
 `NEXT_PUBLIC_OCPP_SERVER_URL` is the public-facing OCPP endpoint charge points

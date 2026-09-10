@@ -47,10 +47,22 @@ app/
                            #   retrieval via GetLog/GetDiagnostics,
                            #   ChargingSessionsPanel: charging-session history (one row per
                            #   StartTransaction/StopTransaction or TransactionEvent lifecycle,
-                           #   charge-points-server's ADR 0012), on its own "Sessions" tab,
+                           #   charge-points-server's ADR 0012) with a per-session
+                           #   SessionConsumptionChart, on its own "Sessions" tab,
+                           #   DeviceEventsPanel: OCPP 2.0.1 NotifyEvent history,
+                           #   DeviceVariableReportsPanel/RequestDeviceReportDialog:
+                           #   NotifyReport history + installer-triggered device report
+                           #   requests (GetBaseReport/GetReport), and DisplayMessagesPanel:
+                           #   GetDisplayMessages/NotifyDisplayMessages history — all three
+                           #   rendered in the "security" tab for OCPP 2.0.1 stations,
+                           #   ChargePointReliabilityTile: 7-day uptime % (main tab),
+                           #   ChargePointActionsSection: the dedicated "Actions" tab
+                           #   (includes DisplayMessageControl: SetDisplayMessage/
+                           #   ClearDisplayMessage, 2.0.1-only),
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
                            #   URL). ChargePointDetailPanel is the tabbed container these
-                           #   render into, itself decomposed into ChargePointHeaderSection,
+                           #   render into (tabs: main/actions/consumption/sessions/alerts/
+                           #   security), itself decomposed into ChargePointHeaderSection,
                            #   ChargePointMetadataSection, and ConnectorStatusSection. The
                            #   page itself wraps its useSearchParams() usage in Suspense —
                            #   required for static rendering, and also drives status/OCPP
@@ -58,21 +70,26 @@ app/
                            #   hooks/useChargePointActions.ts centralizes the action
                            #   handlers ChargePointDetailPanel and ChargePointFleetPanel share.
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard, SiteGrid,
-                           #   SiteGridSkeleton, SiteDeletionDialog, SiteDetailModal
+                           #   SiteGridSkeleton, SiteDeletionDialog, SiteDetailModal,
+                           #   SiteReliabilityValue (7-day uptime %, rendered in
+                           #   SiteDetailModal), LogSiteVisitDialog: logs a site visit
+                           #   (POST /api/sites/:id/visits, charge-points-server ADR 0015)
+                           #   from SiteDetailModal
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; plus generic display/interaction
                           #   primitives not yet promoted to @watchborne/electrons:
                           #   ActionsDropdown, StatusActionDropdown, FormDialog,
-                          #   StatsBreakdown, GenericStatusBadge, SkeletonGrid; dashboard/:
-                          #   FleetOverviewPanel + SiteHealth* — the fleet-wide
-                          #   site health tile — and DashboardOnboarding;
+                          #   StatsBreakdown, GenericStatusBadge, SkeletonGrid, Tooltip;
+                          #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
+                          #   site health tile, derived client-side from already-fetched
+                          #   charge points (lib/derive-site-health.ts) rather than a
+                          #   dedicated API call — and DashboardOnboarding;
                           #   charge-points/: ChargePointsBreakdown,
                           #   AlertStatusBadge, FirmwareTimeline, StatusBadge)
       404/                 # dashboard-scoped not-found page
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
-                          #   useConsumption, useStatusHistory, useSitesHealth,
-                          #   useFlipReorder
+                          #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -178,7 +195,38 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   `ChargingSession` is a **shared-package type**
   (`@watchborne/charge-points-types`, added in ADR 0012 §8 once this route
   existed to consume it), so there is no locally-declared response surface
-  for it.
+  for it. `lib/api-uptime.ts` (`api.Uptime`) reads
+  `GET /api/charge-points/:id/uptime` / `GET /api/sites/:id/uptime` — the
+  `onlineMs`/`totalMs` window `ChargePointReliabilityTile` and
+  `SiteReliabilityValue` render as a 7-day uptime %. `lib/api-device-events.ts`
+  (`api.DeviceEvents.list`) reads `GET /api/charge-points/:id/device-events` —
+  the OCPP 2.0.1 `NotifyEvent` history behind `DeviceEventsPanel`.
+  `lib/api-device-variable-reports.ts` (`api.DeviceVariableReports`) reads
+  `GET /api/charge-points/:id/device-variable-reports` (the `NotifyReport`
+  history behind `DeviceVariableReportsPanel`) and also issues the
+  `GetBaseReport`/`GetReport` device-report requests `RequestDeviceReportDialog`
+  triggers — acknowledgment-only calls whose actual inventory arrives later as
+  `NotifyReport` frames the panel picks up on its next fetch. `lib/api-display-messages.ts`
+  (`api.DisplayMessages`) reads `GET /api/charge-points/:id/display-message-reports`
+  (the `NotifyDisplayMessages` history behind `DisplayMessagesPanel`) and issues the
+  unfiltered `GetDisplayMessages` request `requestAll` triggers — same
+  acknowledgment-now/data-later shape as the device-report request above. All four
+  follow the same locally-declared-response-type pattern as `Me`/`SecurityEvent`
+  above, for the same reason (their backing entities are server-local).
+  `api.ChargePoints.setDisplayMessage`/`clearDisplayMessage` (`lib/api-charge-points.ts`)
+  are the write side (OCPP `SetDisplayMessage`/`ClearDisplayMessage`, 2.0.1-only)
+  behind `DisplayMessageControl` — a single fixed message id, since this client has
+  no way to discover a station's own ids without `GetDisplayMessages`.
+- `lib/derive-site-health.ts` derives the fleet-wide site-health tile
+  (`FleetOverviewPanel` + `SiteHealth*`) client-side from charge points already
+  fetched by `useChargePoints`, replacing an earlier dedicated
+  `GET /api/sites/health` call and its own `useSitesHealth` hook (both removed).
+  `lib/derive-site-visit-overdue.ts` (`isSiteVisitOverdue`, rendered as a badge in
+  `SiteCard`) is the same derive-client-side pattern, kept in lockstep with the
+  backend's own `findOverdueSites` (same 90-day threshold, same
+  `lastVisitedAt`/`installedAt` fallback). `lib/api-site-visits.ts` (`api.SiteVisits`,
+  `list`/`record`) reads/writes `/api/sites/:id/visits` — the `SiteVisit` history
+  behind `useSiteVisits`/`LogSiteVisitDialog` (charge-points-server ADR 0015).
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
