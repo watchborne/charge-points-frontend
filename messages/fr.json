@@ -3,12 +3,18 @@
   "common": {
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
-    "save": "Enregistrer",
-    "cancel": "Annuler",
     "confirm": "Confirmer",
     "delete": "Supprimer",
     "edit": "Modifier",
-    "close": "Fermer"
+    "close": "Fermer",
+    "deleteConfirmTitle": "Supprimer « {name} » ?",
+    "chargePointWithCount": "{count, plural, =0 {0 borne de recharge} =1 {1 borne de recharge} other {# bornes de recharge}}",
+    "siteWithCount": "{count, plural, =0 {0 site} =1 {1 site} other {# sites}}",
+    "actions": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "create": "Créer"
+    }
   },
   "layout": {
     "footer": {
@@ -79,10 +85,6 @@
         }
       }
     }
-  },
-  "misc": {
-    "chargePointWithCount": "{count, plural, =0 {0 borne de recharge} =1 {1 borne de recharge} other {# bornes de recharge}}",
-    "siteWithCount": "{count, plural, =0 {0 site} =1 {1 site} other {# sites}}"
   },
   "homePage": {
     "hero": {
@@ -534,11 +536,6 @@
         "editTitle": "Modifier la borne de recharge",
         "createDescription": "Remplissez les détails de la nouvelle borne de recharge.",
         "editDescription": "Modifiez les détails de la borne de recharge.",
-        "buttons": {
-          "create": "Créer",
-          "save": "Enregistrer",
-          "cancel": "Annuler"
-        },
         "fields": {
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
@@ -601,7 +598,6 @@
         }
       },
       "deletion": {
-        "title": "Supprimer « {name} » ?",
         "description": "Action destructive : cette borne de recharge sera irrécupérable."
       },
       "reset": {
@@ -693,7 +689,6 @@
           "title": "Mettre à jour le firmware",
           "description": "La borne téléchargera l'image depuis l'URL indiquée puis l'installera. Le superviseur ne télécharge rien lui-même.",
           "submit": "Lancer la mise à jour",
-          "close": "Fermer",
           "unsignedDialect": "Cette borne parle OCPP 1.6, qui ne gère pas le firmware signé : l'étape de vérification de signature sera absente de la timeline.",
           "fields": {
             "location": "URL de l'image firmware",
@@ -748,7 +743,6 @@
           "title": "Demander un envoi de journal",
           "description": "La borne enverra son fichier de journal vers l'URL indiquée. Le superviseur ne télécharge rien lui-même.",
           "submit": "Lancer l'envoi",
-          "close": "Fermer",
           "unsupportedSecurityLog": "Cette borne parle OCPP 1.6, qui n'a pas de notion de journal de sécurité : seul le journal de diagnostic peut être demandé.",
           "fields": {
             "logType": "Type de journal",
@@ -862,7 +856,6 @@
           "title": "Demander un rapport d'inventaire",
           "description": "La borne répond immédiatement par une simple acceptation ou un refus — l'inventaire lui-même arrive plus tard et apparaît dans la liste ci-dessous une fois reçu.",
           "submit": "Envoyer la demande",
-          "close": "Fermer",
           "fields": {
             "kind": "Type de rapport",
             "reportBase": "Base du rapport"
@@ -952,7 +945,6 @@
           "title": "Envoyer un message d'affichage",
           "description": "Le message s'affichera sur l'écran de la borne (OCPP 2.0.1 uniquement).",
           "submit": "Envoyer",
-          "close": "Fermer",
           "fields": {
             "content": "Message",
             "priority": "Priorité"
@@ -1144,9 +1136,7 @@
         "createDescription": "Remplissez les détails du nouveau site.",
         "editDescription": "Modifiez les détails du nouveau site.",
         "buttons": {
-          "create": "Créer site",
-          "save": "Enregistrer",
-          "cancel": "Annuler"
+          "create": "Créer site"
         },
         "fields": {
           "siteName": "Nom du site",
@@ -1158,7 +1148,6 @@
         }
       },
       "deletion": {
-        "title": "Supprimer « {name} » ?",
         "description": "Action destructive : ce site sera irrécupérable."
       },
       "siteCombobox": {
@@ -1193,10 +1182,6 @@
           }
         }
       }
-    },
-    "deletion": {
-      "title": "Supprimer « {name} » ?",
-      "description": "Action destructive : ce site sera irrécupérable."
     },
     "configuration": {
       "page": {

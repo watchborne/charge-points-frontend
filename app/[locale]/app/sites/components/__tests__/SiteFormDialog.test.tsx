@@ -21,7 +21,7 @@ describe("SiteFormDialog", () => {
     render(<SiteFormDialog open onOpenChange={vi.fn()} mode="edit" onSubmit={vi.fn()} />);
 
     expect(screen.getByText("appPage.sites.form.editTitle")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "appPage.sites.form.buttons.save" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "common.actions.save" })).toBeTruthy();
   });
 
   it("SHOULD prefill the fields WHEN initialValues are given", () => {
@@ -81,7 +81,7 @@ describe("SiteFormDialog", () => {
     const onOpenChange = vi.fn();
     render(<SiteFormDialog open onOpenChange={onOpenChange} mode="create" onSubmit={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "appPage.sites.form.buttons.cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.actions.cancel" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

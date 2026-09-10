@@ -84,6 +84,6 @@ describe("SiteGrid", () => {
       />,
     );
 
-    expect(screen.getAllByText("misc.chargePointWithCount(count=1)").length).toBe(2);
+    expect(screen.getAllByText("common.chargePointWithCount(count=1)").length).toBe(2);
   });
 });

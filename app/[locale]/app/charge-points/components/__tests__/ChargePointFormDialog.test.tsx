@@ -59,9 +59,7 @@ describe("ChargePointFormDialog", () => {
       />,
     );
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "appPage.chargePoints.form.buttons.create" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "common.actions.create" }));
 
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ name: "" })),
@@ -84,7 +82,7 @@ describe("ChargePointFormDialog", () => {
     fireEvent.change(screen.getByLabelText("appPage.chargePoints.form.fields.name"), {
       target: { value: "" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "appPage.chargePoints.form.buttons.save" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.actions.save" }));
 
     await waitFor(() => expect(screen.getByText("Name is required")).toBeTruthy());
     expect(onSubmit).not.toHaveBeenCalled();

@@ -3,12 +3,18 @@
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
-    "save": "Save",
-    "cancel": "Cancel",
     "confirm": "Confirm",
     "delete": "Delete",
     "edit": "Edit",
-    "close": "Close"
+    "close": "Close",
+    "deleteConfirmTitle": "Delete « {name} » ?",
+    "chargePointWithCount": "{count, plural, =0 {0 charge point} =1 {1 charge point} other {# charge points}}",
+    "siteWithCount": "{count, plural, =0 {0 site} =1 {1 site} other {# sites}}",
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "create": "Create"
+    }
   },
   "layout": {
     "footer": {
@@ -79,10 +85,6 @@
         }
       }
     }
-  },
-  "misc": {
-    "chargePointWithCount": "{count, plural, =0 {0 charge point} =1 {1 charge point} other {# charge points}}",
-    "siteWithCount": "{count, plural, =0 {0 site} =1 {1 site} other {# sites}}"
   },
   "homePage": {
     "hero": {
@@ -534,11 +536,6 @@
         "editTitle": "Edit the charge point",
         "createDescription": "Fill in details about new charge point.",
         "editDescription": "Edit details about the charge point.",
-        "buttons": {
-          "create": "Create",
-          "save": "Save",
-          "cancel": "Cancel"
-        },
         "fields": {
           "name": "Name",
           "namePlaceholder": "Ex: CP-001",
@@ -601,7 +598,6 @@
         }
       },
       "deletion": {
-        "title": "Delete « {name} » ?",
         "description": "Destroy action: this charge point will be unrecoverable."
       },
       "reset": {
@@ -693,7 +689,6 @@
           "title": "Update firmware",
           "description": "The station downloads the image from the URL you give and installs it. The supervisor never downloads anything itself.",
           "submit": "Start update",
-          "close": "Close",
           "unsignedDialect": "This station speaks OCPP 1.6, which has no signed-firmware support: the signature-verification step will be absent from the timeline.",
           "fields": {
             "location": "Firmware image URL",
@@ -748,7 +743,6 @@
           "title": "Request a log upload",
           "description": "The station uploads its log file to the URL you give. The supervisor never downloads anything itself.",
           "submit": "Start upload",
-          "close": "Close",
           "unsupportedSecurityLog": "This station speaks OCPP 1.6, which has no security-log concept: only the diagnostics bundle can be requested.",
           "fields": {
             "logType": "Log type",
@@ -862,7 +856,6 @@
           "title": "Request a device report",
           "description": "The station answers immediately with an accept or refuse only — the actual inventory arrives later, and appears in the list below once received.",
           "submit": "Send request",
-          "close": "Close",
           "fields": {
             "kind": "Report type",
             "reportBase": "Report base"
@@ -952,7 +945,6 @@
           "title": "Send a display message",
           "description": "The message will appear on the station's screen (OCPP 2.0.1 only).",
           "submit": "Send",
-          "close": "Close",
           "fields": {
             "content": "Message",
             "priority": "Priority"
@@ -1144,9 +1136,7 @@
         "createDescription": "Fill in the details about the new site.",
         "editDescription": "Edit the details about the new site.",
         "buttons": {
-          "create": "Create site",
-          "save": "Save",
-          "cancel": "Cancel"
+          "create": "Create site"
         },
         "fields": {
           "siteName": "Site name",
@@ -1158,7 +1148,6 @@
         }
       },
       "deletion": {
-        "title": "Delete « {name} » ?",
         "description": "Destroy action: this site will be unrecoverable."
       },
       "siteCombobox": {
@@ -1193,10 +1182,6 @@
           }
         }
       }
-    },
-    "deletion": {
-      "title": "Delete « {name} » ?",
-      "description": "Destroy action: this site will be unrecoverable."
     },
     "configuration": {
       "page": {

@@ -208,7 +208,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
 
             <DialogFooter>
               <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
-                {t("appPage.chargePoints.displayMessage.set.close")}
+                {t("common.close")}
               </Button>
               <Button
                 size="sm"

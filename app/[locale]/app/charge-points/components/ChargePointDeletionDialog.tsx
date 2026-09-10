@@ -29,7 +29,7 @@ export const ChargePointDeletionDialog = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {deleteTarget && t("appPage.chargePoints.deletion.title", { name: deleteTarget.name })}
+            {deleteTarget && t("common.deleteConfirmTitle", { name: deleteTarget.name })}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {t("appPage.chargePoints.deletion.description")}
@@ -37,7 +37,7 @@ export const ChargePointDeletionDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => onOpenChange(false)}>
-            {t("common.cancel")}
+            {t("common.actions.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

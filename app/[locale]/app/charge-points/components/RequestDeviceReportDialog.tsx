@@ -182,7 +182,7 @@ export const RequestDeviceReportDialog = ({
 
         <DialogFooter>
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
-            {t("appPage.chargePoints.deviceVariableReports.request.close")}
+            {t("common.close")}
           </Button>
           <Button size="sm" onClick={handleSubmit} disabled={state.status === "loading"}>
             {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}

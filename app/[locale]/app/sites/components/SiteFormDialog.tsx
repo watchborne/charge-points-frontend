@@ -80,11 +80,9 @@ export const SiteFormDialog = ({
           ? t("appPage.sites.form.createDescription")
           : t("appPage.sites.form.editDescription")
       }
-      cancelLabel={t("appPage.sites.form.buttons.cancel")}
+      cancelLabel={t("common.actions.cancel")}
       submitLabel={
-        mode === "create"
-          ? t("appPage.sites.form.buttons.create")
-          : t("appPage.sites.form.buttons.save")
+        mode === "create" ? t("appPage.sites.form.buttons.create") : t("common.actions.save")
       }
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       form={

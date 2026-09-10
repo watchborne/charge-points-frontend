@@ -144,12 +144,8 @@ export const ChargePointFormDialog = ({
           ? t("appPage.chargePoints.form.createDescription")
           : t("appPage.chargePoints.form.editDescription")
       }
-      cancelLabel={t("appPage.chargePoints.form.buttons.cancel")}
-      submitLabel={
-        mode === "create"
-          ? t("appPage.chargePoints.form.buttons.create")
-          : t("appPage.chargePoints.form.buttons.save")
-      }
+      cancelLabel={t("common.actions.cancel")}
+      submitLabel={mode === "create" ? t("common.actions.create") : t("common.actions.save")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       form={
         <Form {...form}>

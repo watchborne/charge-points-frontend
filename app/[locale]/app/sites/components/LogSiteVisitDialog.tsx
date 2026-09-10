@@ -65,7 +65,7 @@ export const LogSiteVisitDialog = ({
       icon={<CalendarCheck className="h-5 w-5 text-primary" />}
       title={t("appPage.sites.detail.visits.logDialog.title")}
       description={t("appPage.sites.detail.visits.logDialog.description")}
-      cancelLabel={t("appPage.sites.form.buttons.cancel")}
+      cancelLabel={t("common.actions.cancel")}
       submitLabel={t("appPage.sites.detail.visits.logDialog.submit")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       isLoading={isSubmitting}
