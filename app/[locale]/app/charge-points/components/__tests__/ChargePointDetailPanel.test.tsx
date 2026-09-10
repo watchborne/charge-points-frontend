@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import type { ReactElement } from "react";
+import { StrictMode, type ReactElement } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 const { updateChargePoint } = vi.hoisted(() => ({
@@ -101,6 +101,18 @@ afterEach(() => {
 // requires a provider in the tree.
 const renderWithQueryClient = (ui: ReactElement) =>
   render(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>);
+
+// React 18 Strict Mode double-invokes a fresh mount's effects in development
+// (mount -> effect -> cleanup -> effect again) — Testing Library's render()
+// doesn't opt into this by default, so a mount-time effect that isn't
+// idempotent across that double call can pass every other test here and
+// still break in a real `next dev` (or any dev-mode Strict Mode) run.
+const renderStrictWithQueryClient = (ui: ReactElement) =>
+  render(
+    <StrictMode>
+      <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>
+    </StrictMode>,
+  );
 
 const CONNECTOR = {
   id: "connector-1",
@@ -293,6 +305,29 @@ describe("ChargePointDetailPanel", () => {
         .getAttribute("aria-selected"),
     ).toBe("true");
     expect(screen.getByText("appPage.chargePoints.reset.button")).toBeTruthy();
+  });
+
+  it("SHOULD keep the given initialTab WHEN mounted under React Strict Mode", () => {
+    // Regression test for a real bug (reported against PR #385): a plain
+    // "is this the first effect run" boolean flag looks right in isolation,
+    // but Strict Mode's development-only double-invoke of a fresh mount's
+    // effects flips it to false on the first of the two calls — so the
+    // second call saw "not the first run" and reset straight back to "main".
+    renderStrictWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        initialTab="actions"
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.actions" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
   });
 
   it("SHOULD call onTabChange WHEN a different tab is clicked", () => {

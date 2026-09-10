@@ -99,14 +99,17 @@ export const ChargePointDetailPanel = ({
   >({});
 
   // Drop any previous run's pending/result state when a different station is
-  // opened, so it never leaks across charge points. Skipped on the very
-  // first run so the initialTab above (deep-linked from the URL) isn't
-  // immediately clobbered back to "main".
-  const isFirstRun = useRef(true);
+  // opened, so it never leaks across charge points. Only resets the tab when
+  // chargePoint.id actually changed from what this effect last saw — not
+  // merely "is this the first run" — so the initialTab above (deep-linked
+  // from the URL) survives React 18 Strict Mode's development double-invoke
+  // of a fresh mount's effects (a boolean "first run" flag flips permanently
+  // on the first of the two invocations, so the second would otherwise
+  // clobber the tab straight back to "main").
+  const previousChargePointId = useRef(chargePoint?.id);
   useEffect(() => {
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-    } else {
+    if (previousChargePointId.current !== chargePoint?.id) {
+      previousChargePointId.current = chargePoint?.id;
       setTab("main");
     }
     setResetState({ status: "idle" });
