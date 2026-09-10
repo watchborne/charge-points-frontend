@@ -167,13 +167,15 @@ export const ChargePointActionsSection = ({
         <TriggerMessageControl chargePointId={chargePointId} />
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border p-4">
-        <h4 className="text-sm font-semibold text-muted-foreground">
-          {t("appPage.chargePoints.actionsTab.groups.displayMessages")}
-        </h4>
+      {ocppVersion === "2.0.1" && (
+        <section className="flex flex-col gap-3 rounded-lg border p-4">
+          <h4 className="text-sm font-semibold text-muted-foreground">
+            {t("appPage.chargePoints.actionsTab.groups.displayMessages")}
+          </h4>
 
-        {ocppVersion === "2.0.1" && <DisplayMessageControl chargePointId={chargePointId} />}
-      </section>
+          <DisplayMessageControl chargePointId={chargePointId} />
+        </section>
+      )}
     </div>
   );
 };
