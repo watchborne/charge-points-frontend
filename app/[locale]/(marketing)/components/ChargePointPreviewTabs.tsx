@@ -119,98 +119,336 @@ const buildStatusHistoryFixture = () => {
   };
 };
 
-const CONSUMPTION_MEASURAND = "Energy.Active.Import.Register";
-/**
- * A second measurand purely so the demo's measurand selector — hidden
- * whenever a station only reports one — actually renders and is reachable
- * in the marketing preview, the same way a real multi-measurand station
- * would show it.
- */
-const CONSUMPTION_MEASURAND_POWER = "Power.Active.Import";
+// ---------------------------------------------------------------------------
+// Consumption fixture: a synthetic but internally-consistent charging
+// history for both connectors, across several measurands, regenerated per
+// range (24h/7d/30d) the same way `ChargePointConsumptionPanelContainer`
+// re-fetches on a range change — this is what makes it "real world" rather
+// than a handful of hand-typed numbers: Energy.Active.Import.Register only
+// ever counts up and its rate of change matches Power.Active.Import at
+// every instant; Power only rises while a session is active (ramp →
+// plateau → taper, never a flat step); Current tracks Power at a roughly
+// constant Voltage; and SoC only exists while a session is active — a
+// station has no SoC to report from a vehicle that isn't plugged in.
+// ---------------------------------------------------------------------------
 
-type ConsumptionSeriesDef = {
-  measurand: string;
-  unit: string;
-  connectorValues: Record<number, number[]>;
+const MEASURAND_ENERGY = "Energy.Active.Import.Register";
+const MEASURAND_POWER = "Power.Active.Import";
+const MEASURAND_CURRENT = "Current.Import";
+const MEASURAND_VOLTAGE = "Voltage";
+const MEASURAND_SOC = "SoC";
+
+/** Order doubles as the measurand selector's order. */
+const CONSUMPTION_MEASURANDS = [
+  MEASURAND_ENERGY,
+  MEASURAND_POWER,
+  MEASURAND_CURRENT,
+  MEASURAND_VOLTAGE,
+  MEASURAND_SOC,
+] as const;
+
+const MEASURAND_TRANSLATION_KEYS: Record<string, string> = {
+  [MEASURAND_ENERGY]: "EnergyActiveImportRegister",
+  [MEASURAND_POWER]: "PowerActiveImport",
+  [MEASURAND_CURRENT]: "CurrentImport",
+  [MEASURAND_VOLTAGE]: "Voltage",
+  [MEASURAND_SOC]: "SoC",
 };
 
-const CONSUMPTION_SERIES_DEFS: ConsumptionSeriesDef[] = [
-  {
-    measurand: CONSUMPTION_MEASURAND,
-    unit: "Wh",
-    connectorValues: {
-      1: [12_000, 12_180, 12_420, 12_690, 12_980, 13_210, 13_450],
-      2: [8_000, 8_090, 8_210, 8_340, 8_420, 8_510, 8_600],
-    },
-  },
-  {
-    measurand: CONSUMPTION_MEASURAND_POWER,
-    unit: "W",
-    connectorValues: {
-      1: [7_200, 7_400, 7_100, 6_800, 7_300, 7_500, 7_200],
-      2: [3_600, 3_700, 3_550, 3_400, 3_650, 3_720, 3_600],
-    },
-  },
-];
+type DemoConsumptionRange = "24h" | "7d" | "30d";
+
+const RANGE_HOURS: Record<DemoConsumptionRange, number> = {
+  "24h": 24,
+  "7d": 24 * 7,
+  "30d": 24 * 30,
+};
+
+const MIN_MS = 60 * 1000;
+const HOUR_MS = 60 * MIN_MS;
+const DAY_MS = 24 * HOUR_MS;
 
 /**
- * Builds the consumption fixture as fractions of "today so far" rather than
- * fixed hours-ago clock times — same reasoning as
- * `buildStatusHistoryFixture` above: raw `hoursAgo` offsets can reach back
- * into yesterday depending on what time of day this loads, which the "24h"
- * window this preview locks to should never do.
+ * How far apart the idle baseline readings sit, per range — coarser over a
+ * longer window, the same shape a real backend thinning a long raw read
+ * would have (see `useConsumption`'s `MAX_CHART_SAMPLES` comment). Sessions
+ * are always densified separately (`SESSION_STEP_MS` below), so this only
+ * controls how the idle-between-sessions baseline is spaced.
  */
-const buildConsumptionFixture = (): {
-  consumption: ChargePointConsumption;
-  samples: MeterSample[];
-} => {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const elapsedMs = Math.max(Date.now() - start.getTime(), 60_000);
-  const at = (fraction: number) => new Date(start.getTime() + elapsedMs * fraction).toISOString();
-  // Seven evenly-spaced points from the start of today's window to now,
-  // oldest first.
-  const fractions = [0, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6, 1];
+const RANGE_IDLE_STEP_MS: Record<DemoConsumptionRange, number> = {
+  "24h": 15 * MIN_MS,
+  "7d": 2 * HOUR_MS,
+  "30d": 8 * HOUR_MS,
+};
 
-  const samples: MeterSample[] = CONSUMPTION_SERIES_DEFS.flatMap(
-    ({ measurand, unit, connectorValues }) =>
-      DEMO_CONNECTOR_IDS.flatMap((connectorId) =>
-        connectorValues[connectorId].map((value, index) => ({
-          id: `${measurand}-c${connectorId}-sample-${index}`,
-          chargePointId: DEMO_CHARGE_POINT_ID,
-          connectorId,
-          measuredAt: at(fractions[index]),
-          measurand,
-          unit,
-          value,
-          createdAt: at(fractions[index]),
-        })),
-      ),
+/** Resolution inside an active session, regardless of range — a session
+ * lasts under two hours, so it stays visible (ramp/plateau/taper) on every
+ * range's chart instead of being aliased away by a coarser idle step. */
+const SESSION_STEP_MS = 5 * MIN_MS;
+
+/**
+ * Deterministic PRNG (mulberry32). The fixture has to render identically on
+ * the server and after hydration — same reasoning as everything else in
+ * this file being anchored to elapsed fractions rather than wall-clock
+ * reads taken twice — so it can't use `Math.random()`.
+ */
+const mulberry32 = (seed: number) => {
+  let state = seed;
+  return () => {
+    state |= 0;
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+type ConnectorProfile = {
+  plateauPowerW: number;
+  voltageV: number;
+  /** The register reading "now" — every window's samples are computed
+   * backward from this fixed point, so it never depends on which range is
+   * selected (switching ranges doesn't rewind the meter). */
+  lifetimeEnergyWh: number;
+};
+
+const CONNECTOR_PROFILES: Record<number, ConnectorProfile> = {
+  // The busier of the two: a 7.2kW AC connector used most weekdays.
+  1: { plateauPowerW: 7_200, voltageV: 230, lifetimeEnergyWh: 1_245_600 },
+  // Slower and used less often.
+  2: { plateauPowerW: 3_700, voltageV: 230, lifetimeEnergyWh: 341_200 },
+};
+
+type DemoSession = {
+  startAt: number;
+  endAt: number;
+  plateauPowerW: number;
+  startSoc: number;
+  endSoc: number;
+};
+
+/** A calendar day always seeds the same way, whatever range is generating
+ * around it — the 24h and 30d views agree on "today"'s sessions. */
+const daySeed = (dayStartMs: number, connectorId: number) =>
+  Math.floor(dayStartMs / DAY_MS) * 4 + connectorId;
+
+/**
+ * A charging-session schedule for one connector: weekday mornings and
+ * afternoons for connector 1 (a busy AC charger), an occasional evening
+ * session for connector 2 — never every day, never at the same minute twice.
+ */
+const buildSessions = (connectorId: number, windowStart: number, now: number): DemoSession[] => {
+  const profile = CONNECTOR_PROFILES[connectorId];
+  const sessions: DemoSession[] = [];
+
+  const firstDay = new Date(windowStart);
+  firstDay.setHours(0, 0, 0, 0);
+
+  for (let dayStart = firstDay.getTime(); dayStart <= now; dayStart += DAY_MS) {
+    const rng = mulberry32(daySeed(dayStart, connectorId));
+    const weekday = new Date(dayStart).getDay();
+    const isWeekday = weekday >= 1 && weekday <= 5;
+    const slots: { hour: number; durationMin: number }[] = [];
+
+    if (connectorId === 1) {
+      if (isWeekday || rng() < 0.25) {
+        slots.push({ hour: 7.5 + rng() * 1.5, durationMin: 45 + rng() * 30 });
+      }
+      if (isWeekday && rng() < 0.85) {
+        slots.push({ hour: 13 + rng() * 1.5, durationMin: 45 + rng() * 45 });
+      }
+    } else if (rng() < 0.4) {
+      slots.push({ hour: 18 + rng() * 2.5, durationMin: 75 + rng() * 60 });
+    }
+
+    for (const slot of slots) {
+      const startAt = dayStart + slot.hour * HOUR_MS;
+      const endAt = Math.min(startAt + slot.durationMin * MIN_MS, now);
+      if (endAt <= windowStart || startAt >= now) continue;
+
+      const startSoc = 15 + rng() * 30;
+      sessions.push({
+        startAt: Math.max(startAt, windowStart),
+        endAt,
+        plateauPowerW: profile.plateauPowerW * (0.9 + rng() * 0.15),
+        startSoc,
+        endSoc: Math.min(99, startSoc + 35 + rng() * 40),
+      });
+    }
+  }
+
+  return sessions;
+};
+
+/** Power at an instant within a session: ramps up, holds a plateau, tapers
+ * off as the vehicle approaches full — never a flat step function. */
+const sessionPowerAt = (session: DemoSession, t: number): number => {
+  const duration = session.endAt - session.startAt;
+  if (duration <= 0) return 0;
+
+  const elapsed = t - session.startAt;
+  const rampMs = Math.min(8 * MIN_MS, duration * 0.2);
+  const taperMs = Math.min(15 * MIN_MS, duration * 0.3);
+  const taperStart = duration - taperMs;
+
+  if (elapsed < rampMs) return session.plateauPowerW * (elapsed / rampMs);
+  if (elapsed > taperStart) {
+    const taperFraction = (elapsed - taperStart) / taperMs;
+    return session.plateauPowerW * (1 - taperFraction * 0.75);
+  }
+  return session.plateauPowerW;
+};
+
+/** Diminishing-rate charging curve: SoC climbs fast early, slows near full. */
+const sessionSocAt = (session: DemoSession, t: number): number => {
+  const duration = session.endAt - session.startAt;
+  const fraction = duration > 0 ? (t - session.startAt) / duration : 1;
+  const eased = 1 - (1 - fraction) ** 1.6;
+  return session.startSoc + (session.endSoc - session.startSoc) * eased;
+};
+
+const activeSessionAt = (sessions: DemoSession[], t: number): DemoSession | undefined =>
+  sessions.find((session) => t >= session.startAt && t <= session.endAt);
+
+type ConnectorSeries = Record<(typeof CONSUMPTION_MEASURANDS)[number], MeterSample[]>;
+
+/** One connector's full multi-measurand history over a window. */
+const buildConnectorSeries = (
+  connectorId: number,
+  windowStart: number,
+  now: number,
+  idleStepMs: number,
+  rng: () => number,
+): ConnectorSeries => {
+  const profile = CONNECTOR_PROFILES[connectorId];
+  const sessions = buildSessions(connectorId, windowStart, now);
+
+  // The idle baseline grid, plus every session densified to 5-minute steps
+  // so ramp/plateau/taper stay visible regardless of the range's idle
+  // resolution — a coarse 30d grid could otherwise step clean over a
+  // 45-minute session and miss it entirely.
+  const times = new Set<number>();
+  for (let t = windowStart; t <= now; t += idleStepMs) times.add(t);
+  times.add(now);
+  for (const session of sessions) {
+    for (let t = session.startAt; t <= session.endAt; t += SESSION_STEP_MS) times.add(t);
+    times.add(session.endAt);
+  }
+  const sortedTimes = [...times].sort((a, b) => a - b);
+
+  const makeSample = (measurand: string, unit: string, t: number, value: number): MeterSample => ({
+    id: `${measurand}-c${connectorId}-${t}`,
+    chargePointId: DEMO_CHARGE_POINT_ID,
+    connectorId,
+    measuredAt: new Date(t).toISOString(),
+    measurand,
+    unit,
+    value,
+    createdAt: new Date(t).toISOString(),
+  });
+
+  const power: MeterSample[] = [];
+  const current: MeterSample[] = [];
+  const voltage: MeterSample[] = [];
+  const soc: MeterSample[] = [];
+  const runningWh: number[] = [];
+
+  let previousT = windowStart;
+  let cumulativeWh = 0;
+
+  for (const t of sortedTimes) {
+    const session = activeSessionAt(sessions, t);
+    const noise = 1 + (rng() - 0.5) * 0.04;
+    const powerW = Math.max(0, (session ? sessionPowerAt(session, t) : 0) * noise);
+
+    power.push(makeSample(MEASURAND_POWER, "W", t, Math.round(powerW)));
+
+    // A charger still draws a small idle current for its own electronics
+    // even with nothing plugged in.
+    const currentA = powerW > 0 ? powerW / profile.voltageV : 0.05 + rng() * 0.1;
+    current.push(makeSample(MEASURAND_CURRENT, "A", t, Number(currentA.toFixed(1))));
+
+    // Mains sags slightly under load — never a lot, never exactly flat.
+    const sagV = (powerW / profile.plateauPowerW) * 1.5;
+    const voltageV = profile.voltageV - sagV + (rng() - 0.5) * 1.5;
+    voltage.push(makeSample(MEASURAND_VOLTAGE, "V", t, Number(voltageV.toFixed(1))));
+
+    if (session) {
+      soc.push(makeSample(MEASURAND_SOC, "%", t, Number(sessionSocAt(session, t).toFixed(1))));
+    }
+
+    // Rectangular integration between consecutive timestamps — accurate
+    // enough since every session is already densified to 5-minute steps
+    // above, so no interval spans a ramp/taper unnoticed.
+    cumulativeWh += powerW * ((t - previousT) / HOUR_MS);
+    previousT = t;
+    runningWh.push(cumulativeWh);
+  }
+
+  const totalWh = runningWh[runningWh.length - 1] ?? 0;
+  const energy = sortedTimes.map((t, index) =>
+    makeSample(
+      MEASURAND_ENERGY,
+      "Wh",
+      t,
+      Math.round(profile.lifetimeEnergyWh - totalWh + runningWh[index]),
+    ),
   );
 
-  const consumption: ChargePointConsumption = {
-    chargePointId: DEMO_CHARGE_POINT_ID,
-    from: at(0),
-    to: at(1),
-    series: CONSUMPTION_SERIES_DEFS.flatMap(({ measurand, unit, connectorValues }) =>
-      DEMO_CONNECTOR_IDS.map((connectorId) => {
-        const values = connectorValues[connectorId];
-        return {
-          connectorId,
-          measurand,
-          unit,
-          min: Math.min(...values),
-          max: Math.max(...values),
-          avg: values.reduce((sum, value) => sum + value, 0) / values.length,
-          sampleCount: values.length,
-          firstMeasuredAt: at(0),
-          lastMeasuredAt: at(1),
-        };
-      }),
-    ),
+  return {
+    [MEASURAND_ENERGY]: energy,
+    [MEASURAND_POWER]: power,
+    [MEASURAND_CURRENT]: current,
+    [MEASURAND_VOLTAGE]: voltage,
+    [MEASURAND_SOC]: soc,
   };
+};
 
-  return { consumption, samples };
+const buildConsumptionFixture = (
+  range: DemoConsumptionRange,
+): { consumption: ChargePointConsumption; samples: MeterSample[] } => {
+  const now = Date.now();
+  const windowStart = now - RANGE_HOURS[range] * HOUR_MS;
+  const idleStepMs = RANGE_IDLE_STEP_MS[range];
+
+  const allSamples: MeterSample[] = [];
+  const summaries: ChargePointConsumption["series"] = [];
+
+  for (const connectorId of DEMO_CONNECTOR_IDS) {
+    // Seeded per connector+range, not per render, so the shape is stable
+    // across re-renders (a re-render from unrelated state shouldn't reshuffle
+    // the chart) while still varying between connectors and ranges.
+    const rng = mulberry32(connectorId * 7_919 + RANGE_HOURS[range]);
+    const series = buildConnectorSeries(connectorId, windowStart, now, idleStepMs, rng);
+
+    for (const measurand of CONSUMPTION_MEASURANDS) {
+      const samples = series[measurand];
+      allSamples.push(...samples);
+      if (samples.length === 0) continue;
+
+      const values = samples.map((sample) => sample.value);
+      summaries.push({
+        connectorId,
+        measurand,
+        unit: samples[0].unit,
+        min: Math.min(...values),
+        max: Math.max(...values),
+        avg: values.reduce((sum, value) => sum + value, 0) / values.length,
+        sampleCount: values.length,
+        firstMeasuredAt: samples[0].measuredAt,
+        lastMeasuredAt: samples[samples.length - 1].measuredAt,
+      });
+    }
+  }
+
+  return {
+    consumption: {
+      chargePointId: DEMO_CHARGE_POINT_ID,
+      from: new Date(windowStart).toISOString(),
+      to: new Date(now).toISOString(),
+      series: summaries,
+    },
+    samples: allSamples,
+  };
 };
 
 const buildSessionsFixture = (): ChargingSessionListEntry[] => {
@@ -286,22 +524,38 @@ export const ChargePointPreviewTabs = () => {
 
   // Consumption view/measurand selection, mirroring what
   // ChargePointConsumptionPanelContainer owns for the real dashboard.
-  const [consumptionRange, setConsumptionRange] = useState<"24h" | "7d" | "30d">("24h");
-  const [measurand, setMeasurand] = useState(CONSUMPTION_MEASURAND);
+  const [consumptionRange, setConsumptionRange] = useState<DemoConsumptionRange>("24h");
+  const [measurand, setMeasurand] = useState<string>(MEASURAND_ENERGY);
 
   // Status-history range/connector selection, mirroring what
   // StatusHistoryPanelContainer owns for the real dashboard.
   const [connectorId, setConnectorId] = useState(DEMO_CONNECTOR_IDS[0]);
 
   const statusHistory = useMemo(() => buildStatusHistoryFixture(), []);
-  const { consumption, samples: consumptionSamples } = useMemo(() => buildConsumptionFixture(), []);
+  // Regenerated per range, the same way ChargePointConsumptionPanelContainer
+  // re-fetches on a range change — a 30-day view needs a 30-day history, not
+  // the 24h fixture stretched to fit.
+  const { consumption, samples: consumptionSamples } = useMemo(
+    () => buildConsumptionFixture(consumptionRange),
+    [consumptionRange],
+  );
   // Real stations only ever hand `ChargePointConsumptionPanel` samples for
   // the one measurand currently selected (`useConsumption`'s raw read is
   // itself scoped to `measurand`) — filter here too, or switching measurand
-  // in this preview would plot both series' values as one connector line.
+  // in this preview would plot every series' values as one connector line.
   const consumptionChartSamples = useMemo(
     () => consumptionSamples.filter((sample) => sample.measurand === measurand),
     [consumptionSamples, measurand],
+  );
+  const measurandLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        CONSUMPTION_MEASURANDS.map((option) => [
+          option,
+          t(`appPage.chargePoints.consumption.measurands.${MEASURAND_TRANSLATION_KEYS[option]}`),
+        ]),
+      ),
+    [t],
   );
   const sessions = useMemo(() => buildSessionsFixture(), []);
   const alerts = useMemo(() => buildAlertsFixture(), []);
@@ -347,15 +601,8 @@ export const ChargePointPreviewTabs = () => {
             onMeasurandChange={setMeasurand}
             consumption={consumption}
             samples={consumptionChartSamples}
-            measurands={[CONSUMPTION_MEASURAND, CONSUMPTION_MEASURAND_POWER]}
-            measurandLabels={{
-              [CONSUMPTION_MEASURAND]: t(
-                "appPage.chargePoints.consumption.measurands.EnergyActiveImportRegister",
-              ),
-              [CONSUMPTION_MEASURAND_POWER]: t(
-                "appPage.chargePoints.consumption.measurands.PowerActiveImport",
-              ),
-            }}
+            measurands={[...CONSUMPTION_MEASURANDS]}
+            measurandLabels={measurandLabels}
             truncated={false}
           />
         )}
