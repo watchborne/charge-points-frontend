@@ -43,6 +43,13 @@ type ChargePointActionsSectionProps = {
  * this one as controls. Per-connector controls (availability/unlock) stay in
  * `ConnectorStatusSection` on the main tab: they're about a specific
  * connector, not the station as a whole.
+ *
+ * Grouped into two labeled sections rather than one undifferentiated pile of
+ * buttons: "controls" (reset, configuration, availability — the station's
+ * operative state) and "messaging" (trigger-message, display-message — what
+ * it says or is told to (re)send). Each group's own outcome banner renders
+ * directly under it instead of at the bottom of the whole tab, so feedback
+ * stays next to the button that produced it.
  */
 export const ChargePointActionsSection = ({
   chargePointId,
@@ -56,97 +63,114 @@ export const ChargePointActionsSection = ({
   const t = useTranslations("");
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-stretch gap-4">
-        <ActionsDropdown
-          align="start"
-          disabled={resetState.status === "loading"}
-          trigger={
-            <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
-              {resetState.status === "loading" ? (
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-              ) : (
-                <RotateCcw className="h-4 w-4 mr-1.5" />
-              )}
-              {t("appPage.chargePoints.reset.button")}
-              <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
-            </Button>
-          }
-          actions={[
-            { id: "Hard", label: t("appPage.chargePoints.reset.types.hard") },
-            { id: "Soft", label: t("appPage.chargePoints.reset.types.soft") },
-          ]}
-          onAction={(actionId) => onReset(actionId as ResetType)}
-        />
+    <div className="flex flex-col gap-4">
+      <section className="flex flex-col gap-3 rounded-lg border p-4">
+        <h4 className="text-sm font-semibold text-muted-foreground">
+          {t("appPage.chargePoints.actionsTab.groups.controls")}
+        </h4>
 
-        <ChargePointConfigurationDialog
-          chargePointId={chargePointId}
-          chargePointName={chargePointName}
-        />
-
-        <StatusActionDropdown
-          align="start"
-          currentStatus=""
-          disabled={wholeChargePointAvailability.status === "loading"}
-          trigger={
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={wholeChargePointAvailability.status === "loading"}
-            >
-              {wholeChargePointAvailability.status === "loading" ? (
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-              ) : (
-                <Power className="h-4 w-4 mr-1.5" />
-              )}
-              {t("appPage.chargePoints.availability.wholeChargePoint")}
-              <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
-            </Button>
-          }
-          options={[
-            { value: "Operative", label: t("appPage.chargePoints.availability.types.operative") },
-            {
-              value: "Inoperative",
-              label: t("appPage.chargePoints.availability.types.inoperative"),
-            },
-          ]}
-          onStatusChange={(value) => onChangeAvailability(value as AvailabilityType)}
-        />
-      </div>
-
-      <TriggerMessageControl chargePointId={chargePointId} />
-
-      {ocppVersion === "2.0.1" && <DisplayMessageControl chargePointId={chargePointId} />}
-
-      {resetState.status === "done" &&
-        (resetState.outcome.ok ? (
-          <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <p className="font-medium">{t("appPage.chargePoints.reset.result.accepted")}</p>
-          </div>
-        ) : (
-          <Callout
-            description={t(getResetErrorMessageKey(resetState.outcome.httpStatus))}
-            variant="error"
+        <div className="flex flex-wrap items-stretch gap-2">
+          <ActionsDropdown
+            align="start"
+            disabled={resetState.status === "loading"}
+            trigger={
+              <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
+                {resetState.status === "loading" ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4 mr-1.5" />
+                )}
+                {t("appPage.chargePoints.reset.button")}
+                <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
+              </Button>
+            }
+            actions={[
+              { id: "Hard", label: t("appPage.chargePoints.reset.types.hard") },
+              { id: "Soft", label: t("appPage.chargePoints.reset.types.soft") },
+            ]}
+            onAction={(actionId) => onReset(actionId as ResetType)}
           />
-        ))}
 
-      {wholeChargePointAvailability.status === "done" &&
-        (wholeChargePointAvailability.outcome.ok ? (
-          <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <p className="font-medium">
-              {t(availabilitySuccessMessageKey(wholeChargePointAvailability.outcome))}
-            </p>
-          </div>
-        ) : (
-          <Callout
-            description={t(
-              getAvailabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
-            )}
-            variant="error"
+          <ChargePointConfigurationDialog
+            chargePointId={chargePointId}
+            chargePointName={chargePointName}
           />
-        ))}
+
+          <StatusActionDropdown
+            align="start"
+            currentStatus=""
+            disabled={wholeChargePointAvailability.status === "loading"}
+            trigger={
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={wholeChargePointAvailability.status === "loading"}
+              >
+                {wholeChargePointAvailability.status === "loading" ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <Power className="h-4 w-4 mr-1.5" />
+                )}
+                {t("appPage.chargePoints.availability.wholeChargePoint")}
+                <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
+              </Button>
+            }
+            options={[
+              {
+                value: "Operative",
+                label: t("appPage.chargePoints.availability.types.operative"),
+              },
+              {
+                value: "Inoperative",
+                label: t("appPage.chargePoints.availability.types.inoperative"),
+              },
+            ]}
+            onStatusChange={(value) => onChangeAvailability(value as AvailabilityType)}
+          />
+        </div>
+
+        {resetState.status === "done" &&
+          (resetState.outcome.ok ? (
+            <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <p className="font-medium">{t("appPage.chargePoints.reset.result.accepted")}</p>
+            </div>
+          ) : (
+            <Callout
+              description={t(getResetErrorMessageKey(resetState.outcome.httpStatus))}
+              variant="error"
+            />
+          ))}
+
+        {wholeChargePointAvailability.status === "done" &&
+          (wholeChargePointAvailability.outcome.ok ? (
+            <div className="flex items-center gap-2 rounded-lg border border-status-available/20 bg-status-available-soft p-3 text-status-available-foreground text-sm">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <p className="font-medium">
+                {t(availabilitySuccessMessageKey(wholeChargePointAvailability.outcome))}
+              </p>
+            </div>
+          ) : (
+            <Callout
+              description={t(
+                getAvailabilityErrorMessageKey(wholeChargePointAvailability.outcome.httpStatus),
+              )}
+              variant="error"
+            />
+          ))}
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-lg border p-4">
+        <h4 className="text-sm font-semibold text-muted-foreground">
+          {t("appPage.chargePoints.actionsTab.groups.messaging")}
+        </h4>
+
+        <div className="flex flex-col gap-3">
+          <TriggerMessageControl chargePointId={chargePointId} />
+
+          {ocppVersion === "2.0.1" && <DisplayMessageControl chargePointId={chargePointId} />}
+        </div>
+      </section>
     </div>
   );
 };

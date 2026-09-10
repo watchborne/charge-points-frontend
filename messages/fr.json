@@ -893,6 +893,12 @@
           }
         }
       },
+      "actionsTab": {
+        "groups": {
+          "controls": "Contrôles de la borne",
+          "messaging": "Messagerie"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "Configuration OCPP",

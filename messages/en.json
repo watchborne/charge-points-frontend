@@ -893,6 +893,12 @@
           }
         }
       },
+      "actionsTab": {
+        "groups": {
+          "controls": "Charge point controls",
+          "messaging": "Messaging"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
