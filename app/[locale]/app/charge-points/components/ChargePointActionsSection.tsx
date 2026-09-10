@@ -8,6 +8,7 @@ import { getResetErrorMessageKey, getAvailabilityErrorMessageKey } from "@/lib/e
 import type { ChargePoint } from "@/types/charge-point";
 
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
+import { DisplayMessageControl } from "./DisplayMessageControl";
 import { TriggerMessageControl } from "./TriggerMessageControl";
 import { ActionsDropdown } from "../../components/common/ActionsDropdown";
 import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
@@ -28,6 +29,7 @@ const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok:
 type ChargePointActionsSectionProps = {
   chargePointId: ChargePoint["id"];
   chargePointName: string;
+  ocppVersion: ChargePoint["ocppVersion"];
   resetState: ResetState;
   onReset: (type: ResetType) => Promise<void>;
   wholeChargePointAvailability: AvailabilityState;
@@ -45,6 +47,7 @@ type ChargePointActionsSectionProps = {
 export const ChargePointActionsSection = ({
   chargePointId,
   chargePointName,
+  ocppVersion,
   resetState,
   onReset,
   wholeChargePointAvailability,
@@ -112,6 +115,8 @@ export const ChargePointActionsSection = ({
       </div>
 
       <TriggerMessageControl chargePointId={chargePointId} />
+
+      {ocppVersion === "2.0.1" && <DisplayMessageControl chargePointId={chargePointId} />}
 
       {resetState.status === "done" &&
         (resetState.outcome.ok ? (
