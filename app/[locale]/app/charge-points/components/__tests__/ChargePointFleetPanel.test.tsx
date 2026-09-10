@@ -12,8 +12,16 @@ vi.mock("next-intl", () => ({
 // electrons/date-fns dependencies — mocked here so this suite stays focused
 // on the fleet panel's own grouping/selection/tab behavior.
 vi.mock("../ChargePointDetailPanel", () => ({
-  ChargePointDetailPanel: ({ chargePoint }: { chargePoint: { name: string } }) => (
-    <div data-testid="detail-panel">{chargePoint.name}</div>
+  ChargePointDetailPanel: ({
+    chargePoint,
+    initialTab,
+  }: {
+    chargePoint: { name: string };
+    initialTab?: string;
+  }) => (
+    <div data-testid="detail-panel" data-initial-tab={initialTab}>
+      {chargePoint.name}
+    </div>
   ),
 }));
 
@@ -178,5 +186,21 @@ describe("ChargePointFleetPanel", () => {
     render(<ChargePointFleetPanel {...baseProps} sites={[]} chargePoints={[]} selected={null} />);
 
     expect(screen.getByText("appPage.chargePoints.page.detail.selectPrompt")).toBeTruthy();
+  });
+
+  it("SHOULD forward initialTab to the detail panel WHEN provided", () => {
+    const cp = chargePoint("cp-1");
+
+    render(
+      <ChargePointFleetPanel
+        {...baseProps}
+        sites={[]}
+        chargePoints={[cp]}
+        selected={cp}
+        initialTab="alerts"
+      />,
+    );
+
+    expect(screen.getByTestId("detail-panel").dataset.initialTab).toBe("alerts");
   });
 });

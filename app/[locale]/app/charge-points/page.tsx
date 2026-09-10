@@ -27,6 +27,7 @@ import {
 
 import { ChargePointConnectionUrlDialog } from "./components/ChargePointConnectionUrlDialog";
 import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
+import { DetailTab, isDetailTab } from "./components/ChargePointDetailPanel";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
 import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
 import { CommissioningDialog } from "./components/CommissioningDialog";
@@ -95,6 +96,10 @@ function ChargePointsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const highlightedId = searchParams.get("id") ?? undefined;
+  const tabParam = searchParams.get("tab");
+  // Only meaningful together with `highlightedId`, below: preselects a tab in
+  // the detail panel when a charge point is deep-linked from the URL.
+  const highlightedTab = tabParam && isDetailTab(tabParam) ? tabParam : undefined;
   const didAutoSwitch = useRef(false);
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -226,10 +231,18 @@ function ChargePointsPageContent() {
   const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
     setDetailTarget(cp);
     if (cp) {
+      // Selecting a (possibly different) charge point always drops any
+      // previous `tab` — the detail panel itself resets to "main" whenever
+      // its charge point changes (see ChargePointDetailPanel).
       router.replace(`/app/charge-points?id=${cp.id}`);
     } else {
       router.replace(`/app/charge-points`);
     }
+  };
+
+  const handleTabChange = (tab: DetailTab) => {
+    if (!detailTarget) return;
+    router.replace(`/app/charge-points?id=${detailTarget.id}&tab=${tab}`);
   };
 
   return (
@@ -328,6 +341,8 @@ function ChargePointsPageContent() {
               onSelect={updateDetailTarget}
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
+              initialTab={detailTarget?.id === highlightedId ? highlightedTab : undefined}
+              onTabChange={handleTabChange}
             />
           </div>
 
