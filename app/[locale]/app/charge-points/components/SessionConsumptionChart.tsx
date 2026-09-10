@@ -1,7 +1,5 @@
 "use client";
 
-import { Callout } from "@watchborne/electrons";
-import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
@@ -12,36 +10,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { api } from "@/lib/api";
 import {
   isCumulativeRegister,
   type MeterSample,
   type MeterSampleSummary,
 } from "@/lib/api-metering";
-import type { ChargePoint } from "@/types/charge-point";
 
 import { ConsumptionChart } from "./ConsumptionChart";
 import { consumptionHeadline, ConsumptionTile } from "./ConsumptionTile";
 
-/** Row cap for one session's raw series read — a session rarely spans more
- * than a few hours, so this is far above what a real session ever reports;
- * it only guards against a pathologically long-running one. */
-const MAX_SESSION_CHART_SAMPLES = 3_000;
-
-type State =
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "empty" }
-  /** Every measurand the session's connector reported, plus the raw samples
-   * behind all of them — unfiltered, since the measurand selector below
-   * switches which slice of `samples` the chart plots without a re-fetch. */
-  | { status: "loaded"; series: MeterSampleSummary[]; samples: MeterSample[] };
-
 type Props = {
-  chargePointId: ChargePoint["id"];
   connectorId: number;
   startedAt: Date | string;
   endedAt: Date | string | null;
+  /** Every measurand the session's connector reported. */
+  series: MeterSampleSummary[];
+  /** The raw samples behind all of them — unfiltered, since the measurand
+   * selector below switches which slice plots without needing new data. */
+  samples: MeterSample[];
 };
 
 /**
@@ -58,17 +44,23 @@ type Props = {
  * this session deliver"), falling back to whichever measurand sorts first
  * otherwise — same precedence `ChargePointConsumptionPanelContainer` uses
  * for the tab.
+ *
+ * Purely presentational — `SessionConsumptionChartContainer` owns the fetch
+ * and renders its own loading/error state in place of this component, so
+ * `series`/`samples` here are always the loaded result; the marketing
+ * site's product preview can render this directly with static fixture data
+ * instead of duplicating the markup.
  */
 export const SessionConsumptionChart = ({
-  chargePointId,
   connectorId,
   startedAt,
   endedAt,
+  series,
+  samples,
 }: Props) => {
   const t = useTranslations("");
   const locale = useLocale();
 
-  const [state, setState] = useState<State>({ status: "loading" });
   const [selectedMeasurand, setSelectedMeasurand] = useState<string | undefined>(undefined);
 
   const formatNumber = useMemo(() => {
@@ -76,48 +68,7 @@ export const SessionConsumptionChart = ({
     return (value: number) => formatter.format(value);
   }, [locale]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const from = new Date(startedAt);
-    const to = endedAt ? new Date(endedAt) : new Date();
-
-    (async () => {
-      setState({ status: "loading" });
-
-      try {
-        const [summary, rows] = await Promise.all([
-          api.Metering.getConsumption(chargePointId, { connectorId, from, to }),
-          api.Metering.getMeterSamples(chargePointId, {
-            connectorId,
-            from,
-            to,
-            limit: MAX_SESSION_CHART_SAMPLES,
-          }),
-        ]);
-
-        if (cancelled) return;
-
-        if (summary.series.length === 0) {
-          setState({ status: "empty" });
-          return;
-        }
-
-        setState({ status: "loaded", series: summary.series, samples: rows });
-      } catch {
-        if (!cancelled) setState({ status: "error" });
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId, connectorId, startedAt, endedAt]);
-
-  const measurands = useMemo(
-    () => (state.status === "loaded" ? state.series.map((series) => series.measurand) : []),
-    [state],
-  );
+  const measurands = useMemo(() => series.map((entry) => entry.measurand), [series]);
 
   const measurandLabel = (measurand: string) =>
     t(`appPage.chargePoints.consumption.measurands.${measurand.replaceAll(".", "")}`) ?? measurand;
@@ -133,27 +84,7 @@ export const SessionConsumptionChart = ({
     setSelectedMeasurand(measurands.find(isCumulativeRegister) ?? measurands[0]);
   }, [measurands, selectedMeasurand]);
 
-  if (state.status === "loading") {
-    return (
-      <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
-        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        {t("appPage.chargePoints.chargingSessions.consumption.loading")}
-      </div>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <div className="p-3">
-        <Callout
-          description={t("appPage.chargePoints.chargingSessions.consumption.loadError")}
-          variant="error"
-        />
-      </div>
-    );
-  }
-
-  if (state.status === "empty") {
+  if (series.length === 0) {
     return (
       <p className="p-3 text-xs text-muted-foreground">
         {t("appPage.chargePoints.chargingSessions.consumption.empty")}
@@ -163,10 +94,10 @@ export const SessionConsumptionChart = ({
 
   if (!selectedMeasurand) return null;
 
-  const chartSamples = state.samples
+  const chartSamples = samples
     .filter((sample) => sample.measurand === selectedMeasurand)
     .sort((a, b) => new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime());
-  const chartUnit = state.series.find((series) => series.measurand === selectedMeasurand)?.unit;
+  const chartUnit = series.find((entry) => entry.measurand === selectedMeasurand)?.unit;
   const spansDays =
     (endedAt ? new Date(endedAt) : new Date()).getTime() - new Date(startedAt).getTime() >
     86_400_000;
@@ -194,13 +125,13 @@ export const SessionConsumptionChart = ({
       )}
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {state.series.map((series) => {
-          const { title, value, subtitle, icon } = consumptionHeadline(series, t, formatNumber);
+        {series.map((entry) => {
+          const { title, value, subtitle, icon } = consumptionHeadline(entry, t, formatNumber);
 
           return (
             <ConsumptionTile
-              key={`${series.measurand}-${series.unit ?? ""}`}
-              title={`${title} · ${measurandLabel(series.measurand)}`}
+              key={`${entry.measurand}-${entry.unit ?? ""}`}
+              title={`${title} · ${measurandLabel(entry.measurand)}`}
               value={value}
               subtitle={subtitle}
               icon={icon}

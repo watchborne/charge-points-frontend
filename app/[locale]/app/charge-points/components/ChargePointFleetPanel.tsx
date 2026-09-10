@@ -7,7 +7,7 @@ import { useState } from "react";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { ChargePointDetailPanel } from "./ChargePointDetailPanel";
+import { ChargePointDetailPanel, DetailTab } from "./ChargePointDetailPanel";
 import { useFlipReorder } from "../../hooks/useFlipReorder";
 
 type GroupBy = "site" | "vendor";
@@ -25,6 +25,8 @@ interface ChargePointFleetPanelProps {
   onSelect: (chargePoint: ChargePointWithConnectors | null) => void;
   onEditClicked: (chargePoint: ChargePointWithConnectors) => void;
   onDeleteClicked: (chargePoint: ChargePointWithConnectors) => void;
+  initialTab?: DetailTab;
+  onTabChange?: (tab: DetailTab) => void;
 }
 
 export const ChargePointFleetPanel = ({
@@ -34,6 +36,8 @@ export const ChargePointFleetPanel = ({
   onSelect,
   onEditClicked,
   onDeleteClicked,
+  initialTab,
+  onTabChange,
 }: ChargePointFleetPanelProps) => {
   const t = useTranslations("");
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
@@ -173,6 +177,8 @@ export const ChargePointFleetPanel = ({
               site={sites.find((site) => site.id === selected.siteId)}
               onEditClicked={onEditClicked}
               onDeleteClicked={onDeleteClicked}
+              initialTab={initialTab}
+              onTabChange={onTabChange}
             />
           ) : (
             <div className="flex h-full min-h-48 items-center justify-center text-sm text-muted-foreground">

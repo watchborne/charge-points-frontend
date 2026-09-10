@@ -4,7 +4,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   ChangeAvailabilityOutcome,
@@ -43,8 +43,8 @@ type UnlockConnectorState =
 /** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
 const WHOLE_CHARGE_POINT_KEY = "chargePoint";
 
-type DetailTab = "main" | "actions" | "consumption" | "sessions" | "alerts" | "security";
-const DETAIL_TABS: readonly DetailTab[] = [
+export type DetailTab = "main" | "actions" | "consumption" | "sessions" | "alerts" | "security";
+export const DETAIL_TABS: readonly DetailTab[] = [
   "main",
   "actions",
   "consumption",
@@ -53,11 +53,25 @@ const DETAIL_TABS: readonly DetailTab[] = [
   "security",
 ];
 
+export const isDetailTab = (value: string): value is DetailTab =>
+  (DETAIL_TABS as readonly string[]).includes(value);
+
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
+  // The tab to preselect on mount — set by the page from the `tab` query
+  // param when the charge point itself was also selected from the URL (see
+  // page.tsx's `highlightedId` effect). Only consulted at mount: a later
+  // change to this prop (e.g. the page re-deriving it from a stale search
+  // param) must not fight the user's own tab clicks.
+  initialTab?: DetailTab;
+  // Fired only on an explicit user tab click, so the page can mirror it into
+  // the `tab` query param. Not fired by the automatic reset below — that
+  // reset happens because a *different* charge point was selected, which
+  // already goes through the page's own URL update (see updateDetailTarget).
+  onTabChange?: (tab: DetailTab) => void;
 };
 
 export const ChargePointDetailPanel = ({
@@ -65,6 +79,8 @@ export const ChargePointDetailPanel = ({
   site,
   onEditClicked,
   onDeleteClicked,
+  initialTab,
+  onTabChange,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
 
@@ -75,7 +91,7 @@ export const ChargePointDetailPanel = ({
     onDeleteClick: () => onDeleteClicked(chargePoint),
   });
 
-  const [tab, setTab] = useState<DetailTab>("main");
+  const [tab, setTab] = useState<DetailTab>(() => initialTab ?? "main");
   const [resetState, setResetState] = useState<ResetState>({ status: "idle" });
   const [availabilityState, setAvailabilityState] = useState<Record<string, AvailabilityState>>({});
   const [unlockConnectorState, setUnlockConnectorState] = useState<
@@ -83,13 +99,29 @@ export const ChargePointDetailPanel = ({
   >({});
 
   // Drop any previous run's pending/result state when a different station is
-  // opened, so it never leaks across charge points.
+  // opened, so it never leaks across charge points. Only resets the tab when
+  // chargePoint.id actually changed from what this effect last saw — not
+  // merely "is this the first run" — so the initialTab above (deep-linked
+  // from the URL) survives React 18 Strict Mode's development double-invoke
+  // of a fresh mount's effects (a boolean "first run" flag flips permanently
+  // on the first of the two invocations, so the second would otherwise
+  // clobber the tab straight back to "main").
+  const previousChargePointId = useRef(chargePoint?.id);
   useEffect(() => {
-    setTab("main");
+    if (previousChargePointId.current !== chargePoint?.id) {
+      previousChargePointId.current = chargePoint?.id;
+      setTab("main");
+    }
     setResetState({ status: "idle" });
     setAvailabilityState({});
     setUnlockConnectorState({});
   }, [chargePoint?.id]);
+
+  const handleTabChange = (value: string) => {
+    if (!isDetailTab(value)) return;
+    setTab(value);
+    onTabChange?.(value);
+  };
 
   const handleReset = async (type: ResetType) => {
     setResetState({ status: "loading" });
@@ -137,11 +169,7 @@ export const ChargePointDetailPanel = ({
         <Callout description={chargePoint.connection.statusMessage} variant="warning" />
       )}
 
-      <Tabs
-        value={tab}
-        onValueChange={(value) => setTab(value as DetailTab)}
-        className="overflow-auto"
-      >
+      <Tabs value={tab} onValueChange={handleTabChange} className="overflow-auto">
         <TabsList>
           {DETAIL_TABS.map((option) => (
             <TabsTrigger key={option} value={option}>

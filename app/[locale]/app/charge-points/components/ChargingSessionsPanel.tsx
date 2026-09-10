@@ -14,12 +14,12 @@ import {
 import { format } from "date-fns";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useState } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 
 import { formatDurationShort } from "@/lib/status-history";
 import type { ChargePoint } from "@/types/charge-point";
 
-import { SessionConsumptionChart } from "./SessionConsumptionChart";
+import { SessionConsumptionChartContainer } from "./SessionConsumptionChartContainer";
 
 /**
  * The fields this panel actually reads off `ChargingSession` — narrow enough
@@ -40,6 +40,14 @@ export type ChargingSessionListEntry = Pick<
 type ChargingSessionsPanelProps = {
   chargePointId: ChargePoint["id"];
   sessions: ChargingSessionListEntry[];
+  /**
+   * Overrides how an expanded row's consumption chart renders — the real
+   * dashboard leaves this unset (`SessionConsumptionChartContainer` fetches
+   * against `chargePointId`), while the marketing site's product preview
+   * supplies its own fixture-fed `SessionConsumptionChart` instead of
+   * fetching against a charge point that doesn't exist.
+   */
+  renderSessionDetail?: (session: ChargingSessionListEntry) => ReactNode;
 };
 
 /** Wh when the wire actually carried both bounds — 1.6-only (ADR 0012 in
@@ -62,10 +70,14 @@ const energyDelivered = (session: ChargingSessionListEntry): number | null =>
  * `sessions` here is always the loaded list; the marketing site's product
  * preview can render this directly with static data instead of duplicating
  * the markup. `chargePointId` is only used to scope the expandable
- * per-session `SessionConsumptionChart` fetch — it plays no part in the
- * table itself.
+ * per-session `SessionConsumptionChartContainer` fetch — it plays no part
+ * in the table itself.
  */
-export const ChargingSessionsPanel = ({ chargePointId, sessions }: ChargingSessionsPanelProps) => {
+export const ChargingSessionsPanel = ({
+  chargePointId,
+  sessions,
+  renderSessionDetail,
+}: ChargingSessionsPanelProps) => {
   const t = useTranslations("");
 
   // Which sessions have their consumption chart expanded — several can be
@@ -85,7 +97,11 @@ export const ChargingSessionsPanel = ({ chargePointId, sessions }: ChargingSessi
   };
 
   return (
-    <div className="flex flex-col gap-3 p-3">
+    // No padding of its own — StatusHistoryPanel/ChargePointConsumptionPanel/
+    // AlertsPanel (this tab's siblings) don't pad themselves either, relying
+    // on the detail panel's tab body for that; this one used to, doubling up
+    // with the marketing preview's own padded wrapper around it.
+    <div className="flex flex-col gap-3">
       <span className="text-sm text-muted-foreground">
         {t("appPage.chargePoints.chargingSessions.title")}
       </span>
@@ -176,12 +192,16 @@ export const ChargingSessionsPanel = ({ chargePointId, sessions }: ChargingSessi
                     {expanded && (
                       <TableRow>
                         <TableCell colSpan={6} className="p-0">
-                          <SessionConsumptionChart
-                            chargePointId={chargePointId}
-                            connectorId={session.connectorId}
-                            startedAt={session.startedAt}
-                            endedAt={session.endedAt}
-                          />
+                          {renderSessionDetail ? (
+                            renderSessionDetail(session)
+                          ) : (
+                            <SessionConsumptionChartContainer
+                              chargePointId={chargePointId}
+                              connectorId={session.connectorId}
+                              startedAt={session.startedAt}
+                              endedAt={session.endedAt}
+                            />
+                          )}
                         </TableCell>
                       </TableRow>
                     )}

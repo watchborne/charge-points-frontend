@@ -21,10 +21,10 @@ vi.mock("../../../../../../lib/api", () => ({
 }));
 
 // Stubbed out: it fetches its own meter samples. Its own behaviour is
-// covered by SessionConsumptionChart.test.tsx — this suite only needs to
-// know the panel renders it once expanded.
-vi.mock("../SessionConsumptionChart", () => ({
-  SessionConsumptionChart: ({ connectorId }: { connectorId: number }) => (
+// covered by SessionConsumptionChartContainer.test.tsx — this suite only
+// needs to know the panel renders it once expanded.
+vi.mock("../SessionConsumptionChartContainer", () => ({
+  SessionConsumptionChartContainer: ({ connectorId }: { connectorId: number }) => (
     <div data-testid="session-consumption-chart" data-connector={connectorId} />
   ),
 }));
