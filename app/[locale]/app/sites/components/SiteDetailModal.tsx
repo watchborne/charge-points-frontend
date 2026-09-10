@@ -10,7 +10,6 @@ import { useState } from "react";
 import {
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Dialog,
@@ -330,10 +329,11 @@ export const SiteDetailModal = ({
             </div>
           </div>
 
-          <DialogFooter className="gap-2 pt-6 border-t">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {t("common.cancel")}
-            </Button>
+          {/* Four actions don't fit in a row inside this dialog's max-w-lg at
+              any viewport width, unlike DialogFooter's default two-button
+              sm:flex-row — so this footer stays a single column, full-width
+              buttons, at every size rather than switching to a row past sm. */}
+          <div className="flex flex-col gap-2 border-t pt-6">
             <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
               <CalendarCheck className="h-4 w-4 mr-2" />
               {t("appPage.sites.detail.visits.logButton")}
@@ -346,7 +346,10 @@ export const SiteDetailModal = ({
               <Trash2 className="h-4 w-4 mr-2" />
               {t("common.delete")}
             </Button>
-          </DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {t("common.cancel")}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
