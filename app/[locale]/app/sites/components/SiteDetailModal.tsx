@@ -125,7 +125,7 @@ export const SiteDetailModal = ({
 
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
-                    {t("appPage.sites.page.card.chargePointsWithCount", {
+                    {t("misc.chargePointWithCount", {
                       count: siteChargePoints.length,
                     })}
                   </span>
