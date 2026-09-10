@@ -276,6 +276,86 @@ describe("ChargePointDetailPanel", () => {
     expect(screen.getByText("appPage.chargePoints.availability.wholeChargePoint")).toBeTruthy();
   });
 
+  it("SHOULD preselect the given tab WHEN initialTab is provided", () => {
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        initialTab="actions"
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.actions" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(screen.getByText("appPage.chargePoints.reset.button")).toBeTruthy();
+  });
+
+  it("SHOULD call onTabChange WHEN a different tab is clicked", () => {
+    const onTabChange = vi.fn();
+
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        onTabChange={onTabChange}
+      />,
+    );
+
+    const sessionsTab = screen.getByRole("tab", {
+      name: "appPage.chargePoints.detail.tabs.sessions",
+    });
+    fireEvent.mouseDown(sessionsTab);
+    sessionsTab.focus();
+    fireEvent.click(sessionsTab);
+
+    expect(onTabChange).toHaveBeenCalledWith("sessions");
+  });
+
+  it("SHOULD NOT call onTabChange WHEN a different charge point is selected", () => {
+    const onTabChange = vi.fn();
+
+    const { rerender } = renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        initialTab="actions"
+        onTabChange={onTabChange}
+      />,
+    );
+
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <ChargePointDetailPanel
+          chargePoint={{ ...CHARGE_POINT, id: "cp-2" }}
+          site={undefined}
+          onEditClicked={vi.fn()}
+          onDeleteClicked={vi.fn()}
+          initialTab="actions"
+          onTabChange={onTabChange}
+        />
+      </QueryClientProvider>,
+    );
+
+    // The panel resets itself to the Overview tab whenever the underlying
+    // charge point changes — the page already dropped the `tab` query param
+    // as part of that same selection, so this must not fire another URL update.
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(onTabChange).not.toHaveBeenCalled();
+  });
+
   it("SHOULD render the charging-session history WHEN the Sessions tab is active", () => {
     renderWithQueryClient(
       <ChargePointDetailPanel
