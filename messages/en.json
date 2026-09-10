@@ -893,6 +893,13 @@
           }
         }
       },
+      "actionsTab": {
+        "groups": {
+          "controls": "Charge point controls",
+          "messaging": "Testing notifications",
+          "displayMessages": "Display messages"
+        }
+      },
       "configuration": {
         "button": "Configuration",
         "title": "OCPP configuration",
@@ -925,7 +932,8 @@
         }
       },
       "trigger": {
-        "button": "Trigger a message",
+        "label": "Trigger a notification",
+        "button": "Notification",
         "types": {
           "BootNotification": "Boot notification",
           "DiagnosticsStatusNotification": "Diagnostics status",
