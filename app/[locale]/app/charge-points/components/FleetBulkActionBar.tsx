@@ -42,9 +42,7 @@ type BulkResultItem = {
 };
 
 type BulkActionUiState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; results: BulkResultItem[] };
+  { status: "idle" } | { status: "loading" } | { status: "done"; results: BulkResultItem[] };
 
 const IDLE: BulkActionUiState = { status: "idle" };
 
@@ -88,16 +86,14 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
     const results = await bulkReset(chargePoints, type);
     setResetState({
       status: "done",
-      results: results.map(
-        (result): BulkResultItem => ({
-          chargePointId: result.chargePointId,
-          chargePointName: result.chargePointName,
-          ok: result.outcome.ok,
-          errorMessageKey: result.outcome.ok
-            ? undefined
-            : getResetErrorMessageKey(result.outcome.httpStatus),
-        }),
-      ),
+      results: results.map((result): BulkResultItem => ({
+        chargePointId: result.chargePointId,
+        chargePointName: result.chargePointName,
+        ok: result.outcome.ok,
+        errorMessageKey: result.outcome.ok
+          ? undefined
+          : getResetErrorMessageKey(result.outcome.httpStatus),
+      })),
     });
   };
 
@@ -106,16 +102,14 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
     const results = await bulkChangeAvailability(chargePoints, type);
     setAvailabilityState({
       status: "done",
-      results: results.map(
-        (result): BulkResultItem => ({
-          chargePointId: result.chargePointId,
-          chargePointName: result.chargePointName,
-          ok: result.outcome.ok,
-          errorMessageKey: result.outcome.ok
-            ? undefined
-            : getAvailabilityErrorMessageKey(result.outcome.httpStatus),
-        }),
-      ),
+      results: results.map((result): BulkResultItem => ({
+        chargePointId: result.chargePointId,
+        chargePointName: result.chargePointName,
+        ok: result.outcome.ok,
+        errorMessageKey: result.outcome.ok
+          ? undefined
+          : getAvailabilityErrorMessageKey(result.outcome.httpStatus),
+      })),
     });
   };
 

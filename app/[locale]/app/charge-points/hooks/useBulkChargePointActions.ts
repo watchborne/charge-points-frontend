@@ -20,8 +20,7 @@ import type { ChargePointWithConnectors } from "@/types/charge-point";
  * so the result list can say why, instead of reporting a generic error.
  */
 export type BulkUnlockConnectorOutcome =
-  | UnlockConnectorOutcome
-  | { ok: false; reason: "noConnector" };
+  UnlockConnectorOutcome | { ok: false; reason: "noConnector" };
 
 export interface BulkActionResult<TOutcome> {
   chargePointId: ChargePoint["id"];
