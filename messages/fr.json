@@ -75,7 +75,8 @@
         "links": {
           "chargePoints": "Bornes de recharge",
           "sites": "Sites",
-          "configuration": "Configuration"
+          "configuration": "Configuration",
+          "profile": "Profil"
         },
         "wsStatus": {
           "connecting": "Connexion en cours…",
@@ -1243,6 +1244,27 @@
         "title": "D'autres sections à venir",
         "description": "De nouvelles rubriques de configuration seront ajoutées ici au fur et à mesure de l'évolution de Watchborne.",
         "badge": "Bientôt disponible"
+      }
+    },
+    "profile": {
+      "page": {
+        "title": "Profil",
+        "subtitle": "Vos informations de compte et vos préférences d'affichage."
+      },
+      "theme": {
+        "title": "Thème",
+        "light": "Thème clair",
+        "dark": "Thème sombre"
+      },
+      "session": {
+        "title": "Session",
+        "userId": "Identifiant utilisateur",
+        "email": "Email",
+        "lastSignIn": "Dernière connexion",
+        "createdAt": "Profil créé le",
+        "emailVerified": "Email vérifié",
+        "verified": "Vérifié",
+        "notVerified": "Non vérifié"
       }
     }
   },
