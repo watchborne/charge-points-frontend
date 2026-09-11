@@ -3,6 +3,7 @@ import type { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { isCumulativeRegister, type MeterSampleSummary } from "@/lib/api-metering";
+import { formatUnit } from "@/lib/format-unit";
 
 /** next-intl's own translator type, not a hand-rolled shape — its `values`
  * parameter is narrower than `Record<string, unknown>` (only
@@ -64,7 +65,7 @@ export const consumptionHeadline = (
   formatNumber: (value: number) => string,
 ): ConsumptionHeadline => {
   const withUnit = (value: number, unit?: string) =>
-    unit ? `${formatNumber(value)} ${unit}` : formatNumber(value);
+    unit ? `${formatNumber(value)} ${formatUnit(unit)}` : formatNumber(value);
 
   return isCumulativeRegister(series.measurand)
     ? {
