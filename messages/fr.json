@@ -648,6 +648,17 @@
           "genericError": "La demande de déverrouillage a échoué. Veuillez réessayer."
         }
       },
+      "bulkActions": {
+        "selectItem": "Sélectionner {name}",
+        "selectedCount": "{count, plural, =0 {0 sélectionnée} =1 {1 borne sélectionnée} other {# bornes sélectionnées}}",
+        "clearSelection": "Effacer la sélection",
+        "unlockConnector": {
+          "noConnector": "Cette borne n'a aucun connecteur à déverrouiller."
+        },
+        "results": {
+          "summary": "{succeeded, plural, =0 {Aucune borne n'a réussi} =1 {1 borne réussie} other {# bornes réussies}}, {failed, plural, =0 {aucun échec} =1 {1 échec} other {# échecs}}"
+        }
+      },
       "firmware": {
         "title": "Firmware",
         "unknownVersion": "Version inconnue",

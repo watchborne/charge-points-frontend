@@ -8,6 +8,7 @@ import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ChargePointDetailPanel, DetailTab } from "./ChargePointDetailPanel";
+import { FleetBulkActionBar } from "./FleetBulkActionBar";
 import { useFlipReorder } from "../../hooks/useFlipReorder";
 
 type GroupBy = "site" | "vendor";
@@ -41,7 +42,26 @@ export const ChargePointFleetPanel = ({
 }: ChargePointFleetPanelProps) => {
   const t = useTranslations("");
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
+  // Bulk-selection (checkboxes, for the fleet action bar) is deliberately
+  // separate from `selected` (the single charge point the detail panel on
+  // the right shows) — an installer bulk-resetting five stations still needs
+  // to click into one of them to see its detail.
+  const [bulkSelectedIds, setBulkSelectedIds] = useState<Set<string>>(new Set());
   const { registerFlipItem } = useFlipReorder();
+
+  const toggleBulkSelected = (chargePointId: string) => {
+    setBulkSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(chargePointId)) {
+        next.delete(chargePointId);
+      } else {
+        next.add(chargePointId);
+      }
+      return next;
+    });
+  };
+
+  const bulkSelectedChargePoints = chargePoints.filter((cp) => bulkSelectedIds.has(cp.id));
 
   const siteName = (siteId: string | null) => sites.find((site) => site.id === siteId)?.name;
 
@@ -98,6 +118,13 @@ export const ChargePointFleetPanel = ({
         </Tabs>
       </div>
 
+      {bulkSelectedChargePoints.length > 0 && (
+        <FleetBulkActionBar
+          chargePoints={bulkSelectedChargePoints}
+          onClear={() => setBulkSelectedIds(new Set())}
+        />
+      )}
+
       <div className="grid grid grid-cols-1 md:grid-cols-3">
         <div className="border-b bg-muted/30 p-4 sm:p-6 md:max-h-[70vh] md:overflow-y-auto md:border-b-0 md:border-r">
           {groups.length === 0 ? (
@@ -122,45 +149,60 @@ export const ChargePointFleetPanel = ({
                         .filter(Boolean)
                         .join(" ");
                       const isSelected = selected?.id === chargePoint.id;
+                      const isBulkSelected = bulkSelectedIds.has(chargePoint.id);
 
                       return (
-                        <button
+                        <div
                           key={chargePoint.id}
                           ref={registerFlipItem(chargePoint.id)}
-                          type="button"
-                          onClick={() => onSelect(isSelected ? null : chargePoint)}
-                          className={classNames(
-                            "block w-full rounded-lg border p-3 text-left transition-shadow hover:shadow-md",
-                            isSelected
-                              ? "border-charge ring-1 ring-charge bg-charge-soft/40"
-                              : "bg-background",
-                            !chargePoint.isActive && !isSelected && "opacity-60",
-                          )}
+                          className="flex items-start gap-2"
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <div className="truncate font-medium">{chargePoint.name}</div>
-                              {vendorModel && (
-                                <div className="truncate text-xs text-muted-foreground">
-                                  {vendorModel}
-                                </div>
-                              )}
-                            </div>
-                            <span
-                              className={classNames(
-                                "mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full",
-                                colorDotClass[color],
-                              )}
-                            />
-                          </div>
+                          <input
+                            type="checkbox"
+                            checked={isBulkSelected}
+                            onChange={() => toggleBulkSelected(chargePoint.id)}
+                            aria-label={t("appPage.chargePoints.bulkActions.selectItem", {
+                              name: chargePoint.name,
+                            })}
+                            className="mt-4 h-4 w-4 shrink-0 rounded border-input accent-charge"
+                          />
 
-                          <div className="mt-2">
-                            <Tag>
-                              {siteName(chargePoint.siteId) ??
-                                t("appPage.chargePoints.detail.unknownSite")}
-                            </Tag>
-                          </div>
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => onSelect(isSelected ? null : chargePoint)}
+                            className={classNames(
+                              "block w-full rounded-lg border p-3 text-left transition-shadow hover:shadow-md",
+                              isSelected
+                                ? "border-charge ring-1 ring-charge bg-charge-soft/40"
+                                : "bg-background",
+                              !chargePoint.isActive && !isSelected && "opacity-60",
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="truncate font-medium">{chargePoint.name}</div>
+                                {vendorModel && (
+                                  <div className="truncate text-xs text-muted-foreground">
+                                    {vendorModel}
+                                  </div>
+                                )}
+                              </div>
+                              <span
+                                className={classNames(
+                                  "mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full",
+                                  colorDotClass[color],
+                                )}
+                              />
+                            </div>
+
+                            <div className="mt-2">
+                              <Tag>
+                                {siteName(chargePoint.siteId) ??
+                                  t("appPage.chargePoints.detail.unknownSite")}
+                              </Tag>
+                            </div>
+                          </button>
+                        </div>
                       );
                     })}
                   </div>
