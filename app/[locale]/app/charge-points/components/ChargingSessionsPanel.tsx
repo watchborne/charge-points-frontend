@@ -113,7 +113,7 @@ export const ChargingSessionsPanel = ({
       )}
 
       {sessions.length > 0 && (
-        <div className="max-h-[420px] overflow-auto rounded-md border">
+        <div className="overflow-auto rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
