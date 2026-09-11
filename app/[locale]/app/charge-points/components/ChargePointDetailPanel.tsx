@@ -55,6 +55,15 @@ export const DETAIL_TABS: readonly DetailTab[] = [
 export const isDetailTab = (value: string): value is DetailTab =>
   (DETAIL_TABS as readonly string[]).includes(value);
 
+// Remembers the tab a user last had open, across charge points and sessions,
+// so the panel can default there instead of always resetting to "main".
+const LAST_TAB_STORAGE_KEY = "cp-detail-last-tab";
+
+const readLastUsedTab = (): DetailTab | undefined => {
+  const stored = localStorage.getItem(LAST_TAB_STORAGE_KEY);
+  return stored && isDetailTab(stored) ? stored : undefined;
+};
+
 type ChargePointDetailPanelProps = {
   chargePoint: ChargePointWithConnectors;
   site: Site | undefined;
@@ -104,21 +113,35 @@ export const ChargePointDetailPanel = ({
   // from the URL) survives React 18 Strict Mode's development double-invoke
   // of a fresh mount's effects (a boolean "first run" flag flips permanently
   // on the first of the two invocations, so the second would otherwise
-  // clobber the tab straight back to "main").
+  // clobber the tab straight back to the default). Falls back to the user's
+  // own last-used tab rather than always "main", so switching stations keeps
+  // landing on whichever tab this user actually works from.
   const previousChargePointId = useRef(chargePoint?.id);
   useEffect(() => {
     if (previousChargePointId.current !== chargePoint?.id) {
       previousChargePointId.current = chargePoint?.id;
-      setTab("main");
+      setTab(readLastUsedTab() ?? "main");
     }
     setResetState({ status: "idle" });
     setAvailabilityState({});
     setUnlockConnectorState({});
   }, [chargePoint?.id]);
 
+  // Applies the same last-used-tab preference to the very first mount, but
+  // only when the tab wasn't already deep-linked from the URL (initialTab
+  // always wins). Runs once: initialTab is itself only ever consulted at
+  // mount (see its own doc comment above), so this mirrors that.
+  useEffect(() => {
+    if (initialTab) return;
+    const stored = readLastUsedTab();
+    if (stored) setTab(stored);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleTabChange = (value: string) => {
     if (!isDetailTab(value)) return;
     setTab(value);
+    localStorage.setItem(LAST_TAB_STORAGE_KEY, value);
     onTabChange?.(value);
   };
 
