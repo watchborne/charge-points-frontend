@@ -330,10 +330,7 @@ export const SiteDetailModal = ({
             </div>
           </div>
 
-          <DialogFooter className="gap-2 pt-6 border-t">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {t("common.actions.cancel")}
-            </Button>
+          <div className="flex flex-col gap-2 pt-6 border-t">
             <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
               <CalendarCheck className="h-4 w-4 mr-2" />
               {t("appPage.sites.detail.visits.logButton")}
@@ -346,7 +343,7 @@ export const SiteDetailModal = ({
               <Trash2 className="h-4 w-4 mr-2" />
               {t("common.delete")}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
