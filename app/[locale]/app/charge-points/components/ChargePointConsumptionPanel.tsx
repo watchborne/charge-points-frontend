@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
+import { formatUnit } from "@/lib/format-unit";
 
 import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
 import { consumptionHeadline, ConsumptionTile } from "./ConsumptionTile";
@@ -98,7 +99,7 @@ export const ChargePointConsumptionPanel = ({
   const unit = chartedSeries[0]?.unit;
 
   const withUnit = (value: number, seriesUnit?: string) =>
-    seriesUnit ? `${formatNumber(value)} ${seriesUnit}` : formatNumber(value);
+    seriesUnit ? `${formatNumber(value)} ${formatUnit(seriesUnit)}` : formatNumber(value);
 
   return (
     <div className="flex flex-col gap-3">
