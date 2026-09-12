@@ -1,8 +1,17 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DashboardWidgetPreference, defaultDashboardLayout } from "@/lib/dashboard-layout";
 import { ChargePointWithConnectors } from "@/types/charge-point";
+
+// Relative, not the "@/" alias: unlike a type-only import (erased before
+// resolution, which is why "@/types/charge-point" above still works), this
+// one is used as a value — and this project's Vitest config does not alias
+// "@/" for real (non-type) resolution in test files either, the same
+// limitation the mock-target comments elsewhere in this file call out.
+import {
+  DashboardWidgetPreference,
+  defaultDashboardLayout,
+} from "../../../../../lib/dashboard-layout";
 
 const { useChargePoints, useSites, useDashboardLayout } = vi.hoisted(() => ({
   useChargePoints: vi.fn(),
