@@ -73,10 +73,17 @@ const patch = <T>(url: string, body: unknown): Promise<T> => {
   });
 };
 
-const del = (url: string): Promise<void> => {
+// `body` is optional: most DELETEs this app makes are bare (the resource is
+// addressed entirely by its URL), but a caller-scoped resource with no id of
+// its own in the URL — a push subscription is identified by its `endpoint`,
+// not a path segment — needs one to say *which* one to remove. No existing
+// call site in this app needed a DELETE body before push subscriptions, so
+// this is the only sibling to check when adding another one.
+const del = (url: string, body?: unknown): Promise<void> => {
   return makeRequest<void>(url, {
     method: "DELETE",
     headers: JSON_HEADERS,
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
 };
 
