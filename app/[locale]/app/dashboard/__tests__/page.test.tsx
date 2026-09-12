@@ -14,13 +14,7 @@ const { useChargePoints, useSites } = vi.hoisted(() => ({
 // the same convention).
 vi.mock("../../hooks/useChargePoints", () => ({ useChargePoints }));
 vi.mock("../../hooks/useSites", () => ({ useSites }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("../../../../../i18n/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
-  Link: ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <a href={href}>{children}</a>
-  ),
-}));
+vi.mock("../../../../../i18n/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 
 vi.mock("../../charge-points/components/CommissioningQueue", () => ({
   CommissioningQueue: ({ chargePoints }: { chargePoints: ChargePointWithConnectors[] }) => (

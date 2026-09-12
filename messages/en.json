@@ -441,9 +441,6 @@
       "uptime": "Uptime",
       "uptimeOnline": "Online for {time}",
       "uptimeOffline": "Offline for {time}",
-      "administration": {
-        "button": "Administration"
-      },
       "siteHealth": {
         "sectionTitle": "Site health",
         "affectedChargePoints": "{count, plural, =0 {No affected charge points} =1 {1 affected charge point} other {# affected charge points}}",
@@ -1279,11 +1276,6 @@
         "emailVerified": "Email verified",
         "verified": "Verified",
         "notVerified": "Not verified"
-      },
-      "administration": {
-        "title": "Administration",
-        "description": "Manage access requests and users from the Supabase admin dashboard.",
-        "button": "Open admin dashboard"
       }
     }
   },

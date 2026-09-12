@@ -1,11 +1,9 @@
 "use client";
 
-import { Button, Callout } from "@watchborne/electrons";
-import { ShieldCheck } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Callout } from "@watchborne/electrons";
 import { useMemo } from "react";
 
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { isAwaitingCommissioning } from "@/lib/commissioning";
 import { deriveSitesHealth } from "@/lib/derive-site-health";
 
@@ -20,7 +18,6 @@ import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 
 export default function DashboardPage() {
-  const t = useTranslations("");
   const { chargePoints, loading, error } = useChargePoints();
   const { sites, loading: loadingSites, error: errorSites } = useSites();
   const router = useRouter();
@@ -42,15 +39,6 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <Button asChild variant="outline" size="sm" className="gap-2">
-          <Link href="/app/profile#administration">
-            <ShieldCheck className="h-4 w-4" />
-            {t("appPage.dashboard.administration.button")}
-          </Link>
-        </Button>
-      </div>
-
       {hasError && (
         <div className="flex flex-col gap-2 content-stretch mb-4">
           {error && <Callout variant="error" description={error} />}

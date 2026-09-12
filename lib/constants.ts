@@ -22,21 +22,3 @@ export const WS_TOKEN_URL = "/api/ws-token";
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
-// Link to the Supabase Studio project dashboard — where an admin approves
-// alpha access requests by inviting the email (see CLAUDE.md's Authentication
-// section). Derived from the project ref in SUPABASE_URL's hostname
-// (https://<ref>.supabase.co) rather than a separate env var, since the two
-// always point at the same project. Falls back to the project list when the
-// ref can't be parsed out (e.g. SUPABASE_URL unset).
-const SUPABASE_PROJECT_REF = (() => {
-  try {
-    return new URL(SUPABASE_URL).hostname.split(".")[0];
-  } catch {
-    return "";
-  }
-})();
-
-export const SUPABASE_DASHBOARD_URL = SUPABASE_PROJECT_REF
-  ? `https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}`
-  : "https://supabase.com/dashboard/projects";
