@@ -1,12 +1,13 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { ColorPill, Skeleton, Switch } from "@watchborne/electrons";
-import { Moon, Palette, Sun, UserRound } from "lucide-react";
+import { Button, ColorPill, Skeleton, Switch } from "@watchborne/electrons";
+import { ExternalLink, Moon, Palette, ShieldCheck, Sun, UserRound } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useTheme } from "@/app/components/ThemeProvider";
+import { SUPABASE_DASHBOARD_URL } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ProfilePage() {
@@ -130,6 +131,24 @@ export default function ProfilePage() {
               </div>
             </dl>
           )}
+        </div>
+      </section>
+
+      <section id="administration" className="rounded-lg border scroll-mt-4">
+        <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
+          <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium">{t("appPage.profile.administration.title")}</span>
+        </div>
+        <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            {t("appPage.profile.administration.description")}
+          </p>
+          <Button asChild variant="outline" className="gap-2 shrink-0">
+            <a href={SUPABASE_DASHBOARD_URL} target="_blank" rel="noopener noreferrer">
+              {t("appPage.profile.administration.button")}
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </Button>
         </div>
       </section>
     </div>
