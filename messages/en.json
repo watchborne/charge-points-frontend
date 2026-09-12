@@ -75,7 +75,8 @@
         "links": {
           "chargePoints": "Charge Points",
           "sites": "Sites",
-          "configuration": "Configuration"
+          "configuration": "Configuration",
+          "profile": "Profile"
         },
         "wsStatus": {
           "connecting": "Connecting…",
@@ -1254,6 +1255,27 @@
         "title": "More sections coming soon",
         "description": "New configuration topics will be added here as Watchborne evolves.",
         "badge": "Coming soon"
+      }
+    },
+    "profile": {
+      "page": {
+        "title": "Profile",
+        "subtitle": "Your account information and display preferences."
+      },
+      "theme": {
+        "title": "Theme",
+        "light": "Light theme",
+        "dark": "Dark theme"
+      },
+      "session": {
+        "title": "Session",
+        "userId": "User ID",
+        "email": "Email",
+        "lastSignIn": "Last sign-in",
+        "createdAt": "Profile created on",
+        "emailVerified": "Email verified",
+        "verified": "Verified",
+        "notVerified": "Not verified"
       }
     }
   },

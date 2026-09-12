@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { StrictMode, type ReactElement } from "react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { updateChargePoint } = vi.hoisted(() => ({
   updateChargePoint: vi.fn().mockResolvedValue({}),
@@ -90,6 +90,12 @@ beforeAll(() => {
   Element.prototype.setPointerCapture = vi.fn();
   Element.prototype.releasePointerCapture = vi.fn();
   Element.prototype.scrollIntoView = vi.fn();
+});
+
+const LAST_TAB_STORAGE_KEY = "cp-detail-last-tab";
+
+beforeEach(() => {
+  localStorage.clear();
 });
 
 afterEach(() => {
@@ -389,6 +395,95 @@ describe("ChargePointDetailPanel", () => {
         .getAttribute("aria-selected"),
     ).toBe("true");
     expect(onTabChange).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD persist the clicked tab to localStorage WHEN a different tab is clicked", () => {
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    const consumptionTab = screen.getByRole("tab", {
+      name: "appPage.chargePoints.detail.tabs.consumption",
+    });
+    fireEvent.mouseDown(consumptionTab);
+    consumptionTab.focus();
+    fireEvent.click(consumptionTab);
+
+    expect(localStorage.getItem(LAST_TAB_STORAGE_KEY)).toBe("consumption");
+  });
+
+  it("SHOULD default to the last-used tab WHEN localStorage has one and no initialTab is given", () => {
+    localStorage.setItem(LAST_TAB_STORAGE_KEY, "consumption");
+
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.consumption" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("SHOULD prefer initialTab over the stored last-used tab WHEN both are present", () => {
+    localStorage.setItem(LAST_TAB_STORAGE_KEY, "consumption");
+
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+        initialTab="actions"
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.actions" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("SHOULD fall back to the last-used tab instead of Overview WHEN switching to a different charge point", () => {
+    localStorage.setItem(LAST_TAB_STORAGE_KEY, "sessions");
+
+    const { rerender } = renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <ChargePointDetailPanel
+          chargePoint={{ ...CHARGE_POINT, id: "cp-2" }}
+          site={undefined}
+          onEditClicked={vi.fn()}
+          onDeleteClicked={vi.fn()}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(
+      screen
+        .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.sessions" })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
   });
 
   it("SHOULD render the charging-session history WHEN the Sessions tab is active", () => {
