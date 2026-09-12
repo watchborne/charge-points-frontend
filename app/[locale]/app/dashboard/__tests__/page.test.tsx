@@ -1,11 +1,13 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { DashboardWidgetPreference, defaultDashboardLayout } from "@/lib/dashboard-layout";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-const { useChargePoints, useSites } = vi.hoisted(() => ({
+const { useChargePoints, useSites, useDashboardLayout } = vi.hoisted(() => ({
   useChargePoints: vi.fn(),
   useSites: vi.fn(),
+  useDashboardLayout: vi.fn(),
 }));
 
 // Relative targets throughout, not the "@/" alias: this project's Vitest
@@ -14,6 +16,8 @@ const { useChargePoints, useSites } = vi.hoisted(() => ({
 // the same convention).
 vi.mock("../../hooks/useChargePoints", () => ({ useChargePoints }));
 vi.mock("../../hooks/useSites", () => ({ useSites }));
+vi.mock("../../hooks/useDashboardLayout", () => ({ useDashboardLayout }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("../../../../../i18n/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 
 vi.mock("../../charge-points/components/CommissioningQueue", () => ({
@@ -77,6 +81,7 @@ const setHooks = ({
   sites = [],
   loadingSites = false,
   errorSites = null,
+  layout = defaultDashboardLayout(),
 }: {
   chargePoints?: ChargePointWithConnectors[];
   loadingChargePoints?: boolean;
@@ -84,6 +89,7 @@ const setHooks = ({
   sites?: unknown[];
   loadingSites?: boolean;
   errorSites?: string | null;
+  layout?: DashboardWidgetPreference[];
 }) => {
   useChargePoints.mockReturnValue({
     chargePoints,
@@ -97,11 +103,18 @@ const setHooks = ({
     error: errorSites,
     refetch: vi.fn(),
   });
+  useDashboardLayout.mockReturnValue({
+    layout,
+    toggleVisibility: vi.fn(),
+    moveWidget: vi.fn(),
+    resetLayout: vi.fn(),
+  });
 };
 
 beforeEach(() => {
   useChargePoints.mockReset();
   useSites.mockReset();
+  useDashboardLayout.mockReset();
 });
 
 describe("DashboardPage", () => {
@@ -152,5 +165,50 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     expect(screen.getByTestId("commissioning-queue")).toHaveProperty("textContent", "cp-awaiting");
+  });
+
+  it("SHOULD hide a widget WHEN its layout preference marks it not visible", () => {
+    setHooks({
+      chargePoints: [chargePoint("cp-1")],
+      layout: [
+        { id: "siteHealth", visible: false },
+        { id: "chargePointsBreakdown", visible: true },
+        { id: "fleetOverview", visible: true },
+      ],
+    });
+
+    render(<DashboardPage />);
+
+    expect(screen.queryByTestId("site-health-section")).toBeNull();
+    expect(screen.getByTestId("breakdown")).toBeTruthy();
+    expect(screen.getByTestId("fleet-overview")).toBeTruthy();
+  });
+
+  it("SHOULD render visible widgets in the order given by the layout preference", () => {
+    setHooks({
+      chargePoints: [chargePoint("cp-1")],
+      layout: [
+        { id: "fleetOverview", visible: true },
+        { id: "siteHealth", visible: true },
+        { id: "chargePointsBreakdown", visible: true },
+      ],
+    });
+
+    render(<DashboardPage />);
+
+    const order = screen
+      .getAllByTestId(/^(site-health-section|breakdown|fleet-overview)$/)
+      .map((el) => el.getAttribute("data-testid"));
+
+    expect(order).toEqual(["fleet-overview", "site-health-section", "breakdown"]);
+  });
+
+  it("SHOULD open the layout customization dialog WHEN the customize button is clicked", () => {
+    setHooks({});
+
+    render(<DashboardPage />);
+    fireEvent.click(screen.getByText("appPage.dashboard.layout.customize"));
+
+    expect(screen.getByText("appPage.dashboard.layout.dialogTitle")).toBeTruthy();
   });
 });

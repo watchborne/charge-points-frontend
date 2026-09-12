@@ -441,6 +441,21 @@
       "uptime": "Uptime",
       "uptimeOnline": "Online for {time}",
       "uptimeOffline": "Offline for {time}",
+      "layout": {
+        "customize": "Customize",
+        "dialogTitle": "Customize dashboard",
+        "dialogDescription": "Reorder or hide the sections below. These preferences are saved on this device.",
+        "moveUp": "Move \"{widget}\" up",
+        "moveDown": "Move \"{widget}\" down",
+        "toggleVisible": "Show \"{widget}\"",
+        "reset": "Reset",
+        "done": "Done",
+        "widgets": {
+          "siteHealth": "Site health",
+          "chargePointsBreakdown": "Charge points breakdown",
+          "fleetOverview": "Fleet overview"
+        }
+      },
       "siteHealth": {
         "sectionTitle": "Site health",
         "affectedChargePoints": "{count, plural, =0 {No affected charge points} =1 {1 affected charge point} other {# affected charge points}}",

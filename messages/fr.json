@@ -441,6 +441,21 @@
       "uptime": "Uptime",
       "uptimeOnline": "En ligne depuis {time}",
       "uptimeOffline": "Hors ligne depuis {time}",
+      "layout": {
+        "customize": "Personnaliser",
+        "dialogTitle": "Personnaliser le tableau de bord",
+        "dialogDescription": "Réorganisez ou masquez les sections ci-dessous. Ces préférences sont enregistrées sur cet appareil.",
+        "moveUp": "Monter « {widget} »",
+        "moveDown": "Descendre « {widget} »",
+        "toggleVisible": "Afficher « {widget} »",
+        "reset": "Réinitialiser",
+        "done": "Terminé",
+        "widgets": {
+          "siteHealth": "Santé des sites",
+          "chargePointsBreakdown": "Répartition des bornes",
+          "fleetOverview": "Vue d'ensemble du parc"
+        }
+      },
       "siteHealth": {
         "sectionTitle": "Santé des sites",
         "affectedChargePoints": "{count, plural, =0 {Aucune borne affectée} =1 {1 borne affectée} other {# bornes affectées}}",
