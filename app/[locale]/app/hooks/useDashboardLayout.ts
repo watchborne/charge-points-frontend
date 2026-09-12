@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   DashboardWidgetId,
@@ -10,10 +10,17 @@ import {
 
 // Drives the dashboard's configurable widget layout (#393): current
 // order/visibility, plus the actions the customize dialog and the page
-// itself need. Reads localStorage lazily on mount and writes through on
-// every change, so the layout survives a refresh without a network round trip.
+// itself need. Starts from the default layout (there's no `window` to read
+// localStorage from during the dashboard page's server-rendered/prerendered
+// pass — same reasoning as ThemeProvider's own localStorage read), then
+// hydrates from localStorage on mount and writes through on every change, so
+// the layout survives a refresh without a network round trip.
 export const useDashboardLayout = () => {
-  const [layout, setLayout] = useState<DashboardWidgetPreference[]>(() => readDashboardLayout());
+  const [layout, setLayout] = useState<DashboardWidgetPreference[]>(defaultDashboardLayout());
+
+  useEffect(() => {
+    setLayout(readDashboardLayout());
+  }, []);
 
   const persist = useCallback((next: DashboardWidgetPreference[]) => {
     setLayout(next);
