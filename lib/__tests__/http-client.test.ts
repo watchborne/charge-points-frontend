@@ -189,4 +189,18 @@ describe("httpClient.delete", () => {
 
     await expect(httpClient.delete("/api/items/1")).rejects.toThrow("HTTP error! status: 403");
   });
+
+  it("SHOULD send a JSON body WHEN one is given", async () => {
+    // A resource addressed by something other than a URL path segment (e.g.
+    // a push subscription's `endpoint`) needs the DELETE to carry it.
+    mockFetch.mockReturnValue(okResponse(null));
+
+    await httpClient.delete("/api/items", { endpoint: "https://push.example/abc" });
+
+    expect(mockFetch).toHaveBeenCalledWith("/api/items", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: "https://push.example/abc" }),
+    });
+  });
 });

@@ -6,6 +6,7 @@ import { deviceVariableReportApis } from "./api-device-variable-reports";
 import { displayMessageApis } from "./api-display-messages";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
+import { pushSubscriptionApis } from "./api-push-subscriptions";
 import { securityEventApis } from "./api-security-events";
 import { siteVisitApis } from "./api-site-visits";
 import { siteApis } from "./api-sites";
@@ -21,6 +22,7 @@ export const api = {
   DisplayMessages: displayMessageApis,
   Me: meApis,
   Metering: meteringApis,
+  PushSubscriptions: pushSubscriptionApis,
   SecurityEvents: securityEventApis,
   Sites: siteApis,
   SiteVisits: siteVisitApis,
