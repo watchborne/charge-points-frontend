@@ -3,11 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import {
-  DashboardWidgetPreference,
-  defaultDashboardLayout,
-} from "../../../../../lib/dashboard-layout";
-
 const { useChargePoints, useSites, useDashboardLayout } = vi.hoisted(() => ({
   useChargePoints: vi.fn(),
   useSites: vi.fn(),
@@ -17,8 +12,7 @@ const { useChargePoints, useSites, useDashboardLayout } = vi.hoisted(() => ({
 // Relative targets throughout, not the "@/" alias: this project's Vitest
 // config does not alias "@/" for the mock resolver, so an aliased vi.mock
 // target silently fails to intercept (see TriggerMessageControl.test.tsx for
-// the same convention) — and, as with the dashboard-layout import above, not
-// for a real (non-type) import written directly in a test file either.
+// the same convention).
 vi.mock("../../hooks/useChargePoints", () => ({ useChargePoints }));
 vi.mock("../../hooks/useSites", () => ({ useSites }));
 vi.mock("../../hooks/useDashboardLayout", () => ({ useDashboardLayout }));
@@ -51,6 +45,12 @@ vi.mock("../../components/dashboard/SiteHealthSection", () => ({
   SiteHealthSection: () => <div data-testid="site-health-section" />,
 }));
 
+// Relative, not the "@/" alias: same resolver limitation as the mock targets
+// above, but for a real (non-type) import rather than a vi.mock target.
+import {
+  DashboardWidgetPreference,
+  defaultDashboardLayout,
+} from "../../../../../lib/dashboard-layout";
 import DashboardPage from "../page";
 
 afterEach(() => cleanup());
