@@ -3,11 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-// Relative, not the "@/" alias: unlike a type-only import (erased before
-// resolution, which is why "@/types/charge-point" above still works), this
-// one is used as a value — and this project's Vitest config does not alias
-// "@/" for real (non-type) resolution in test files either, the same
-// limitation the mock-target comments elsewhere in this file call out.
 import {
   DashboardWidgetPreference,
   defaultDashboardLayout,
@@ -22,7 +17,8 @@ const { useChargePoints, useSites, useDashboardLayout } = vi.hoisted(() => ({
 // Relative targets throughout, not the "@/" alias: this project's Vitest
 // config does not alias "@/" for the mock resolver, so an aliased vi.mock
 // target silently fails to intercept (see TriggerMessageControl.test.tsx for
-// the same convention).
+// the same convention) — and, as with the dashboard-layout import above, not
+// for a real (non-type) import written directly in a test file either.
 vi.mock("../../hooks/useChargePoints", () => ({ useChargePoints }));
 vi.mock("../../hooks/useSites", () => ({ useSites }));
 vi.mock("../../hooks/useDashboardLayout", () => ({ useDashboardLayout }));
