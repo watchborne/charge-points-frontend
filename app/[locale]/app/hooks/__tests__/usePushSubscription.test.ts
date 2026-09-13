@@ -305,6 +305,20 @@ describe("isSubscribed (on-mount check)", () => {
   });
 });
 
+// A promise this test controls the settling of, so a mutation can be held
+// genuinely in flight for an assertion rather than racing its own mocked
+// dependencies — every mock in this file resolves on the next microtask, so
+// an entire mutationFn (several awaits deep) can complete before a
+// macrotask-polling waitFor() ever gets to observe the pending state in
+// between, and did (that's the failure this replaced).
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
+}
+
 describe("isPending", () => {
   it("SHOULD be true while a subscribe mutation is in flight and false once it settles", async () => {
     const registration = fakeRegistration();
@@ -313,7 +327,13 @@ describe("isPending", () => {
     registration.pushManager.subscribe.mockResolvedValue({
       toJSON: () => ({ endpoint: "https://push.example/abc", keys: { p256dh: "a", auth: "b" } }),
     });
-    subscribeApi.mockResolvedValue({ endpoint: "https://push.example/abc", createdAt: "now" });
+    // Held open deliberately: this is the mutation's last awaited step, so
+    // isPending stays true for as long as this promise is unresolved.
+    const { promise: apiCall, resolve: resolveApiCall } = deferred<{
+      endpoint: string;
+      createdAt: string;
+    }>();
+    subscribeApi.mockReturnValue(apiCall);
 
     const { result } = renderUsePushSubscription();
 
@@ -322,12 +342,11 @@ describe("isPending", () => {
       subscribePromise = result.current.subscribe();
     });
 
-    // TanStack Query notifies mutation-state listeners on a microtask, not
-    // synchronously within the triggering act() — so the "now pending" render
-    // lands a tick after mutateAsync() is called, not before it returns.
-    await waitFor(() => expect(result.current.isPending).toBe(true));
+    await waitFor(() => expect(subscribeApi).toHaveBeenCalled());
+    expect(result.current.isPending).toBe(true);
     expect(result.current.isSubscribing).toBe(true);
 
+    resolveApiCall({ endpoint: "https://push.example/abc", createdAt: "now" });
     await act(async () => {
       await subscribePromise;
     });
@@ -337,23 +356,32 @@ describe("isPending", () => {
 
   it("SHOULD be true while an unsubscribe mutation is in flight and false once it settles", async () => {
     const registration = fakeRegistration();
-    registration.pushManager.getSubscription.mockResolvedValue(null);
+    registration.pushManager.getSubscription.mockResolvedValue({
+      endpoint: "https://push.example/abc",
+      unsubscribe: vi.fn(),
+    });
     mockGetRegistration.mockResolvedValue(registration);
 
     const { result } = renderUsePushSubscription();
     await waitFor(() => expect(mockGetRegistration).toHaveBeenCalled());
+
+    // Same reasoning as the subscribe case above: held open on the
+    // mutation's last awaited step.
+    const { promise: apiCall, resolve: resolveApiCall } = deferred<void>();
+    unsubscribeApi.mockReturnValue(apiCall);
 
     let unsubscribePromise!: Promise<void>;
     act(() => {
       unsubscribePromise = result.current.unsubscribe();
     });
 
-    // Same microtask-timing note as the subscribe case above.
-    await waitFor(() => expect(result.current.isPending).toBe(true));
+    await waitFor(() => expect(unsubscribeApi).toHaveBeenCalled());
+    expect(result.current.isPending).toBe(true);
     // The subscribe-only flag stays false: isPending is what covers both
     // directions.
     expect(result.current.isSubscribing).toBe(false);
 
+    resolveApiCall();
     await act(async () => {
       await unsubscribePromise;
     });
