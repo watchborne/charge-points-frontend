@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -29,12 +29,34 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// Web Push notification-channel epic (#403): PWA installability, mainly for
+// iOS — Web Push only works there once the dashboard is added to the home
+// screen (see app/[locale]/app/profile/page.tsx's push toggle, #401). The
+// manifest/icons below have no effect on Desktop/Android, which already
+// receive push in a plain tab (#400).
 export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
   },
+  manifest: "/manifest.json",
   title: "Watchborne - App",
   description: "Monitoring dashboard for EV charge points",
+  appleWebApp: {
+    // No native Apple title/icon override: this repo has one manifest name
+    // ("Watchborne") and one icon set already, and duplicating either here
+    // would just be a second place for the two to drift apart.
+    capable: true,
+    statusBarStyle: "default",
+  },
+};
+
+// Split from `metadata` since Next 14: themeColor/colorScheme moved to a
+// dedicated `viewport` export. #031B4E matches manifest.json's theme_color —
+// this is what colors the iOS status bar / Android's browser chrome once
+// installed.
+export const viewport: Viewport = {
+  themeColor: "#031B4E",
 };
 
 type Props = {
