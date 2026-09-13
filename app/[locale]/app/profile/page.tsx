@@ -1,18 +1,28 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { ColorPill, Skeleton, Switch } from "@watchborne/electrons";
-import { Moon, Palette, Sun, UserRound } from "lucide-react";
+import { Callout, ColorPill, Skeleton, Switch } from "@watchborne/electrons";
+import { Bell, Moon, Palette, Sun, UserRound } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { useTheme } from "@/app/components/ThemeProvider";
 import { createClient } from "@/lib/supabase/client";
+
+import { usePushSubscription } from "../hooks/usePushSubscription";
 
 export default function ProfilePage() {
   const t = useTranslations("");
   const format = useFormatter();
   const { theme, setTheme } = useTheme();
+  const {
+    isSupported: isPushSupported,
+    isSubscribed: isPushSubscribed,
+    isPending: isPushPending,
+    subscribe: subscribeToPush,
+    unsubscribe: unsubscribeFromPush,
+  } = usePushSubscription();
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +53,21 @@ export default function ProfilePage() {
 
   const rowClassName = "flex flex-col gap-1 py-2.5 sm:flex-row sm:items-center sm:justify-between";
 
+  const handlePushToggle = async (checked: boolean) => {
+    try {
+      if (checked) {
+        const outcome = await subscribeToPush();
+        if (outcome === "denied") {
+          toast.warning(t("appPage.profile.push.toast.permissionDenied"));
+        }
+      } else {
+        await unsubscribeFromPush();
+      }
+    } catch {
+      toast.error(t("appPage.profile.push.toast.error"));
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 content-stretch">
       <div>
@@ -70,6 +95,30 @@ export default function ProfilePage() {
             aria-label={t("appPage.profile.theme.title")}
           />
         </div>
+      </section>
+
+      <section className="rounded-lg border">
+        <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
+          <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium">{t("appPage.profile.push.title")}</span>
+        </div>
+        {isPushSupported ? (
+          <div className="flex items-center justify-between gap-4 p-4">
+            <span className="text-sm text-muted-foreground">
+              {t("appPage.profile.push.description")}
+            </span>
+            <Switch
+              checked={isPushSubscribed}
+              onCheckedChange={handlePushToggle}
+              disabled={isPushPending}
+              aria-label={t("appPage.profile.push.title")}
+            />
+          </div>
+        ) : (
+          <div className="p-4">
+            <Callout description={t("appPage.profile.push.unsupported")} variant="warning" />
+          </div>
+        )}
       </section>
 
       <section className="rounded-lg border">
