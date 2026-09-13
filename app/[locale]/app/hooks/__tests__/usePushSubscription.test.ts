@@ -322,7 +322,10 @@ describe("isPending", () => {
       subscribePromise = result.current.subscribe();
     });
 
-    expect(result.current.isPending).toBe(true);
+    // TanStack Query notifies mutation-state listeners on a microtask, not
+    // synchronously within the triggering act() — so the "now pending" render
+    // lands a tick after mutateAsync() is called, not before it returns.
+    await waitFor(() => expect(result.current.isPending).toBe(true));
     expect(result.current.isSubscribing).toBe(true);
 
     await act(async () => {
@@ -345,7 +348,8 @@ describe("isPending", () => {
       unsubscribePromise = result.current.unsubscribe();
     });
 
-    expect(result.current.isPending).toBe(true);
+    // Same microtask-timing note as the subscribe case above.
+    await waitFor(() => expect(result.current.isPending).toBe(true));
     // The subscribe-only flag stays false: isPending is what covers both
     // directions.
     expect(result.current.isSubscribing).toBe(false);
