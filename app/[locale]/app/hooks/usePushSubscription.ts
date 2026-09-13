@@ -92,8 +92,9 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- isSupported is
-    // derived from navigator/window, not a value that changes across renders.
+    // isSupported is derived from navigator/window, not a value that changes
+    // across renders, so it's deliberately left out of the dependency array.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const subscribeMutation = useMutation({

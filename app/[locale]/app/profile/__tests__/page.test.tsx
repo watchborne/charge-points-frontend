@@ -104,9 +104,9 @@ describe("ProfilePage", () => {
 
     expect(screen.getByText("appPage.profile.theme.dark")).toBeTruthy();
     expect(
-      screen.getByRole("switch", { name: "appPage.profile.theme.title" }).getAttribute(
-        "aria-checked",
-      ),
+      screen
+        .getByRole("switch", { name: "appPage.profile.theme.title" })
+        .getAttribute("aria-checked"),
     ).toBe("true");
   });
 
@@ -217,7 +217,9 @@ describe("ProfilePage push notifications section", () => {
     render(<ProfilePage />);
     fireEvent.click(pushSwitch());
 
-    await waitFor(() => expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"));
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"),
+    );
     expect(toastWarning).not.toHaveBeenCalled();
   });
 
@@ -232,6 +234,8 @@ describe("ProfilePage push notifications section", () => {
     render(<ProfilePage />);
     fireEvent.click(pushSwitch());
 
-    await waitFor(() => expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"));
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"),
+    );
   });
 });
