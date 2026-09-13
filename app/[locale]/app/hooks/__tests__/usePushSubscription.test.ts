@@ -168,7 +168,7 @@ describe("subscribe", () => {
     expect(mockRegister).not.toHaveBeenCalled();
   });
 
-  it("SHOULD update permission, resolve to \"denied\", and NOT subscribe WHEN permission is denied", async () => {
+  it('SHOULD update permission, resolve to "denied", and NOT subscribe WHEN permission is denied', async () => {
     mockRequestPermission.mockResolvedValue("denied");
     mockGetRegistration.mockResolvedValue(fakeRegistration());
 
