@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useTheme } from "@/app/components/ThemeProvider";
+import { isIosDevice, isStandaloneDisplayMode } from "@/lib/pwa-install";
 import { createClient } from "@/lib/supabase/client";
 
 import { usePushSubscription } from "../hooks/usePushSubscription";
@@ -26,6 +27,11 @@ export default function ProfilePage() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Read once on mount, not derived at render time: both checks touch
+  // navigator/window, which don't exist during SSR, and neither ever changes
+  // for the life of this tab (a user can't leave standalone mode without
+  // relaunching the page from the home-screen icon or from Safari).
+  const [isIosNotStandalone, setIsIosNotStandalone] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -38,6 +44,12 @@ export default function ProfilePage() {
     };
 
     loadUser();
+  }, []);
+
+  useEffect(() => {
+    setIsIosNotStandalone(
+      isIosDevice(navigator.userAgent) && !isStandaloneDisplayMode(navigator, window),
+    );
   }, []);
 
   const formatDateTime = (value: string) =>
@@ -102,7 +114,18 @@ export default function ProfilePage() {
           <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="text-sm font-medium">{t("appPage.profile.push.title")}</span>
         </div>
-        {isPushSupported ? (
+        {isIosNotStandalone ? (
+          // iOS Safari never delivers Web Push to a plain browser tab, only
+          // to the app once added to the home screen — and there is no API
+          // to trigger that installation, only to detect it (see
+          // lib/pwa-install.ts). The toggle stays hidden rather than shown
+          // disabled: nothing in-app can act on a tap here, so surfacing the
+          // one thing that actually unlocks it is more useful than a dead
+          // control.
+          <div className="p-4">
+            <Callout description={t("appPage.profile.push.iosInstallRequired")} variant="info" />
+          </div>
+        ) : isPushSupported ? (
           <div className="flex items-center justify-between gap-4 p-4">
             <span className="text-sm text-muted-foreground">
               {t("appPage.profile.push.description")}
