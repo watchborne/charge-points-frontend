@@ -3,7 +3,16 @@ import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
-import { CalendarCheck, ChevronDown, ExternalLink, MapPin, Pencil, Trash2 } from "lucide-react";
+import {
+  CalendarCheck,
+  CalendarClock,
+  ChevronDown,
+  ExternalLink,
+  MapPin,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -20,8 +29,10 @@ import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
+import { ScheduleNextVisitDialog, ScheduleNextVisitValues } from "./ScheduleNextVisitDialog";
 import { SiteReliabilityValue } from "./SiteReliabilityValue";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
+import { useSiteVisitSchedule } from "../../hooks/useSiteVisitSchedule";
 import { useSiteVisits } from "../../hooks/useSiteVisits";
 
 type SiteDetailModalProps = {
@@ -46,6 +57,7 @@ export const SiteDetailModal = ({
   const router = useRouter();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [logVisitOpen, setLogVisitOpen] = useState(false);
+  const [scheduleVisitOpen, setScheduleVisitOpen] = useState(false);
   const {
     visits,
     loading: visitsLoading,
@@ -53,6 +65,14 @@ export const SiteDetailModal = ({
     recordVisit,
     isRecording,
   } = useSiteVisits(site?.id ?? null);
+  const {
+    schedule,
+    loading: scheduleLoading,
+    scheduleNextVisit,
+    isScheduling,
+    cancelNextVisit,
+    isCanceling,
+  } = useSiteVisitSchedule(site?.id ?? null);
 
   if (!site) return null;
 
@@ -64,6 +84,15 @@ export const SiteDetailModal = ({
       note: values.note || undefined,
     });
     setLogVisitOpen(false);
+  };
+
+  const handleScheduleNextVisit = async (values: ScheduleNextVisitValues) => {
+    await scheduleNextVisit(values.nextVisitAt.toISOString());
+    setScheduleVisitOpen(false);
+  };
+
+  const handleCancelNextVisit = async () => {
+    await cancelNextVisit();
   };
 
   const toggleExpanded = (id: string) => {
@@ -279,6 +308,65 @@ export const SiteDetailModal = ({
               </div>
             )}
 
+            {/* Next planned visit */}
+            <div className="space-y-3 border-t pt-4">
+              <h4 className="text-sm font-semibold text-foreground">
+                {t("appPage.sites.detail.nextVisit.title")}
+              </h4>
+
+              {scheduleLoading && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.nextVisit.loading")}
+                </span>
+              )}
+
+              {!scheduleLoading && !schedule && (
+                <Button variant="outline" size="sm" onClick={() => setScheduleVisitOpen(true)}>
+                  <CalendarClock className="h-4 w-4 mr-2" />
+                  {t("appPage.sites.detail.nextVisit.scheduleButton")}
+                </Button>
+              )}
+
+              {!scheduleLoading && schedule && (
+                <div className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm">
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      {format.dateTime(new Date(schedule.nextVisitAt), {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(schedule.nextVisitAt), {
+                        addSuffix: true,
+                        locale: enGB,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setScheduleVisitOpen(true)}
+                      aria-label={t("appPage.sites.detail.nextVisit.editButton")}
+                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelNextVisit}
+                      disabled={isCanceling}
+                      aria-label={t("appPage.sites.detail.nextVisit.cancelButton")}
+                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Visit History */}
             <div className="space-y-3 border-t pt-4">
               <h4 className="text-sm font-semibold text-foreground">
@@ -352,6 +440,14 @@ export const SiteDetailModal = ({
         onOpenChange={setLogVisitOpen}
         onSubmit={handleLogVisit}
         isSubmitting={isRecording}
+      />
+
+      <ScheduleNextVisitDialog
+        open={scheduleVisitOpen}
+        onOpenChange={setScheduleVisitOpen}
+        initialNextVisitAt={schedule ? new Date(schedule.nextVisitAt) : null}
+        onSubmit={handleScheduleNextVisit}
+        isSubmitting={isScheduling}
       />
     </>
   );
