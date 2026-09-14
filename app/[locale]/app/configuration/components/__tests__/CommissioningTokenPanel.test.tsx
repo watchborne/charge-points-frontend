@@ -102,11 +102,14 @@ describe("CommissioningTokenPanel", () => {
 
     renderPanel();
 
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: "appPage.configuration.commissioningToken.generateCta",
-      }),
-    );
+    const generateButton = await screen.findByRole("button", {
+      name: "appPage.configuration.commissioningToken.generateCta",
+    });
+    // The button is present from the first render but stays disabled until
+    // the status query resolves (`hasToken: false` here never changes the
+    // button's name, so there is no text-based signal to wait on instead).
+    await waitFor(() => expect(generateButton.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(generateButton);
 
     await waitFor(() => expect(issueToken).toHaveBeenCalled());
     expect(await screen.findByText("abc123")).toBeTruthy();
@@ -121,11 +124,11 @@ describe("CommissioningTokenPanel", () => {
     });
 
     renderPanel();
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: "appPage.configuration.commissioningToken.generateCta",
-      }),
-    );
+    const generateButton = await screen.findByRole("button", {
+      name: "appPage.configuration.commissioningToken.generateCta",
+    });
+    await waitFor(() => expect(generateButton.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(generateButton);
 
     expect(
       await screen.findByText(

@@ -182,7 +182,10 @@ describe("LogUploadPanel", () => {
     const trigger = (
       await screen.findByText("appPage.chargePoints.logUpload.start.button")
     ).closest("button");
-    expect(trigger?.hasAttribute("disabled")).toBe(true);
+    // The trigger starts enabled (no upload known yet) and only picks up
+    // `uploadInProgress` once the query resolves — wait for that update
+    // rather than asserting on the pre-fetch default.
+    await waitFor(() => expect(trigger?.hasAttribute("disabled")).toBe(true));
   });
 
   it("SHOULD enable the trigger WHEN nothing is in flight", async () => {
@@ -193,7 +196,7 @@ describe("LogUploadPanel", () => {
     const trigger = (
       await screen.findByText("appPage.chargePoints.logUpload.start.button")
     ).closest("button");
-    expect(trigger?.hasAttribute("disabled")).toBe(false);
+    await waitFor(() => expect(trigger?.hasAttribute("disabled")).toBe(false));
   });
 
   it("SHOULD refetch WHEN a different charge point is opened", async () => {
