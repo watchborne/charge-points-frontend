@@ -1190,6 +1190,22 @@
           "label": "Fiabilité (7 derniers jours)",
           "noData": "Pas encore de données"
         },
+        "nextVisit": {
+          "title": "Prochaine visite planifiée",
+          "loading": "Chargement...",
+          "scheduleButton": "Planifier une visite",
+          "editButton": "Modifier",
+          "cancelButton": "Annuler",
+          "dialog": {
+            "title": "Planifier la prochaine visite",
+            "description": "Choisissez une date à venir pour la prochaine visite sur ce site.",
+            "submit": "Planifier",
+            "fields": {
+              "date": "Date de la prochaine visite",
+              "datePlaceholder": "Date de la prochaine visite..."
+            }
+          }
+        },
         "visits": {
           "title": "Historique des visites",
           "loading": "Chargement des visites...",

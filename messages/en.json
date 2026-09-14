@@ -1190,6 +1190,22 @@
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
         },
+        "nextVisit": {
+          "title": "Next planned visit",
+          "loading": "Loading...",
+          "scheduleButton": "Schedule a visit",
+          "editButton": "Edit",
+          "cancelButton": "Cancel",
+          "dialog": {
+            "title": "Schedule the next visit",
+            "description": "Pick an upcoming date for the next visit to this site.",
+            "submit": "Schedule",
+            "fields": {
+              "date": "Next visit date",
+              "datePlaceholder": "Next visit date..."
+            }
+          }
+        },
         "visits": {
           "title": "Visit history",
           "loading": "Loading visits...",

@@ -4,7 +4,12 @@ import { siteVisitApis } from "../api-site-visits";
 import { httpClient } from "../http-client";
 
 vi.mock("../http-client", () => ({
-  httpClient: { get: vi.fn().mockResolvedValue([]), post: vi.fn() },
+  httpClient: {
+    get: vi.fn().mockResolvedValue([]),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
 }));
 
 const lastGetUrl = () => vi.mocked(httpClient.get).mock.calls.at(-1)?.[0] as string;
@@ -67,5 +72,63 @@ describe("siteVisitApis.record", () => {
     await expect(
       siteVisitApis.record("site-1", { visitedAt: "2026-09-01T00:00:00.000Z" }),
     ).rejects.toThrow("boom");
+  });
+});
+
+describe("siteVisitApis.getSchedule", () => {
+  it("SHOULD GET the site's next-visit path", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(null);
+
+    await siteVisitApis.getSchedule("site-1");
+
+    expect(lastGetUrl()).toBe("/api/sites/site-1/next-visit");
+  });
+
+  it("SHOULD return null WHEN no visit is scheduled", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue(null);
+
+    await expect(siteVisitApis.getSchedule("site-1")).resolves.toBeNull();
+  });
+
+  it("SHOULD rethrow WHEN the request fails", async () => {
+    vi.mocked(httpClient.get).mockRejectedValueOnce(new Error("boom"));
+
+    await expect(siteVisitApis.getSchedule("site-1")).rejects.toThrow("boom");
+  });
+});
+
+describe("siteVisitApis.scheduleNextVisit", () => {
+  it("SHOULD PUT to the site's next-visit path with the given date", async () => {
+    vi.mocked(httpClient.put).mockResolvedValue({ siteId: "site-1" });
+
+    await siteVisitApis.scheduleNextVisit("site-1", "2026-10-01T00:00:00.000Z");
+
+    expect(httpClient.put).toHaveBeenCalledWith("/api/sites/site-1/next-visit", {
+      nextVisitAt: "2026-10-01T00:00:00.000Z",
+    });
+  });
+
+  it("SHOULD rethrow WHEN the request fails", async () => {
+    vi.mocked(httpClient.put).mockRejectedValueOnce(new Error("boom"));
+
+    await expect(
+      siteVisitApis.scheduleNextVisit("site-1", "2026-10-01T00:00:00.000Z"),
+    ).rejects.toThrow("boom");
+  });
+});
+
+describe("siteVisitApis.cancelNextVisit", () => {
+  it("SHOULD DELETE the site's next-visit path", async () => {
+    vi.mocked(httpClient.delete).mockResolvedValue(undefined);
+
+    await siteVisitApis.cancelNextVisit("site-1");
+
+    expect(httpClient.delete).toHaveBeenCalledWith("/api/sites/site-1/next-visit");
+  });
+
+  it("SHOULD rethrow WHEN the request fails", async () => {
+    vi.mocked(httpClient.delete).mockRejectedValueOnce(new Error("boom"));
+
+    await expect(siteVisitApis.cancelNextVisit("site-1")).rejects.toThrow("boom");
   });
 });

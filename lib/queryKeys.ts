@@ -48,6 +48,10 @@ export const queryKeys = {
     all: () => ["siteVisits"] as const,
     site: (siteId: string) => [...queryKeys.siteVisits.all(), siteId] as const,
   },
+  siteVisitSchedule: {
+    all: () => ["siteVisitSchedule"] as const,
+    site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
+  },
   me: {
     all: () => ["me"] as const,
   },
