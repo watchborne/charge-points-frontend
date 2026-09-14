@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mocked via the relative module path, not the "@/lib/api" alias: this
@@ -27,6 +29,15 @@ const NOW = new Date("2026-08-10T14:30:00.000Z");
 // `waitFor` polling loop (setTimeout-based) hang forever.
 const settle = () => act(() => vi.advanceTimersByTimeAsync(0));
 
+// A fresh QueryClient per hook mount, matching useChargePoints.test.ts's
+// own wrapper: TanStack Query needs a QueryClientProvider in the tree, and a
+// new client per render avoids cache bleed between calls.
+const wrapper = () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(NOW);
@@ -39,7 +50,7 @@ afterEach(() => {
 
 describe("useStatusHistory", () => {
   it("SHOULD anchor the 'day' window to local midnight, not a rolling 24h", async () => {
-    const { result } = renderHook(() => useStatusHistory("cp-1", "day", 1));
+    const { result } = renderHook(() => useStatusHistory("cp-1", "day", 1), { wrapper: wrapper() });
     await settle();
 
     expect(result.current.loading).toBe(false);
@@ -49,7 +60,7 @@ describe("useStatusHistory", () => {
   });
 
   it("SHOULD anchor the '7d' window seven days before now", async () => {
-    const { result } = renderHook(() => useStatusHistory("cp-1", "7d", 1));
+    const { result } = renderHook(() => useStatusHistory("cp-1", "7d", 1), { wrapper: wrapper() });
     await settle();
 
     expect(result.current.windowStart).toEqual(new Date(NOW.getTime() - 7 * 24 * 60 * 60 * 1000));
@@ -57,14 +68,14 @@ describe("useStatusHistory", () => {
   });
 
   it("SHOULD anchor the '30d' window thirty days before now", async () => {
-    const { result } = renderHook(() => useStatusHistory("cp-1", "30d", 1));
+    const { result } = renderHook(() => useStatusHistory("cp-1", "30d", 1), { wrapper: wrapper() });
     await settle();
 
     expect(result.current.windowStart).toEqual(new Date(NOW.getTime() - 30 * 24 * 60 * 60 * 1000));
   });
 
   it("SHOULD fetch both streams with until=windowEnd and no since", async () => {
-    renderHook(() => useStatusHistory("cp-1", "7d", 2));
+    renderHook(() => useStatusHistory("cp-1", "7d", 2), { wrapper: wrapper() });
     await settle();
 
     expect(api.StatusHistory.getConnectionEvents).toHaveBeenCalledWith(
@@ -93,14 +104,14 @@ describe("useStatusHistory", () => {
       })),
     );
 
-    const { result } = renderHook(() => useStatusHistory("cp-1", "30d", 1));
+    const { result } = renderHook(() => useStatusHistory("cp-1", "30d", 1), { wrapper: wrapper() });
     await settle();
 
     expect(result.current.truncated).toBe(true);
   });
 
   it("SHOULD NOT be truncated WHEN both streams return fewer rows than the limit", async () => {
-    const { result } = renderHook(() => useStatusHistory("cp-1", "30d", 1));
+    const { result } = renderHook(() => useStatusHistory("cp-1", "30d", 1), { wrapper: wrapper() });
     await settle();
 
     expect(result.current.truncated).toBe(false);
@@ -109,7 +120,7 @@ describe("useStatusHistory", () => {
   it("SHOULD set failed WHEN a request rejects", async () => {
     vi.mocked(api.StatusHistory.getConnectionEvents).mockRejectedValueOnce(new Error("boom"));
 
-    const { result } = renderHook(() => useStatusHistory("cp-1", "day", 1));
+    const { result } = renderHook(() => useStatusHistory("cp-1", "day", 1), { wrapper: wrapper() });
     await settle();
 
     expect(result.current.failed).toBe(true);
@@ -120,6 +131,7 @@ describe("useStatusHistory", () => {
       ({ connectorId }) => useStatusHistory("cp-1", "day", connectorId),
       {
         initialProps: { connectorId: 1 },
+        wrapper: wrapper(),
       },
     );
     await settle();

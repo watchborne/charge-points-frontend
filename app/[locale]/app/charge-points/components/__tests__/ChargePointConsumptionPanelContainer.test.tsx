@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -45,10 +46,21 @@ beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
+let queryClient: QueryClient;
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
 });
+
+const renderContainer = (chargePointId = "cp-1") => {
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ChargePointConsumptionPanelContainer chargePointId={chargePointId} />
+    </QueryClientProvider>,
+  );
+};
 
 const WINDOW = { from: "2026-08-09T12:00:00.000Z", to: "2026-08-10T12:00:00.000Z" };
 
@@ -95,7 +107,7 @@ const given = ({
 describe("ChargePointConsumptionPanelContainer", () => {
   it("SHOULD show energy delivered as max minus min WHEN the measurand is a cumulative register", async () => {
     given();
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     // 2620 - 1000, locale-formatted with its unit — not the raw register value.
     expect(await screen.findByText("1,620 Wh")).toBeDefined();
@@ -111,7 +123,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
       ],
       samples: [sample({ measurand: "Power.Active.Import", unit: "W", value: 7400 })],
     });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     expect(await screen.findByText("6,900 W")).toBeDefined();
     expect(screen.getByText(/appPage\.chargePoints\.consumption\.tiles\.average/)).toBeDefined();
@@ -125,7 +137,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
         series({ measurand: "Energy.Active.Import.Register", unit: "Wh" }),
       ],
     });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     await waitFor(() =>
       expect(api.Metering.getMeterSamples).toHaveBeenCalledWith(
@@ -143,7 +155,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
         series({ measurand: "SoC", unit: "Percent" }),
       ],
     });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     await waitFor(() => expect(api.Metering.getMeterSamples).toHaveBeenCalled());
     const { measurands } = vi.mocked(api.Metering.getMeterSamples).mock.calls[0][1] ?? {};
@@ -154,7 +166,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
     given({
       seriesList: [series({ connectorId: 2 }), series({ connectorId: 1 })],
     });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     const chart = await screen.findByTestId("chart");
     expect(chart.getAttribute("data-connectors")).toBe("1,2");
@@ -164,7 +176,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
     given({
       seriesList: [1, 2, 3, 4, 5].map((connectorId) => series({ connectorId })),
     });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     const chart = await screen.findByTestId("chart");
     expect(chart.getAttribute("data-connectors")).toBe("1,2,3");
@@ -173,7 +185,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
 
   it("SHOULD NOT claim omitted connectors WHEN every one is charted", async () => {
     given({ seriesList: [series({ connectorId: 1 })] });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     await screen.findByTestId("chart");
     expect(screen.queryByText("appPage.chargePoints.consumption.connectorsOmitted")).toBeNull();
@@ -181,14 +193,14 @@ describe("ChargePointConsumptionPanelContainer", () => {
 
   it("SHOULD tell the reader the window was truncated WHEN the sample cap was hit", async () => {
     given({ samples: Array.from({ length: 3_000 }, () => sample()) });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     expect(await screen.findByText("appPage.chargePoints.consumption.truncated")).toBeDefined();
   });
 
   it("SHOULD NOT mention truncation WHEN the window fits under the cap", async () => {
     given();
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     await screen.findByTestId("chart");
     expect(screen.queryByText("appPage.chargePoints.consumption.truncated")).toBeNull();
@@ -196,7 +208,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
 
   it("SHOULD explain the empty state WHEN the station reported nothing in the window", async () => {
     given({ seriesList: [], samples: [] });
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     expect(await screen.findByText("appPage.chargePoints.consumption.empty")).toBeDefined();
     expect(screen.queryByTestId("chart")).toBeNull();
@@ -205,7 +217,7 @@ describe("ChargePointConsumptionPanelContainer", () => {
   it("SHOULD surface a load failure instead of rendering an empty chart", async () => {
     vi.mocked(api.Metering.getConsumption).mockRejectedValue(new Error("boom"));
     vi.mocked(api.Metering.getMeterSamples).mockResolvedValue([]);
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     expect(await screen.findByText("errors.loadingConsumption")).toBeDefined();
     expect(screen.queryByTestId("chart")).toBeNull();
@@ -213,14 +225,14 @@ describe("ChargePointConsumptionPanelContainer", () => {
 
   it("SHOULD pass the series unit to the chart so the axis is labelled", async () => {
     given();
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     expect((await screen.findByTestId("chart")).getAttribute("data-unit")).toBe("Wh");
   });
 
   it("SHOULD default to the 24h window", async () => {
     given();
-    render(<ChargePointConsumptionPanelContainer chargePointId="cp-1" />);
+    renderContainer();
 
     await waitFor(() => expect(api.Metering.getConsumption).toHaveBeenCalled());
     const [, query] = vi.mocked(api.Metering.getConsumption).mock.calls[0];

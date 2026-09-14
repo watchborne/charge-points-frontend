@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ChargePoint } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -55,10 +56,13 @@ const issueToken = vi.spyOn(api.CommissioningToken, "issueToken");
 const revoke = vi.spyOn(api.CommissioningToken, "revoke");
 const getMe = vi.spyOn(api.Me, "getMe");
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
   // Default: no activity to show — individual tests override this to
   // exercise the "recent commissioning activity" list (issue #420 / #278).
   getMe.mockResolvedValue({ userId: "user-1", chargePoints: [], commissioningAttempts: [] });
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 afterEach(() => {
@@ -66,11 +70,18 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+const renderPanel = () =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <CommissioningTokenPanel />
+    </QueryClientProvider>,
+  );
+
 describe("CommissioningTokenPanel", () => {
   it("SHOULD show the generate CTA WHEN no token exists yet", async () => {
     getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     expect(
       await screen.findByRole("button", {
@@ -89,7 +100,7 @@ describe("CommissioningTokenPanel", () => {
       createdAt: "2024-01-01T00:00:00.000Z",
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     fireEvent.click(
       await screen.findByRole("button", {
@@ -109,7 +120,7 @@ describe("CommissioningTokenPanel", () => {
       createdAt: "2024-01-01T00:00:00.000Z",
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
     fireEvent.click(
       await screen.findByRole("button", {
         name: "appPage.configuration.commissioningToken.generateCta",
@@ -130,7 +141,7 @@ describe("CommissioningTokenPanel", () => {
       createdAt: "2024-03-15T00:00:00.000Z",
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     expect(
       await screen.findByText(
@@ -149,7 +160,7 @@ describe("CommissioningTokenPanel", () => {
       createdAt: "2024-06-01T00:00:00.000Z",
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     fireEvent.click(
       await screen.findByRole("button", {
@@ -171,7 +182,7 @@ describe("CommissioningTokenPanel", () => {
   it("SHOULD NOT show a revoke option WHEN no token exists yet", async () => {
     getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     await screen.findByRole("button", {
       name: "appPage.configuration.commissioningToken.generateCta",
@@ -188,7 +199,7 @@ describe("CommissioningTokenPanel", () => {
     });
     revoke.mockResolvedValue(undefined);
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     fireEvent.click(
       await screen.findByRole("button", {
@@ -222,7 +233,7 @@ describe("CommissioningTokenPanel", () => {
     });
     revoke.mockRejectedValue(new Error("boom"));
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     fireEvent.click(
       await screen.findByRole("button", {
@@ -240,7 +251,7 @@ describe("CommissioningTokenPanel", () => {
   it("SHOULD NOT show recent activity WHEN there are no commissioning attempts", async () => {
     getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     await screen.findByRole("button", {
       name: "appPage.configuration.commissioningToken.generateCta",
@@ -265,7 +276,7 @@ describe("CommissioningTokenPanel", () => {
       ],
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     expect(
       await screen.findByText("appPage.configuration.commissioningToken.recentActivity.title"),
@@ -291,7 +302,7 @@ describe("CommissioningTokenPanel", () => {
       ],
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     expect(
       await screen.findByText(
@@ -316,7 +327,7 @@ describe("CommissioningTokenPanel", () => {
       commissioningAttempts: attempts,
     });
 
-    render(<CommissioningTokenPanel />);
+    renderPanel();
 
     await screen.findByText("appPage.configuration.commissioningToken.recentActivity.title");
     // Newest (attempt-5, Jan 6th) is present; oldest (attempt-0, Jan 1st) is dropped by the 5-item cap.

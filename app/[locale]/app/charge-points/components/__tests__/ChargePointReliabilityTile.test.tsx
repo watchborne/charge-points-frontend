@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -38,11 +39,18 @@ const buildUptime = (overrides: Partial<ChargePointUptime> = {}): ChargePointUpt
 
 const resolveWith = (uptime: ChargePointUptime) => getChargePointUptime.mockResolvedValue(uptime);
 
+let queryClient: QueryClient;
+
 const renderTile = (chargePointId = CP_ID) =>
-  render(<ChargePointReliabilityTile chargePointId={chargePointId} />);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <ChargePointReliabilityTile chargePointId={chargePointId} />
+    </QueryClientProvider>,
+  );
 
 beforeEach(() => {
   vi.clearAllMocks();
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 describe("ChargePointReliabilityTile", () => {
@@ -83,7 +91,11 @@ describe("ChargePointReliabilityTile", () => {
     const { rerender } = renderTile();
     await waitFor(() => expect(getChargePointUptime).toHaveBeenCalledWith(CP_ID));
 
-    rerender(<ChargePointReliabilityTile chargePointId="cp-2" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <ChargePointReliabilityTile chargePointId="cp-2" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(getChargePointUptime).toHaveBeenCalledWith("cp-2"));
   });

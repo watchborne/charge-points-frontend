@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -61,13 +62,20 @@ const resolveWith = (logUpload: ChargePointLogUpload, history: LogUploadView[] =
   listLogUploads.mockResolvedValue(history);
 };
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith({ active: null, lastCompleted: null });
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 const renderPanel = (ocppVersion: "1.6" | "2.0.1" = "2.0.1") =>
-  render(<LogUploadPanel chargePointId={CP_ID} ocppVersion={ocppVersion} />);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <LogUploadPanel chargePointId={CP_ID} ocppVersion={ocppVersion} />
+    </QueryClientProvider>,
+  );
 
 describe("LogUploadPanel", () => {
   it("SHOULD show a loading state WHILE fetching", () => {
@@ -192,7 +200,11 @@ describe("LogUploadPanel", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(getLogUpload).toHaveBeenCalledWith(CP_ID));
 
-    rerender(<LogUploadPanel chargePointId="cp-2" ocppVersion="2.0.1" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <LogUploadPanel chargePointId="cp-2" ocppVersion="2.0.1" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(getLogUpload).toHaveBeenCalledWith("cp-2"));
   });
