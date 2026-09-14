@@ -14,6 +14,8 @@ vi.mock("next-intl", () => ({
         return `Opened ${values?.date}`;
       case "appPage.chargePoints.alerts.resolvedAt":
         return `Resolved ${values?.date}`;
+      case "appPage.chargePoints.alerts.acknowledgedBy":
+        return `Acknowledged by ${values?.email}`;
       default:
         return key;
     }
@@ -22,14 +24,17 @@ vi.mock("next-intl", () => ({
 
 // `vi.hoisted` because vi.mock factories are hoisted above these declarations —
 // the repo's existing pattern (see FirmwarePanel.test.tsx).
-const { getAlerts } = vi.hoisted(() => ({ getAlerts: vi.fn() }));
+const { getAlerts, acknowledgeAlert } = vi.hoisted(() => ({
+  getAlerts: vi.fn(),
+  acknowledgeAlert: vi.fn(),
+}));
 
 // Mocked via the relative module path, not the "@/lib/api" alias: this project's
 // Vitest config does not alias "@/" for the mock resolver, so an aliased target
 // silently fails to intercept and the real fetch runs. Repo convention — see
 // FirmwarePanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
-  api: { ChargePoints: { getAlerts } },
+  api: { ChargePoints: { getAlerts, acknowledgeAlert } },
 }));
 
 import { AlertsPanelContainer } from "../AlertsPanelContainer";
@@ -53,6 +58,8 @@ const buildAlert = (overrides: Partial<Alert> = {}): Alert =>
     notifiedRecipients: [
       { userId: "44444444-4444-4444-8444-444444444444", email: "alice@example.com" },
     ],
+    acknowledgedAt: null,
+    acknowledgedBy: null,
     createdAt: AT,
     updatedAt: AT,
     ...overrides,
@@ -85,7 +92,10 @@ const renderPanel = ({
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
-  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  acknowledgeAlert.mockResolvedValue(buildAlert());
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
 });
 
 describe("AlertsPanelContainer", () => {
@@ -206,5 +216,79 @@ describe("AlertsPanelContainer", () => {
     fireEvent.click(await screen.findByRole("switch"));
 
     expect(onToggleRealtimeAlerts).toHaveBeenCalledTimes(1);
+  });
+
+  // Acknowledgment (charge-points-server issue #530). The action never
+  // resolves the alert — the button's "mark as resolved" wording is a
+  // deliberate product choice, the alert stays OPEN either way.
+  const acknowledgeButton = () =>
+    screen.findByRole("button", { name: "appPage.chargePoints.alerts.acknowledge" });
+
+  it("SHOULD offer to acknowledge an alert WHEN it is open and nobody has taken it on", async () => {
+    resolveWith([buildAlert({ status: "OPEN" })]);
+
+    renderPanel();
+
+    expect(await acknowledgeButton()).toBeTruthy();
+  });
+
+  it("SHOULD NOT offer to acknowledge an alert WHEN it is already resolved", async () => {
+    resolveWith([buildAlert({ status: "RESOLVED", resolvedAt: AT })]);
+
+    renderPanel();
+
+    await screen.findByText("appPage.chargePoints.alerts.status.resolved");
+    expect(
+      screen.queryByRole("button", { name: "appPage.chargePoints.alerts.acknowledge" }),
+    ).toBeNull();
+  });
+
+  it("SHOULD name who took an alert on instead of offering the action WHEN it is already acknowledged", async () => {
+    resolveWith([
+      buildAlert({
+        status: "OPEN",
+        acknowledgedAt: AT,
+        acknowledgedBy: {
+          userId: "44444444-4444-4444-8444-444444444444",
+          email: "alice@example.com",
+        },
+      }),
+    ]);
+
+    renderPanel();
+
+    expect(await screen.findByText(/Acknowledged by alice@example.com/)).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "appPage.chargePoints.alerts.acknowledge" }),
+    ).toBeNull();
+  });
+
+  it("SHOULD acknowledge the alert WHEN the action is clicked", async () => {
+    resolveWith([buildAlert({ id: "alert-7", status: "OPEN" })]);
+
+    renderPanel();
+    fireEvent.click(await acknowledgeButton());
+
+    await waitFor(() => expect(acknowledgeAlert).toHaveBeenCalledWith(CP_ID, "alert-7"));
+  });
+
+  it("SHOULD refetch the alert list WHEN an acknowledgment succeeds", async () => {
+    resolveWith([buildAlert({ status: "OPEN" })]);
+
+    renderPanel();
+    await waitFor(() => expect(getAlerts).toHaveBeenCalledTimes(1));
+    fireEvent.click(await acknowledgeButton());
+
+    await waitFor(() => expect(getAlerts).toHaveBeenCalledTimes(2));
+  });
+
+  it("SHOULD surface an acknowledgment failure rather than silently leaving the alert untouched", async () => {
+    resolveWith([buildAlert({ status: "OPEN" })]);
+    acknowledgeAlert.mockRejectedValue(new Error("boom"));
+
+    renderPanel();
+    fireEvent.click(await acknowledgeButton());
+
+    expect(await screen.findByText("appPage.chargePoints.alerts.acknowledgeError")).toBeTruthy();
   });
 });

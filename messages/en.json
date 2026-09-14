@@ -847,6 +847,9 @@
         "resolvedAt": "Resolved {date}",
         "notifiedTo": "Sent to {emails}",
         "notNotified": "Not sent yet",
+        "acknowledge": "Mark as resolved",
+        "acknowledgedBy": "Acknowledged by {email}",
+        "acknowledgeError": "Could not mark this alert as resolved. Please try again.",
         "types": {
           "OFFLINE": "Station offline",
           "CONNECTOR_FAULTED": "Connector faulted",

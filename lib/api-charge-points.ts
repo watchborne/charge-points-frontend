@@ -54,7 +54,8 @@ type PatchChargePointBody = Partial<CreateChargePointBody>;
  * failure that never reached the proxy.
  */
 export type ResetChargePointOutcome =
-  { ok: true; status: ResetStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: ResetStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -62,7 +63,8 @@ export type ResetChargePointOutcome =
  * needs the specific outcome (accepted/scheduled vs. offline/rejected/timeout).
  */
 export type ChangeAvailabilityOutcome =
-  { ok: true; status: ChangeAvailabilityStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: ChangeAvailabilityStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -70,7 +72,8 @@ export type ChangeAvailabilityOutcome =
  * needs the specific outcome (unlocked vs. offline/unlock-failed/not-supported/timeout).
  */
 export type UnlockConnectorOutcome =
-  { ok: true; status: UnlockConnectorStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: UnlockConnectorStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Reading a station's settings is a request/response OCPP read: on success it
@@ -91,7 +94,8 @@ export type GetSettingsOutcome =
  * it (see its `ocpp-supported-actions.md` §15).
  */
 export type SetSettingOutcome =
-  { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: ChangeConfigurationStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -99,7 +103,8 @@ export type SetSettingOutcome =
  * the specific outcome (accepted vs. offline/rejected/not-implemented/timeout).
  */
 export type TriggerMessageOutcome =
-  { ok: true; status: TriggerMessageStatus } | { ok: false; httpStatus: number };
+  | { ok: true; status: TriggerMessageStatus }
+  | { ok: false; httpStatus: number };
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, plus one wrinkle
@@ -154,7 +159,8 @@ export type StartLogUploadBody = {
  * reasons, or offline/not-2.0.1/timeout).
  */
 export type SetDisplayMessageOutcome =
-  { ok: true; status: SetDisplayMessageStatusV201 } | { ok: false; httpStatus: number };
+  | { ok: true; status: SetDisplayMessageStatusV201 }
+  | { ok: false; httpStatus: number };
 
 /**
  * What an installer fills in to push a display message. `id` is the
@@ -177,7 +183,8 @@ export type SetDisplayMessageBody = {
  * timeout).
  */
 export type ClearDisplayMessageOutcome =
-  { ok: true; status: ClearDisplayMessageStatusV201 } | { ok: false; httpStatus: number };
+  | { ok: true; status: ClearDisplayMessageStatusV201 }
+  | { ok: false; httpStatus: number };
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
@@ -386,6 +393,37 @@ export const chargePointApis = {
       const query = limit === undefined ? "" : `?limit=${limit}`;
       return httpClient.get<Alert[]>(`/api/charge-points/${chargePointId}/alerts${query}`);
     }, "ChargePoint.getAlerts");
+  },
+  /**
+   * Records that a human has taken an alert on (charge-points-server issue
+   * #530). Acknowledging never resolves the alert — resolution stays tied to
+   * the triggering condition clearing, so the returned alert is still `OPEN`,
+   * now with `acknowledgedAt`/`acknowledgedBy` set. Idempotent on an
+   * already-acknowledged, still-open alert.
+   *
+   * No request body: the acknowledger comes from the caller's own session
+   * server-side, never from the client. `{}` rather than nothing is sent
+   * because the proxy hop forwards `request.text()` verbatim under
+   * `Content-Type: application/json`, and an empty body under that header is
+   * a 400 at the backend — the same reason `DisplayMessages.requestAll`
+   * posts `{}`.
+   *
+   * Goes through `httpClient` (throws on non-2xx) rather than returning a
+   * discriminated outcome like the OCPP commands: this is a plain resource
+   * write with no station round trip, so "it failed" is all the caller needs.
+   */
+  acknowledgeAlert: async function (
+    chargePointId: ChargePoint["id"],
+    alertId: Alert["id"],
+  ): Promise<Alert> {
+    return withErrorLogging(
+      () =>
+        httpClient.post<Alert>(
+          `/api/charge-points/${chargePointId}/alerts/${alertId}/acknowledge`,
+          {},
+        ),
+      "ChargePoint.acknowledgeAlert",
+    );
   },
   /**
    * Starts a firmware update. Like the other OCPP commands this reads the raw HTTP
