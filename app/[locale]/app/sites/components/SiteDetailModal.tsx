@@ -19,7 +19,6 @@ import { useState } from "react";
 import {
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Dialog,
