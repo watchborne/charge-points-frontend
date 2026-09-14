@@ -36,10 +36,14 @@ app/
     app/                  # authenticated dashboard
       dashboard/ sites/    # pages (no local components/ subfolder); dashboard renders
                            #   components/dashboard/ (below)
+      profile/             # user profile page: theme toggle (existing ThemeProvider/
+                           #   useTheme, also used by the marketing Navbar)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
       charge-points/       # page + its own components/ (commissioning dialog/queue/
-                           #   checklist, fleet panel, config dialog, trigger message,
+                           #   checklist, fleet panel — FleetBulkActionBar +
+                           #   hooks/useBulkChargePointActions.ts add multi-select
+                           #   bulk actions — config dialog, trigger message,
                            #   AlertsPanel: alert history + real-time-alerts opt-in,
                            #   StatusHistoryPanel: connection/connector status timeline,
                            #   SecurityEventsPanel: OCPP SecurityEventNotification history,
@@ -64,7 +68,10 @@ app/
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
                            #   URL). ChargePointDetailPanel is the tabbed container these
                            #   render into (tabs: main/actions/consumption/sessions/alerts/
-                           #   security), itself decomposed into ChargePointHeaderSection,
+                           #   security), and persists the last-viewed tab per browser
+                           #   (localStorage key cp-detail-last-tab) as the default on the
+                           #   next mount or charge-point switch. It is itself decomposed
+                           #   into ChargePointHeaderSection,
                            #   ChargePointMetadataSection, and ConnectorStatusSection. The
                            #   page itself wraps its useSearchParams() usage in Suspense —
                            #   required for static rendering, and also drives status/OCPP
@@ -86,12 +93,16 @@ app/
                           #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile, derived client-side from already-fetched
                           #   charge points (lib/derive-site-health.ts) rather than a
-                          #   dedicated API call — and DashboardOnboarding;
+                          #   dedicated API call — DashboardOnboarding, and
+                          #   DashboardLayoutDialog (configurable/reorderable dashboard
+                          #   widget visibility + order, persisted via
+                          #   lib/dashboard-layout.ts + hooks/useDashboardLayout.ts);
                           #   charge-points/: ChargePointsBreakdown,
                           #   AlertStatusBadge, FirmwareTimeline, StatusBadge)
       404/                 # dashboard-scoped not-found page
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
-                          #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits
+                          #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
+                          #   useDashboardLayout (widget visibility/order, see dashboard/ above)
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
