@@ -847,6 +847,9 @@
         "resolvedAt": "Résolue {date}",
         "notifiedTo": "Envoyée à {emails}",
         "notNotified": "Pas encore envoyée",
+        "acknowledge": "Marquer comme résolue",
+        "acknowledgedBy": "Acquittée par {email}",
+        "acknowledgeError": "Impossible de marquer cette alerte comme résolue. Veuillez réessayer.",
         "types": {
           "OFFLINE": "Borne hors ligne",
           "CONNECTOR_FAULTED": "Connecteur en défaut",
