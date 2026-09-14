@@ -73,6 +73,14 @@ const patch = <T>(url: string, body: unknown): Promise<T> => {
   });
 };
 
+const put = <T>(url: string, body: unknown): Promise<T> => {
+  return makeRequest<T>(url, {
+    method: "PUT",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(body),
+  });
+};
+
 const del = (url: string): Promise<void> => {
   return makeRequest<void>(url, {
     method: "DELETE",
@@ -84,5 +92,6 @@ export const httpClient = {
   get,
   post,
   patch,
+  put,
   delete: del,
 };

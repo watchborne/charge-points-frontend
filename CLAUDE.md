@@ -83,7 +83,11 @@ app/
                            #   SiteReliabilityValue (7-day uptime %, rendered in
                            #   SiteDetailModal), LogSiteVisitDialog: logs a site visit
                            #   (POST /api/sites/:id/visits, charge-points-server ADR 0015)
-                           #   from SiteDetailModal
+                           #   from SiteDetailModal, ScheduleNextVisitDialog: plans/edits/
+                           #   cancels a site's next visit (GET/PUT/DELETE
+                           #   /api/sites/:id/next-visit, charge-points-server issue #579/
+                           #   ADR 0016) from SiteDetailModal — the proactive counterpart to
+                           #   LogSiteVisitDialog's reactive history
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; plus generic display/interaction
@@ -102,7 +106,8 @@ app/
       404/                 # dashboard-scoped not-found page
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
                           #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
-                          #   useDashboardLayout (widget visibility/order, see dashboard/ above)
+                          #   useDashboardLayout (widget visibility/order, see dashboard/ above),
+                          #   useSiteVisitSchedule
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -240,6 +245,11 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   `lastVisitedAt`/`installedAt` fallback). `lib/api-site-visits.ts` (`api.SiteVisits`,
   `list`/`record`) reads/writes `/api/sites/:id/visits` — the `SiteVisit` history
   behind `useSiteVisits`/`LogSiteVisitDialog` (charge-points-server ADR 0015).
+  The same module's `getSchedule`/`scheduleNextVisit`/`cancelNextVisit` read/write
+  `/api/sites/:id/next-visit` — a site's planned next visit, one row per site,
+  behind `useSiteVisitSchedule`/`ScheduleNextVisitDialog` (charge-points-server
+  issue #579, ADR 0016). Like `SiteVisit`, `SiteVisitSchedule` is declared locally
+  rather than in `@watchborne/charge-points-types` — it's kept server-local too.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
