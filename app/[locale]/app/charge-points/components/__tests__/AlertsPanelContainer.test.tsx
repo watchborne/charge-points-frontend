@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Alert } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -59,6 +60,8 @@ const buildAlert = (overrides: Partial<Alert> = {}): Alert =>
 
 const resolveWith = (alerts: Alert[]) => getAlerts.mockResolvedValue(alerts);
 
+let queryClient: QueryClient;
+
 const renderPanel = ({
   chargePointId = CP_ID,
   realtimeAlertsEnabled = false,
@@ -69,17 +72,20 @@ const renderPanel = ({
   onToggleRealtimeAlerts?: () => void;
 } = {}) =>
   render(
-    <AlertsPanelContainer
-      chargePointId={chargePointId}
-      chargePointName="CP-001"
-      realtimeAlertsEnabled={realtimeAlertsEnabled}
-      onToggleRealtimeAlerts={onToggleRealtimeAlerts}
-    />,
+    <QueryClientProvider client={queryClient}>
+      <AlertsPanelContainer
+        chargePointId={chargePointId}
+        chargePointName="CP-001"
+        realtimeAlertsEnabled={realtimeAlertsEnabled}
+        onToggleRealtimeAlerts={onToggleRealtimeAlerts}
+      />
+    </QueryClientProvider>,
   );
 
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 describe("AlertsPanelContainer", () => {
@@ -174,12 +180,14 @@ describe("AlertsPanelContainer", () => {
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith(CP_ID, 5));
 
     rerender(
-      <AlertsPanelContainer
-        chargePointId="cp-2"
-        chargePointName="CP-002"
-        realtimeAlertsEnabled={false}
-        onToggleRealtimeAlerts={vi.fn()}
-      />,
+      <QueryClientProvider client={queryClient}>
+        <AlertsPanelContainer
+          chargePointId="cp-2"
+          chargePointName="CP-002"
+          realtimeAlertsEnabled={false}
+          onToggleRealtimeAlerts={vi.fn()}
+        />
+      </QueryClientProvider>,
     );
 
     await waitFor(() => expect(getAlerts).toHaveBeenCalledWith("cp-2", 5));

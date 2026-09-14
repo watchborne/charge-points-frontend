@@ -1,14 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
-import { AlertsPanel, type AlertListEntry } from "./AlertsPanel";
+import { AlertsPanel } from "./AlertsPanel";
 
 /** How many recent alerts (open or resolved) the panel shows — a glance at
  * recent activity, not a full audit log (`api.ChargePoints.getAlerts`
@@ -39,34 +40,14 @@ export const AlertsPanelContainer = ({
 }: AlertsPanelContainerProps) => {
   const t = useTranslations("");
 
-  const [alerts, setAlerts] = useState<AlertListEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    // Reset before refetching so a different station's alerts are never shown
-    // under this one's name while the request is in flight.
-    setAlerts([]);
-    setLoading(true);
-    setFailed(false);
-
-    void (async () => {
-      try {
-        const result = await api.ChargePoints.getAlerts(chargePointId, VISIBLE_ALERT_COUNT);
-        if (!cancelled) setAlerts(result);
-      } catch {
-        if (!cancelled) setFailed(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId]);
+  const {
+    data: alerts = [],
+    isLoading: loading,
+    isError: failed,
+  } = useQuery({
+    queryKey: queryKeys.alerts.chargePoint(chargePointId),
+    queryFn: () => api.ChargePoints.getAlerts(chargePointId, VISIBLE_ALERT_COUNT),
+  });
 
   if (loading) {
     return (

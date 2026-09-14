@@ -1,15 +1,16 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { AlertTriangle, CheckCircle2, Clock, FileText, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
-import type { ChargePointLogUpload, LogUploadView } from "@/types/log-upload";
+import type { LogUploadView } from "@/types/log-upload";
 
 import { StartLogUploadDialog } from "./StartLogUploadDialog";
 
@@ -18,8 +19,6 @@ type LogUploadPanelProps = {
   /** Gates the "Security log" option in the trigger dialog. */
   ocppVersion: ChargePoint["ocppVersion"];
 };
-
-const EMPTY: ChargePointLogUpload = { active: null, lastCompleted: null };
 
 /** How many recent uploads the history list shows — a glance at recent
  * activity, not a full audit log, the same cap `AlertsPanel`/
@@ -43,45 +42,29 @@ const VISIBLE_HISTORY_COUNT = 5;
 export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelProps) => {
   const t = useTranslations("");
 
-  const [logUpload, setLogUpload] = useState<ChargePointLogUpload>(EMPTY);
-  const [history, setHistory] = useState<LogUploadView[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  const [historyFailed, setHistoryFailed] = useState(false);
+  const {
+    data: logUpload,
+    isLoading: loading,
+    isError: failed,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.logUpload.chargePoint(chargePointId),
+    queryFn: () => api.ChargePoints.getLogUpload(chargePointId),
+  });
 
-  const load = useCallback(
-    async (showLoading: boolean) => {
-      if (showLoading) setLoading(true);
-      try {
-        const [current, recent] = await Promise.all([
-          api.ChargePoints.getLogUpload(chargePointId),
-          api.ChargePoints.listLogUploads(chargePointId, VISIBLE_HISTORY_COUNT).catch(() => {
-            setHistoryFailed(true);
-            return null;
-          }),
-        ]);
-        setLogUpload(current);
-        setFailed(false);
-        if (recent !== null) {
-          setHistory(recent);
-          setHistoryFailed(false);
-        }
-      } catch {
-        setFailed(true);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [chargePointId],
-  );
+  const {
+    data: history = [] as LogUploadView[],
+    isError: historyFailed,
+    refetch: refetchHistory,
+  } = useQuery({
+    queryKey: queryKeys.logUpload.history(chargePointId),
+    queryFn: () => api.ChargePoints.listLogUploads(chargePointId, VISIBLE_HISTORY_COUNT),
+  });
 
-  useEffect(() => {
-    // Reset before refetching so a different station's uploads are never
-    // shown under this one while the request is in flight.
-    setLogUpload(EMPTY);
-    setHistory([]);
-    void load(true);
-  }, [load]);
+  const reload = () => {
+    void refetch();
+    void refetchHistory();
+  };
 
   const outcomeIcon = (upload: LogUploadView) =>
     upload.outcome === "SUCCEEDED" ? (
@@ -102,8 +85,8 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
           // The backend refuses a second concurrent upload (at most one
           // unfinished per charge point); disabling the trigger says so
           // before the installer fills a form that would be rejected.
-          uploadInProgress={logUpload.active !== null}
-          onStarted={() => void load(false)}
+          uploadInProgress={(logUpload?.active ?? null) !== null}
+          onStarted={reload}
         />
       </div>
 
@@ -118,7 +101,7 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
         <Callout description={t("appPage.chargePoints.logUpload.loadError")} variant="error" />
       )}
 
-      {!loading && !failed && (
+      {!loading && !failed && logUpload && (
         <>
           {logUpload.active && (
             <div className="flex flex-col gap-1.5">

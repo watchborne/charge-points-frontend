@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -62,13 +63,20 @@ const buildReport = (
 
 const resolveWith = (reports: DeviceVariableReport[]) => list.mockResolvedValue(reports);
 
+let queryClient: QueryClient;
+
 const renderPanel = (chargePointId = CP_ID) =>
-  render(<DeviceVariableReportsPanel chargePointId={chargePointId} />);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <DeviceVariableReportsPanel chargePointId={chargePointId} />
+    </QueryClientProvider>,
+  );
 
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
   requestReport.mockResolvedValue({ ok: true, status: "Accepted", reportRequest: {} });
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 describe("DeviceVariableReportsPanel", () => {
@@ -132,7 +140,11 @@ describe("DeviceVariableReportsPanel", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(list).toHaveBeenCalledWith(CP_ID, 5));
 
-    rerender(<DeviceVariableReportsPanel chargePointId="cp-2" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <DeviceVariableReportsPanel chargePointId="cp-2" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(list).toHaveBeenCalledWith("cp-2", 5));
   });

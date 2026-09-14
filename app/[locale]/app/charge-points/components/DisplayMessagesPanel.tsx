@@ -1,14 +1,16 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { Clock, Loader2, MessageSquare, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { api } from "@/lib/api";
 import type { DisplayMessageInfo, DisplayMessageReport } from "@/lib/api-display-messages";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 type DisplayMessagesPanelProps = {
@@ -33,11 +35,7 @@ const flattenReports = (reports: DisplayMessageReport[]): FlatEntry[] =>
     })),
   );
 
-type RequestState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "done"; ok: true }
-  | { status: "done"; ok: false; httpStatus: number };
+type RequestOutcome = { ok: true } | { ok: false; httpStatus: number };
 
 const errorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
@@ -69,57 +67,35 @@ const errorMessageKey = (httpStatus: number): string => {
 export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProps) => {
   const t = useTranslations("");
 
-  const [entries, setEntries] = useState<FlatEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  const [requestState, setRequestState] = useState<RequestState>({ status: "idle" });
+  const {
+    data: reports,
+    isLoading: loading,
+    isError: failed,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.displayMessages.chargePoint(chargePointId),
+    queryFn: () => api.DisplayMessages.list(chargePointId, VISIBLE_REPORT_COUNT),
+  });
 
-  const load = useCallback(
-    async (showLoading: boolean) => {
-      if (showLoading) setLoading(true);
-      try {
-        const result = await api.DisplayMessages.list(chargePointId, VISIBLE_REPORT_COUNT);
-        setEntries(flattenReports(result));
-        setFailed(false);
-      } catch {
-        setFailed(true);
-      } finally {
-        setLoading(false);
-      }
+  const entries = useMemo(() => flattenReports(reports ?? []), [reports]);
+
+  const {
+    mutate: requestRefresh,
+    isPending: refreshing,
+    data: requestOutcome,
+  } = useMutation<RequestOutcome>({
+    mutationFn: () => api.DisplayMessages.requestAll(chargePointId),
+    onSuccess: (outcome) => {
+      if (outcome.ok) void refetch();
     },
-    [chargePointId],
-  );
-
-  useEffect(() => {
-    // Reset before refetching so a different station's entries are never
-    // shown under this one while the request is in flight.
-    setEntries([]);
-    void load(true);
-  }, [load]);
-
-  const handleRefresh = async () => {
-    setRequestState({ status: "loading" });
-    const outcome = await api.DisplayMessages.requestAll(chargePointId);
-
-    if (outcome.ok) {
-      setRequestState({ status: "done", ok: true });
-      void load(false);
-    } else {
-      setRequestState({ status: "done", ok: false, httpStatus: outcome.httpStatus });
-    }
-  };
+  });
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold">{t("appPage.chargePoints.displayMessages.title")}</h4>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={requestState.status === "loading"}
-        >
-          {requestState.status === "loading" ? (
+        <Button variant="outline" size="sm" onClick={() => requestRefresh()} disabled={refreshing}>
+          {refreshing ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
             <RefreshCw className="mr-1.5 h-4 w-4" />
@@ -128,8 +104,8 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
         </Button>
       </div>
 
-      {requestState.status === "done" && !requestState.ok && (
-        <Callout description={t(errorMessageKey(requestState.httpStatus))} variant="error" />
+      {requestOutcome && !requestOutcome.ok && (
+        <Callout description={t(errorMessageKey(requestOutcome.httpStatus))} variant="error" />
       )}
 
       {loading && (

@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -48,13 +49,20 @@ const buildReport = (
 
 const resolveWith = (reports: DisplayMessageReport[]) => list.mockResolvedValue(reports);
 
+let queryClient: QueryClient;
+
 const renderPanel = (chargePointId = CP_ID) =>
-  render(<DisplayMessagesPanel chargePointId={chargePointId} />);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <DisplayMessagesPanel chargePointId={chargePointId} />
+    </QueryClientProvider>,
+  );
 
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
   requestAll.mockResolvedValue({ ok: true, status: "Accepted", displayMessageRequest: {} });
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 describe("DisplayMessagesPanel", () => {
@@ -104,7 +112,11 @@ describe("DisplayMessagesPanel", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(list).toHaveBeenCalledWith(CP_ID, 5));
 
-    rerender(<DisplayMessagesPanel chargePointId="cp-2" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <DisplayMessagesPanel chargePointId="cp-2" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(list).toHaveBeenCalledWith("cp-2", 5));
   });
