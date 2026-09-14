@@ -34,8 +34,10 @@ const settle = () => act(() => vi.advanceTimersByTimeAsync(0));
 // new client per render avoids cache bleed between calls.
 const wrapper = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: ReactNode }) =>
-    createElement(QueryClientProvider, { client: queryClient }, children);
+  function Wrapper({ children }: { children: ReactNode }) {
+    return createElement(QueryClientProvider, { client: queryClient }, children);
+  }
+  return Wrapper;
 };
 
 beforeEach(() => {
