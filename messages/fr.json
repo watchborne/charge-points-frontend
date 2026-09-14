@@ -1282,6 +1282,17 @@
         "description": "Une borne qui se connecte pour la première fois est automatiquement découverte et apparaît dans la file « À mettre en service » en haut de la page « Bornes de recharge ». Cliquez sur « Mettre en service » pour la renommer et l'associer à un site en une seule étape. Vous pouvez aussi modifier cette association plus tard depuis la fiche de la borne. Une borne ne peut être rattachée qu'à un seul site à la fois.",
         "cta": "Aller aux bornes de recharge"
       },
+      "siteVisits": {
+        "title": "Suivre les visites de site",
+        "description": "Chaque site conserve un historique des visites d'entretien, et un site non visité depuis plus de 90 jours est automatiquement signalé comme « en retard » sur le tableau de bord et la fiche du site.",
+        "steps": {
+          "openSite": "Ouvrez la fiche d'un site depuis la page « Sites ».",
+          "logVisit": "Après une visite d'entretien, cliquez sur « Enregistrer une visite » pour l'ajouter à l'historique du site, avec une note optionnelle.",
+          "scheduleNext": "Cliquez sur « Planifier une visite » pour indiquer la date de la prochaine visite prévue.",
+          "reminder": "Vous recevrez un rappel par email jusqu'à 7 jours avant cette date, dans le récapitulatif quotidien envoyé à chaque installateur associé au site."
+        },
+        "cta": "Aller aux sites"
+      },
       "comingSoon": {
         "title": "D'autres sections à venir",
         "description": "De nouvelles rubriques de configuration seront ajoutées ici au fur et à mesure de l'évolution de Watchborne.",

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
-import { ArrowRight, PlugZap, Server } from "lucide-react";
+import { ArrowRight, CalendarCheck, PlugZap, Server } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
@@ -29,6 +29,13 @@ export default function ConfigurationPage() {
       ),
     }),
     t("appPage.configuration.connection.steps.restart"),
+  ];
+
+  const siteVisitSteps = [
+    t("appPage.configuration.siteVisits.steps.openSite"),
+    t("appPage.configuration.siteVisits.steps.logVisit"),
+    t("appPage.configuration.siteVisits.steps.scheduleNext"),
+    t("appPage.configuration.siteVisits.steps.reminder"),
   ];
 
   return (
@@ -90,6 +97,36 @@ export default function ConfigurationPage() {
           <Button asChild variant="outline" className="w-full sm:w-fit">
             <Link href="/app/charge-points">
               {t("appPage.configuration.association.cta")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="rounded-lg border">
+        <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
+          <CalendarCheck className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium">{t("appPage.configuration.siteVisits.title")}</span>
+        </div>
+        <div className="flex flex-col gap-4 p-4">
+          <p className="text-sm text-muted-foreground">
+            {t("appPage.configuration.siteVisits.description")}
+          </p>
+
+          <ol className="flex flex-col gap-2.5">
+            {siteVisitSteps.map((step, index) => (
+              <li key={index} className="flex gap-3 text-sm">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-charge-soft text-xs font-medium text-charge-strong">
+                  {index + 1}
+                </span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+
+          <Button asChild variant="outline" className="w-full sm:w-fit">
+            <Link href="/app/sites">
+              {t("appPage.configuration.siteVisits.cta")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
