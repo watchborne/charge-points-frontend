@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
 import type { ConnectionStateEvent, ConnectorStatusEvent } from "@/lib/api-status-history";
+import { queryKeys } from "@/lib/queryKeys";
 
 /**
  * The windows the panel offers. "day" is the calendar day (local midnight to
@@ -55,28 +56,23 @@ export type UseStatusHistoryReturn = {
  * Both streams load together: the connection timeline never depends on which
  * connector is selected, but fetching it alongside keeps the panel's loading
  * state single rather than two independently-flickering ones.
+ *
+ * `placeholderData: keepPreviousData` keeps the previous window's result on
+ * screen while a new range/connector loads — the same "only the first load
+ * shows a skeleton" behaviour this hook used to hand-roll with a `settled` ref.
  */
 export const useStatusHistory = (
   chargePointId: string,
   range: StatusHistoryRange,
   connectorId: number,
 ): UseStatusHistoryReturn => {
-  const [connectionEvents, setConnectionEvents] = useState<ConnectionStateEvent[]>([]);
-  const [connectorEvents, setConnectorEvents] = useState<ConnectorStatusEvent[]>([]);
-  const [truncated, setTruncated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  const [{ start: windowStart, end: windowEnd }, setWindow] = useState(() => windowFor(range));
-  // Only the first load shows the skeleton — see useConsumption's identical `settled` note.
-  const settled = useRef(false);
-
-  const load = useCallback(async () => {
-    const window = windowFor(range);
-    setWindow(window);
-
-    try {
-      setFailed(false);
-      if (!settled.current) setLoading(true);
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: queryKeys.statusHistory.chargePointWithRanges(chargePointId, [
+      range,
+      String(connectorId),
+    ]),
+    queryFn: async () => {
+      const window = windowFor(range);
 
       const [connection, connector] = await Promise.all([
         api.StatusHistory.getConnectionEvents(chargePointId, {
@@ -90,32 +86,28 @@ export const useStatusHistory = (
         }),
       ]);
 
-      setConnectionEvents(connection);
-      setConnectorEvents(connector);
-      setTruncated(
-        connection.length >= HISTORY_FETCH_LIMIT || connector.length >= HISTORY_FETCH_LIMIT,
-      );
-    } catch (err) {
-      setFailed(true);
-      console.error(err);
-    } finally {
-      settled.current = true;
-      setLoading(false);
-    }
-  }, [chargePointId, range, connectorId]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+      return {
+        windowStart: window.start,
+        windowEnd: window.end,
+        connectionEvents: connection,
+        connectorEvents: connector,
+        truncated:
+          connection.length >= HISTORY_FETCH_LIMIT || connector.length >= HISTORY_FETCH_LIMIT,
+      };
+    },
+    placeholderData: keepPreviousData,
+  });
 
   return {
-    windowStart,
-    windowEnd,
-    connectionEvents,
-    connectorEvents,
-    truncated,
-    loading,
-    failed,
-    refetch: load,
+    windowStart: data?.windowStart ?? windowFor(range).start,
+    windowEnd: data?.windowEnd ?? windowFor(range).end,
+    connectionEvents: data?.connectionEvents ?? [],
+    connectorEvents: data?.connectorEvents ?? [],
+    truncated: data?.truncated ?? false,
+    loading: isLoading,
+    failed: isError,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };

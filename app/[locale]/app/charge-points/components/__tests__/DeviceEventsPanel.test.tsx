@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -54,12 +55,19 @@ const buildReport = (
 
 const resolveWith = (reports: DeviceEventReport[]) => list.mockResolvedValue(reports);
 
+let queryClient: QueryClient;
+
 const renderPanel = (chargePointId = CP_ID) =>
-  render(<DeviceEventsPanel chargePointId={chargePointId} />);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <DeviceEventsPanel chargePointId={chargePointId} />
+    </QueryClientProvider>,
+  );
 
 beforeEach(() => {
   vi.clearAllMocks();
   resolveWith([]);
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 describe("DeviceEventsPanel", () => {
@@ -109,7 +117,11 @@ describe("DeviceEventsPanel", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(list).toHaveBeenCalledWith(CP_ID, 5));
 
-    rerender(<DeviceEventsPanel chargePointId="cp-2" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <DeviceEventsPanel chargePointId="cp-2" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(list).toHaveBeenCalledWith("cp-2", 5));
   });

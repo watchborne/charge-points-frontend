@@ -1,8 +1,10 @@
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 
 import { api } from "@/lib/api";
 import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
+import { queryKeys } from "@/lib/queryKeys";
 
 /**
  * The windows the panel offers. Kept short and absolute rather than a free
@@ -57,6 +59,12 @@ export type UseConsumptionReturn = {
  *
  * `measurand` undefined (before the first summary lands) skips the raw read
  * entirely, instead of fetching every measurand and discarding most of it.
+ *
+ * `placeholderData: keepPreviousData` is what avoids flashing a skeleton on
+ * every range/measurand change: TanStack Query keeps the previous window's
+ * result on screen while the new one loads, swapping it in once ready — the
+ * same "only the first load shows a skeleton" behaviour this hook used to
+ * hand-roll with a `settled` ref.
  */
 export const useConsumption = (
   chargePointId: string,
@@ -65,29 +73,14 @@ export const useConsumption = (
 ): UseConsumptionReturn => {
   const t = useTranslations("");
 
-  const [consumption, setConsumption] = useState<ChargePointConsumption | null>(null);
-  const [samples, setSamples] = useState<MeterSample[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  /**
-   * Whether a load has ever completed. Only the first shows the skeleton:
-   * this hook runs twice on the way to a first chart (before/with the
-   * measurand known) and again on every window/measurand change — flipping
-   * back to a skeleton each time would strobe a panel that already has
-   * something to show. Later loads swap the data in place.
-   */
-  const settled = useRef(false);
-
-  const load = useCallback(async () => {
-    // Computed per call, not held in state: a window anchored to "now" at
-    // mount would drift stale on a panel left open, and the backend echoes
-    // back the window it actually reduced anyway.
-    const to = new Date();
-    const from = new Date(to.getTime() - RANGE_HOURS[range] * 60 * 60 * 1000);
-
-    try {
-      setFailed(false);
-      if (!settled.current) setLoading(true);
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: queryKeys.metering.consumptionByChargePoint(chargePointId, { range, measurand }),
+    queryFn: async () => {
+      // Computed per call, not held in state: a window anchored to "now" at
+      // mount would drift stale on a panel left open, and the backend echoes
+      // back the window it actually reduced anyway.
+      const to = new Date();
+      const from = new Date(to.getTime() - RANGE_HOURS[range] * 60 * 60 * 1000);
 
       const [summary, rows] = await Promise.all([
         api.Metering.getConsumption(chargePointId, { from, to }),
@@ -101,26 +94,20 @@ export const useConsumption = (
           : Promise.resolve([]),
       ]);
 
-      setConsumption(summary);
-      // Oldest first: the backend answers newest-first (useful for a list),
-      // a chart's x-axis runs the other way.
-      setSamples(
-        [...rows].sort(
+      return {
+        consumption: summary,
+        // Oldest first: the backend answers newest-first (useful for a
+        // list), a chart's x-axis runs the other way.
+        samples: [...rows].sort(
           (a, b) => new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime(),
         ),
-      );
-    } catch (err) {
-      setFailed(true);
-      console.error(err);
-    } finally {
-      settled.current = true;
-      setLoading(false);
-    }
-  }, [chargePointId, range, measurand]);
+      };
+    },
+    placeholderData: keepPreviousData,
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const consumption = data?.consumption ?? null;
+  const samples = data?.samples ?? [];
 
   const measurands = useMemo(
     () =>
@@ -148,8 +135,10 @@ export const useConsumption = (
     measurands,
     measurandLabels,
     truncated: samples.length >= MAX_CHART_SAMPLES,
-    loading,
-    failed,
-    refetch: load,
+    loading: isLoading,
+    failed: isError,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };

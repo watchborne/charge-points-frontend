@@ -71,9 +71,10 @@ describe("session refresh", () => {
     await httpClient.get("/api/items");
     await httpClient.post("/api/items", {});
     await httpClient.patch("/api/items/1", {});
+    await httpClient.put("/api/items/1", {});
     await httpClient.delete("/api/items/1");
 
-    expect(getSession).toHaveBeenCalledTimes(4);
+    expect(getSession).toHaveBeenCalledTimes(5);
   });
 });
 
@@ -161,6 +162,36 @@ describe("httpClient.patch", () => {
     mockFetch.mockReturnValue(errorResponse(500));
 
     await expect(httpClient.patch("/api/items/1", {})).rejects.toThrow("HTTP error! status: 500");
+  });
+});
+
+describe("httpClient.put", () => {
+  it("SHOULD call fetch with PUT, JSON headers, and a serialized body", async () => {
+    mockFetch.mockReturnValue(okResponse({ id: 1, name: "replaced" }));
+    const payload = { name: "replaced" };
+
+    await httpClient.put("/api/items/1", payload);
+
+    expect(mockFetch).toHaveBeenCalledWith("/api/items/1", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  });
+
+  it("SHOULD return parsed JSON", async () => {
+    const replaced = { id: 1, name: "replaced" };
+    mockFetch.mockReturnValue(okResponse(replaced));
+
+    const result = await httpClient.put<typeof replaced>("/api/items/1", { name: "replaced" });
+
+    expect(result).toEqual(replaced);
+  });
+
+  it("SHOULD throw WHEN the response is not ok", async () => {
+    mockFetch.mockReturnValue(errorResponse(400));
+
+    await expect(httpClient.put("/api/items/1", {})).rejects.toThrow("HTTP error! status: 400");
   });
 });
 

@@ -847,6 +847,9 @@
         "resolvedAt": "Resolved {date}",
         "notifiedTo": "Sent to {emails}",
         "notNotified": "Not sent yet",
+        "acknowledge": "Mark as resolved",
+        "acknowledgedBy": "Acknowledged by {email}",
+        "acknowledgeError": "Could not mark this alert as resolved. Please try again.",
         "types": {
           "OFFLINE": "Station offline",
           "CONNECTOR_FAULTED": "Connector faulted",
@@ -1190,6 +1193,22 @@
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
         },
+        "nextVisit": {
+          "title": "Next planned visit",
+          "loading": "Loading...",
+          "scheduleButton": "Schedule a visit",
+          "editButton": "Edit",
+          "cancelButton": "Cancel",
+          "dialog": {
+            "title": "Schedule the next visit",
+            "description": "Pick an upcoming date for the next visit to this site.",
+            "submit": "Schedule",
+            "fields": {
+              "date": "Next visit date",
+              "datePlaceholder": "Next visit date..."
+            }
+          }
+        },
         "visits": {
           "title": "Visit history",
           "loading": "Loading visits...",
@@ -1265,6 +1284,17 @@
         "title": "Commission a charge point",
         "description": "A charge point connecting for the first time is automatically discovered and appears in the \"Awaiting commissioning\" queue at the top of the \"Charge Points\" page. Click \"Commission\" to rename it and attach it to a site in one step. You can also change this association later from the charge point's form. A charge point can only be attached to one site at a time.",
         "cta": "Go to charge points"
+      },
+      "siteVisits": {
+        "title": "Track site visits",
+        "description": "Every site keeps a history of maintenance visits, and a site not visited in over 90 days is automatically flagged as overdue on the dashboard and the site's own card.",
+        "steps": {
+          "openSite": "Open a site's detail page from the \"Sites\" page.",
+          "logVisit": "After a maintenance visit, click \"Log a visit\" to add it to that site's history, with an optional note.",
+          "scheduleNext": "Click \"Schedule a visit\" to set the date of the next planned visit.",
+          "reminder": "You'll get an email reminder up to 7 days before that date, in the daily digest sent to every installer associated with the site."
+        },
+        "cta": "Go to sites"
       },
       "comingSoon": {
         "title": "More sections coming soon",

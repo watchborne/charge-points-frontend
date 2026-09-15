@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -79,17 +80,32 @@ const given = ({
   vi.mocked(api.Metering.getMeterSamples).mockResolvedValue(samples);
 };
 
-describe("SessionConsumptionChartContainer", () => {
-  it("SHOULD scope the fetch to the session's connector and timeframe", async () => {
-    given();
-    render(
+const renderContainer = (
+  overrides: Partial<{
+    chargePointId: string;
+    connectorId: number;
+    startedAt: Date;
+    endedAt: Date | null;
+  }> = {},
+) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={queryClient}>
       <SessionConsumptionChartContainer
         chargePointId="cp-1"
         connectorId={1}
         startedAt={STARTED_AT}
         endedAt={ENDED_AT}
-      />,
-    );
+        {...overrides}
+      />
+    </QueryClientProvider>,
+  );
+};
+
+describe("SessionConsumptionChartContainer", () => {
+  it("SHOULD scope the fetch to the session's connector and timeframe", async () => {
+    given();
+    renderContainer();
 
     await waitFor(() =>
       expect(api.Metering.getConsumption).toHaveBeenCalledWith(
@@ -101,14 +117,7 @@ describe("SessionConsumptionChartContainer", () => {
 
   it("SHOULD fetch up to now WHEN the session is still active (no endedAt)", async () => {
     given();
-    render(
-      <SessionConsumptionChartContainer
-        chargePointId="cp-1"
-        connectorId={1}
-        startedAt={STARTED_AT}
-        endedAt={null}
-      />,
-    );
+    renderContainer({ endedAt: null });
 
     await waitFor(() => expect(api.Metering.getConsumption).toHaveBeenCalled());
     const [, query] = vi.mocked(api.Metering.getConsumption).mock.calls[0];
@@ -120,14 +129,7 @@ describe("SessionConsumptionChartContainer", () => {
       seriesList: [series(), series({ measurand: "Voltage", unit: "V" })],
       samples: [sample(), sample({ id: crypto.randomUUID() })],
     });
-    render(
-      <SessionConsumptionChartContainer
-        chargePointId="cp-1"
-        connectorId={1}
-        startedAt={STARTED_AT}
-        endedAt={ENDED_AT}
-      />,
-    );
+    renderContainer();
 
     const chart = await screen.findByTestId("chart");
     expect(chart.getAttribute("data-series")).toBe("2");
@@ -136,14 +138,7 @@ describe("SessionConsumptionChartContainer", () => {
 
   it("SHOULD hand an empty result to the chart WHEN the station reported nothing in the window", async () => {
     given({ seriesList: [], samples: [] });
-    render(
-      <SessionConsumptionChartContainer
-        chargePointId="cp-1"
-        connectorId={1}
-        startedAt={STARTED_AT}
-        endedAt={ENDED_AT}
-      />,
-    );
+    renderContainer();
 
     const chart = await screen.findByTestId("chart");
     expect(chart.getAttribute("data-series")).toBe("0");
@@ -152,14 +147,7 @@ describe("SessionConsumptionChartContainer", () => {
   it("SHOULD surface a load failure instead of rendering an empty chart", async () => {
     vi.mocked(api.Metering.getConsumption).mockRejectedValue(new Error("boom"));
     vi.mocked(api.Metering.getMeterSamples).mockResolvedValue([]);
-    render(
-      <SessionConsumptionChartContainer
-        chargePointId="cp-1"
-        connectorId={1}
-        startedAt={STARTED_AT}
-        endedAt={ENDED_AT}
-      />,
-    );
+    renderContainer();
 
     expect(
       await screen.findByText("appPage.chargePoints.chargingSessions.consumption.loadError"),
@@ -169,14 +157,7 @@ describe("SessionConsumptionChartContainer", () => {
 
   it("SHOULD show a loading state WHILE fetching", () => {
     given();
-    render(
-      <SessionConsumptionChartContainer
-        chargePointId="cp-1"
-        connectorId={1}
-        startedAt={STARTED_AT}
-        endedAt={ENDED_AT}
-      />,
-    );
+    renderContainer();
 
     expect(
       screen.getByText("appPage.chargePoints.chargingSessions.consumption.loading"),

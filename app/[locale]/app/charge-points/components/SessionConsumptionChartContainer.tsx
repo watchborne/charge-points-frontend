@@ -1,12 +1,12 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
-import type { MeterSample, MeterSampleSummary } from "@/lib/api-metering";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { SessionConsumptionChart } from "./SessionConsumptionChart";
@@ -15,11 +15,6 @@ import { SessionConsumptionChart } from "./SessionConsumptionChart";
  * than a few hours, so this is far above what a real session ever reports;
  * it only guards against a pathologically long-running one. */
 const MAX_SESSION_CHART_SAMPLES = 3_000;
-
-type State =
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "loaded"; series: MeterSampleSummary[]; samples: MeterSample[] };
 
 type Props = {
   chargePointId: ChargePoint["id"];
@@ -46,42 +41,34 @@ export const SessionConsumptionChartContainer = ({
 }: Props) => {
   const t = useTranslations("");
 
-  const [state, setState] = useState<State>({ status: "loading" });
+  const startedAtIso = new Date(startedAt).toISOString();
+  const endedAtIso = endedAt ? new Date(endedAt).toISOString() : null;
 
-  useEffect(() => {
-    let cancelled = false;
+  const {
+    data,
+    isLoading: loading,
+    isError: failed,
+  } = useQuery({
+    queryKey: queryKeys.consumption.session(chargePointId, connectorId, startedAtIso, endedAtIso),
+    queryFn: async () => {
+      const from = new Date(startedAtIso);
+      const to = endedAtIso ? new Date(endedAtIso) : new Date();
 
-    const from = new Date(startedAt);
-    const to = endedAt ? new Date(endedAt) : new Date();
+      const [summary, rows] = await Promise.all([
+        api.Metering.getConsumption(chargePointId, { connectorId, from, to }),
+        api.Metering.getMeterSamples(chargePointId, {
+          connectorId,
+          from,
+          to,
+          limit: MAX_SESSION_CHART_SAMPLES,
+        }),
+      ]);
 
-    (async () => {
-      setState({ status: "loading" });
+      return { series: summary.series, samples: rows };
+    },
+  });
 
-      try {
-        const [summary, rows] = await Promise.all([
-          api.Metering.getConsumption(chargePointId, { connectorId, from, to }),
-          api.Metering.getMeterSamples(chargePointId, {
-            connectorId,
-            from,
-            to,
-            limit: MAX_SESSION_CHART_SAMPLES,
-          }),
-        ]);
-
-        if (cancelled) return;
-
-        setState({ status: "loaded", series: summary.series, samples: rows });
-      } catch {
-        if (!cancelled) setState({ status: "error" });
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId, connectorId, startedAt, endedAt]);
-
-  if (state.status === "loading") {
+  if (loading) {
     return (
       <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -90,7 +77,7 @@ export const SessionConsumptionChartContainer = ({
     );
   }
 
-  if (state.status === "error") {
+  if (failed || !data) {
     return (
       <div className="p-3">
         <Callout
@@ -106,8 +93,8 @@ export const SessionConsumptionChartContainer = ({
       connectorId={connectorId}
       startedAt={startedAt}
       endedAt={endedAt}
-      series={state.series}
-      samples={state.samples}
+      series={data.series}
+      samples={data.samples}
     />
   );
 };

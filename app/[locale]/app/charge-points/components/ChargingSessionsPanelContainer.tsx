@@ -1,14 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
-import { ChargingSessionsPanel, type ChargingSessionListEntry } from "./ChargingSessionsPanel";
+import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
 
 /** A glance at recent activity, not a full audit log — same role
  * `VISIBLE_HISTORY_COUNT` plays for `LogUploadPanel`, scaled up: a session
@@ -32,32 +33,14 @@ export const ChargingSessionsPanelContainer = ({
 }: ChargingSessionsPanelContainerProps) => {
   const t = useTranslations("");
 
-  const [sessions, setSessions] = useState<ChargingSessionListEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      setFailed(false);
-      const recent = await api.ChargePoints.listChargingSessions(
-        chargePointId,
-        VISIBLE_HISTORY_COUNT,
-      );
-      setSessions(recent);
-    } catch {
-      setFailed(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [chargePointId]);
-
-  useEffect(() => {
-    // Reset before refetching so a different station's sessions are never
-    // shown under this one while the request is in flight.
-    setSessions([]);
-    setLoading(true);
-    void load();
-  }, [load]);
+  const {
+    data: sessions = [],
+    isLoading: loading,
+    isError: failed,
+  } = useQuery({
+    queryKey: queryKeys.chargingSessions.chargePoint(chargePointId),
+    queryFn: () => api.ChargePoints.listChargingSessions(chargePointId, VISIBLE_HISTORY_COUNT),
+  });
 
   if (loading) {
     return (
