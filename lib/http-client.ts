@@ -73,6 +73,14 @@ const patch = <T>(url: string, body: unknown): Promise<T> => {
   });
 };
 
+const put = <T>(url: string, body: unknown): Promise<T> => {
+  return makeRequest<T>(url, {
+    method: "PUT",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(body),
+  });
+};
+
 // `body` is optional: most DELETEs this app makes are bare (the resource is
 // addressed entirely by its URL), but a caller-scoped resource with no id of
 // its own in the URL — a push subscription is identified by its `endpoint`,
@@ -91,5 +99,6 @@ export const httpClient = {
   get,
   post,
   patch,
+  put,
   delete: del,
 };

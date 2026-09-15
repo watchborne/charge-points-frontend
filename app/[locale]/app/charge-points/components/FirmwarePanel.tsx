@@ -1,15 +1,17 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Badge, Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint, ChargePointMeta } from "@/types/charge-point";
-import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
+import type { FirmwareUpdateView } from "@/types/firmware";
 
 import { UpdateFirmwareDialog } from "./UpdateFirmwareDialog";
 import { FirmwareTimeline } from "../../components/charge-points/FirmwareTimeline";
@@ -22,8 +24,6 @@ type FirmwarePanelProps = {
   /** Gates the signed-firmware fields in the trigger dialog. */
   ocppVersion: ChargePoint["ocppVersion"];
 };
-
-const EMPTY: ChargePointFirmware = { active: null, lastCompleted: null };
 
 /**
  * The firmware section of a charge point's detail panel: which version it
@@ -42,31 +42,15 @@ export const FirmwarePanel = ({
   const t = useTranslations("");
   const { lastMessage } = useWebSocketContext();
 
-  const [firmware, setFirmware] = useState<ChargePointFirmware>(EMPTY);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  const load = useCallback(
-    async (showLoading: boolean) => {
-      if (showLoading) setLoading(true);
-      try {
-        setFirmware(await api.ChargePoints.getFirmware(chargePointId));
-        setFailed(false);
-      } catch {
-        setFailed(true);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [chargePointId],
-  );
-
-  useEffect(() => {
-    // Reset before refetching so a different station's firmware is never
-    // shown under this one's name while the request is in flight.
-    setFirmware(EMPTY);
-    void load(true);
-  }, [load]);
+  const {
+    data: firmware,
+    isLoading: loading,
+    isError: failed,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.firmware.chargePoint(chargePointId),
+    queryFn: () => api.ChargePoints.getFirmware(chargePointId),
+  });
 
   useEffect(() => {
     if (lastMessage?.type !== "CHARGE_POINT_FIRMWARE_UPDATE") return;
@@ -79,8 +63,8 @@ export const FirmwarePanel = ({
     // Refetch rather than patching `active` from the payload: a terminal
     // status moves the update to `lastCompleted`, and the broadcast alone
     // doesn't say which side it landed on.
-    void load(false);
-  }, [lastMessage, chargePointId, load]);
+    void refetch();
+  }, [lastMessage, chargePointId, refetch]);
 
   const outcomeIcon = (update: FirmwareUpdateView) =>
     update.outcome === "SUCCEEDED" ? (
@@ -117,7 +101,7 @@ export const FirmwarePanel = ({
         <Callout description={t("appPage.chargePoints.firmware.loadError")} variant="error" />
       )}
 
-      {!loading && !failed && (
+      {!loading && !failed && firmware && (
         <>
           {firmware.active && (
             <div className="flex flex-col gap-2">
@@ -161,7 +145,7 @@ export const FirmwarePanel = ({
                   // unfinished per charge point); disabling the trigger says so
                   // before the installer fills a form that would be rejected.
                   updateInProgress={firmware.active !== null}
-                  onStarted={() => void load(false)}
+                  onStarted={() => void refetch()}
                 />
               </div>
             </div>

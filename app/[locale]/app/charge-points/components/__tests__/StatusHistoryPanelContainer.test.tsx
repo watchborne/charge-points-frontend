@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -24,13 +25,23 @@ beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(api.StatusHistory.getConnectionEvents).mockResolvedValue([]);
   vi.mocked(api.StatusHistory.getConnectorStatusEvents).mockResolvedValue([]);
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 afterEach(() => cleanup());
+
+const renderContainer = (props: { chargePointId: string; connectorIds: number[] }) =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <StatusHistoryPanelContainer {...props} />
+    </QueryClientProvider>,
+  );
 
 const CONNECTION_EVENT = {
   id: "e1",
@@ -53,7 +64,7 @@ const CONNECTOR_EVENT = {
 
 describe("StatusHistoryPanelContainer", () => {
   it("SHOULD render two timeline bars (connectivity and connector status) by default", async () => {
-    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
+    renderContainer({ chargePointId: "cp-1", connectorIds: [1] });
 
     await waitFor(() =>
       expect(
@@ -66,7 +77,7 @@ describe("StatusHistoryPanelContainer", () => {
   });
 
   it("SHOULD load both streams for the charge point and default connector", async () => {
-    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1, 2]} />);
+    renderContainer({ chargePointId: "cp-1", connectorIds: [1, 2] });
 
     await waitFor(() => expect(api.StatusHistory.getConnectionEvents).toHaveBeenCalled());
 
@@ -81,14 +92,16 @@ describe("StatusHistoryPanelContainer", () => {
   });
 
   it("SHOULD show a connector selector only WHEN there is more than one connector", async () => {
-    const { rerender } = render(
-      <StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />,
-    );
+    const { rerender } = renderContainer({ chargePointId: "cp-1", connectorIds: [1] });
     await waitFor(() => expect(api.StatusHistory.getConnectionEvents).toHaveBeenCalled());
 
     expect(screen.queryByLabelText("appPage.chargePoints.statusHistory.connectorLabel")).toBeNull();
 
-    rerender(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1, 2]} />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1, 2]} />
+      </QueryClientProvider>,
+    );
     await waitFor(() =>
       expect(
         screen.queryByLabelText("appPage.chargePoints.statusHistory.connectorLabel"),
@@ -100,7 +113,7 @@ describe("StatusHistoryPanelContainer", () => {
     vi.mocked(api.StatusHistory.getConnectionEvents).mockResolvedValue([CONNECTION_EVENT]);
     vi.mocked(api.StatusHistory.getConnectorStatusEvents).mockResolvedValue([CONNECTOR_EVENT]);
 
-    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
+    renderContainer({ chargePointId: "cp-1", connectorIds: [1] });
     await waitFor(() =>
       expect(
         screen.getByRole("img", {
@@ -135,7 +148,7 @@ describe("StatusHistoryPanelContainer", () => {
   it("SHOULD render an error callout WHEN loading fails", async () => {
     vi.mocked(api.StatusHistory.getConnectionEvents).mockRejectedValue(new Error("boom"));
 
-    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
+    renderContainer({ chargePointId: "cp-1", connectorIds: [1] });
 
     await waitFor(() =>
       expect(screen.getByText("appPage.chargePoints.statusHistory.error")).toBeDefined(),
@@ -147,7 +160,7 @@ describe("StatusHistoryPanelContainer", () => {
       Array.from({ length: 500 }, (_, i) => ({ ...CONNECTOR_EVENT, id: `${i}` })),
     );
 
-    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
+    renderContainer({ chargePointId: "cp-1", connectorIds: [1] });
 
     await waitFor(() =>
       expect(screen.getByText("appPage.chargePoints.statusHistory.truncated")).toBeDefined(),
@@ -155,7 +168,7 @@ describe("StatusHistoryPanelContainer", () => {
   });
 
   it("SHOULD NOT show the truncated notice WHEN neither stream hits the fetch limit", async () => {
-    render(<StatusHistoryPanelContainer chargePointId="cp-1" connectorIds={[1]} />);
+    renderContainer({ chargePointId: "cp-1", connectorIds: [1] });
 
     await waitFor(() =>
       expect(
