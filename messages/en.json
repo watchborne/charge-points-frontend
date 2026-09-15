@@ -1316,6 +1316,7 @@
         "title": "Notifications",
         "description": "Get push notifications in this browser for real-time charge point alerts.",
         "unsupported": "Push notifications are not available in this browser.",
+        "iosInstallRequired": "On iPhone and iPad, notifications only work once this app is added to the home screen. Tap Share, then \"Add to Home Screen\".",
         "toast": {
           "permissionDenied": "Notifications are blocked for this site. Allow them in your browser's settings to enable this.",
           "error": "Something went wrong while updating your notification settings. Please try again."
