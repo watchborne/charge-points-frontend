@@ -1,9 +1,10 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, Input, Callout } from "@watchborne/electrons";
 import { CheckCircle2, Loader2, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Dialog,
@@ -14,14 +15,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { api } from "@/lib/api";
-import { GetSettingsOutcome, SetSettingOutcome } from "@/lib/api-charge-points";
+import { SetSettingOutcome } from "@/lib/api-charge-points";
+import { queryKeys } from "@/lib/queryKeys";
 import { ChargePoint } from "@/types/charge-point";
-
-type FetchState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: GetSettingsOutcome };
-
-type SetState =
-  { status: "idle" } | { status: "loading" } | { status: "done"; outcome: SetSettingOutcome };
 
 const readErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
@@ -80,41 +76,47 @@ export const ChargePointConfigurationDialog = ({
   chargePointName,
 }: ChargePointConfigurationDialogProps) => {
   const t = useTranslations("");
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [state, setState] = useState<FetchState>({ status: "idle" });
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
-  const [setState_, setSetState] = useState<SetState>({ status: "idle" });
+  const [setOutcome, setSetOutcome] = useState<SetSettingOutcome | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ status: "loading" });
-    const outcome = await api.ChargePoints.getSettings(chargePointId);
-    setState({ status: "done", outcome });
-  }, [chargePointId]);
+  const { data: outcome, isLoading: loadingOutcome } = useQuery({
+    queryKey: queryKeys.settings.chargePoint(chargePointId),
+    queryFn: () => api.ChargePoints.getSettings(chargePointId),
+    enabled: open,
+  });
 
-  useEffect(() => {
-    if (!open) {
-      setState({ status: "idle" });
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) {
       setKey("");
       setValue("");
-      setSetState({ status: "idle" });
-      return;
+      setSetOutcome(null);
     }
+  };
 
-    void load();
-  }, [open, load, chargePointId]);
+  const setSettingMutation = useMutation({
+    mutationFn: () => api.ChargePoints.setSetting(chargePointId, key.trim(), value),
+    onSuccess: async (outcome) => {
+      setSetOutcome(outcome);
+      // Re-read so the table reflects the applied change.
+      if (outcome.ok)
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.settings.chargePoint(chargePointId),
+        });
+    },
+  });
 
-  const handleSet = async () => {
+  const handleSet = () => {
     if (!key.trim()) return;
-    setSetState({ status: "loading" });
-    const outcome = await api.ChargePoints.setSetting(chargePointId, key.trim(), value);
-    setSetState({ status: "done", outcome });
-    // Re-read so the table reflects the applied change.
-    if (outcome.ok) await load();
+    setSetOutcome(null);
+    setSettingMutation.mutate();
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <SlidersHorizontal className="mr-1.5 h-4 w-4" />
@@ -129,26 +131,26 @@ export const ChargePointConfigurationDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        {state.status === "loading" && (
+        {loadingOutcome && (
           <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
             {t("appPage.chargePoints.configuration.loading")}
           </div>
         )}
 
-        {state.status === "done" && !state.outcome.ok && (
-          <Callout description={t(readErrorMessageKey(state.outcome.httpStatus))} variant="error" />
+        {!loadingOutcome && outcome && !outcome.ok && (
+          <Callout description={t(readErrorMessageKey(outcome.httpStatus))} variant="error" />
         )}
 
-        {state.status === "done" && state.outcome.ok && (
+        {!loadingOutcome && outcome?.ok && (
           <div className="flex max-h-[45vh] flex-col gap-3 overflow-y-auto">
-            {(state.outcome.configurationKey?.length ?? 0) === 0 ? (
+            {(outcome.configurationKey?.length ?? 0) === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
                 {t("appPage.chargePoints.configuration.empty")}
               </p>
             ) : (
               <div className="divide-y rounded-md border">
-                {state.outcome.configurationKey?.map((entry) => (
+                {outcome.configurationKey?.map((entry) => (
                   <div
                     key={entry.key}
                     className="flex items-center justify-between gap-3 px-3 py-2"
@@ -169,10 +171,10 @@ export const ChargePointConfigurationDialog = ({
               </div>
             )}
 
-            {(state.outcome.unknownKey?.length ?? 0) > 0 && (
+            {(outcome.unknownKey?.length ?? 0) > 0 && (
               <div className="text-xs text-muted-foreground">
                 {t("appPage.chargePoints.configuration.unknownKeys")}:{" "}
-                <span className="font-mono">{state.outcome.unknownKey?.join(", ")}</span>
+                <span className="font-mono">{outcome.unknownKey?.join(", ")}</span>
               </div>
             )}
           </div>
@@ -198,9 +200,9 @@ export const ChargePointConfigurationDialog = ({
             <Button
               size="sm"
               onClick={handleSet}
-              disabled={setState_.status === "loading" || !key.trim()}
+              disabled={setSettingMutation.isPending || !key.trim()}
             >
-              {setState_.status === "loading" ? (
+              {setSettingMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 t("appPage.chargePoints.configuration.set.button")
@@ -208,17 +210,14 @@ export const ChargePointConfigurationDialog = ({
             </Button>
           </div>
 
-          {setState_.status === "done" &&
-            (setState_.outcome.ok ? (
+          {setOutcome &&
+            (setOutcome.ok ? (
               <div className="flex items-center gap-2 text-sm text-status-available-foreground">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
-                {t(setSuccessMessageKey(setState_.outcome.status))}
+                {t(setSuccessMessageKey(setOutcome.status))}
               </div>
             ) : (
-              <Callout
-                description={t(setErrorMessageKey(setState_.outcome.httpStatus))}
-                variant="error"
-              />
+              <Callout description={t(setErrorMessageKey(setOutcome.httpStatus))} variant="error" />
             ))}
         </div>
       </DialogContent>

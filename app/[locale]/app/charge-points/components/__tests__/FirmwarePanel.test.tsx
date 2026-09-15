@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -65,10 +66,13 @@ const HISTORIZED = buildUpdate({
 
 const resolveWith = (firmware: ChargePointFirmware) => getFirmware.mockResolvedValue(firmware);
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
   vi.clearAllMocks();
   useWebSocketContext.mockReturnValue({ lastMessage: null });
   resolveWith({ active: null, lastCompleted: null });
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 // Takes the props object rather than a defaulted positional argument: passing
@@ -78,7 +82,9 @@ const renderPanel = (
   { firmwareVersion }: { firmwareVersion?: string } = { firmwareVersion: "2.4.1" },
 ) =>
   render(
-    <FirmwarePanel chargePointId={CP_ID} firmwareVersion={firmwareVersion} ocppVersion="2.0.1" />,
+    <QueryClientProvider client={queryClient}>
+      <FirmwarePanel chargePointId={CP_ID} firmwareVersion={firmwareVersion} ocppVersion="2.0.1" />
+    </QueryClientProvider>,
   );
 
 describe("FirmwarePanel", () => {
@@ -180,7 +186,11 @@ describe("FirmwarePanel", () => {
         payload: { firmwareUpdate: buildUpdate() },
       },
     });
-    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />
+      </QueryClientProvider>,
+    );
 
     // Refetched rather than patched from the payload: a terminal status moves the
     // update from `active` to `lastCompleted`, which the broadcast alone doesn't say.
@@ -197,7 +207,11 @@ describe("FirmwarePanel", () => {
         payload: { firmwareUpdate: buildUpdate({ chargePointId: "cp-other" }) },
       },
     });
-    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(getFirmware).toHaveBeenCalledTimes(1));
   });
@@ -209,7 +223,11 @@ describe("FirmwarePanel", () => {
     useWebSocketContext.mockReturnValue({
       lastMessage: { type: "CHARGE_POINT_MONITORING", payload: {} },
     });
-    rerender(<FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <FirmwarePanel chargePointId={CP_ID} firmwareVersion="2.4.1" ocppVersion="2.0.1" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(getFirmware).toHaveBeenCalledTimes(1));
   });
@@ -242,7 +260,11 @@ describe("FirmwarePanel", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(getFirmware).toHaveBeenCalledWith(CP_ID));
 
-    rerender(<FirmwarePanel chargePointId="cp-2" firmwareVersion="1.0.0" ocppVersion="2.0.1" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <FirmwarePanel chargePointId="cp-2" firmwareVersion="1.0.0" ocppVersion="2.0.1" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(getFirmware).toHaveBeenCalledWith("cp-2"));
   });
