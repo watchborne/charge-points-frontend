@@ -36,10 +36,14 @@ app/
     app/                  # authenticated dashboard
       dashboard/ sites/    # pages (no local components/ subfolder); dashboard renders
                            #   components/dashboard/ (below)
+      profile/             # user profile page: theme toggle (existing ThemeProvider/
+                           #   useTheme, also used by the marketing Navbar)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
       charge-points/       # page + its own components/ (commissioning dialog/queue/
-                           #   checklist, fleet panel, config dialog, trigger message,
+                           #   checklist, fleet panel — FleetBulkActionBar +
+                           #   hooks/useBulkChargePointActions.ts add multi-select
+                           #   bulk actions — config dialog, trigger message,
                            #   AlertsPanel: alert history + real-time-alerts opt-in,
                            #   StatusHistoryPanel: connection/connector status timeline,
                            #   SecurityEventsPanel: OCPP SecurityEventNotification history,
@@ -64,7 +68,10 @@ app/
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
                            #   URL). ChargePointDetailPanel is the tabbed container these
                            #   render into (tabs: main/actions/consumption/sessions/alerts/
-                           #   security), itself decomposed into ChargePointHeaderSection,
+                           #   security), and persists the last-viewed tab per browser
+                           #   (localStorage key cp-detail-last-tab) as the default on the
+                           #   next mount or charge-point switch. It is itself decomposed
+                           #   into ChargePointHeaderSection,
                            #   ChargePointMetadataSection, and ConnectorStatusSection. The
                            #   page itself wraps its useSearchParams() usage in Suspense —
                            #   required for static rendering, and also drives status/OCPP
@@ -76,7 +83,11 @@ app/
                            #   SiteReliabilityValue (7-day uptime %, rendered in
                            #   SiteDetailModal), LogSiteVisitDialog: logs a site visit
                            #   (POST /api/sites/:id/visits, charge-points-server ADR 0015)
-                           #   from SiteDetailModal
+                           #   from SiteDetailModal, ScheduleNextVisitDialog: plans/edits/
+                           #   cancels a site's next visit (GET/PUT/DELETE
+                           #   /api/sites/:id/next-visit, charge-points-server issue #579/
+                           #   ADR 0016) from SiteDetailModal — the proactive counterpart to
+                           #   LogSiteVisitDialog's reactive history
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; plus generic display/interaction
@@ -86,12 +97,17 @@ app/
                           #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile, derived client-side from already-fetched
                           #   charge points (lib/derive-site-health.ts) rather than a
-                          #   dedicated API call — and DashboardOnboarding;
+                          #   dedicated API call — DashboardOnboarding, and
+                          #   DashboardLayoutDialog (configurable/reorderable dashboard
+                          #   widget visibility + order, persisted via
+                          #   lib/dashboard-layout.ts + hooks/useDashboardLayout.ts);
                           #   charge-points/: ChargePointsBreakdown,
                           #   AlertStatusBadge, FirmwareTimeline, StatusBadge)
       404/                 # dashboard-scoped not-found page
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
-                          #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits
+                          #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
+                          #   useDashboardLayout (widget visibility/order, see dashboard/ above),
+                          #   useSiteVisitSchedule
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -229,6 +245,11 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   `lastVisitedAt`/`installedAt` fallback). `lib/api-site-visits.ts` (`api.SiteVisits`,
   `list`/`record`) reads/writes `/api/sites/:id/visits` — the `SiteVisit` history
   behind `useSiteVisits`/`LogSiteVisitDialog` (charge-points-server ADR 0015).
+  The same module's `getSchedule`/`scheduleNextVisit`/`cancelNextVisit` read/write
+  `/api/sites/:id/next-visit` — a site's planned next visit, one row per site,
+  behind `useSiteVisitSchedule`/`ScheduleNextVisitDialog` (charge-points-server
+  issue #579, ADR 0016). Like `SiteVisit`, `SiteVisitSchedule` is declared locally
+  rather than in `@watchborne/charge-points-types` — it's kept server-local too.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so

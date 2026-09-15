@@ -1,17 +1,19 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { Clock, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { api } from "@/lib/api";
 import type {
   DeviceVariableReport,
   DeviceVariableReportEntry,
 } from "@/lib/api-device-variable-reports";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { RequestDeviceReportDialog } from "./RequestDeviceReportDialog";
@@ -59,32 +61,17 @@ const attributesLabel = (entry: DeviceVariableReportEntry): string =>
 export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableReportsPanelProps) => {
   const t = useTranslations("");
 
-  const [entries, setEntries] = useState<FlatEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
+  const {
+    data: reports,
+    isLoading: loading,
+    isError: failed,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.deviceVariableReports.chargePoint(chargePointId),
+    queryFn: () => api.DeviceVariableReports.list(chargePointId, VISIBLE_REPORT_COUNT),
+  });
 
-  const load = useCallback(
-    async (showLoading: boolean) => {
-      if (showLoading) setLoading(true);
-      try {
-        const result = await api.DeviceVariableReports.list(chargePointId, VISIBLE_REPORT_COUNT);
-        setEntries(flattenReports(result));
-        setFailed(false);
-      } catch {
-        setFailed(true);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [chargePointId],
-  );
-
-  useEffect(() => {
-    // Reset before refetching so a different station's entries are never
-    // shown under this one while the request is in flight.
-    setEntries([]);
-    void load(true);
-  }, [load]);
+  const entries = useMemo(() => flattenReports(reports ?? []), [reports]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -92,7 +79,10 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
         <h4 className="text-sm font-semibold">
           {t("appPage.chargePoints.deviceVariableReports.title")}
         </h4>
-        <RequestDeviceReportDialog chargePointId={chargePointId} onRequested={() => load(false)} />
+        <RequestDeviceReportDialog
+          chargePointId={chargePointId}
+          onRequested={() => void refetch()}
+        />
       </div>
 
       {loading && (

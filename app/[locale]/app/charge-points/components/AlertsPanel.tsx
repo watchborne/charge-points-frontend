@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, AlertType } from "@watchborne/charge-points-types";
-import { Switch } from "@watchborne/electrons";
+import { Button, Switch } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import {
@@ -9,8 +9,10 @@ import {
   Ban,
   CheckCircle2,
   Clock,
+  Loader2,
   Shield,
   ShieldAlert,
+  UserCheck,
   WifiOff,
   XCircle,
 } from "lucide-react";
@@ -28,6 +30,11 @@ import { AlertStatusBadge } from "../../components/charge-points/AlertStatusBadg
  * `openedAt`/`resolvedAt`/`lastNotifiedAt` accept `Date | string` since the
  * shared package's own timestamp type is irrelevant here — this panel only
  * ever wraps them in `new Date(...)`, which accepts both.
+ *
+ * `acknowledgedAt`/`acknowledgedBy` are optional rather than required for the
+ * same reason: a caller with static fixtures and no acknowledgment to show
+ * (the marketing preview) shouldn't have to spell out two nulls. Absent and
+ * `null` both mean "nobody has taken this one on".
  */
 export type AlertListEntry = Pick<
   Alert,
@@ -37,6 +44,8 @@ export type AlertListEntry = Pick<
   resolvedAt: Date | string | null;
   lastNotifiedAt: Date | string | null;
   notifiedRecipients: { email: string }[];
+  acknowledgedAt?: Date | string | null;
+  acknowledgedBy?: { email: string } | null;
 };
 
 type AlertsPanelProps = {
@@ -44,6 +53,14 @@ type AlertsPanelProps = {
   realtimeAlertsEnabled: ChargePoint["realtimeAlertsEnabled"];
   onToggleRealtimeAlerts: () => void;
   alerts: AlertListEntry[];
+  /**
+   * Acknowledges one alert. Optional: a caller rendering a static, read-only
+   * list (the marketing preview) passes nothing and gets no action at all,
+   * rather than a button that would do nothing.
+   */
+  onAcknowledge?: (alertId: AlertListEntry["id"]) => void;
+  /** The alert whose acknowledgment is currently in flight, if any. */
+  acknowledgingAlertId?: AlertListEntry["id"] | null;
 };
 
 const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
@@ -69,7 +86,10 @@ const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
  * CONNECTOR_FAULTED / FIRMWARE_STALLED / CONNECTOR_STUCK_UNAVAILABLE /
  * FIRMWARE_UPDATE_FAILED / SECURITY_EVENT activity, and — the "✔️ sent, to whom, when" read the
  * feature exists for — whether each one actually notified
- * anyone, who, and when. Also hosts the opt-in switch for the real-time
+ * anyone, who, and when. An open alert also carries the acknowledge action
+ * (charge-points-server issue #530) — a human taking it on, which silences
+ * re-notification without resolving it — and, once taken, names who did.
+ * Also hosts the opt-in switch for the real-time
  * channel itself (`ChargePoint.realtimeAlertsEnabled`) — the alerting
  * section is where an installer already is when deciding whether this
  * station warrants paging, so the toggle lives here rather than in the
@@ -87,6 +107,8 @@ export const AlertsPanel = ({
   realtimeAlertsEnabled,
   onToggleRealtimeAlerts,
   alerts,
+  onAcknowledge,
+  acknowledgingAlertId = null,
 }: AlertsPanelProps) => {
   const t = useTranslations("");
 
@@ -115,6 +137,13 @@ export const AlertsPanel = ({
           {alerts.map((alert) => {
             const TypeIcon = TYPE_ICON[alert.type];
             const recipientEmails = alert.notifiedRecipients.map((recipient) => recipient.email);
+            const acknowledged = Boolean(alert.acknowledgedAt);
+            // Only an alert still OPEN can be taken on: the backend 409s on a
+            // RESOLVED one (a one-shot FIRMWARE_UPDATE_FAILED/SECURITY_EVENT
+            // is already resolved by the time it is rendered), and
+            // acknowledging twice would just re-stamp the same owner.
+            const acknowledgeable =
+              alert.status === "OPEN" && !acknowledged && Boolean(onAcknowledge);
 
             return (
               <div key={alert.id} className="flex flex-col gap-2.5 px-3 py-2">
@@ -130,8 +159,49 @@ export const AlertsPanel = ({
                       </div>
                     )}
                   </div>
-                  <AlertStatusBadge status={alert.status} />
+                  <div className="flex items-center gap-2">
+                    <AlertStatusBadge status={alert.status} />
+                    {acknowledgeable && (
+                      // Deliberate copy: the label says "mark as resolved"
+                      // while the call only acknowledges — the alert stays
+                      // OPEN and resolution stays tied to the triggering
+                      // condition clearing (charge-points-server issue #530).
+                      // That wording is the repo owner's product decision;
+                      // don't "fix" it by renaming the action underneath.
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={acknowledgingAlertId === alert.id}
+                        onClick={() => onAcknowledge?.(alert.id)}
+                      >
+                        {acknowledgingAlertId === alert.id && (
+                          <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                        )}
+                        {t("appPage.chargePoints.alerts.acknowledge")}
+                      </Button>
+                    )}
+                  </div>
                 </div>
+
+                {acknowledged && (
+                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted-foreground">
+                    <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                    <span className="break-words">
+                      {t("appPage.chargePoints.alerts.acknowledgedBy", {
+                        email: alert.acknowledgedBy?.email ?? "",
+                      })}
+                    </span>
+                    {alert.acknowledgedAt && (
+                      <span>
+                        ·{" "}
+                        {formatDistanceToNow(new Date(alert.acknowledgedAt), {
+                          addSuffix: true,
+                          locale: enGB,
+                        })}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted-foreground mt-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
