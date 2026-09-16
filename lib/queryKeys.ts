@@ -52,6 +52,12 @@ export const queryKeys = {
     all: () => ["siteVisitSchedule"] as const,
     site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
   },
+  firmwareCampaigns: {
+    all: () => ["firmwareCampaigns"] as const,
+    lists: () => [...queryKeys.firmwareCampaigns.all(), "list"] as const,
+    details: () => [...queryKeys.firmwareCampaigns.all(), "detail"] as const,
+    detail: (id: string) => [...queryKeys.firmwareCampaigns.details(), id] as const,
+  },
   me: {
     all: () => ["me"] as const,
   },

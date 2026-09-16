@@ -1,6 +1,7 @@
 import { AlertStatus, SiteHealthStatus } from "@watchborne/charge-points-types";
 import type { ColorName } from "@watchborne/electrons";
 
+import type { FirmwareCampaignStatus } from "@/lib/api-firmware-campaigns";
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
 /**
@@ -85,6 +86,22 @@ export const alertStatusColor = (status: AlertStatus): ColorName => {
       return "red";
     case "RESOLVED":
       return "green";
+    default:
+      return "gray";
+  }
+};
+
+/** A fleet-wide firmware campaign's lifecycle state (`FirmwareCampaign.status`). */
+export const firmwareCampaignStatusColor = (status: FirmwareCampaignStatus): ColorName => {
+  switch (status) {
+    case "SCHEDULED":
+      return "blue";
+    case "DISPATCHING":
+      return "amber";
+    case "DISPATCHED":
+      return "green";
+    case "CANCELLED":
+      return "gray";
     default:
       return "gray";
   }
