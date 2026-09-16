@@ -37,7 +37,10 @@ app/
       dashboard/ sites/    # pages (no local components/ subfolder); dashboard renders
                            #   components/dashboard/ (below)
       profile/             # user profile page: theme toggle (existing ThemeProvider/
-                           #   useTheme, also used by the marketing Navbar)
+                           #   useTheme, also used by the marketing Navbar); components/
+                           #   NotificationPreferencesPanel: digest opt-in/out + digest
+                           #   send hour (UTC), GET/PATCH /api/me/notification-preferences
+                           #   (charge-points-server ADR 0018)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
       charge-points/       # page + its own components/ (commissioning dialog/queue/
@@ -199,6 +202,13 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   self-service commissioning-token flow on `/app/configuration`
   (`CommissioningTokenPanel`) — the plaintext token is only ever returned
   once, on issue, and is never persisted client-side.
+  `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
+  `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
+  opt-in/out and preferred digest send hour (UTC), behind
+  `NotificationPreferencesPanel` on `/app/profile`
+  (charge-points-server ADR 0018). `digestHourUtc` in the response is always a
+  resolved 0-23 value; the backend substitutes its own global default when the
+  caller has never set one, so this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
   `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
   per connector/measurand/unit). Its response types are declared locally, like
