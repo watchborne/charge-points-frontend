@@ -105,6 +105,9 @@ export const queryKeys = {
       [...queryKeys.uptime.all(), "chargePoint", chargePointId] as const,
     site: (siteId: string) => [...queryKeys.uptime.all(), "site", siteId] as const,
   },
+  fleetReliability: {
+    all: () => ["fleetReliability"] as const,
+  },
   settings: {
     all: () => ["settings"] as const,
     chargePoint: (chargePointId: string) => [...queryKeys.settings.all(), chargePointId] as const,

@@ -5,6 +5,7 @@ import { deviceEventApis } from "./api-device-events";
 import { deviceVariableReportApis } from "./api-device-variable-reports";
 import { displayMessageApis } from "./api-display-messages";
 import { firmwareCampaignApis } from "./api-firmware-campaigns";
+import { fleetReliabilityApis } from "./api-fleet-reliability";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { securityEventApis } from "./api-security-events";
@@ -21,6 +22,7 @@ export const api = {
   DeviceVariableReports: deviceVariableReportApis,
   DisplayMessages: displayMessageApis,
   FirmwareCampaigns: firmwareCampaignApis,
+  FleetReliability: fleetReliabilityApis,
   Me: meApis,
   Metering: meteringApis,
   SecurityEvents: securityEventApis,
