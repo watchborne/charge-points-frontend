@@ -17,6 +17,7 @@ import { DashboardLayoutDialog } from "../components/dashboard/DashboardLayoutDi
 import { DashboardOnboarding } from "../components/dashboard/DashboardOnboarding";
 import { FleetOverviewPanel } from "../components/dashboard/FleetOverviewPanel";
 import { FleetOverviewPanelSkeleton } from "../components/dashboard/FleetOverviewPanelSkeleton";
+import { FleetReliabilityPanel } from "../components/dashboard/FleetReliabilityPanel";
 import { SiteHealthSection } from "../components/dashboard/SiteHealthSection";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useDashboardLayout } from "../hooks/useDashboardLayout";
@@ -57,6 +58,10 @@ export default function DashboardPage() {
       ) : (
         <FleetOverviewPanel chargePoints={chargePoints} sites={sites} />
       ),
+    // null, not the onboarding panel, WHEN the fleet is empty — fleetOverview
+    // already shows onboarding once for an empty fleet; showing it twice
+    // would just be noise.
+    fleetReliability: chargePoints.length === 0 ? null : <FleetReliabilityPanel />,
   };
 
   return (

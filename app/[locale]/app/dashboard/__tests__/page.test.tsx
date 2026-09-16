@@ -41,6 +41,9 @@ vi.mock("../../components/dashboard/FleetOverviewPanel", () => ({
 vi.mock("../../components/dashboard/FleetOverviewPanelSkeleton", () => ({
   FleetOverviewPanelSkeleton: () => <div data-testid="fleet-overview-skeleton" />,
 }));
+vi.mock("../../components/dashboard/FleetReliabilityPanel", () => ({
+  FleetReliabilityPanel: () => <div data-testid="fleet-reliability" />,
+}));
 vi.mock("../../components/dashboard/SiteHealthSection", () => ({
   SiteHealthSection: () => <div data-testid="site-health-section" />,
 }));
@@ -157,6 +160,22 @@ describe("DashboardPage", () => {
 
     expect(screen.getByTestId("fleet-overview")).toBeTruthy();
     expect(screen.queryByTestId("onboarding")).toBeNull();
+  });
+
+  it("SHOULD show the fleet reliability panel WHEN there are charge points", () => {
+    setHooks({ chargePoints: [chargePoint("cp-1")] });
+
+    render(<DashboardPage />);
+
+    expect(screen.getByTestId("fleet-reliability")).toBeTruthy();
+  });
+
+  it("SHOULD NOT show the fleet reliability panel WHEN there are no charge points", () => {
+    setHooks({ chargePoints: [], sites: [] });
+
+    render(<DashboardPage />);
+
+    expect(screen.queryByTestId("fleet-reliability")).toBeNull();
   });
 
   it("SHOULD only pass charge points awaiting commissioning to the commissioning queue", () => {

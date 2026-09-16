@@ -454,7 +454,8 @@
         "widgets": {
           "siteHealth": "Site health",
           "chargePointsBreakdown": "Charge points breakdown",
-          "fleetOverview": "Fleet overview"
+          "fleetOverview": "Fleet overview",
+          "fleetReliability": "Fleet reliability"
         }
       },
       "siteHealth": {
@@ -489,6 +490,23 @@
       },
       "chargePoints": {
         "sectionTitle": "Charge points health"
+      },
+      "fleetReliability": {
+        "title": "Fleet reliability",
+        "subtitle": "Last 30 days, worst first",
+        "empty": "No charge points visible yet.",
+        "error": "Couldn't load the fleet reliability ranking.",
+        "columns": {
+          "chargePoint": "Charge point",
+          "status": "Status",
+          "uptime": "Uptime",
+          "incidents": "Incidents"
+        },
+        "bucket": {
+          "healthy": "Healthy",
+          "degraded": "Degraded",
+          "critical": "Critical"
+        }
       },
       "onboarding": {
         "title": "Welcome to Watchborne",
