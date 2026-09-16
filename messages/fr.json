@@ -454,7 +454,8 @@
         "widgets": {
           "siteHealth": "Santé des sites",
           "chargePointsBreakdown": "Répartition des bornes",
-          "fleetOverview": "Vue d'ensemble du parc"
+          "fleetOverview": "Vue d'ensemble du parc",
+          "fleetReliability": "Fiabilité de la flotte"
         }
       },
       "siteHealth": {
@@ -489,6 +490,23 @@
       },
       "chargePoints": {
         "sectionTitle": "Santé des bornes"
+      },
+      "fleetReliability": {
+        "title": "Fiabilité de la flotte",
+        "subtitle": "30 derniers jours, du pire au meilleur",
+        "empty": "Aucune borne visible pour le moment.",
+        "error": "Impossible de charger le classement de fiabilité.",
+        "columns": {
+          "chargePoint": "Borne",
+          "status": "Statut",
+          "uptime": "Disponibilité",
+          "incidents": "Incidents"
+        },
+        "bucket": {
+          "healthy": "Saine",
+          "degraded": "Dégradée",
+          "critical": "Critique"
+        }
       },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",

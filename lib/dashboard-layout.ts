@@ -6,7 +6,8 @@
 // the per-user notification-preferences feature uses (charge-points-server),
 // which is out of scope here.
 
-export type DashboardWidgetId = "siteHealth" | "chargePointsBreakdown" | "fleetOverview";
+export type DashboardWidgetId =
+  "siteHealth" | "chargePointsBreakdown" | "fleetOverview" | "fleetReliability";
 
 export type DashboardWidgetPreference = {
   id: DashboardWidgetId;
@@ -14,11 +15,14 @@ export type DashboardWidgetPreference = {
 };
 
 // Order here doubles as the default layout — unchanged from the dashboard's
-// previous fixed arrangement.
+// previous fixed arrangement, plus fleetReliability appended at the end (a
+// widget shipped after a user's preferences were saved is appended the same
+// way by `sanitize` below, so this is also where a fresh layout puts it).
 export const DASHBOARD_WIDGET_IDS: DashboardWidgetId[] = [
   "siteHealth",
   "chargePointsBreakdown",
   "fleetOverview",
+  "fleetReliability",
 ];
 
 const STORAGE_KEY = "dashboard-layout";
