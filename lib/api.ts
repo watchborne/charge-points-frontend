@@ -4,6 +4,7 @@ import { commissioningTokenApis } from "./api-commissioning-token";
 import { deviceEventApis } from "./api-device-events";
 import { deviceVariableReportApis } from "./api-device-variable-reports";
 import { displayMessageApis } from "./api-display-messages";
+import { firmwareCampaignApis } from "./api-firmware-campaigns";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { securityEventApis } from "./api-security-events";
@@ -19,6 +20,7 @@ export const api = {
   DeviceEvents: deviceEventApis,
   DeviceVariableReports: deviceVariableReportApis,
   DisplayMessages: displayMessageApis,
+  FirmwareCampaigns: firmwareCampaignApis,
   Me: meApis,
   Metering: meteringApis,
   SecurityEvents: securityEventApis,

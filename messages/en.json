@@ -76,7 +76,8 @@
           "chargePoints": "Charge Points",
           "sites": "Sites",
           "configuration": "Configuration",
-          "profile": "Profile"
+          "profile": "Profile",
+          "firmwareCampaigns": "Firmware campaigns"
         },
         "wsStatus": {
           "connecting": "Connecting…",
@@ -1322,6 +1323,100 @@
         "verified": "Verified",
         "notVerified": "Not verified"
       }
+    },
+    "firmwareCampaigns": {
+      "page": {
+        "title": "Firmware campaigns",
+        "subtitle": "Roll out a firmware update to many charge points at once, right away or scheduled for later.",
+        "buttons": {
+          "create": "New campaign"
+        },
+        "table": {
+          "columns": {
+            "name": "Name",
+            "status": "Status",
+            "targetMode": "Target",
+            "targetCount": "Targeted charge points",
+            "scheduledAt": "Scheduled for"
+          },
+          "empty": "No campaigns yet."
+        }
+      },
+      "status": {
+        "scheduled": "Scheduled",
+        "dispatching": "Dispatching",
+        "dispatched": "Dispatched",
+        "cancelled": "Cancelled"
+      },
+      "create": {
+        "title": "Create a firmware campaign",
+        "description": "Push a firmware update to a site, a list of charge points, or the whole fleet — right away or scheduled for later.",
+        "submit": "Create campaign",
+        "fields": {
+          "name": "Campaign name",
+          "namePlaceholder": "e.g. Q3 security update",
+          "targetLocation": "Firmware URL",
+          "targetLocationPlaceholder": "https://firmware.example.com/v2.4.0.bin",
+          "targetLocationDescription": "The address stations will fetch the firmware from.",
+          "toVersion": "Target version (optional)",
+          "toVersionPlaceholder": "e.g. 2.4.0",
+          "retrieveDateTime": "Retrieval date and time",
+          "targetMode": "Target mode",
+          "targetModeOptions": {
+            "SITE": "A site",
+            "LIST": "A list of charge points",
+            "FLEET": "The whole fleet"
+          },
+          "targetSite": "Target site",
+          "targetSitePlaceholder": "Select a site...",
+          "targetChargePoints": "Targeted charge points",
+          "targetChargePointsEmpty": "No charge points available.",
+          "scheduledAt": "Scheduled for (optional)",
+          "scheduledAtPlaceholder": "Pick a date...",
+          "scheduledAtDescription": "Leave empty to dispatch the campaign as soon as possible.",
+          "staggerMs": "Delay between stations (ms)",
+          "staggerMsDescription": "How long to wait, in milliseconds, between dispatching to each targeted station."
+        },
+        "validation": {
+          "nameRequired": "The campaign name is required.",
+          "targetLocationInvalid": "Enter a valid URL.",
+          "retrieveDateTimeRequired": "The retrieval date and time are required.",
+          "targetSiteRequired": "Select a site.",
+          "targetChargePointsRequired": "Select at least one charge point.",
+          "scheduledAtPast": "The scheduled date must be in the future."
+        }
+      },
+      "detail": {
+        "targetLocation": "Firmware: {location}",
+        "targetMode": "Target mode",
+        "targetCount": "Targeted charge points",
+        "scheduledAt": "Scheduled for",
+        "toVersion": "Target version",
+        "heterogeneousTargetsNote": "{count, plural, =1 {1 targeted charge point reports different hardware than the rest} other {# targeted charge points report different hardware than the rest}} — the same firmware will still be sent to all of them.",
+        "progressTitle": "Dispatch progress",
+        "progressLoading": "Loading progress...",
+        "progress": {
+          "attempted": "Attempted",
+          "notAttempted": "Not attempted",
+          "inProgress": "In progress",
+          "succeeded": "Succeeded",
+          "failed": "Failed",
+          "total": "Total"
+        },
+        "cancelButton": "Cancel campaign",
+        "cancelConfirm": {
+          "title": "Cancel \"{name}\"?",
+          "description": "Destructive action: this scheduled campaign will not be dispatched.",
+          "confirm": "Cancel campaign"
+        }
+      },
+      "errors": {
+        "invalidRequest": "Invalid request: check the campaign's fields.",
+        "siteNotFound": "Site not found or outside your scope.",
+        "notFound": "Campaign not found.",
+        "alreadyDispatching": "This campaign has already started dispatching and can no longer be cancelled.",
+        "genericError": "Something went wrong."
+      }
     }
   },
   "errors": {
@@ -1329,6 +1424,7 @@
     "loadingChargePoints": "Loading charge points failed.",
     "loadingSites": "Loading sites failed.",
     "loadingSitesHealth": "Loading sites health failed.",
-    "loadingConsumption": "Loading consumption failed."
+    "loadingConsumption": "Loading consumption failed.",
+    "loadingFirmwareCampaigns": "Unable to load firmware campaigns."
   }
 }
