@@ -16,6 +16,7 @@ import {
 } from "recharts";
 
 import type { MeterSample } from "@/lib/api-metering";
+import { formatUnit } from "@/lib/format-unit";
 
 /**
  * The categorical slots, in fixed order, read from the CSS custom
@@ -114,7 +115,7 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
           series, so a single-series chart needs no legend. */}
       <p className="mb-1 text-[11px] text-muted-foreground">
         {measurand}
-        {unit ? ` · ${unit}` : ""}
+        {unit ? ` · ${formatUnit(unit)}` : ""}
       </p>
       <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
@@ -165,7 +166,7 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
                         the series and wants the number. */}
                       <span className="font-medium">
                         {formatValue(entry.value as number)}
-                        {unit ? ` ${unit}` : ""}
+                        {unit ? ` ${formatUnit(unit)}` : ""}
                       </span>
                       <span className="text-muted-foreground">{entry.name}</span>
                     </p>

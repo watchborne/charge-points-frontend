@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
   Callout,
@@ -13,7 +14,7 @@ import {
 } from "@watchborne/electrons";
 import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   AlertDialog,
@@ -26,8 +27,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { api } from "@/lib/api";
-import { CommissioningAttempt, CommissioningOutcome } from "@/lib/api-me";
+import { CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
+import { queryKeys } from "@/lib/queryKeys";
 import { colorDotClass } from "@/lib/status";
 
 // green: the attempt is what an installer wants to see (a fresh claim, or
@@ -59,91 +61,69 @@ const OUTCOME_COLOR: Record<CommissioningOutcome, ColorName> = {
 export const CommissioningTokenPanel = () => {
   const t = useTranslations("");
   const format = useFormatter();
+  const queryClient = useQueryClient();
 
-  const [hasToken, setHasToken] = useState(false);
-  const [createdAt, setCreatedAt] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [issuing, setIssuing] = useState(false);
-  const [revoking, setRevoking] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [revealedToken, setRevealedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmRegenerateOpen, setConfirmRegenerateOpen] = useState(false);
   const [confirmRevokeOpen, setConfirmRevokeOpen] = useState(false);
-  const [attempts, setAttempts] = useState<CommissioningAttempt[]>([]);
-  const [chargePointNames, setChargePointNames] = useState<Map<string, string>>(new Map());
 
-  useEffect(() => {
-    let cancelled = false;
+  const {
+    data: status,
+    isLoading: loading,
+    isError: statusFailed,
+  } = useQuery({
+    queryKey: queryKeys.commissioningToken.status(),
+    queryFn: () => api.CommissioningToken.getStatus(),
+  });
+  const hasToken = status?.hasToken ?? false;
+  const createdAt = status?.createdAt ?? null;
 
-    (async () => {
-      try {
-        const status = await api.CommissioningToken.getStatus();
-        if (cancelled) return;
-        setHasToken(status.hasToken);
-        setCreatedAt(status.createdAt);
-      } catch {
-        if (!cancelled) setError(t("common.error"));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+  // Recent commissioning activity (issue #420 / #278): best-effort — a
+  // failure here must never block the token panel itself, so its error is
+  // never surfaced and it just leaves the list empty.
+  const { data: me } = useQuery({
+    queryKey: queryKeys.me.all(),
+    queryFn: () => api.Me.getMe(),
+  });
+  const attempts = me?.commissioningAttempts ?? [];
+  const chargePointNames = new Map(me?.chargePoints.map((cp) => [cp.id, cp.name]) ?? []);
 
-      // Recent commissioning activity (issue #420 / #278): best-effort — a
-      // failure here must never block the token panel itself, so it's kept
-      // out of the try/catch above and just leaves the list empty.
-      try {
-        const me = await api.Me.getMe();
-        if (cancelled) return;
-        setAttempts(me.commissioningAttempts);
-        setChargePointNames(new Map(me.chargePoints.map((cp) => [cp.id, cp.name])));
-      } catch {
-        // Silent: the activity list is a nice-to-have, not core functionality.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [t]);
-
-  const issueToken = async () => {
-    setError(null);
-    setIssuing(true);
-    try {
-      const issued = await api.CommissioningToken.issueToken();
+  const issueMutation = useMutation({
+    mutationFn: () => api.CommissioningToken.issueToken(),
+    onSuccess: (issued) => {
       setRevealedToken(issued.token);
-      setHasToken(true);
-      setCreatedAt(issued.createdAt);
       setCopied(false);
-    } catch {
-      setError(t("common.error"));
-    } finally {
-      setIssuing(false);
-      setConfirmRegenerateOpen(false);
-    }
-  };
+      queryClient.setQueryData(queryKeys.commissioningToken.status(), {
+        hasToken: true,
+        createdAt: issued.createdAt,
+      });
+    },
+    onSettled: () => setConfirmRegenerateOpen(false),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: () => api.CommissioningToken.revoke(),
+    onSuccess: () => {
+      setRevealedToken(null);
+      queryClient.setQueryData(queryKeys.commissioningToken.status(), {
+        hasToken: false,
+        createdAt: null,
+      });
+    },
+    onSettled: () => setConfirmRevokeOpen(false),
+  });
+
+  const error =
+    statusFailed || issueMutation.isError || revokeMutation.isError ? t("common.error") : null;
+  const issuing = issueMutation.isPending;
+  const revoking = revokeMutation.isPending;
 
   const handleGenerateClicked = () => {
     if (hasToken) {
       setConfirmRegenerateOpen(true);
     } else {
-      void issueToken();
-    }
-  };
-
-  const revokeToken = async () => {
-    setError(null);
-    setRevoking(true);
-    try {
-      await api.CommissioningToken.revoke();
-      setHasToken(false);
-      setCreatedAt(null);
-      setRevealedToken(null);
-    } catch {
-      setError(t("common.error"));
-    } finally {
-      setRevoking(false);
-      setConfirmRevokeOpen(false);
+      issueMutation.mutate();
     }
   };
 
@@ -326,7 +306,7 @@ export const CommissioningTokenPanel = () => {
             <AlertDialogCancel onClick={() => setConfirmRegenerateOpen(false)}>
               {t("common.actions.cancel")}
             </AlertDialogCancel>
-            <AlertDialogAction disabled={issuing} onClick={() => void issueToken()}>
+            <AlertDialogAction disabled={issuing} onClick={() => issueMutation.mutate()}>
               {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -347,7 +327,7 @@ export const CommissioningTokenPanel = () => {
             <AlertDialogCancel onClick={() => setConfirmRevokeOpen(false)}>
               {t("common.actions.cancel")}
             </AlertDialogCancel>
-            <AlertDialogAction disabled={revoking} onClick={() => void revokeToken()}>
+            <AlertDialogAction disabled={revoking} onClick={() => revokeMutation.mutate()}>
               {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>

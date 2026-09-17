@@ -33,8 +33,11 @@ export const queryKeys = {
     all: () => ["statusHistory"] as const,
     chargePoint: (chargePointId: string) =>
       [...queryKeys.statusHistory.all(), chargePointId] as const,
-    chargePointWithRanges: (chargePointId: string, ranges?: string[]) =>
-      [...queryKeys.statusHistory.chargePoint(chargePointId), ...(ranges ? [ranges] : [])] as const,
+    chargePointWithRanges: (chargePointId: string, filters?: string[]) =>
+      [
+        ...queryKeys.statusHistory.chargePoint(chargePointId),
+        ...(filters ? [filters] : []),
+      ] as const,
   },
   securityEvents: {
     all: () => ["securityEvents"] as const,
@@ -49,11 +52,88 @@ export const queryKeys = {
     all: () => ["siteTariff"] as const,
     site: (siteId: string) => [...queryKeys.siteTariff.all(), siteId] as const,
   },
+  siteVisitSchedule: {
+    all: () => ["siteVisitSchedule"] as const,
+    site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
+  },
+  firmwareCampaigns: {
+    all: () => ["firmwareCampaigns"] as const,
+    lists: () => [...queryKeys.firmwareCampaigns.all(), "list"] as const,
+    details: () => [...queryKeys.firmwareCampaigns.all(), "detail"] as const,
+    detail: (id: string) => [...queryKeys.firmwareCampaigns.details(), id] as const,
+  },
   me: {
     all: () => ["me"] as const,
   },
   commissioningToken: {
     all: () => ["commissioningToken"] as const,
     status: () => [...queryKeys.commissioningToken.all(), "status"] as const,
+  },
+  notificationPreferences: {
+    all: () => ["notificationPreferences"] as const,
+  },
+  deviceEvents: {
+    all: () => ["deviceEvents"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.deviceEvents.all(), chargePointId] as const,
+  },
+  deviceVariableReports: {
+    all: () => ["deviceVariableReports"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.deviceVariableReports.all(), chargePointId] as const,
+  },
+  displayMessages: {
+    all: () => ["displayMessages"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.displayMessages.all(), chargePointId] as const,
+  },
+  firmware: {
+    all: () => ["firmware"] as const,
+    chargePoint: (chargePointId: string) => [...queryKeys.firmware.all(), chargePointId] as const,
+  },
+  logUpload: {
+    all: () => ["logUpload"] as const,
+    chargePoint: (chargePointId: string) => [...queryKeys.logUpload.all(), chargePointId] as const,
+    history: (chargePointId: string) =>
+      [...queryKeys.logUpload.chargePoint(chargePointId), "history"] as const,
+  },
+  alerts: {
+    all: () => ["alerts"] as const,
+    chargePoint: (chargePointId: string) => [...queryKeys.alerts.all(), chargePointId] as const,
+  },
+  chargingSessions: {
+    all: () => ["chargingSessions"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.chargingSessions.all(), chargePointId] as const,
+  },
+  uptime: {
+    all: () => ["uptime"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.uptime.all(), "chargePoint", chargePointId] as const,
+    site: (siteId: string) => [...queryKeys.uptime.all(), "site", siteId] as const,
+  },
+  fleetReliability: {
+    all: () => ["fleetReliability"] as const,
+  },
+  settings: {
+    all: () => ["settings"] as const,
+    chargePoint: (chargePointId: string) => [...queryKeys.settings.all(), chargePointId] as const,
+  },
+  consumption: {
+    all: () => ["consumption"] as const,
+    session: (
+      chargePointId: string,
+      connectorId: number,
+      startedAt: string,
+      endedAt: string | null,
+    ) =>
+      [
+        ...queryKeys.consumption.all(),
+        "session",
+        chargePointId,
+        connectorId,
+        startedAt,
+        endedAt,
+      ] as const,
   },
 } as const;

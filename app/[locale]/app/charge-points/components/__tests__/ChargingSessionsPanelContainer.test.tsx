@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ChargingSession } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -80,6 +81,8 @@ const buildCost = (
   ...overrides,
 });
 
+let queryClient: QueryClient;
+
 beforeEach(() => {
   vi.clearAllMocks();
   listChargingSessions.mockResolvedValue([]);
@@ -87,9 +90,15 @@ beforeEach(() => {
   // container's own "leave that row's cost undefined" fallback for every
   // test that isn't specifically about the cost column below.
   getChargingSessionCost.mockRejectedValue(new Error("no cost configured"));
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
-const renderPanel = () => render(<ChargingSessionsPanelContainer chargePointId={CP_ID} />);
+const renderPanel = () =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <ChargingSessionsPanelContainer chargePointId={CP_ID} />
+    </QueryClientProvider>,
+  );
 
 describe("ChargingSessionsPanelContainer", () => {
   it("SHOULD show a loading state WHILE fetching", () => {
@@ -195,7 +204,11 @@ describe("ChargingSessionsPanelContainer", () => {
     const { rerender } = renderPanel();
     await waitFor(() => expect(listChargingSessions).toHaveBeenCalledWith(CP_ID, 20));
 
-    rerender(<ChargingSessionsPanelContainer chargePointId="cp-2" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <ChargingSessionsPanelContainer chargePointId="cp-2" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(listChargingSessions).toHaveBeenCalledWith("cp-2", 20));
   });

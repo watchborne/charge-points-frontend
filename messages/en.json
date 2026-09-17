@@ -75,7 +75,9 @@
         "links": {
           "chargePoints": "Charge Points",
           "sites": "Sites",
-          "configuration": "Configuration"
+          "configuration": "Configuration",
+          "profile": "Profile",
+          "firmwareCampaigns": "Firmware campaigns"
         },
         "wsStatus": {
           "connecting": "Connecting…",
@@ -440,6 +442,22 @@
       "uptime": "Uptime",
       "uptimeOnline": "Online for {time}",
       "uptimeOffline": "Offline for {time}",
+      "layout": {
+        "customize": "Customize",
+        "dialogTitle": "Customize dashboard",
+        "dialogDescription": "Reorder or hide the sections below. These preferences are saved on this device.",
+        "moveUp": "Move \"{widget}\" up",
+        "moveDown": "Move \"{widget}\" down",
+        "toggleVisible": "Show \"{widget}\"",
+        "reset": "Reset",
+        "done": "Done",
+        "widgets": {
+          "siteHealth": "Site health",
+          "chargePointsBreakdown": "Charge points breakdown",
+          "fleetOverview": "Fleet overview",
+          "fleetReliability": "Fleet reliability"
+        }
+      },
       "siteHealth": {
         "sectionTitle": "Site health",
         "affectedChargePoints": "{count, plural, =0 {No affected charge points} =1 {1 affected charge point} other {# affected charge points}}",
@@ -472,6 +490,23 @@
       },
       "chargePoints": {
         "sectionTitle": "Charge points health"
+      },
+      "fleetReliability": {
+        "title": "Fleet reliability",
+        "subtitle": "Last 30 days, worst first",
+        "empty": "No charge points visible yet.",
+        "error": "Couldn't load the fleet reliability ranking.",
+        "columns": {
+          "chargePoint": "Charge point",
+          "status": "Status",
+          "uptime": "Uptime",
+          "incidents": "Incidents"
+        },
+        "bucket": {
+          "healthy": "Healthy",
+          "degraded": "Degraded",
+          "critical": "Critical"
+        }
       },
       "onboarding": {
         "title": "Welcome to Watchborne",
@@ -646,6 +681,17 @@
           "stationError": "The station returned an invalid response.",
           "timeout": "The station did not answer in time.",
           "genericError": "The unlock request failed. Please try again."
+        }
+      },
+      "bulkActions": {
+        "selectItem": "Select {name}",
+        "selectedCount": "{count, plural, =0 {0 selected} =1 {1 charge point selected} other {# charge points selected}}",
+        "clearSelection": "Clear selection",
+        "unlockConnector": {
+          "noConnector": "This charge point has no connector to unlock."
+        },
+        "results": {
+          "summary": "{succeeded, plural, =0 {No station succeeded} =1 {1 station succeeded} other {# stations succeeded}}, {failed, plural, =0 {none failed} =1 {1 failed} other {# failed}}"
         }
       },
       "firmware": {
@@ -824,6 +870,9 @@
         "resolvedAt": "Resolved {date}",
         "notifiedTo": "Sent to {emails}",
         "notNotified": "Not sent yet",
+        "acknowledge": "Mark as resolved",
+        "acknowledgedBy": "Acknowledged by {email}",
+        "acknowledgeError": "Could not mark this alert as resolved. Please try again.",
         "types": {
           "OFFLINE": "Station offline",
           "CONNECTOR_FAULTED": "Connector faulted",
@@ -1167,6 +1216,22 @@
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
         },
+        "nextVisit": {
+          "title": "Next planned visit",
+          "loading": "Loading...",
+          "scheduleButton": "Schedule a visit",
+          "editButton": "Edit",
+          "cancelButton": "Cancel",
+          "dialog": {
+            "title": "Schedule the next visit",
+            "description": "Pick an upcoming date for the next visit to this site.",
+            "submit": "Schedule",
+            "fields": {
+              "date": "Next visit date",
+              "datePlaceholder": "Next visit date..."
+            }
+          }
+        },
         "visits": {
           "title": "Visit history",
           "loading": "Loading visits...",
@@ -1260,10 +1325,147 @@
         "description": "A charge point connecting for the first time is automatically discovered and appears in the \"Awaiting commissioning\" queue at the top of the \"Charge Points\" page. Click \"Commission\" to rename it and attach it to a site in one step. You can also change this association later from the charge point's form. A charge point can only be attached to one site at a time.",
         "cta": "Go to charge points"
       },
+      "siteVisits": {
+        "title": "Track site visits",
+        "description": "Every site keeps a history of maintenance visits, and a site not visited in over 90 days is automatically flagged as overdue on the dashboard and the site's own card.",
+        "steps": {
+          "openSite": "Open a site's detail page from the \"Sites\" page.",
+          "logVisit": "After a maintenance visit, click \"Log a visit\" to add it to that site's history, with an optional note.",
+          "scheduleNext": "Click \"Schedule a visit\" to set the date of the next planned visit.",
+          "reminder": "You'll get an email reminder up to 7 days before that date, in the daily digest sent to every installer associated with the site."
+        },
+        "cta": "Go to sites"
+      },
       "comingSoon": {
         "title": "More sections coming soon",
         "description": "New configuration topics will be added here as Watchborne evolves.",
         "badge": "Coming soon"
+      }
+    },
+    "profile": {
+      "page": {
+        "title": "Profile",
+        "subtitle": "Your account information and display preferences."
+      },
+      "theme": {
+        "title": "Theme",
+        "light": "Light theme",
+        "dark": "Dark theme"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "digestEnabled": {
+          "title": "Daily email digest",
+          "description": "Receive a daily digest of open alerts and sites due for a visit."
+        },
+        "digestHour": {
+          "title": "Send time",
+          "description": "Hour (UTC) at which the daily digest is sent to you."
+        }
+      },
+      "session": {
+        "title": "Session",
+        "userId": "User ID",
+        "email": "Email",
+        "lastSignIn": "Last sign-in",
+        "createdAt": "Profile created on",
+        "emailVerified": "Email verified",
+        "verified": "Verified",
+        "notVerified": "Not verified"
+      }
+    },
+    "firmwareCampaigns": {
+      "page": {
+        "title": "Firmware campaigns",
+        "subtitle": "Roll out a firmware update to many charge points at once, right away or scheduled for later.",
+        "buttons": {
+          "create": "New campaign"
+        },
+        "table": {
+          "columns": {
+            "name": "Name",
+            "status": "Status",
+            "targetMode": "Target",
+            "targetCount": "Targeted charge points",
+            "scheduledAt": "Scheduled for"
+          },
+          "empty": "No campaigns yet."
+        }
+      },
+      "status": {
+        "scheduled": "Scheduled",
+        "dispatching": "Dispatching",
+        "dispatched": "Dispatched",
+        "cancelled": "Cancelled"
+      },
+      "create": {
+        "title": "Create a firmware campaign",
+        "description": "Push a firmware update to a site, a list of charge points, or the whole fleet — right away or scheduled for later.",
+        "submit": "Create campaign",
+        "fields": {
+          "name": "Campaign name",
+          "namePlaceholder": "e.g. Q3 security update",
+          "targetLocation": "Firmware URL",
+          "targetLocationPlaceholder": "https://firmware.example.com/v2.4.0.bin",
+          "targetLocationDescription": "The address stations will fetch the firmware from.",
+          "toVersion": "Target version (optional)",
+          "toVersionPlaceholder": "e.g. 2.4.0",
+          "retrieveDateTime": "Retrieval date and time",
+          "targetMode": "Target mode",
+          "targetModeOptions": {
+            "SITE": "A site",
+            "LIST": "A list of charge points",
+            "FLEET": "The whole fleet"
+          },
+          "targetSite": "Target site",
+          "targetSitePlaceholder": "Select a site...",
+          "targetChargePoints": "Targeted charge points",
+          "targetChargePointsEmpty": "No charge points available.",
+          "scheduledAt": "Scheduled for (optional)",
+          "scheduledAtPlaceholder": "Pick a date...",
+          "scheduledAtDescription": "Leave empty to dispatch the campaign as soon as possible.",
+          "staggerMs": "Delay between stations (ms)",
+          "staggerMsDescription": "How long to wait, in milliseconds, between dispatching to each targeted station."
+        },
+        "validation": {
+          "nameRequired": "The campaign name is required.",
+          "targetLocationInvalid": "Enter a valid URL.",
+          "retrieveDateTimeRequired": "The retrieval date and time are required.",
+          "targetSiteRequired": "Select a site.",
+          "targetChargePointsRequired": "Select at least one charge point.",
+          "scheduledAtPast": "The scheduled date must be in the future."
+        }
+      },
+      "detail": {
+        "targetLocation": "Firmware: {location}",
+        "targetMode": "Target mode",
+        "targetCount": "Targeted charge points",
+        "scheduledAt": "Scheduled for",
+        "toVersion": "Target version",
+        "heterogeneousTargetsNote": "{count, plural, =1 {1 targeted charge point reports different hardware than the rest} other {# targeted charge points report different hardware than the rest}} — the same firmware will still be sent to all of them.",
+        "progressTitle": "Dispatch progress",
+        "progressLoading": "Loading progress...",
+        "progress": {
+          "attempted": "Attempted",
+          "notAttempted": "Not attempted",
+          "inProgress": "In progress",
+          "succeeded": "Succeeded",
+          "failed": "Failed",
+          "total": "Total"
+        },
+        "cancelButton": "Cancel campaign",
+        "cancelConfirm": {
+          "title": "Cancel \"{name}\"?",
+          "description": "Destructive action: this scheduled campaign will not be dispatched.",
+          "confirm": "Cancel campaign"
+        }
+      },
+      "errors": {
+        "invalidRequest": "Invalid request: check the campaign's fields.",
+        "siteNotFound": "Site not found or outside your scope.",
+        "notFound": "Campaign not found.",
+        "alreadyDispatching": "This campaign has already started dispatching and can no longer be cancelled.",
+        "genericError": "Something went wrong."
       }
     }
   },
@@ -1272,6 +1474,7 @@
     "loadingChargePoints": "Loading charge points failed.",
     "loadingSites": "Loading sites failed.",
     "loadingSitesHealth": "Loading sites health failed.",
-    "loadingConsumption": "Loading consumption failed."
+    "loadingConsumption": "Loading consumption failed.",
+    "loadingFirmwareCampaigns": "Unable to load firmware campaigns."
   }
 }

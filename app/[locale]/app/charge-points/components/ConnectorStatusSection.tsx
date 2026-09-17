@@ -6,6 +6,7 @@ import { Loader2, Power, Unlock, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChangeAvailabilityOutcome, UnlockConnectorOutcome } from "@/lib/api-charge-points";
+import { formatUnit } from "@/lib/format-unit";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
@@ -27,9 +28,6 @@ type ConnectorStatusSectionProps = {
   onChangeAvailability: (key: string, connectorId: number, type: AvailabilityType) => Promise<void>;
   onUnlockConnector: (key: string, connectorId: number) => Promise<void>;
 };
-
-const formatSampledValue = (sample: { value: string; unit?: string }): string =>
-  sample.unit ? `${sample.value} ${sample.unit}` : sample.value;
 
 const availabilityErrorMessageKey = (httpStatus: number): string => {
   switch (httpStatus) {
@@ -123,9 +121,7 @@ export const ConnectorStatusSection = ({
                                       `appPage.chargePoints.consumption.measurands.${measurand.replaceAll(".", "")}`,
                                     )}
                                   </dt>
-                                  <dd className="ml-auto">
-                                    {[value, unit === "Percent" ? "%" : (unit ?? "")].join(" ")}
-                                  </dd>
+                                  <dd className="ml-auto">{[value, formatUnit(unit)].join(" ")}</dd>
                                 </div>
                               ),
                           )}

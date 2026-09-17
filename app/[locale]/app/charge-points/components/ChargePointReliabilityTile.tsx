@@ -1,11 +1,12 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 import type { ChargePointUptime } from "@/lib/api-uptime";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 type ChargePointReliabilityTileProps = {
@@ -41,34 +42,14 @@ const formatPercentage = (uptime: ChargePointUptime): string | null =>
 export const ChargePointReliabilityTile = ({ chargePointId }: ChargePointReliabilityTileProps) => {
   const t = useTranslations("");
 
-  const [uptime, setUptime] = useState<ChargePointUptime | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    // Reset before refetching so a different station's figure is never shown
-    // under this one while the request is in flight.
-    setUptime(null);
-    setLoading(true);
-    setFailed(false);
-
-    void (async () => {
-      try {
-        const result = await api.Uptime.getChargePointUptime(chargePointId);
-        if (!cancelled) setUptime(result);
-      } catch {
-        if (!cancelled) setFailed(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId]);
+  const {
+    data: uptime,
+    isLoading: loading,
+    isError: failed,
+  } = useQuery({
+    queryKey: queryKeys.uptime.chargePoint(chargePointId),
+    queryFn: () => api.Uptime.getChargePointUptime(chargePointId),
+  });
 
   const percentage = uptime ? formatPercentage(uptime) : null;
 

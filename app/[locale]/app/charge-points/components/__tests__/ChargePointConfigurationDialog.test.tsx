@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -27,6 +28,15 @@ afterEach(() => {
   setSetting.mockReset();
 });
 
+const renderDialog = () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />
+    </QueryClientProvider>,
+  );
+};
+
 describe("ChargePointConfigurationDialog", () => {
   it("SHOULD fetch and list the reported configuration WHEN opened", async () => {
     getSettings.mockResolvedValue({
@@ -34,7 +44,7 @@ describe("ChargePointConfigurationDialog", () => {
       configurationKey: [{ key: "HeartbeatInterval", readonly: false, value: "300" }],
     });
 
-    render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
+    renderDialog();
     fireEvent.click(
       screen.getByRole("button", { name: "appPage.chargePoints.configuration.button" }),
     );
@@ -47,7 +57,7 @@ describe("ChargePointConfigurationDialog", () => {
   it("SHOULD show an error message WHEN the station is offline", async () => {
     getSettings.mockResolvedValue({ ok: false, httpStatus: 409 });
 
-    render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
+    renderDialog();
     fireEvent.click(
       screen.getByRole("button", { name: "appPage.chargePoints.configuration.button" }),
     );
@@ -63,7 +73,7 @@ describe("ChargePointConfigurationDialog", () => {
     getSettings.mockResolvedValue({ ok: true, configurationKey: [] });
     setSetting.mockResolvedValue({ ok: true, status: "Accepted" });
 
-    render(<ChargePointConfigurationDialog chargePointId="cp-1" chargePointName="CP-A" />);
+    renderDialog();
     fireEvent.click(
       screen.getByRole("button", { name: "appPage.chargePoints.configuration.button" }),
     );

@@ -75,7 +75,9 @@
         "links": {
           "chargePoints": "Bornes de recharge",
           "sites": "Sites",
-          "configuration": "Configuration"
+          "configuration": "Configuration",
+          "profile": "Profil",
+          "firmwareCampaigns": "Campagnes de firmware"
         },
         "wsStatus": {
           "connecting": "Connexion en cours…",
@@ -440,6 +442,22 @@
       "uptime": "Uptime",
       "uptimeOnline": "En ligne depuis {time}",
       "uptimeOffline": "Hors ligne depuis {time}",
+      "layout": {
+        "customize": "Personnaliser",
+        "dialogTitle": "Personnaliser le tableau de bord",
+        "dialogDescription": "Réorganisez ou masquez les sections ci-dessous. Ces préférences sont enregistrées sur cet appareil.",
+        "moveUp": "Monter « {widget} »",
+        "moveDown": "Descendre « {widget} »",
+        "toggleVisible": "Afficher « {widget} »",
+        "reset": "Réinitialiser",
+        "done": "Terminé",
+        "widgets": {
+          "siteHealth": "Santé des sites",
+          "chargePointsBreakdown": "Répartition des bornes",
+          "fleetOverview": "Vue d'ensemble du parc",
+          "fleetReliability": "Fiabilité de la flotte"
+        }
+      },
       "siteHealth": {
         "sectionTitle": "Santé des sites",
         "affectedChargePoints": "{count, plural, =0 {Aucune borne affectée} =1 {1 borne affectée} other {# bornes affectées}}",
@@ -472,6 +490,23 @@
       },
       "chargePoints": {
         "sectionTitle": "Santé des bornes"
+      },
+      "fleetReliability": {
+        "title": "Fiabilité de la flotte",
+        "subtitle": "30 derniers jours, du pire au meilleur",
+        "empty": "Aucune borne visible pour le moment.",
+        "error": "Impossible de charger le classement de fiabilité.",
+        "columns": {
+          "chargePoint": "Borne",
+          "status": "Statut",
+          "uptime": "Disponibilité",
+          "incidents": "Incidents"
+        },
+        "bucket": {
+          "healthy": "Saine",
+          "degraded": "Dégradée",
+          "critical": "Critique"
+        }
       },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",
@@ -646,6 +681,17 @@
           "stationError": "La borne a renvoyé une réponse invalide.",
           "timeout": "La borne n'a pas répondu à temps.",
           "genericError": "La demande de déverrouillage a échoué. Veuillez réessayer."
+        }
+      },
+      "bulkActions": {
+        "selectItem": "Sélectionner {name}",
+        "selectedCount": "{count, plural, =0 {0 sélectionnée} =1 {1 borne sélectionnée} other {# bornes sélectionnées}}",
+        "clearSelection": "Effacer la sélection",
+        "unlockConnector": {
+          "noConnector": "Cette borne n'a aucun connecteur à déverrouiller."
+        },
+        "results": {
+          "summary": "{succeeded, plural, =0 {Aucune borne n'a réussi} =1 {1 borne réussie} other {# bornes réussies}}, {failed, plural, =0 {aucun échec} =1 {1 échec} other {# échecs}}"
         }
       },
       "firmware": {
@@ -824,6 +870,9 @@
         "resolvedAt": "Résolue {date}",
         "notifiedTo": "Envoyée à {emails}",
         "notNotified": "Pas encore envoyée",
+        "acknowledge": "Marquer comme résolue",
+        "acknowledgedBy": "Acquittée par {email}",
+        "acknowledgeError": "Impossible de marquer cette alerte comme résolue. Veuillez réessayer.",
         "types": {
           "OFFLINE": "Borne hors ligne",
           "CONNECTOR_FAULTED": "Connecteur en défaut",
@@ -1167,6 +1216,22 @@
           "label": "Fiabilité (7 derniers jours)",
           "noData": "Pas encore de données"
         },
+        "nextVisit": {
+          "title": "Prochaine visite planifiée",
+          "loading": "Chargement...",
+          "scheduleButton": "Planifier une visite",
+          "editButton": "Modifier",
+          "cancelButton": "Annuler",
+          "dialog": {
+            "title": "Planifier la prochaine visite",
+            "description": "Choisissez une date à venir pour la prochaine visite sur ce site.",
+            "submit": "Planifier",
+            "fields": {
+              "date": "Date de la prochaine visite",
+              "datePlaceholder": "Date de la prochaine visite..."
+            }
+          }
+        },
         "visits": {
           "title": "Historique des visites",
           "loading": "Chargement des visites...",
@@ -1260,10 +1325,147 @@
         "description": "Une borne qui se connecte pour la première fois est automatiquement découverte et apparaît dans la file « À mettre en service » en haut de la page « Bornes de recharge ». Cliquez sur « Mettre en service » pour la renommer et l'associer à un site en une seule étape. Vous pouvez aussi modifier cette association plus tard depuis la fiche de la borne. Une borne ne peut être rattachée qu'à un seul site à la fois.",
         "cta": "Aller aux bornes de recharge"
       },
+      "siteVisits": {
+        "title": "Suivre les visites de site",
+        "description": "Chaque site conserve un historique des visites d'entretien, et un site non visité depuis plus de 90 jours est automatiquement signalé comme « en retard » sur le tableau de bord et la fiche du site.",
+        "steps": {
+          "openSite": "Ouvrez la fiche d'un site depuis la page « Sites ».",
+          "logVisit": "Après une visite d'entretien, cliquez sur « Enregistrer une visite » pour l'ajouter à l'historique du site, avec une note optionnelle.",
+          "scheduleNext": "Cliquez sur « Planifier une visite » pour indiquer la date de la prochaine visite prévue.",
+          "reminder": "Vous recevrez un rappel par email jusqu'à 7 jours avant cette date, dans le récapitulatif quotidien envoyé à chaque installateur associé au site."
+        },
+        "cta": "Aller aux sites"
+      },
       "comingSoon": {
         "title": "D'autres sections à venir",
         "description": "De nouvelles rubriques de configuration seront ajoutées ici au fur et à mesure de l'évolution de Watchborne.",
         "badge": "Bientôt disponible"
+      }
+    },
+    "profile": {
+      "page": {
+        "title": "Profil",
+        "subtitle": "Vos informations de compte et vos préférences d'affichage."
+      },
+      "theme": {
+        "title": "Thème",
+        "light": "Thème clair",
+        "dark": "Thème sombre"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "digestEnabled": {
+          "title": "Résumé quotidien par email",
+          "description": "Recevez un résumé quotidien des alertes ouvertes et des sites à visiter."
+        },
+        "digestHour": {
+          "title": "Heure d'envoi",
+          "description": "Heure (UTC) à laquelle le résumé quotidien vous est envoyé."
+        }
+      },
+      "session": {
+        "title": "Session",
+        "userId": "Identifiant utilisateur",
+        "email": "Email",
+        "lastSignIn": "Dernière connexion",
+        "createdAt": "Profil créé le",
+        "emailVerified": "Email vérifié",
+        "verified": "Vérifié",
+        "notVerified": "Non vérifié"
+      }
+    },
+    "firmwareCampaigns": {
+      "page": {
+        "title": "Campagnes de mise à jour firmware",
+        "subtitle": "Déployez une mise à jour firmware sur plusieurs bornes en une seule fois, immédiatement ou à une date planifiée.",
+        "buttons": {
+          "create": "Nouvelle campagne"
+        },
+        "table": {
+          "columns": {
+            "name": "Nom",
+            "status": "Statut",
+            "targetMode": "Cible",
+            "targetCount": "Bornes ciblées",
+            "scheduledAt": "Date de déploiement"
+          },
+          "empty": "Aucune campagne pour le moment."
+        }
+      },
+      "status": {
+        "scheduled": "Planifiée",
+        "dispatching": "En cours de déploiement",
+        "dispatched": "Déployée",
+        "cancelled": "Annulée"
+      },
+      "create": {
+        "title": "Créer une campagne de mise à jour",
+        "description": "Déployez un firmware sur un site, une liste de bornes ou toute la flotte, immédiatement ou à une date planifiée.",
+        "submit": "Créer la campagne",
+        "fields": {
+          "name": "Nom de la campagne",
+          "namePlaceholder": "Ex: Mise à jour sécurité Q3",
+          "targetLocation": "URL du firmware",
+          "targetLocationPlaceholder": "https://firmware.example.com/v2.4.0.bin",
+          "targetLocationDescription": "L'adresse à laquelle les bornes iront récupérer le firmware.",
+          "toVersion": "Version cible (optionnel)",
+          "toVersionPlaceholder": "Ex: 2.4.0",
+          "retrieveDateTime": "Date et heure de récupération",
+          "targetMode": "Mode de ciblage",
+          "targetModeOptions": {
+            "SITE": "Un site",
+            "LIST": "Une liste de bornes",
+            "FLEET": "Toute la flotte"
+          },
+          "targetSite": "Site ciblé",
+          "targetSitePlaceholder": "Sélectionner un site...",
+          "targetChargePoints": "Bornes ciblées",
+          "targetChargePointsEmpty": "Aucune borne disponible.",
+          "scheduledAt": "Date de déploiement (optionnel)",
+          "scheduledAtPlaceholder": "Choisir une date...",
+          "scheduledAtDescription": "Laissez vide pour déployer la campagne dès que possible.",
+          "staggerMs": "Délai entre chaque borne (ms)",
+          "staggerMsDescription": "Temps d'attente, en millisecondes, entre le déploiement sur chaque borne ciblée."
+        },
+        "validation": {
+          "nameRequired": "Le nom de la campagne est requis.",
+          "targetLocationInvalid": "Indiquez une URL valide.",
+          "retrieveDateTimeRequired": "La date et l'heure de récupération sont requises.",
+          "targetSiteRequired": "Sélectionnez un site.",
+          "targetChargePointsRequired": "Sélectionnez au moins une borne.",
+          "scheduledAtPast": "La date de déploiement doit être future."
+        }
+      },
+      "detail": {
+        "targetLocation": "Firmware : {location}",
+        "targetMode": "Mode de ciblage",
+        "targetCount": "Bornes ciblées",
+        "scheduledAt": "Date de déploiement",
+        "toVersion": "Version cible",
+        "heterogeneousTargetsNote": "{count, plural, =1 {1 borne ciblée signale un matériel différent du reste} other {# bornes ciblées signalent un matériel différent du reste}} — le même firmware leur sera tout de même envoyé.",
+        "progressTitle": "Progression du déploiement",
+        "progressLoading": "Chargement de la progression...",
+        "progress": {
+          "attempted": "Tentées",
+          "notAttempted": "Non tentées",
+          "inProgress": "En cours",
+          "succeeded": "Réussies",
+          "failed": "Échouées",
+          "total": "Total"
+        },
+        "cancelButton": "Annuler la campagne",
+        "cancelConfirm": {
+          "title": "Annuler « {name} » ?",
+          "description": "Action destructive : cette campagne planifiée ne sera pas déployée.",
+          "confirm": "Annuler la campagne"
+        }
+      },
+      "errors": {
+        "invalidRequest": "Requête invalide : vérifiez les champs de la campagne.",
+        "siteNotFound": "Site introuvable ou hors de votre périmètre.",
+        "notFound": "Campagne introuvable.",
+        "alreadyDispatching": "Cette campagne a déjà commencé à se déployer et ne peut plus être annulée.",
+        "genericError": "Une erreur est survenue."
       }
     }
   },
@@ -1272,6 +1474,7 @@
     "loadingChargePoints": "Impossible de charger les bornes.",
     "loadingSites": "Impossible de charger les sites.",
     "loadingSitesHealth": "Impossible de charger la santé des sites.",
-    "loadingConsumption": "Le chargement de la consommation a échoué."
+    "loadingConsumption": "Le chargement de la consommation a échoué.",
+    "loadingFirmwareCampaigns": "Impossible de charger les campagnes de mise à jour."
   }
 }

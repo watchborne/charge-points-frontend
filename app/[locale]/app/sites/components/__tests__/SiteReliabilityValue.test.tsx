@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -40,10 +41,18 @@ const buildUptime = (overrides: Partial<SiteUptime> = {}): SiteUptime => ({
 
 const resolveWith = (uptime: SiteUptime) => getSiteUptime.mockResolvedValue(uptime);
 
-const renderValue = (siteId = SITE_ID) => render(<SiteReliabilityValue siteId={siteId} />);
+let queryClient: QueryClient;
+
+const renderValue = (siteId = SITE_ID) =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <SiteReliabilityValue siteId={siteId} />
+    </QueryClientProvider>,
+  );
 
 beforeEach(() => {
   vi.clearAllMocks();
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
 describe("SiteReliabilityValue", () => {
@@ -76,7 +85,11 @@ describe("SiteReliabilityValue", () => {
     const { rerender } = renderValue();
     await waitFor(() => expect(getSiteUptime).toHaveBeenCalledWith(SITE_ID));
 
-    rerender(<SiteReliabilityValue siteId="site-2" />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <SiteReliabilityValue siteId="site-2" />
+      </QueryClientProvider>,
+    );
 
     await waitFor(() => expect(getSiteUptime).toHaveBeenCalledWith("site-2"));
   });

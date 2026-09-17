@@ -64,3 +64,25 @@ export function getUnlockConnectorErrorMessageKey(httpStatus: number): string {
     unlockSpecificMessages[httpStatus] || "appPage.chargePoints.unlockConnector.result.genericError"
   );
 }
+
+/** `POST /api/firmware-campaigns` (400: bad targetMode input/past scheduledAt/
+ * negative staggerMs/empty resolved target set — the zod schema in
+ * `CreateFirmwareCampaignDialog` catches almost all of these first; 404: an
+ * unknown/out-of-scope `targetSiteId`). */
+export function getFirmwareCampaignCreateErrorMessageKey(httpStatus: number): string {
+  const createSpecificMessages: Record<number, string> = {
+    400: "appPage.firmwareCampaigns.errors.invalidRequest",
+    404: "appPage.firmwareCampaigns.errors.siteNotFound",
+  };
+  return createSpecificMessages[httpStatus] || "appPage.firmwareCampaigns.errors.genericError";
+}
+
+/** `DELETE /api/firmware-campaigns/:id` (404: unknown id; 409: already past
+ * `SCHEDULED`). */
+export function getFirmwareCampaignCancelErrorMessageKey(httpStatus: number): string {
+  const cancelSpecificMessages: Record<number, string> = {
+    404: "appPage.firmwareCampaigns.errors.notFound",
+    409: "appPage.firmwareCampaigns.errors.alreadyDispatching",
+  };
+  return cancelSpecificMessages[httpStatus] || "appPage.firmwareCampaigns.errors.genericError";
+}

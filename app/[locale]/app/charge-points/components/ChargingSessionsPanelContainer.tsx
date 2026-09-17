@@ -1,11 +1,12 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { ChargingSessionsPanel, type ChargingSessionListEntry } from "./ChargingSessionsPanel";
@@ -32,18 +33,17 @@ export const ChargingSessionsPanelContainer = ({
 }: ChargingSessionsPanelContainerProps) => {
   const t = useTranslations("");
 
-  const [sessions, setSessions] = useState<ChargingSessionListEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      setFailed(false);
+  const {
+    data: sessions = [],
+    isLoading: loading,
+    isError: failed,
+  } = useQuery({
+    queryKey: queryKeys.chargingSessions.chargePoint(chargePointId),
+    queryFn: async (): Promise<ChargingSessionListEntry[]> => {
       const recent = await api.ChargePoints.listChargingSessions(
         chargePointId,
         VISIBLE_HISTORY_COUNT,
       );
-      setSessions(recent);
 
       // Best-effort, per-session cost (charge-points-server issue #580): a
       // failed lookup leaves that row's `cost` undefined rather than failing
@@ -54,21 +54,10 @@ export const ChargingSessionsPanelContainer = ({
           api.ChargePoints.getChargingSessionCost(chargePointId, session.id).catch(() => undefined),
         ),
       );
-      setSessions(recent.map((session, index) => ({ ...session, cost: costs[index] })));
-    } catch {
-      setFailed(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [chargePointId]);
 
-  useEffect(() => {
-    // Reset before refetching so a different station's sessions are never
-    // shown under this one while the request is in flight.
-    setSessions([]);
-    setLoading(true);
-    void load();
-  }, [load]);
+      return recent.map((session, index) => ({ ...session, cost: costs[index] }));
+    },
+  });
 
   if (loading) {
     return (

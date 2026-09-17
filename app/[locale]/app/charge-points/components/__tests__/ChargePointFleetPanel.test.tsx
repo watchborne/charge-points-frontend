@@ -25,6 +25,27 @@ vi.mock("../ChargePointDetailPanel", () => ({
   ),
 }));
 
+// Same reasoning as ChargePointDetailPanel above — the bulk action bar is its
+// own independently-testable component (see useBulkChargePointActions.test.tsx
+// for its fan-out logic), mocked here so this suite stays focused on the
+// panel's own checkbox/selection wiring.
+vi.mock("../FleetBulkActionBar", () => ({
+  FleetBulkActionBar: ({
+    chargePoints,
+    onClear,
+  }: {
+    chargePoints: { name: string }[];
+    onClear: () => void;
+  }) => (
+    <div data-testid="bulk-action-bar">
+      <span>{chargePoints.map((cp) => cp.name).join(",")}</span>
+      <button type="button" onClick={onClear}>
+        clear
+      </button>
+    </div>
+  ),
+}));
+
 import { ChargePointFleetPanel } from "../ChargePointFleetPanel";
 
 // useFlipReorder reads prefers-reduced-motion via matchMedia, which jsdom
@@ -202,5 +223,71 @@ describe("ChargePointFleetPanel", () => {
     );
 
     expect(screen.getByTestId("detail-panel").dataset.initialTab).toBe("alerts");
+  });
+
+  it("SHOULD NOT show the bulk action bar WHEN no charge point is checked", () => {
+    const chargePoints = [chargePoint("cp-1"), chargePoint("cp-2")];
+
+    render(
+      <ChargePointFleetPanel
+        {...baseProps}
+        sites={[]}
+        chargePoints={chargePoints}
+        selected={null}
+      />,
+    );
+
+    expect(screen.queryByTestId("bulk-action-bar")).toBeNull();
+  });
+
+  it("SHOULD show the bulk action bar with the checked charge points WHEN a checkbox is checked", () => {
+    const chargePoints = [chargePoint("cp-1"), chargePoint("cp-2")];
+
+    render(
+      <ChargePointFleetPanel
+        {...baseProps}
+        sites={[]}
+        chargePoints={chargePoints}
+        selected={null}
+      />,
+    );
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+
+    expect(screen.getByTestId("bulk-action-bar")).toHaveProperty("textContent", "CP-cp-1clear");
+  });
+
+  it("SHOULD NOT toggle the detail selection WHEN a checkbox is checked", () => {
+    const onSelect = vi.fn();
+    const chargePoints = [chargePoint("cp-1")];
+
+    render(
+      <ChargePointFleetPanel
+        {...baseProps}
+        onSelect={onSelect}
+        sites={[]}
+        chargePoints={chargePoints}
+        selected={null}
+      />,
+    );
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD clear the bulk selection WHEN the action bar's onClear fires", () => {
+    const chargePoints = [chargePoint("cp-1")];
+
+    render(
+      <ChargePointFleetPanel
+        {...baseProps}
+        sites={[]}
+        chargePoints={chargePoints}
+        selected={null}
+      />,
+    );
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    fireEvent.click(screen.getByText("clear"));
+
+    expect(screen.queryByTestId("bulk-action-bar")).toBeNull();
   });
 });

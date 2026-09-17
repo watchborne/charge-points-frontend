@@ -406,6 +406,37 @@ export const chargePointApis = {
     }, "ChargePoint.getAlerts");
   },
   /**
+   * Records that a human has taken an alert on (charge-points-server issue
+   * #530). Acknowledging never resolves the alert — resolution stays tied to
+   * the triggering condition clearing, so the returned alert is still `OPEN`,
+   * now with `acknowledgedAt`/`acknowledgedBy` set. Idempotent on an
+   * already-acknowledged, still-open alert.
+   *
+   * No request body: the acknowledger comes from the caller's own session
+   * server-side, never from the client. `{}` rather than nothing is sent
+   * because the proxy hop forwards `request.text()` verbatim under
+   * `Content-Type: application/json`, and an empty body under that header is
+   * a 400 at the backend — the same reason `DisplayMessages.requestAll`
+   * posts `{}`.
+   *
+   * Goes through `httpClient` (throws on non-2xx) rather than returning a
+   * discriminated outcome like the OCPP commands: this is a plain resource
+   * write with no station round trip, so "it failed" is all the caller needs.
+   */
+  acknowledgeAlert: async function (
+    chargePointId: ChargePoint["id"],
+    alertId: Alert["id"],
+  ): Promise<Alert> {
+    return withErrorLogging(
+      () =>
+        httpClient.post<Alert>(
+          `/api/charge-points/${chargePointId}/alerts/${alertId}/acknowledge`,
+          {},
+        ),
+      "ChargePoint.acknowledgeAlert",
+    );
+  },
+  /**
    * Starts a firmware update. Like the other OCPP commands this reads the raw HTTP
    * status rather than going through `httpClient`, because the caller needs the
    * specific outcome — and here also needs to tell `200` (station answered) from

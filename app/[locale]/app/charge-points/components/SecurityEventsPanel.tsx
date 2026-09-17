@@ -1,14 +1,14 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { Clock, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
-import type { SecurityEvent } from "@/lib/api-security-events";
+import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 type SecurityEventsPanelProps = {
@@ -40,34 +40,14 @@ const humanizeEventType = (type: string): string =>
 export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps) => {
   const t = useTranslations("");
 
-  const [events, setEvents] = useState<SecurityEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    // Reset before refetching so a different station's events are never shown
-    // under this one while the request is in flight.
-    setEvents([]);
-    setLoading(true);
-    setFailed(false);
-
-    void (async () => {
-      try {
-        const result = await api.SecurityEvents.list(chargePointId, VISIBLE_EVENT_COUNT);
-        if (!cancelled) setEvents(result);
-      } catch {
-        if (!cancelled) setFailed(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chargePointId]);
+  const {
+    data: events = [],
+    isLoading: loading,
+    isError: failed,
+  } = useQuery({
+    queryKey: queryKeys.securityEvents.chargePoint(chargePointId),
+    queryFn: () => api.SecurityEvents.list(chargePointId, VISIBLE_EVENT_COUNT),
+  });
 
   return (
     <div className="flex flex-col gap-3">
