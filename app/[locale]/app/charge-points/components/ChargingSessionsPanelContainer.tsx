@@ -44,6 +44,17 @@ export const ChargingSessionsPanelContainer = ({
         VISIBLE_HISTORY_COUNT,
       );
       setSessions(recent);
+
+      // Best-effort, per-session cost (charge-points-server issue #580): a
+      // failed lookup leaves that row's `cost` undefined rather than failing
+      // the whole panel — the history itself is the part worth showing even
+      // if a cost estimate can't be resolved for one session.
+      const costs = await Promise.all(
+        recent.map((session) =>
+          api.ChargePoints.getChargingSessionCost(chargePointId, session.id).catch(() => undefined),
+        ),
+      );
+      setSessions(recent.map((session, index) => ({ ...session, cost: costs[index] })));
     } catch {
       setFailed(true);
     } finally {

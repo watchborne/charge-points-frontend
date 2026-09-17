@@ -773,6 +773,10 @@
         "startedAt": "Démarrée",
         "duration": "Durée",
         "energy": "Énergie",
+        "cost": "Coût",
+        "costReasons": {
+          "NO_TARIFF_CONFIGURED": "Tarif non défini"
+        },
         "consumption": {
           "show": "Afficher la consommation de la session",
           "hide": "Masquer la consommation de la session",
@@ -1178,6 +1182,23 @@
               "visitedAtPlaceholder": "Date de la visite...",
               "note": "Note",
               "notePlaceholder": "Ex: Inspection annuelle, câble connecteur 2 remplacé"
+            }
+          }
+        },
+        "tariff": {
+          "title": "Tarif électrique",
+          "loading": "Chargement du tarif...",
+          "loadError": "Impossible de charger le tarif de ce site.",
+          "notConfigured": "Aucun tarif configuré pour ce site.",
+          "currentLabel": "Tarif actuel",
+          "setButton": "Définir un tarif",
+          "editButton": "Modifier le tarif",
+          "dialog": {
+            "title": "Configurer le tarif",
+            "description": "Ce tarif sert à estimer le coût des sessions de recharge de ce site. Il n'est pas historisé : le changer ne modifie que les estimations futures.",
+            "fields": {
+              "pricePerKwh": "Prix par kWh",
+              "currency": "Devise"
             }
           }
         }

@@ -2,14 +2,23 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import type { ChargingSession } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+// A fixed, locale-agnostic stand-in for the real Intl-backed formatter — what
+// matters here is that the cost column calls it, not the exact rendered
+// string, which is next-intl's own concern (see CommissioningTokenPanel.test.tsx).
+const formatter = {
+  number: (value: number) => `formatted:${value}`,
+};
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+  useFormatter: () => formatter,
 }));
 
 // `vi.hoisted` because vi.mock factories are hoisted above these declarations —
 // the repo's existing pattern (see LogUploadPanel.test.tsx).
-const { listChargingSessions } = vi.hoisted(() => ({
+const { listChargingSessions, getChargingSessionCost } = vi.hoisted(() => ({
   listChargingSessions: vi.fn(),
+  getChargingSessionCost: vi.fn(),
 }));
 
 // Mocked via the relative module path, not the "@/lib/api" alias: this project's
@@ -17,7 +26,7 @@ const { listChargingSessions } = vi.hoisted(() => ({
 // silently fails to intercept and the real fetch runs. Repo convention — see
 // LogUploadPanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
-  api: { ChargePoints: { listChargingSessions } },
+  api: { ChargePoints: { listChargingSessions, getChargingSessionCost } },
 }));
 
 // Stubbed out: it fetches its own meter samples. Its own behaviour is
@@ -54,9 +63,30 @@ const buildSession = (overrides: Partial<ChargingSession> = {}): ChargingSession
     ...overrides,
   }) as ChargingSession;
 
+const buildCost = (
+  overrides: Partial<{
+    amountCents: number | null;
+    currency: string | null;
+    reason: string | null;
+  }> = {},
+) => ({
+  sessionId: "session-1",
+  chargePointId: CP_ID,
+  energyWh: 4000,
+  currency: "EUR",
+  pricePerKwhCents: 25,
+  amountCents: 100,
+  reason: null,
+  ...overrides,
+});
+
 beforeEach(() => {
   vi.clearAllMocks();
   listChargingSessions.mockResolvedValue([]);
+  // A rejection by default (rather than a resolved envelope) exercises the
+  // container's own "leave that row's cost undefined" fallback for every
+  // test that isn't specifically about the cost column below.
+  getChargingSessionCost.mockRejectedValue(new Error("no cost configured"));
 });
 
 const renderPanel = () => render(<ChargingSessionsPanelContainer chargePointId={CP_ID} />);
@@ -106,7 +136,33 @@ describe("ChargingSessionsPanelContainer", () => {
     expect(
       await screen.findByText("appPage.chargePoints.chargingSessions.statuses.ACTIVE"),
     ).toBeTruthy();
-    expect(screen.getByText("—")).toBeTruthy();
+    // Both the energy cell (no meterStart/meterStop) and the cost cell (the
+    // mocked lookup rejects by default, see beforeEach) fall back to a dash.
+    expect(await screen.findAllByText("—")).toHaveLength(2);
+  });
+
+  it("SHOULD render an estimated cost through the formatter WHEN one is available", async () => {
+    listChargingSessions.mockResolvedValue([buildSession()]);
+    getChargingSessionCost.mockResolvedValue(buildCost({ amountCents: 875 }));
+
+    renderPanel();
+
+    expect(await screen.findByText("formatted:8.75")).toBeTruthy();
+  });
+
+  it("SHOULD say a tariff is missing rather than a bare dash WHEN the site has none configured", async () => {
+    listChargingSessions.mockResolvedValue([buildSession()]);
+    getChargingSessionCost.mockResolvedValue(
+      buildCost({ amountCents: null, currency: null, reason: "NO_TARIFF_CONFIGURED" }),
+    );
+
+    renderPanel();
+
+    expect(
+      await screen.findByText(
+        "appPage.chargePoints.chargingSessions.costReasons.NO_TARIFF_CONFIGURED",
+      ),
+    ).toBeTruthy();
   });
 
   it("SHOULD surface a load failure rather than rendering an empty panel", async () => {
