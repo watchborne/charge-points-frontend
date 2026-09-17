@@ -65,6 +65,9 @@ export const queryKeys = {
     all: () => ["commissioningToken"] as const,
     status: () => [...queryKeys.commissioningToken.all(), "status"] as const,
   },
+  notificationPreferences: {
+    all: () => ["notificationPreferences"] as const,
+  },
   deviceEvents: {
     all: () => ["deviceEvents"] as const,
     chargePoint: (chargePointId: string) =>

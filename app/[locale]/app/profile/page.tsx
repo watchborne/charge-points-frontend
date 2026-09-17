@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@/app/components/ThemeProvider";
 import { createClient } from "@/lib/supabase/client";
 
+import { NotificationPreferencesPanel } from "./components/NotificationPreferencesPanel";
+
 export default function ProfilePage() {
   const t = useTranslations("");
   const format = useFormatter();
@@ -71,6 +73,8 @@ export default function ProfilePage() {
           />
         </div>
       </section>
+
+      <NotificationPreferencesPanel />
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">

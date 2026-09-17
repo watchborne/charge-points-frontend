@@ -1331,6 +1331,17 @@
         "light": "Thème clair",
         "dark": "Thème sombre"
       },
+      "notifications": {
+        "title": "Notifications",
+        "digestEnabled": {
+          "title": "Résumé quotidien par email",
+          "description": "Recevez un résumé quotidien des alertes ouvertes et des sites à visiter."
+        },
+        "digestHour": {
+          "title": "Heure d'envoi",
+          "description": "Heure (UTC) à laquelle le résumé quotidien vous est envoyé."
+        }
+      },
       "session": {
         "title": "Session",
         "userId": "Identifiant utilisateur",

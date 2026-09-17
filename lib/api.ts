@@ -8,6 +8,7 @@ import { firmwareCampaignApis } from "./api-firmware-campaigns";
 import { fleetReliabilityApis } from "./api-fleet-reliability";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
+import { notificationPreferencesApis } from "./api-notification-preferences";
 import { securityEventApis } from "./api-security-events";
 import { siteVisitApis } from "./api-site-visits";
 import { siteApis } from "./api-sites";
@@ -25,6 +26,7 @@ export const api = {
   FleetReliability: fleetReliabilityApis,
   Me: meApis,
   Metering: meteringApis,
+  NotificationPreferences: notificationPreferencesApis,
   SecurityEvents: securityEventApis,
   Sites: siteApis,
   SiteVisits: siteVisitApis,

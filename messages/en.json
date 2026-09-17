@@ -1331,6 +1331,17 @@
         "light": "Light theme",
         "dark": "Dark theme"
       },
+      "notifications": {
+        "title": "Notifications",
+        "digestEnabled": {
+          "title": "Daily email digest",
+          "description": "Receive a daily digest of open alerts and sites due for a visit."
+        },
+        "digestHour": {
+          "title": "Send time",
+          "description": "Hour (UTC) at which the daily digest is sent to you."
+        }
+      },
       "session": {
         "title": "Session",
         "userId": "User ID",
