@@ -47,11 +47,27 @@ export async function proxyToBackend(
     init.body = await request.text();
   }
 
-  const backendResponse = await fetch(backendUrl.toString(), init);
+  let backendResponse;
+  try {
+    backendResponse = await fetch(backendUrl.toString(), init);
+  } catch (error) {
+    console.error("Backend request failed:", error);
+    return new NextResponse(
+      JSON.stringify({
+        error: "Backend request failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
+
   const body = await backendResponse.text();
 
   return new NextResponse(body, {
     status: backendResponse.status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": backendResponse.headers.get("Content-Type") || "application/json" },
   });
 }
