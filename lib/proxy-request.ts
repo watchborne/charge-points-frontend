@@ -47,7 +47,7 @@ export async function proxyToBackend(
     init.body = await request.text();
   }
 
-  let backendResponse;
+  let backendResponse: Response;
   try {
     backendResponse = await fetch(backendUrl.toString(), init);
   } catch (error) {
