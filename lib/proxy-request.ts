@@ -48,6 +48,7 @@ export async function proxyToBackend(
   }
 
   const backendResponse = await fetch(backendUrl.toString(), init);
+
   const body = await backendResponse.text();
 
   return new NextResponse(body, {
