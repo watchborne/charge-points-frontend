@@ -22,3 +22,10 @@ export const WS_TOKEN_URL = "/api/ws-token";
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+// WebSocket reconnection configuration
+export const WS_DISCONNECT_GRACE_TIMEOUT_MS = 300;
+export const WS_RECONNECT_BASE_DELAY_MS = 1000;
+export const WS_RECONNECT_MAX_DELAY_MS = 30_000;
+export const WS_RECONNECT_MAX_RETRIES = 10;
+export const WS_RECONNECT_BACKOFF_MULTIPLIER = 2;
