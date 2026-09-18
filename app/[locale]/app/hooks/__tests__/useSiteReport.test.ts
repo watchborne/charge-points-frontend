@@ -29,6 +29,7 @@ vi.mock("../../../../../lib/api", () => ({
         to: "2026-08-08T00:00:00.000Z",
         series: [],
       }),
+      getMeterSamples: vi.fn().mockResolvedValue([]),
     },
     ChargePoints: {
       getAlerts: vi.fn().mockResolvedValue([]),
@@ -120,6 +121,76 @@ describe("useSiteReport", () => {
     expect(result.current.report?.chargePoints[0].alerts.map((alert) => alert.id)).toEqual([
       "alert-1",
     ]);
+  });
+
+  it("SHOULD chart the energy register over alphabetically-first WHEN the station reports both", async () => {
+    vi.mocked(api.Metering.getConsumption).mockResolvedValueOnce({
+      chargePointId: "cp-1",
+      from: "2026-08-01T00:00:00.000Z",
+      to: "2026-08-08T00:00:00.000Z",
+      series: [
+        {
+          connectorId: 1,
+          measurand: "Current.Import",
+          unit: "A",
+          min: 0,
+          max: 10,
+          avg: 5,
+          sampleCount: 2,
+          firstMeasuredAt: "2026-08-01T00:00:00.000Z",
+          lastMeasuredAt: "2026-08-02T00:00:00.000Z",
+        },
+        {
+          connectorId: 1,
+          measurand: "Energy.Active.Import.Register",
+          unit: "Wh",
+          min: 0,
+          max: 1000,
+          avg: 500,
+          sampleCount: 2,
+          firstMeasuredAt: "2026-08-01T00:00:00.000Z",
+          lastMeasuredAt: "2026-08-02T00:00:00.000Z",
+        },
+      ],
+    });
+    vi.mocked(api.Metering.getMeterSamples).mockResolvedValueOnce([
+      {
+        id: "sample-2",
+        chargePointId: "cp-1",
+        connectorId: 1,
+        measuredAt: "2026-08-02T00:00:00.000Z",
+        measurand: "Energy.Active.Import.Register",
+        unit: "Wh",
+        value: 1000,
+        createdAt: "2026-08-02T00:00:00.000Z",
+      },
+      {
+        id: "sample-1",
+        chargePointId: "cp-1",
+        connectorId: 1,
+        measuredAt: "2026-08-01T00:00:00.000Z",
+        measurand: "Energy.Active.Import.Register",
+        unit: "Wh",
+        value: 0,
+        createdAt: "2026-08-01T00:00:00.000Z",
+      },
+    ]);
+
+    const { result } = renderHook(() => useSiteReport(SITE, [buildChargePoint("cp-1", "CP 1")]), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const [chargePoint] = result.current.report?.chargePoints ?? [];
+    expect(chargePoint.chartMeasurand).toBe("Energy.Active.Import.Register");
+    expect(chargePoint.chartConnectorIds).toEqual([1]);
+    // Oldest first, even though the mocked API answered newest first.
+    expect(chargePoint.chartSamples.map((sample) => sample.id)).toEqual(["sample-1", "sample-2"]);
+    expect(api.Metering.getMeterSamples).toHaveBeenCalledWith(
+      "cp-1",
+      expect.objectContaining({ measurands: ["Energy.Active.Import.Register"] }),
+    );
   });
 
   it("SHOULD return an empty per-charge-point list WHEN the site has no charge points", async () => {
