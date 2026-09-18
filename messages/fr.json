@@ -1212,6 +1212,15 @@
           "label": "Fiabilité (7 derniers jours)",
           "noData": "Pas encore de données"
         },
+        "report": {
+          "exportButton": "Exporter en PDF",
+          "exportError": "Impossible de générer le rapport PDF. Veuillez réessayer.",
+          "pdf": {
+            "uptimeSection": "Disponibilité",
+            "alertsSection": "Alertes",
+            "noAlerts": "Aucune alerte sur cette période."
+          }
+        },
         "nextVisit": {
           "title": "Prochaine visite planifiée",
           "loading": "Chargement...",

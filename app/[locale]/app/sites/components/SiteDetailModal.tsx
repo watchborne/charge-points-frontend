@@ -30,6 +30,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
 import { ScheduleNextVisitDialog, ScheduleNextVisitValues } from "./ScheduleNextVisitDialog";
 import { SiteReliabilityValue } from "./SiteReliabilityValue";
+import { SiteReportExportButton } from "./SiteReportExportButton";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { useSiteVisitSchedule } from "../../hooks/useSiteVisitSchedule";
 import { useSiteVisits } from "../../hooks/useSiteVisits";
@@ -422,6 +423,7 @@ export const SiteDetailModal = ({
               <CalendarCheck className="h-4 w-4 mr-2" />
               {t("appPage.sites.detail.visits.logButton")}
             </Button>
+            <SiteReportExportButton site={site} chargePoints={siteChargePoints} />
             <Button variant="outline" onClick={handleEdit}>
               <Pencil className="h-4 w-4 mr-2" />
               {t("common.edit")}
