@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import type {
   Alert,
   AvailabilityType,
@@ -184,7 +185,7 @@ export const chargePointApis = {
     try {
       return await httpClient.get<ChargePointWithConnectors[]>("/api/charge-points");
     } catch (error) {
-      console.error("Failed to fetch charge points", error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.getChargePoints" } });
       throw error;
     }
   },
@@ -239,7 +240,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to reset charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.resetChargePoint", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -262,7 +263,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to change availability of charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.changeAvailability", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -284,7 +285,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to unlock connector of charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.unlockConnector", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -319,7 +320,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to read settings of charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.getSettings", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -343,7 +344,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to change a setting of charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.setSetting", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -445,7 +446,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to start a firmware update on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.startFirmwareUpdate", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -523,7 +524,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to start a log upload on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.startLogUpload", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -548,7 +549,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to trigger a message on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.triggerMessage", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -577,7 +578,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to set a display message on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.setDisplayMessage", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -599,7 +600,7 @@ export const chargePointApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to clear a display message on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "ChargePoints.clearDisplayMessage", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },

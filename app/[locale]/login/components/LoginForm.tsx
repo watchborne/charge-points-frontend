@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Callout, Button, Input, Label } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -55,7 +56,7 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     if (signInError) {
       // Supabase error messages aren't localized; log for diagnostics, show
       // our own translated copy instead of the raw message.
-      console.error("signInWithOtp failed:", signInError.message);
+      Sentry.captureException(signInError, { tags: { component: "LoginForm" } });
       setError(signInError.code === "otp_disabled" ? "unknown-user" : "generic");
       return;
     }

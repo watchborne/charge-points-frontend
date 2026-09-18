@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import {
   GET_BASE_REPORT_TYPES_V201,
   type ChargePoint,
@@ -129,7 +130,7 @@ export const deviceVariableReportApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to request a base report on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "DeviceVariableReports.requestBaseReport", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -159,7 +160,7 @@ export const deviceVariableReportApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to request a report on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "DeviceVariableReports.requestReport", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },

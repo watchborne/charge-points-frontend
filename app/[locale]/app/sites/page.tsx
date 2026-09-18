@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { Button, Input, Callout } from "@watchborne/electrons";
@@ -70,7 +71,9 @@ function SitesPageContent() {
 
   function handleEdit(values: SiteFormValues) {
     if (!editTarget) return;
-    console.log(values);
+    Sentry.captureMessage("Site form values received", "debug", {
+      tags: { page: "sites", action: "handleEdit" },
+    });
     setEditTarget(null);
   }
 

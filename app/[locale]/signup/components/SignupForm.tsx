@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Callout, Button, Input, Label } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -36,7 +37,7 @@ export function SignupForm({ onFormSubmitted }: SignupFormProps) {
       onFormSubmitted(email);
     } catch (requestError) {
       // Surface our own translated copy rather than the raw transport error.
-      console.error("access request failed:", requestError);
+      Sentry.captureException(requestError, { tags: { component: "SignupForm" } });
       setError(true);
     } finally {
       setIsLoading(false);
