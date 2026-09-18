@@ -51,7 +51,6 @@ export async function proxyToBackend(
   try {
     backendResponse = await fetch(backendUrl.toString(), init);
   } catch (error) {
-    console.error("Backend request failed:", error);
     return new NextResponse(
       JSON.stringify({
         error: "Backend request failed",
