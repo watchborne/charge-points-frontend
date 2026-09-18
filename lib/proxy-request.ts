@@ -47,21 +47,7 @@ export async function proxyToBackend(
     init.body = await request.text();
   }
 
-  let backendResponse: Response;
-  try {
-    backendResponse = await fetch(backendUrl.toString(), init);
-  } catch (error) {
-    return new NextResponse(
-      JSON.stringify({
-        error: "Backend request failed",
-        details: error instanceof Error ? error.message : "Unknown error",
-      }),
-      {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
+  const backendResponse = await fetch(backendUrl.toString(), init);
 
   const body = await backendResponse.text();
 
