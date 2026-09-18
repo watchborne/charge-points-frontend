@@ -115,6 +115,11 @@ export const queryKeys = {
     all: () => ["settings"] as const,
     chargePoint: (chargePointId: string) => [...queryKeys.settings.all(), chargePointId] as const,
   },
+  siteReport: {
+    all: () => ["siteReport"] as const,
+    site: (siteId: string, filters?: Record<string, unknown>) =>
+      [...queryKeys.siteReport.all(), siteId, ...(filters ? [filters] : [])] as const,
+  },
   consumption: {
     all: () => ["consumption"] as const,
     session: (
