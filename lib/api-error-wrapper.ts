@@ -1,6 +1,8 @@
+import * as Sentry from "@sentry/nextjs";
+
 /**
  * Wraps async API operations with consistent error logging and handling.
- * Reduces duplicated try/catch and console.error patterns across API files.
+ * Reduces duplicated try/catch and Sentry error capture patterns across API files.
  */
 export async function withErrorLogging<T>(
   operation: () => Promise<T>,
@@ -9,7 +11,7 @@ export async function withErrorLogging<T>(
   try {
     return await operation();
   } catch (error) {
-    console.error(`[${context}] Failed:`, error);
+    Sentry.captureException(error, { tags: { api: context } });
     throw error;
   }
 }
@@ -25,7 +27,7 @@ export async function withErrorLoggingAsync<T extends { ok: boolean; httpStatus?
   try {
     return await operation();
   } catch (error) {
-    console.error(`[${context}] Network error:`, error);
+    Sentry.captureException(error, { tags: { api: context, type: "NetworkError" } });
     return { ok: false, httpStatus: 0 } as T;
   }
 }

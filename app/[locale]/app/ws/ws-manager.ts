@@ -1,3 +1,7 @@
+"use client";
+
+import * as Sentry from "@sentry/nextjs";
+
 import {
   WS_TOKEN_URL,
   WS_DISCONNECT_GRACE_TIMEOUT_MS,
@@ -85,7 +89,7 @@ class WebSocketManager {
       const data = (await res.json()) as { token?: unknown };
       return typeof data.token === "string" ? data.token : null;
     } catch (e) {
-      console.error("Failed to fetch WebSocket token:", e);
+      Sentry.captureException(e, { tags: { component: "WebSocketManager.fetchToken" } });
       return null;
     }
   }
@@ -151,13 +155,13 @@ class WebSocketManager {
       };
 
       ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
+        Sentry.captureException(err, { tags: { component: "WebSocketManager.onError" } });
         this.status = "ERROR";
         this.emit();
         // onclose fires after onerror — reconnect is handled there
       };
     } catch (e) {
-      console.error("Failed to create WebSocket connection:", e);
+      Sentry.captureException(e, { tags: { component: "WebSocketManager.connect" } });
       this.connecting = false;
       this.status = "ERROR";
       this.socket = null;
@@ -228,7 +232,9 @@ class WebSocketManager {
       const payload = typeof message === "string" ? message : JSON.stringify(message);
       this.socket.send(payload);
     } else {
-      console.warn("WebSocket not connected. Cannot send:", message);
+      Sentry.captureMessage("WebSocket not connected. Cannot send message.", "warning", {
+        tags: { component: "WebSocketManager.sendMessage" },
+      });
     }
   }
 }

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
@@ -23,7 +24,9 @@ export function useSites(): UseSitesReturn {
   });
 
   useEffect(() => {
-    if (error) console.error(error);
+    if (error) {
+      Sentry.captureException(error, { tags: { hook: "useSites" } });
+    }
   }, [error]);
 
   return {

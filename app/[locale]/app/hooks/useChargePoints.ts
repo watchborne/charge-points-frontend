@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useCallback, useRef } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import { useToastNotification } from "@/app/components/ToastNotification";
 import { api } from "@/lib/api";
@@ -44,7 +45,9 @@ export function useChargePoints(): UseChargePointsReturn {
   });
 
   useEffect(() => {
-    if (error) console.error(error);
+    if (error) {
+      Sentry.captureException(error, { tags: { hook: "useChargePoints" } });
+    }
   }, [error]);
 
   // Same shape as loadChargePoints below, but doesn't touch the query's
@@ -59,7 +62,7 @@ export function useChargePoints(): UseChargePointsReturn {
         freshData,
       );
     } catch (err) {
-      console.error("Failed to refetch charge points:", err);
+      Sentry.captureException(err, { tags: { hook: "useChargePoints.refetchSilently" } });
     }
   }, [queryClient]);
 

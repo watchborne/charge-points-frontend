@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import type {
   ChargePoint,
   MessagePriorityV201,
@@ -111,7 +112,7 @@ export const displayMessageApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to request display messages on charge point ${chargePointId}`, error);
+      Sentry.captureException(error, { tags: { api: "DisplayMessages.requestAll", chargePointId } });
       return { ok: false, httpStatus: 0 };
     }
   },

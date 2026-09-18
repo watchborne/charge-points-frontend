@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Callout, Button, Input, Label } from "@watchborne/electrons";
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -59,7 +60,7 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     if (verifyError) {
       // Supabase error messages aren't localized; log for diagnostics, show
       // our own translated copy instead of the raw message.
-      console.error("verifyOtp failed:", verifyError.message);
+      Sentry.captureException(verifyError, { tags: { component: "VerifyOtpForm" } });
       setIsVerifying(false);
       setError(verifyError.code === "otp_expired" ? "invalid" : "generic");
       return;
@@ -100,7 +101,7 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     setIsResending(false);
 
     if (resendError) {
-      console.error("resend signInWithOtp failed:", resendError.message);
+      Sentry.captureException(resendError, { tags: { component: "VerifyOtpForm.handleResend" } });
       setError(
         resendError.code === "over_email_send_rate_limit"
           ? "over_email_send_rate_limit"

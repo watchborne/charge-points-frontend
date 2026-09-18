@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, createContext, useContext } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import { WS_URL } from "@/lib/constants";
 
@@ -60,7 +61,7 @@ export function useWebSocketData(options: UseWebSocketDataOptions = {}): WebSock
         setMessages((prev) => [...prev.slice(-49), wsMessage]);
         setLastMessage(wsMessage);
       } catch (err) {
-        console.error("Failed to parse WebSocket message:", err);
+        Sentry.captureException(err, { tags: { hook: "useWebSocketData" } });
       }
     }
   }, [rawMessage, enabled]);

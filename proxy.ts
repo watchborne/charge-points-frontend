@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
+import * as Sentry from "@sentry/nextjs";
 
 import { defaultLocale, localizedPath, locales, type Locale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
@@ -64,7 +65,7 @@ async function getSessionUser(supabase: ReturnType<typeof createClient>["supabas
     } = await supabase.auth.getUser();
     return user;
   } catch (error) {
-    console.error("proxy: supabase.auth.getUser() failed", error);
+    Sentry.captureException(error, { tags: { middleware: "getSessionUser" } });
     return null;
   }
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import { api } from "@/lib/api";
 import type { CreateFirmwareCampaignBody } from "@/lib/api-firmware-campaigns";
@@ -21,7 +22,9 @@ export function useFirmwareCampaigns() {
   });
 
   useEffect(() => {
-    if (error) console.error(error);
+    if (error) {
+      Sentry.captureException(error, { tags: { hook: "useFirmwareCampaigns" } });
+    }
   }, [error]);
 
   const createMutation = useMutation({
