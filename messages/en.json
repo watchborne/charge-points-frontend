@@ -819,6 +819,10 @@
         "startedAt": "Started",
         "duration": "Duration",
         "energy": "Energy",
+        "cost": "Cost",
+        "costReasons": {
+          "NO_TARIFF_CONFIGURED": "No tariff set"
+        },
         "consumption": {
           "show": "Show session consumption",
           "hide": "Hide session consumption",
@@ -1243,6 +1247,23 @@
               "visitedAtPlaceholder": "Visit date...",
               "note": "Note",
               "notePlaceholder": "Ex: Annual inspection, connector 2 cable replaced"
+            }
+          }
+        },
+        "tariff": {
+          "title": "Electricity tariff",
+          "loading": "Loading tariff...",
+          "loadError": "Could not load this site's tariff.",
+          "notConfigured": "No tariff configured for this site.",
+          "currentLabel": "Current tariff",
+          "setButton": "Set a tariff",
+          "editButton": "Edit tariff",
+          "dialog": {
+            "title": "Configure the tariff",
+            "description": "This tariff is used to estimate the cost of this site's charging sessions. It isn't historized: changing it only affects future estimates.",
+            "fields": {
+              "pricePerKwh": "Price per kWh",
+              "currency": "Currency"
             }
           }
         }
