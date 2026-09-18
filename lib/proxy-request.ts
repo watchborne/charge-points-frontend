@@ -53,6 +53,6 @@ export async function proxyToBackend(
 
   return new NextResponse(body, {
     status: backendResponse.status,
-    headers: { "Content-Type": backendResponse.headers.get("Content-Type") || "application/json" },
+    headers: { "Content-Type": "application/json" },
   });
 }
