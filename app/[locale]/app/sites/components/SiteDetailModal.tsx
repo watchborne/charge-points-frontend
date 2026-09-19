@@ -7,6 +7,7 @@ import {
   CalendarCheck,
   CalendarClock,
   ChevronDown,
+  Coins,
   ExternalLink,
   MapPin,
   Pencil,
@@ -29,8 +30,10 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
 import { ScheduleNextVisitDialog, ScheduleNextVisitValues } from "./ScheduleNextVisitDialog";
+import { SetSiteTariffDialog, SiteTariffFormValues } from "./SetSiteTariffDialog";
 import { SiteReliabilityValue } from "./SiteReliabilityValue";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
+import { useSiteTariff } from "../../hooks/useSiteTariff";
 import { useSiteVisitSchedule } from "../../hooks/useSiteVisitSchedule";
 import { useSiteVisits } from "../../hooks/useSiteVisits";
 
@@ -56,6 +59,7 @@ export const SiteDetailModal = ({
   const router = useRouter();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [logVisitOpen, setLogVisitOpen] = useState(false);
+  const [tariffDialogOpen, setTariffDialogOpen] = useState(false);
   const [scheduleVisitOpen, setScheduleVisitOpen] = useState(false);
   const {
     visits,
@@ -64,6 +68,13 @@ export const SiteDetailModal = ({
     recordVisit,
     isRecording,
   } = useSiteVisits(site?.id ?? null);
+  const {
+    tariff,
+    loading: tariffLoading,
+    error: tariffError,
+    upsertTariff,
+    isSaving: isSavingTariff,
+  } = useSiteTariff(site?.id ?? null);
   const {
     schedule,
     loading: scheduleLoading,
@@ -83,6 +94,14 @@ export const SiteDetailModal = ({
       note: values.note || undefined,
     });
     setLogVisitOpen(false);
+  };
+
+  const handleSetTariff = async (values: SiteTariffFormValues) => {
+    await upsertTariff({
+      currency: values.currency,
+      pricePerKwhCents: Math.round(values.pricePerKwh * 100),
+    });
+    setTariffDialogOpen(false);
   };
 
   const handleScheduleNextVisit = async (values: ScheduleNextVisitValues) => {
@@ -415,12 +434,58 @@ export const SiteDetailModal = ({
                 </div>
               )}
             </div>
+
+            {/* Tariff */}
+            <div className="space-y-3 border-t pt-4">
+              <h4 className="text-sm font-semibold text-foreground">
+                {t("appPage.sites.detail.tariff.title")}
+              </h4>
+
+              {tariffLoading && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.tariff.loading")}
+                </span>
+              )}
+
+              {!tariffLoading && tariffError && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.tariff.loadError")}
+                </span>
+              )}
+
+              {!tariffLoading && !tariffError && !tariff && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.tariff.notConfigured")}
+                </span>
+              )}
+
+              {!tariffLoading && !tariffError && tariff && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {t("appPage.sites.detail.tariff.currentLabel")}
+                  </span>
+                  <span className="font-medium">
+                    {format.number(tariff.pricePerKwhCents / 100, {
+                      style: "currency",
+                      currency: tariff.currency,
+                    })}{" "}
+                    / kWh
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 pt-6 border-t">
             <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
               <CalendarCheck className="h-4 w-4 mr-2" />
               {t("appPage.sites.detail.visits.logButton")}
+            </Button>
+            <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
+              <Coins className="h-4 w-4 mr-2" />
+              {tariff
+                ? t("appPage.sites.detail.tariff.editButton")
+                : t("appPage.sites.detail.tariff.setButton")}
             </Button>
             <Button variant="outline" onClick={handleEdit}>
               <Pencil className="h-4 w-4 mr-2" />
@@ -439,6 +504,18 @@ export const SiteDetailModal = ({
         onOpenChange={setLogVisitOpen}
         onSubmit={handleLogVisit}
         isSubmitting={isRecording}
+      />
+
+      <SetSiteTariffDialog
+        open={tariffDialogOpen}
+        onOpenChange={setTariffDialogOpen}
+        initialValues={
+          tariff
+            ? { currency: tariff.currency, pricePerKwh: tariff.pricePerKwhCents / 100 }
+            : undefined
+        }
+        onSubmit={handleSetTariff}
+        isSubmitting={isSavingTariff}
       />
 
       <ScheduleNextVisitDialog
