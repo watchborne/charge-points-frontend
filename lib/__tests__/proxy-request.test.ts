@@ -171,4 +171,14 @@ describe("proxyToBackend", () => {
 
     expect(res.headers.get("content-type")).toBe("application/json");
   });
+
+  it("SHOULD return a 502 WHEN the backend fetch throws a network error", async () => {
+    mockFetch.mockRejectedValue(new TypeError("fetch failed"));
+    const proxyToBackend = await importProxy();
+
+    const res = await proxyToBackend(requestOf("/api/charge-points"), "/api/charge-points");
+
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: "Backend unreachable" });
+  });
 });
