@@ -86,3 +86,37 @@ export function getFirmwareCampaignCancelErrorMessageKey(httpStatus: number): st
   };
   return cancelSpecificMessages[httpStatus] || "appPage.firmwareCampaigns.errors.genericError";
 }
+
+/** `POST /api/charge-points/:id/certificates` (404: unknown charge point;
+ * 409: station offline, OR the requested `certificateType` isn't supported
+ * by this station's dialect / the certificate is too long for 2.0.1's
+ * 5500-char bound — the backend distinguishes those by message text only,
+ * so both collapse to one message here, same as this codebase's other
+ * write-command 409s). */
+export function getCertificateInstallErrorMessageKey(httpStatus: number): string {
+  const installSpecificMessages: Record<number, string> = {
+    404: "appPage.chargePoints.certificates.install.result.notFound",
+    409: "appPage.chargePoints.certificates.install.result.notConnectedOrUnsupported",
+    502: "appPage.chargePoints.certificates.install.result.stationError",
+    504: "appPage.chargePoints.certificates.install.result.timeout",
+  };
+  return (
+    installSpecificMessages[httpStatus] ||
+    "appPage.chargePoints.certificates.install.result.genericError"
+  );
+}
+
+/** `DELETE /api/charge-points/:id/certificates` (404: unknown charge point;
+ * 409: station offline). */
+export function getCertificateDeleteErrorMessageKey(httpStatus: number): string {
+  const deleteSpecificMessages: Record<number, string> = {
+    404: "appPage.chargePoints.certificates.delete.result.notFound",
+    409: "appPage.chargePoints.certificates.delete.result.notConnected",
+    502: "appPage.chargePoints.certificates.delete.result.stationError",
+    504: "appPage.chargePoints.certificates.delete.result.timeout",
+  };
+  return (
+    deleteSpecificMessages[httpStatus] ||
+    "appPage.chargePoints.certificates.delete.result.genericError"
+  );
+}

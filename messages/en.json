@@ -809,6 +809,58 @@
           }
         }
       },
+      "certificates": {
+        "title": "Certificates",
+        "loading": "Loading installed certificates…",
+        "loadError": "Could not load this charge point's certificates.",
+        "empty": "No certificates installed",
+        "typeNotReported": "Type not reported",
+        "types": {
+          "V2GRootCertificate": "V2G root certificate",
+          "MORootCertificate": "Mobility operator root certificate",
+          "CSMSRootCertificate": "CSMS root certificate",
+          "ManufacturerRootCertificate": "Manufacturer root certificate"
+        },
+        "row": {
+          "delete": "Delete"
+        },
+        "install": {
+          "button": "Install certificate",
+          "title": "Install a certificate",
+          "description": "Paste a PEM-encoded trust-anchor certificate to install on this station.",
+          "submit": "Install",
+          "unsupportedV201Types": "This station speaks OCPP 1.6, which has no V2G/mobility-operator certificate concept: only CSMS and manufacturer root certificates can be installed.",
+          "fields": {
+            "certificateType": "Certificate type",
+            "certificate": "Certificate (PEM)",
+            "certificateLooksInvalid": "This doesn't look like a PEM certificate — check it starts with \"-----BEGIN CERTIFICATE-----\"."
+          },
+          "result": {
+            "accepted": "Certificate accepted by the station.",
+            "rejected": "The station rejected this certificate.",
+            "failed": "The station failed to install this certificate.",
+            "notFound": "Unknown charge point.",
+            "notConnectedOrUnsupported": "Station not connected, or this certificate type/length isn't supported by this station.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The certificate could not be installed."
+          }
+        },
+        "delete": {
+          "confirmTitle": "Delete this certificate?",
+          "confirmDescription": "This asks the station to remove the certificate with serial number {serialNumber}. This cannot be undone.",
+          "result": {
+            "accepted": "Certificate deleted from the station.",
+            "failed": "The station failed to delete this certificate.",
+            "notfound": "The station reports no such certificate.",
+            "notFound": "Unknown charge point.",
+            "notConnected": "Station not connected.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The certificate could not be deleted."
+          }
+        }
+      },
       "chargingSessions": {
         "title": "Charging sessions",
         "loading": "Loading charging sessions…",
