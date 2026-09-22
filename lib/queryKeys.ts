@@ -97,6 +97,11 @@ export const queryKeys = {
     history: (chargePointId: string) =>
       [...queryKeys.logUpload.chargePoint(chargePointId), "history"] as const,
   },
+  certificates: {
+    all: () => ["certificates"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.certificates.all(), chargePointId] as const,
+  },
   alerts: {
     all: () => ["alerts"] as const,
     chargePoint: (chargePointId: string) => [...queryKeys.alerts.all(), chargePointId] as const,

@@ -809,6 +809,58 @@
           }
         }
       },
+      "certificates": {
+        "title": "Certificats",
+        "loading": "Chargement des certificats installés…",
+        "loadError": "Impossible de charger les certificats de cette borne.",
+        "empty": "Aucun certificat installé",
+        "typeNotReported": "Type non communiqué",
+        "types": {
+          "V2GRootCertificate": "Certificat racine V2G",
+          "MORootCertificate": "Certificat racine opérateur de mobilité",
+          "CSMSRootCertificate": "Certificat racine CSMS",
+          "ManufacturerRootCertificate": "Certificat racine fabricant"
+        },
+        "row": {
+          "delete": "Supprimer"
+        },
+        "install": {
+          "button": "Installer un certificat",
+          "title": "Installer un certificat",
+          "description": "Collez un certificat racine de confiance au format PEM à installer sur cette borne.",
+          "submit": "Installer",
+          "unsupportedV201Types": "Cette borne utilise l'OCPP 1.6, qui n'a pas de notion de certificat V2G/opérateur de mobilité : seuls les certificats racine CSMS et fabricant peuvent être installés.",
+          "fields": {
+            "certificateType": "Type de certificat",
+            "certificate": "Certificat (PEM)",
+            "certificateLooksInvalid": "Ceci ne ressemble pas à un certificat PEM — vérifiez qu'il commence par « -----BEGIN CERTIFICATE----- »."
+          },
+          "result": {
+            "accepted": "Certificat accepté par la borne.",
+            "rejected": "La borne a rejeté ce certificat.",
+            "failed": "La borne n'a pas réussi à installer ce certificat.",
+            "notFound": "Borne inconnue.",
+            "notConnectedOrUnsupported": "Borne non connectée, ou ce type/cette longueur de certificat n'est pas pris en charge par cette borne.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "Le certificat n'a pas pu être installé."
+          }
+        },
+        "delete": {
+          "confirmTitle": "Supprimer ce certificat ?",
+          "confirmDescription": "Ceci demande à la borne de supprimer le certificat de numéro de série {serialNumber}. Cette action est irréversible.",
+          "result": {
+            "accepted": "Certificat supprimé de la borne.",
+            "failed": "La borne n'a pas réussi à supprimer ce certificat.",
+            "notfound": "La borne ne trouve pas ce certificat.",
+            "notFound": "Borne inconnue.",
+            "notConnected": "Borne non connectée.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "Le certificat n'a pas pu être supprimé."
+          }
+        }
+      },
       "chargingSessions": {
         "title": "Sessions de recharge",
         "loading": "Chargement des sessions de recharge…",

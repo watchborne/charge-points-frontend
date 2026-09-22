@@ -14,6 +14,7 @@ import {
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { AlertsPanelContainer } from "./AlertsPanelContainer";
+import { CertificatesPanel } from "./CertificatesPanel";
 import { ChargePointActionsSection } from "./ChargePointActionsSection";
 import { ChargePointConsumptionPanelContainer } from "./ChargePointConsumptionPanelContainer";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
@@ -293,6 +294,8 @@ export const ChargePointDetailPanel = ({
           />
 
           <LogUploadPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
+
+          <CertificatesPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
         </>
       )}
     </div>
