@@ -1,4 +1,11 @@
-import { WS_TOKEN_URL } from "@/lib/constants";
+import {
+  WS_TOKEN_URL,
+  WS_DISCONNECT_GRACE_TIMEOUT_MS,
+  WS_RECONNECT_BASE_DELAY_MS,
+  WS_RECONNECT_MAX_DELAY_MS,
+  WS_RECONNECT_MAX_RETRIES,
+  WS_RECONNECT_BACKOFF_MULTIPLIER,
+} from "@/lib/constants";
 
 export type WebSocketStatus = "CONNECTING" | "CONNECTED" | "DISCONNECTED" | "ERROR";
 
@@ -9,7 +16,7 @@ type Listener = (state: {
 }) => void;
 
 class WebSocketManager {
-  private static readonly MAX_RECONNECT_ATTEMPTS = 10;
+  private static readonly MAX_RECONNECT_ATTEMPTS = WS_RECONNECT_MAX_RETRIES;
 
   private socket: WebSocket | null = null;
   private status: WebSocketStatus = "DISCONNECTED";
@@ -61,7 +68,7 @@ class WebSocketManager {
             this.shouldAutoReconnect = false;
             this.disconnect();
           }
-        }, 300);
+        }, WS_DISCONNECT_GRACE_TIMEOUT_MS);
       }
     };
   }
@@ -184,7 +191,10 @@ class WebSocketManager {
   // a sane minimum wait instead of letting jitter alone allow near-instant
   // retries.
   private nextReconnectDelay() {
-    const exponential = Math.min(1_000 * 2 ** this.reconnectAttempt, 30_000);
+    const exponential = Math.min(
+      WS_RECONNECT_BASE_DELAY_MS * WS_RECONNECT_BACKOFF_MULTIPLIER ** this.reconnectAttempt,
+      WS_RECONNECT_MAX_DELAY_MS,
+    );
     return exponential / 2 + Math.random() * (exponential / 2);
   }
 

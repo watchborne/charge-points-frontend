@@ -43,6 +43,14 @@ app/
                            #   (charge-points-server ADR 0018)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
+      firmware-campaigns/  # page + its own components/ (FirmwareCampaignsList,
+                           #   FirmwareCampaignDetailModal, CreateFirmwareCampaignDialog,
+                           #   FirmwareCampaignStatusBadge + skeleton): fleet-wide firmware
+                           #   campaign management (dispatch UpdateFirmware to many charge
+                           #   points, track per-station outcome). lib/api-firmware-campaigns.ts
+                           #   (api.FirmwareCampaigns) is the client — FirmwareCampaign is a
+                           #   server-local type, not in @watchborne/charge-points-types, same
+                           #   pattern as SiteVisitSchedule
       charge-points/       # page + its own components/ (commissioning dialog/queue/
                            #   checklist, fleet panel — FleetBulkActionBar +
                            #   hooks/useBulkChargePointActions.ts add multi-select
@@ -55,7 +63,12 @@ app/
                            #   ChargingSessionsPanel: charging-session history (one row per
                            #   StartTransaction/StopTransaction or TransactionEvent lifecycle,
                            #   charge-points-server's ADR 0012) with a per-session
-                           #   SessionConsumptionChart, on its own "Sessions" tab,
+                           #   SessionConsumptionChart and a per-session estimated cost column
+                           #   (ChargingSessionCost, from lib/api-charge-points.ts, with a
+                           #   NO_TARIFF_CONFIGURED reason state when the site has no tariff —
+                           #   charge-points-server ADR 0019/0020), on its own "Sessions" tab,
+                           #   AlertsPanelContainer wraps AlertsPanel to own the acknowledge
+                           #   mutation (api.ChargePoints.acknowledgeAlert),
                            #   DeviceEventsPanel: OCPP 2.0.1 NotifyEvent history, and
                            #   DeviceVariableReportsPanel/RequestDeviceReportDialog:
                            #   NotifyReport history + installer-triggered device report
@@ -84,7 +97,11 @@ app/
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard, SiteGrid,
                            #   SiteGridSkeleton, SiteDeletionDialog, SiteDetailModal,
                            #   SiteReliabilityValue (7-day uptime %, rendered in
-                           #   SiteDetailModal), LogSiteVisitDialog: logs a site visit
+                           #   SiteDetailModal), SetSiteTariffDialog: configures a site's
+                           #   per-kWh tariff (GET/PUT /api/sites/:id/tariff via
+                           #   hooks/useSiteTariff.ts + lib/api-site-tariff.ts,
+                           #   charge-points-server ADR 0019) from SiteDetailModal,
+                           #   LogSiteVisitDialog: logs a site visit
                            #   (POST /api/sites/:id/visits, charge-points-server ADR 0015)
                            #   from SiteDetailModal, ScheduleNextVisitDialog: plans/edits/
                            #   cancels a site's next visit (GET/PUT/DELETE
@@ -100,8 +117,12 @@ app/
                           #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile, derived client-side from already-fetched
                           #   charge points (lib/derive-site-health.ts) rather than a
-                          #   dedicated API call — DashboardOnboarding, and
-                          #   DashboardLayoutDialog (configurable/reorderable dashboard
+                          #   dedicated API call — FleetReliabilityPanel/FleetReliabilityBadge
+                          #   + skeleton: fleet-wide 7-day uptime %, via
+                          #   hooks/useFleetReliability.ts + lib/api-fleet-reliability.ts
+                          #   (api.FleetReliability, GET /api/charge-points/reliability) and
+                          #   lib/fleet-reliability.ts (derive helper) — DashboardOnboarding,
+                          #   and DashboardLayoutDialog (configurable/reorderable dashboard
                           #   widget visibility + order, persisted via
                           #   lib/dashboard-layout.ts + hooks/useDashboardLayout.ts);
                           #   charge-points/: ChargePointsBreakdown,
@@ -110,7 +131,8 @@ app/
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
                           #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
                           #   useDashboardLayout (widget visibility/order, see dashboard/ above),
-                          #   useSiteVisitSchedule
+                          #   useSiteVisitSchedule, useSiteTariff (see sites/components/ above),
+                          #   useFleetReliability (see dashboard/ above)
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -260,6 +282,24 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   behind `useSiteVisitSchedule`/`ScheduleNextVisitDialog` (charge-points-server
   issue #579, ADR 0016). Like `SiteVisit`, `SiteVisitSchedule` is declared locally
   rather than in `@watchborne/charge-points-types` — it's kept server-local too.
+- `lib/api-site-tariff.ts` (`api.SiteTariff`, `get`/`set`) reads/writes
+  `GET`/`PUT /api/sites/:id/tariff` behind `useSiteTariff`/`SetSiteTariffDialog` —
+  a site's configurable per-kWh tariff (charge-points-server ADR 0019), consumed
+  by `ChargingSessionsPanel`'s cost column via `ChargingSessionCost`
+  (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is declared locally, same
+  server-local pattern as `SiteVisitSchedule` above.
+- `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
+  `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
+  `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
+  `lib/api-uptime.ts`'s per-charge-point/per-site reads above.
+  `lib/fleet-reliability.ts` holds the client-side derive helper the panel
+  builds on.
+- `lib/api-firmware-campaigns.ts` (`api.FirmwareCampaigns`) reads/writes
+  `/api/firmware-campaigns` behind the `firmware-campaigns/` page — fleet-wide
+  firmware campaign management (dispatch `UpdateFirmware` to many charge points,
+  track per-station outcome), charge-points-server ADR 0017.
+  `FirmwareCampaign` is declared locally, same server-local pattern as
+  `SiteVisitSchedule` above.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so

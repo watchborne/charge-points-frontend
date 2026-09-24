@@ -809,6 +809,58 @@
           }
         }
       },
+      "certificates": {
+        "title": "Certificats",
+        "loading": "Chargement des certificats installés…",
+        "loadError": "Impossible de charger les certificats de cette borne.",
+        "empty": "Aucun certificat installé",
+        "typeNotReported": "Type non communiqué",
+        "types": {
+          "V2GRootCertificate": "Certificat racine V2G",
+          "MORootCertificate": "Certificat racine opérateur de mobilité",
+          "CSMSRootCertificate": "Certificat racine CSMS",
+          "ManufacturerRootCertificate": "Certificat racine fabricant"
+        },
+        "row": {
+          "delete": "Supprimer"
+        },
+        "install": {
+          "button": "Installer un certificat",
+          "title": "Installer un certificat",
+          "description": "Collez un certificat racine de confiance au format PEM à installer sur cette borne.",
+          "submit": "Installer",
+          "unsupportedV201Types": "Cette borne utilise l'OCPP 1.6, qui n'a pas de notion de certificat V2G/opérateur de mobilité : seuls les certificats racine CSMS et fabricant peuvent être installés.",
+          "fields": {
+            "certificateType": "Type de certificat",
+            "certificate": "Certificat (PEM)",
+            "certificateLooksInvalid": "Ceci ne ressemble pas à un certificat PEM — vérifiez qu'il commence par « -----BEGIN CERTIFICATE----- »."
+          },
+          "result": {
+            "accepted": "Certificat accepté par la borne.",
+            "rejected": "La borne a rejeté ce certificat.",
+            "failed": "La borne n'a pas réussi à installer ce certificat.",
+            "notFound": "Borne inconnue.",
+            "notConnectedOrUnsupported": "Borne non connectée, ou ce type/cette longueur de certificat n'est pas pris en charge par cette borne.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "Le certificat n'a pas pu être installé."
+          }
+        },
+        "delete": {
+          "confirmTitle": "Supprimer ce certificat ?",
+          "confirmDescription": "Ceci demande à la borne de supprimer le certificat de numéro de série {serialNumber}. Cette action est irréversible.",
+          "result": {
+            "accepted": "Certificat supprimé de la borne.",
+            "failed": "La borne n'a pas réussi à supprimer ce certificat.",
+            "notfound": "La borne ne trouve pas ce certificat.",
+            "notFound": "Borne inconnue.",
+            "notConnected": "Borne non connectée.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "Le certificat n'a pas pu être supprimé."
+          }
+        }
+      },
       "chargingSessions": {
         "title": "Sessions de recharge",
         "loading": "Chargement des sessions de recharge…",
@@ -819,6 +871,10 @@
         "startedAt": "Démarrée",
         "duration": "Durée",
         "energy": "Énergie",
+        "cost": "Coût",
+        "costReasons": {
+          "NO_TARIFF_CONFIGURED": "Tarif non défini"
+        },
         "consumption": {
           "show": "Afficher la consommation de la session",
           "hide": "Masquer la consommation de la session",
@@ -1252,6 +1308,23 @@
               "visitedAtPlaceholder": "Date de la visite...",
               "note": "Note",
               "notePlaceholder": "Ex: Inspection annuelle, câble connecteur 2 remplacé"
+            }
+          }
+        },
+        "tariff": {
+          "title": "Tarif électrique",
+          "loading": "Chargement du tarif...",
+          "loadError": "Impossible de charger le tarif de ce site.",
+          "notConfigured": "Aucun tarif configuré pour ce site.",
+          "currentLabel": "Tarif actuel",
+          "setButton": "Définir un tarif",
+          "editButton": "Modifier le tarif",
+          "dialog": {
+            "title": "Configurer le tarif",
+            "description": "Ce tarif sert à estimer le coût des sessions de recharge de ce site. Il n'est pas historisé : le changer ne modifie que les estimations futures.",
+            "fields": {
+              "pricePerKwh": "Prix par kWh",
+              "currency": "Devise"
             }
           }
         }

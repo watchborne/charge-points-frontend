@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
-import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
+import { ChargingSessionsPanel, type ChargingSessionListEntry } from "./ChargingSessionsPanel";
 
 /** A glance at recent activity, not a full audit log — same role
  * `VISIBLE_HISTORY_COUNT` plays for `LogUploadPanel`, scaled up: a session
@@ -39,7 +39,24 @@ export const ChargingSessionsPanelContainer = ({
     isError: failed,
   } = useQuery({
     queryKey: queryKeys.chargingSessions.chargePoint(chargePointId),
-    queryFn: () => api.ChargePoints.listChargingSessions(chargePointId, VISIBLE_HISTORY_COUNT),
+    queryFn: async (): Promise<ChargingSessionListEntry[]> => {
+      const recent = await api.ChargePoints.listChargingSessions(
+        chargePointId,
+        VISIBLE_HISTORY_COUNT,
+      );
+
+      // Best-effort, per-session cost (charge-points-server issue #580): a
+      // failed lookup leaves that row's `cost` undefined rather than failing
+      // the whole panel — the history itself is the part worth showing even
+      // if a cost estimate can't be resolved for one session.
+      const costs = await Promise.all(
+        recent.map((session) =>
+          api.ChargePoints.getChargingSessionCost(chargePointId, session.id).catch(() => undefined),
+        ),
+      );
+
+      return recent.map((session, index) => ({ ...session, cost: costs[index] }));
+    },
   });
 
   if (loading) {

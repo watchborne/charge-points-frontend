@@ -10,6 +10,7 @@ import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { notificationPreferencesApis } from "./api-notification-preferences";
 import { securityEventApis } from "./api-security-events";
+import { siteTariffApis } from "./api-site-tariff";
 import { siteVisitApis } from "./api-site-visits";
 import { siteApis } from "./api-sites";
 import { statusHistoryApis } from "./api-status-history";
@@ -29,6 +30,7 @@ export const api = {
   NotificationPreferences: notificationPreferencesApis,
   SecurityEvents: securityEventApis,
   Sites: siteApis,
+  SiteTariff: siteTariffApis,
   SiteVisits: siteVisitApis,
   StatusHistory: statusHistoryApis,
   Uptime: uptimeApis,

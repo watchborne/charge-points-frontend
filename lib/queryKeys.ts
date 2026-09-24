@@ -48,6 +48,10 @@ export const queryKeys = {
     all: () => ["siteVisits"] as const,
     site: (siteId: string) => [...queryKeys.siteVisits.all(), siteId] as const,
   },
+  siteTariff: {
+    all: () => ["siteTariff"] as const,
+    site: (siteId: string) => [...queryKeys.siteTariff.all(), siteId] as const,
+  },
   siteVisitSchedule: {
     all: () => ["siteVisitSchedule"] as const,
     site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
@@ -92,6 +96,11 @@ export const queryKeys = {
     chargePoint: (chargePointId: string) => [...queryKeys.logUpload.all(), chargePointId] as const,
     history: (chargePointId: string) =>
       [...queryKeys.logUpload.chargePoint(chargePointId), "history"] as const,
+  },
+  certificates: {
+    all: () => ["certificates"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.certificates.all(), chargePointId] as const,
   },
   alerts: {
     all: () => ["alerts"] as const,
