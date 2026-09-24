@@ -1268,6 +1268,15 @@
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
         },
+        "report": {
+          "exportButton": "Export as PDF",
+          "exportError": "Couldn't generate the PDF report. Please try again.",
+          "pdf": {
+            "uptimeSection": "Uptime",
+            "alertsSection": "Alerts",
+            "noAlerts": "No alerts in this period."
+          }
+        },
         "nextVisit": {
           "title": "Next planned visit",
           "loading": "Loading...",

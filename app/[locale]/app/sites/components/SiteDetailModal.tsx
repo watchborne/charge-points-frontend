@@ -32,6 +32,7 @@ import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
 import { ScheduleNextVisitDialog, ScheduleNextVisitValues } from "./ScheduleNextVisitDialog";
 import { SetSiteTariffDialog, SiteTariffFormValues } from "./SetSiteTariffDialog";
 import { SiteReliabilityValue } from "./SiteReliabilityValue";
+import { SiteReportExportButton } from "./SiteReportExportButton";
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { useSiteTariff } from "../../hooks/useSiteTariff";
 import { useSiteVisitSchedule } from "../../hooks/useSiteVisitSchedule";
@@ -481,6 +482,7 @@ export const SiteDetailModal = ({
               <CalendarCheck className="h-4 w-4 mr-2" />
               {t("appPage.sites.detail.visits.logButton")}
             </Button>
+            <SiteReportExportButton site={site} chargePoints={siteChargePoints} />
             <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
               <Coins className="h-4 w-4 mr-2" />
               {tariff
