@@ -9,12 +9,16 @@
 ## CONSISTENCY
 
 ### 1. **Intentionality: localStorage validation patterns inconsistent**
-- **Location:** `/app/components/ThemeProvider.tsx:30`, `/app/[locale]/app/charge-points/components/ChargePointDetailPanel.tsx:65`
-- **Issue:** Theme provider uses unsafe `as Theme` cast without validation, while detail panel properly validates
+
+- **Location:** `/app/components/ThemeProvider.tsx:30`,
+  `/app/[locale]/app/charge-points/components/ChargePointDetailPanel.tsx:65`
+- **Issue:** Theme provider uses unsafe `as Theme` cast without validation, while detail panel
+  properly validates
 - **Impact:** Same pattern solved two different ways; vulnerable to corrupted state
 - **Fix:** Use type guards consistently across all localStorage access
 
 ### 2. **Intentionality: Error logging fragmented across codebase**
+
 - **Location:** `lib/api-*.ts`, `lib/proxy-request.ts`, `app/hooks/*.tsx` (15+ files)
 - **Issue:** Direct `console.error()` calls scattered throughout; backend uses `pino` logger
 - **Impact:** No audit trails, inconsistent monitoring, difficult debugging in production
@@ -22,17 +26,22 @@
 - **Fix:** Create `lib/logger.ts` abstraction; route all errors through it
 
 ### 3. **Adaptability: API proxy mixes concerns**
+
 - **Location:** `lib/proxy-request.ts:7-67`
-- **Issue:** Single function combines routing, session refresh, header injection, error handling
-- **Impact:** Every route handler depends on proxy internals; auth concerns should be middleware-only
+- **Issue:** Single function combines routing, session refresh, header injection, error
+  handling
+- **Impact:** Every route handler depends on proxy internals; auth concerns should be
+  middleware-only
 - **Priority:** HIGH | **Effort:** High
-- **Fix:** Move session refresh to `proxy.ts` middleware; keep proxy-request focused on HTTP forwarding
+- **Fix:** Move session refresh to `proxy.ts` middleware; keep proxy-request focused on HTTP
+  forwarding
 
 ---
 
 ## SECURITY & RELIABILITY
 
 ### 4. **Security: localStorage type safety gaps (Theme)**
+
 - **Location:** `/app/components/ThemeProvider.tsx:30`
 - **Issue:** `(localStorage.getItem(THEME_STORAGE_KEY) as Theme) || "light"` — no validation
 - **Impact:** Vulnerable to corrupted state, extension interference
@@ -40,13 +49,15 @@
 - **Fix:** Validate against `THEMES` constant before casting
 
 ### 5. **Security: Environment variable defaults scattered**
+
 - **Location:** `/lib/constants.ts` vs `/app/auth/dev-login/route.ts:26-27`
 - **Issue:** `API_SECRET_KEY` can be undefined without explicit check
 - **Priority:** MEDIUM | **Effort:** Low
 - **Fix:** Centralize all env var parsing in `lib/constants.ts`
 
 ### 6. **Reliability: setTimeout without cleanup in user components**
-- **Location:** 
+
+- **Location:**
   - `/app/[locale]/app/configuration/components/CommissioningTokenPanel.tsx:134`
   - `/app/[locale]/app/charge-points/components/ChargePointConnectionUrlDialog.tsx:46`
 - **Issue:** `setTimeout(() => setCopied(false), 2000)` with no cleanup
@@ -55,6 +66,7 @@
 - **Fix:** Wrap in `useEffect` with cleanup; extract as `useCopyToClipboard` hook
 
 ### 7. **Reliability: Query key structure drifts between aggregates**
+
 - **Location:** `lib/queryKeys.ts:51-53` (siteTariff), `68-70` (commissioningToken)
 - **Issue:** Most follow `all() → list() → detail()` but these skip intermediate layer
 - **Impact:** Cache invalidation may miss nested keys
@@ -62,6 +74,7 @@
 - **Fix:** Enforce consistent hierarchy across all aggregate keys
 
 ### 8. **Reliability: localStorage type safety gaps (DashboardLayout)**
+
 - **Location:** `/lib/dashboard-layout.ts:40-55` (good example)
 - **Issue:** Theme provider lacks validation; dashboard-layout shows proper pattern
 - **Priority:** MEDIUM | **Effort:** Medium
@@ -72,7 +85,8 @@
 ## MAINTAINABILITY
 
 ### 9. **DRY Violation: Clipboard copy pattern duplicated**
-- **Location:** 
+
+- **Location:**
   - `CommissioningTokenPanel.tsx:130-135`
   - `ChargePointConnectionUrlDialog.tsx:42-47`
 - **Issue:** Identical `useState(copied)` + `setTimeout(2000)` pattern in two places
