@@ -11,7 +11,8 @@ shows charge points and sites in real time, backed by `charge-points-server`.
 Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `@tanstack/react-query` for server-state, `next-intl` for i18n, `sonner` for
-toast notifications, `recharts` for charts, `@sentry/nextjs` for error
+toast notifications, `recharts` for charts, `@react-pdf/renderer` +
+`html2canvas` for the printable site report PDF, `@sentry/nextjs` for error
 tracking. Dev server runs on **port 3001**. Domain types come from
 `@watchborne/charge-points-types`.
 Production builds run with `next build --webpack` (see Commands below) — a
@@ -82,8 +83,14 @@ app/
                            #   history — moved here from the security tab so the write and
                            #   read sides of display messages sit together),
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
-                           #   URL). ChargePointDetailPanel is the tabbed container these
-                           #   render into (tabs: main/actions/consumption/sessions/alerts/
+                           #   URL, and CertificatesPanel/InstallCertificateDialog/
+                           #   DeleteCertificateDialog: charge-point certificate management
+                           #   (InstallCertificate/DeleteCertificate/GetInstalledCertificateIds,
+                           #   applies to both OCPP dialects — only some certificate types in
+                           #   the install dialog are 2.0.1-only — rendered in the "security"
+                           #   tab alongside SecurityEventsPanel). ChargePointDetailPanel is
+                           #   the tabbed container these render into (tabs: main/actions/
+                           #   consumption/sessions/alerts/
                            #   security), and persists the last-viewed tab per browser
                            #   (localStorage key cp-detail-last-tab) as the default on the
                            #   next mount or charge-point switch. It is itself decomposed
@@ -107,7 +114,14 @@ app/
                            #   cancels a site's next visit (GET/PUT/DELETE
                            #   /api/sites/:id/next-visit, charge-points-server issue #579/
                            #   ADR 0016) from SiteDetailModal — the proactive counterpart to
-                           #   LogSiteVisitDialog's reactive history
+                           #   LogSiteVisitDialog's reactive history, and SiteReportExportButton:
+                           #   exports a printable PDF site report (via
+                           #   hooks/useSiteReport.ts + @react-pdf/renderer) from SiteDetailModal
+                           #   — SiteReportDocument is the PDF layout, SiteReportChartCapture
+                           #   rasterizes each charge point's consumption chart to an embeddable
+                           #   PNG first (lib/capture-chart-image.ts, html2canvas) since
+                           #   @react-pdf/renderer's own primitives can't render a live
+                           #   `recharts` chart directly
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; plus generic display/interaction
@@ -131,8 +145,9 @@ app/
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
                           #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
                           #   useDashboardLayout (widget visibility/order, see dashboard/ above),
-                          #   useSiteVisitSchedule, useSiteTariff (see sites/components/ above),
-                          #   useFleetReliability (see dashboard/ above)
+                          #   useSiteVisitSchedule, useSiteTariff, useSiteReport (see
+                          #   sites/components/ above), useFleetReliability (see dashboard/
+                          #   above)
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -310,6 +325,15 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   station's OCPP `SecurityEventNotification` history. Its response type is
   declared locally too, same reasoning as `Me`/`ConnectionStateEvent` above:
   the backend keeps `SecurityEvent` server-local (its ADR 0009).
+- `api.ChargePoints.listCertificates`/`installCertificate`/`deleteCertificate`
+  (`lib/api-charge-points.ts`) back `CertificatesPanel`/`InstallCertificateDialog`/
+  `DeleteCertificateDialog` — OCPP `GetInstalledCertificateIds`/
+  `InstallCertificate`/`DeleteCertificate` (charge-points-types issue #535)
+  proxied through `POST /api/charge-points/:id/certificates/query` and
+  `POST`/`DELETE /api/charge-points/:id/certificates`. `ChargePointCertificates`
+  and friends are declared locally in `types/certificate.ts`, same server-local
+  response-type pattern as `SecurityEvent` above (the backend has no persisted
+  certificate entity to re-export a shared type for).
 - `lib/api-error-wrapper.ts` — the standardized error-handling wrapper the
   `lib/api-*.ts` methods above are built on, so a failed request surfaces a
   consistent shape regardless of which method threw.
