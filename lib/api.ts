@@ -1,4 +1,5 @@
 import { accessRequestApis } from "./api-access-requests";
+import { auditApis } from "./api-audit";
 import { certificateApis } from "./api-certificates";
 import { chargePointAlertApis } from "./api-charge-point-alerts";
 import { chargePointApis } from "./api-charge-points";
@@ -41,6 +42,7 @@ const chargePointsApi = {
 
 export const api = {
   AccessRequests: accessRequestApis,
+  Audit: auditApis,
   ChargePoints: chargePointsApi,
   CommissioningToken: commissioningTokenApis,
   Contact: contactApis,

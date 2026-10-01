@@ -87,6 +87,15 @@ export async function proxyToBackend(
   // 500 from the proxy.
   const body = NULL_BODY_STATUSES.has(call.response.status) ? null : await call.response.text();
 
+  if (options?.raw) {
+    const headers: Record<string, string> = {};
+    const contentType = backendResponse.headers.get("content-type");
+    if (contentType) headers["Content-Type"] = contentType;
+    const contentDisposition = backendResponse.headers.get("content-disposition");
+    if (contentDisposition) headers["Content-Disposition"] = contentDisposition;
+    return new NextResponse(body, { status: backendResponse.status, headers });
+  }
+
   return new NextResponse(body, {
     status: call.response.status,
     headers: { "Content-Type": requestContentType },
