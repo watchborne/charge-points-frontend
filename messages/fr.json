@@ -77,7 +77,8 @@
           "sites": "Sites",
           "configuration": "Configuration",
           "profile": "Profil",
-          "firmwareCampaigns": "Campagnes de firmware"
+          "firmwareCampaigns": "Campagnes de firmware",
+          "activity": "Activité"
         },
         "wsStatus": {
           "connecting": "Connexion en cours…",
@@ -1535,8 +1536,33 @@
       }
     },
     "activity": {
+      "page": {
+        "title": "Activité",
+        "subtitle": "Toutes les actions effectuées sur votre parc — qui a fait quoi, et ce que la borne a répondu.",
+        "filters": {
+          "period": "Période",
+          "periodOptions": {
+            "all": "Toute la période",
+            "last24h": "Dernières 24 heures",
+            "last7d": "7 derniers jours",
+            "last30d": "30 derniers jours"
+          },
+          "action": "Action",
+          "allActions": "Toutes les actions",
+          "outcome": "Résultat",
+          "allOutcomes": "Tous les résultats",
+          "site": "Site",
+          "allSites": "Tous les sites",
+          "user": "ID utilisateur",
+          "userPlaceholder": "Filtrer par ID utilisateur...",
+          "customer": "ID client",
+          "customerPlaceholder": "Filtrer par ID client..."
+        },
+        "exportCsv": "Exporter en CSV"
+      },
       "loading": "Chargement de l'activité…",
       "error": "Échec du chargement du journal d'activité.",
+      "empty": "Aucune activité ne correspond à ces filtres.",
       "loadingMore": "Chargement…",
       "loadMore": "Charger plus",
       "details": "Détails",
