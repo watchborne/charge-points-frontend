@@ -26,6 +26,11 @@ export const Header = () => {
       url: "/app/firmware-campaigns",
     },
     {
+      key: "activity",
+      label: t("layout.navbar.app.links.activity"),
+      url: "/app/activity",
+    },
+    {
       key: "configuration",
       label: t("layout.navbar.app.links.configuration"),
       url: "/app/configuration",

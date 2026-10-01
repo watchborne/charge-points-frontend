@@ -77,7 +77,8 @@
           "sites": "Sites",
           "configuration": "Configuration",
           "profile": "Profile",
-          "firmwareCampaigns": "Firmware campaigns"
+          "firmwareCampaigns": "Firmware campaigns",
+          "activity": "Activity"
         },
         "wsStatus": {
           "connecting": "Connecting…",
@@ -1535,8 +1536,33 @@
       }
     },
     "activity": {
+      "page": {
+        "title": "Activity",
+        "subtitle": "Every action taken on your fleet — who did what, and what the station answered.",
+        "filters": {
+          "period": "Period",
+          "periodOptions": {
+            "all": "All time",
+            "last24h": "Last 24 hours",
+            "last7d": "Last 7 days",
+            "last30d": "Last 30 days"
+          },
+          "action": "Action",
+          "allActions": "All actions",
+          "outcome": "Outcome",
+          "allOutcomes": "All outcomes",
+          "site": "Site",
+          "allSites": "All sites",
+          "user": "User ID",
+          "userPlaceholder": "Filter by user ID...",
+          "customer": "Customer ID",
+          "customerPlaceholder": "Filter by customer ID..."
+        },
+        "exportCsv": "Export CSV"
+      },
       "loading": "Loading activity…",
       "error": "Failed to load the activity trail.",
+      "empty": "No activity matches these filters.",
       "loadingMore": "Loading more…",
       "loadMore": "Load more",
       "details": "Details",
