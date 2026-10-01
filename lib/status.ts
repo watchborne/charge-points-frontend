@@ -1,6 +1,7 @@
 import { AlertStatus, SiteHealthStatus } from "@watchborne/charge-points-types";
 import type { ColorName } from "@watchborne/electrons";
 
+import type { AuditOutcome } from "@/lib/api-audit";
 import type { FirmwareCampaignStatus } from "@/lib/api-firmware-campaigns";
 import type { ReliabilityBucket } from "@/lib/fleet-reliability";
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
@@ -117,6 +118,24 @@ export const firmwareCampaignStatusColor = (status: FirmwareCampaignStatus): Col
       return "green";
     case "CANCELLED":
       return "gray";
+    default:
+      return "gray";
+  }
+};
+
+/** An audit entry's completion state (`AuditEntry.outcome`). */
+export const auditOutcomeColor = (outcome: AuditOutcome): ColorName => {
+  switch (outcome) {
+    case "PENDING":
+      return "blue";
+    case "SUCCEEDED":
+      return "green";
+    case "REJECTED":
+      return "amber";
+    case "FAILED":
+      return "red";
+    case "TIMED_OUT":
+      return "orange";
     default:
       return "gray";
   }

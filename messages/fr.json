@@ -609,8 +609,13 @@
           "consumption": "Consommation",
           "sessions": "Sessions",
           "alerts": "Alertes",
-          "security": "Sécurité & historique"
+          "security": "Sécurité & historique",
+          "activity": "Activité"
         }
+      },
+      "activity": {
+        "title": "Activité",
+        "empty": "Aucune activité enregistrée pour le moment."
       },
       "commissioning": {
         "title": "À mettre en service",
@@ -1527,6 +1532,67 @@
         "notFound": "Campagne introuvable.",
         "alreadyDispatching": "Cette campagne a déjà commencé à se déployer et ne peut plus être annulée.",
         "genericError": "Une erreur est survenue."
+      }
+    },
+    "activity": {
+      "loading": "Chargement de l'activité…",
+      "error": "Échec du chargement du journal d'activité.",
+      "loadingMore": "Chargement…",
+      "loadMore": "Charger plus",
+      "details": "Détails",
+      "systemActor": "Système",
+      "systemSources": {
+        "WATCHDOG": "Surveillance automatique",
+        "SCHEDULER": "Planificateur",
+        "FIRMWARE_CAMPAIGN": "Campagne de firmware",
+        "REPORT_AUTO_SEND": "Rapport automatique",
+        "OCPP_STATION": "Borne de recharge"
+      },
+      "outcomes": {
+        "pending": "En cours",
+        "succeeded": "Réussi",
+        "rejected": "Rejeté",
+        "failed": "Échoué",
+        "timedOut": "Expiré"
+      },
+      "actions": {
+        "CHARGE_POINT_RESET": "Redémarrage à distance",
+        "CHARGE_POINT_CHANGE_AVAILABILITY": "Disponibilité modifiée",
+        "CONNECTOR_UNLOCK": "Connecteur déverrouillé",
+        "CHARGE_POINT_CONFIGURATION_READ": "Configuration lue",
+        "CHARGE_POINT_CONFIGURATION_WRITE": "Configuration modifiée",
+        "CHARGE_POINT_TRIGGER_MESSAGE": "Message déclenché",
+        "CHARGE_POINT_FIRMWARE_UPDATE": "Mise à jour du firmware",
+        "CHARGE_POINT_LOG_UPLOAD_START": "Envoi des journaux demandé",
+        "CHARGE_POINT_GET_BASE_REPORT": "Rapport de base demandé",
+        "CHARGE_POINT_GET_REPORT": "Rapport de l'appareil demandé",
+        "CHARGE_POINT_SET_DISPLAY_MESSAGE": "Message d'affichage défini",
+        "CHARGE_POINT_CLEAR_DISPLAY_MESSAGE": "Message d'affichage effacé",
+        "CHARGE_POINT_GET_DISPLAY_MESSAGES": "Messages d'affichage demandés",
+        "CHARGE_POINT_INSTALL_CERTIFICATE": "Certificat installé",
+        "CHARGE_POINT_DELETE_CERTIFICATE": "Certificat supprimé",
+        "CHARGE_POINT_GET_INSTALLED_CERTIFICATES": "Certificats installés lus",
+        "CHARGE_POINT_CREATED": "Borne créée",
+        "CHARGE_POINT_UPDATED": "Borne modifiée",
+        "CHARGE_POINT_DELETED": "Borne supprimée",
+        "CHARGE_POINT_ACTIVATION_SET": "Activation de la borne modifiée",
+        "SITE_CREATED": "Site créé",
+        "SITE_UPDATED": "Site modifié",
+        "SITE_DELETED": "Site supprimé",
+        "CUSTOMER_CREATED": "Client créé",
+        "CUSTOMER_UPDATED": "Client modifié",
+        "CUSTOMER_DELETED": "Client supprimé",
+        "SITE_TARIFF_SET": "Tarif du site défini",
+        "ALERT_ACKNOWLEDGED": "Alerte acquittée",
+        "COMMISSIONING_TOKEN_ISSUED": "Jeton de mise en service émis",
+        "FIRMWARE_CAMPAIGN_CREATED": "Campagne de firmware créée",
+        "FIRMWARE_CAMPAIGN_CANCELLED": "Campagne de firmware annulée",
+        "SITE_VISIT_LOGGED": "Visite de site enregistrée",
+        "SITE_VISIT_SCHEDULED": "Visite de site planifiée",
+        "SITE_VISIT_SCHEDULE_CANCELLED": "Planification de visite annulée",
+        "NOTIFICATION_PREFERENCES_SET": "Préférences de notification mises à jour",
+        "COMMISSIONING_TOKEN_CLAIMED": "Jeton de mise en service utilisé",
+        "MEMBERSHIP_GRANTED": "Accès accordé"
       }
     }
   },

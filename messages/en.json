@@ -609,8 +609,13 @@
           "consumption": "Consumption",
           "sessions": "Sessions",
           "alerts": "Alerts",
-          "security": "Security & history"
+          "security": "Security & history",
+          "activity": "Activity"
         }
+      },
+      "activity": {
+        "title": "Activity",
+        "empty": "No activity recorded yet."
       },
       "commissioning": {
         "title": "Awaiting commissioning",
@@ -1527,6 +1532,67 @@
         "notFound": "Campaign not found.",
         "alreadyDispatching": "This campaign has already started dispatching and can no longer be cancelled.",
         "genericError": "Something went wrong."
+      }
+    },
+    "activity": {
+      "loading": "Loading activity…",
+      "error": "Failed to load the activity trail.",
+      "loadingMore": "Loading more…",
+      "loadMore": "Load more",
+      "details": "Details",
+      "systemActor": "System",
+      "systemSources": {
+        "WATCHDOG": "Watchdog",
+        "SCHEDULER": "Scheduler",
+        "FIRMWARE_CAMPAIGN": "Firmware campaign",
+        "REPORT_AUTO_SEND": "Automatic report",
+        "OCPP_STATION": "Charge point"
+      },
+      "outcomes": {
+        "pending": "Pending",
+        "succeeded": "Succeeded",
+        "rejected": "Rejected",
+        "failed": "Failed",
+        "timedOut": "Timed out"
+      },
+      "actions": {
+        "CHARGE_POINT_RESET": "Remote reset",
+        "CHARGE_POINT_CHANGE_AVAILABILITY": "Availability changed",
+        "CONNECTOR_UNLOCK": "Connector unlocked",
+        "CHARGE_POINT_CONFIGURATION_READ": "Configuration read",
+        "CHARGE_POINT_CONFIGURATION_WRITE": "Configuration changed",
+        "CHARGE_POINT_TRIGGER_MESSAGE": "Message triggered",
+        "CHARGE_POINT_FIRMWARE_UPDATE": "Firmware update",
+        "CHARGE_POINT_LOG_UPLOAD_START": "Log upload requested",
+        "CHARGE_POINT_GET_BASE_REPORT": "Base report requested",
+        "CHARGE_POINT_GET_REPORT": "Device report requested",
+        "CHARGE_POINT_SET_DISPLAY_MESSAGE": "Display message set",
+        "CHARGE_POINT_CLEAR_DISPLAY_MESSAGE": "Display message cleared",
+        "CHARGE_POINT_GET_DISPLAY_MESSAGES": "Display messages requested",
+        "CHARGE_POINT_INSTALL_CERTIFICATE": "Certificate installed",
+        "CHARGE_POINT_DELETE_CERTIFICATE": "Certificate deleted",
+        "CHARGE_POINT_GET_INSTALLED_CERTIFICATES": "Installed certificates read",
+        "CHARGE_POINT_CREATED": "Charge point created",
+        "CHARGE_POINT_UPDATED": "Charge point updated",
+        "CHARGE_POINT_DELETED": "Charge point deleted",
+        "CHARGE_POINT_ACTIVATION_SET": "Charge point activation changed",
+        "SITE_CREATED": "Site created",
+        "SITE_UPDATED": "Site updated",
+        "SITE_DELETED": "Site deleted",
+        "CUSTOMER_CREATED": "Customer created",
+        "CUSTOMER_UPDATED": "Customer updated",
+        "CUSTOMER_DELETED": "Customer deleted",
+        "SITE_TARIFF_SET": "Site tariff set",
+        "ALERT_ACKNOWLEDGED": "Alert acknowledged",
+        "COMMISSIONING_TOKEN_ISSUED": "Commissioning token issued",
+        "FIRMWARE_CAMPAIGN_CREATED": "Firmware campaign created",
+        "FIRMWARE_CAMPAIGN_CANCELLED": "Firmware campaign cancelled",
+        "SITE_VISIT_LOGGED": "Site visit logged",
+        "SITE_VISIT_SCHEDULED": "Site visit scheduled",
+        "SITE_VISIT_SCHEDULE_CANCELLED": "Site visit schedule cancelled",
+        "NOTIFICATION_PREFERENCES_SET": "Notification preferences updated",
+        "COMMISSIONING_TOKEN_CLAIMED": "Commissioning token claimed",
+        "MEMBERSHIP_GRANTED": "Membership granted"
       }
     }
   },

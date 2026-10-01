@@ -58,6 +58,9 @@ export function useBulkChargePointActions(): BulkChargePointActions {
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+    // Prefix match: invalidates both the per-charge-point Activity tab and
+    // the platform-wide /app/activity page, whichever stations were hit.
+    queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
   }, [queryClient]);
 
   const bulkReset = useCallback(
