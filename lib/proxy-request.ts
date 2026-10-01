@@ -7,6 +7,12 @@ import { API_URL } from "./constants";
 export async function proxyToBackend(
   request: NextRequest,
   backendPath: string,
+  options?: {
+    // Passes the backend's own Content-Type/Content-Disposition through
+    // instead of forcing application/json — needed for a non-JSON response
+    // like the audit trail's CSV export (`/api/audit.csv`).
+    raw?: boolean;
+  },
 ): Promise<NextResponse> {
   const backendUrl = new URL(`${API_URL}${backendPath}`);
 
@@ -59,6 +65,15 @@ export async function proxyToBackend(
   }
 
   const body = await backendResponse.text();
+
+  if (options?.raw) {
+    const headers: Record<string, string> = {};
+    const contentType = backendResponse.headers.get("content-type");
+    if (contentType) headers["Content-Type"] = contentType;
+    const contentDisposition = backendResponse.headers.get("content-disposition");
+    if (contentDisposition) headers["Content-Disposition"] = contentDisposition;
+    return new NextResponse(body, { status: backendResponse.status, headers });
+  }
 
   return new NextResponse(body, {
     status: backendResponse.status,
