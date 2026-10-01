@@ -102,10 +102,14 @@ export const ChargePointConfigurationDialog = ({
     onSuccess: async (outcome) => {
       setSetOutcome(outcome);
       // Re-read so the table reflects the applied change.
-      if (outcome.ok)
+      if (outcome.ok) {
         await queryClient.invalidateQueries({
           queryKey: queryKeys.settings.chargePoint(chargePointId),
         });
+        // Prefix match: invalidates both this station's Activity tab and the
+        // platform-wide /app/activity page.
+        await queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
+      }
     },
   });
 
