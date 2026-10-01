@@ -1,4 +1,5 @@
 import { accessRequestApis } from "./api-access-requests";
+import { auditApis } from "./api-audit";
 import { chargePointApis } from "./api-charge-points";
 import { commissioningTokenApis } from "./api-commissioning-token";
 import { deviceEventApis } from "./api-device-events";
@@ -18,6 +19,7 @@ import { uptimeApis } from "./api-uptime";
 
 export const api = {
   AccessRequests: accessRequestApis,
+  Audit: auditApis,
   ChargePoints: chargePointApis,
   CommissioningToken: commissioningTokenApis,
   DeviceEvents: deviceEventApis,

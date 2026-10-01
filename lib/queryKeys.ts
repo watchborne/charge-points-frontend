@@ -129,6 +129,12 @@ export const queryKeys = {
     site: (siteId: string, filters?: Record<string, unknown>) =>
       [...queryKeys.siteReport.all(), siteId, ...(filters ? [filters] : [])] as const,
   },
+  audit: {
+    all: () => ["audit"] as const,
+    lists: () => [...queryKeys.audit.all(), "list"] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.audit.lists(), ...(filters ? [filters] : [])] as const,
+  },
   consumption: {
     all: () => ["consumption"] as const,
     session: (

@@ -181,4 +181,40 @@ describe("proxyToBackend", () => {
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ error: "Backend unreachable" });
   });
+
+  describe("raw: true", () => {
+    function backendResponseWithHeaders(body: string, headers: Record<string, string>) {
+      return Promise.resolve(new Response(body, { status: 200, headers }));
+    }
+
+    it("SHOULD pass the backend's own Content-Type through instead of forcing JSON", async () => {
+      mockFetch.mockReturnValue(
+        backendResponseWithHeaders("a,b\n1,2\n", { "content-type": "text/csv; charset=utf-8" }),
+      );
+      const proxyToBackend = await importProxy();
+
+      const res = await proxyToBackend(requestOf("/api/audit.csv"), "/api/audit.csv", {
+        raw: true,
+      });
+
+      expect(res.headers.get("content-type")).toBe("text/csv; charset=utf-8");
+      expect(await res.text()).toBe("a,b\n1,2\n");
+    });
+
+    it("SHOULD pass the backend's Content-Disposition through", async () => {
+      mockFetch.mockReturnValue(
+        backendResponseWithHeaders("a,b\n", {
+          "content-type": "text/csv",
+          "content-disposition": 'attachment; filename="audit.csv"',
+        }),
+      );
+      const proxyToBackend = await importProxy();
+
+      const res = await proxyToBackend(requestOf("/api/audit.csv"), "/api/audit.csv", {
+        raw: true,
+      });
+
+      expect(res.headers.get("content-disposition")).toBe('attachment; filename="audit.csv"');
+    });
+  });
 });
