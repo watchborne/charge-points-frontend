@@ -589,6 +589,7 @@ ENABLE_DEV_LOGIN=                                 # optional, LOCAL DEV ONLY (de
 SUPABASE_SERVICE_ROLE_KEY=                        # optional, LOCAL DEV ONLY (dev-login shortcut)
 NEXT_PUBLIC_SENTRY_DSN=                           # optional; unset disables Sentry entirely
 NEXT_PUBLIC_SENTRY_ENVIRONMENT=                   # optional, overrides NODE_ENV as the Sentry "environment" tag
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=            # optional, 0-1 (default 1), Sentry tracing sample rate
 SENTRY_ORG=                                       # optional, CI/build only (source map upload)
 SENTRY_PROJECT=                                   # optional, CI/build only (source map upload)
 SENTRY_AUTH_TOKEN=                                # optional, CI/build only, secret (source map upload)
@@ -602,7 +603,10 @@ centralized in `lib/constants.ts` and consumed only through
 `lib/supabase/{client,server,middleware}.ts`. `NEXT_PUBLIC_SENTRY_DSN` wires
 Sentry error reporting and Web Vitals via `instrumentation.ts` /
 `instrumentation-client.ts` / `sentry.*.config.ts`; leaving it unset disables
-Sentry rather than erroring (the local dev default). `SENTRY_ORG` /
+Sentry rather than erroring (the local dev default). `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE`
+(parsed by `lib/sentry-sample-rate.ts`, falls back to 1 on a blank/invalid value)
+tunes the tracing sample rate. `app/global-error.tsx` reports React rendering
+errors that escape every other boundary to Sentry. `SENTRY_ORG` /
 `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` are only used at build time to upload
 source maps so stack traces resolve to original TypeScript. See `.env.example`.
 
