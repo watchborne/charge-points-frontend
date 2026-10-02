@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useState } from "react";
 
+import { useToastNotification } from "@/app/components/ToastNotification";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -27,9 +28,15 @@ function SitesPageContent() {
   const { chargePoints } = useChargePoints();
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
+  const { pushErrorNotification } = useToastNotification();
 
   const createSiteMutation = useMutation({
     mutationFn: api.Sites.createSite,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
+  });
+  const updateSiteMutation = useMutation({
+    mutationFn: ({ id, values }: { id: Site["id"]; values: SiteFormValues }) =>
+      api.Sites.updateSite(id, { id, ...values }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
   });
   const deleteSiteMutation = useMutation({
@@ -68,11 +75,16 @@ function SitesPageContent() {
     await createSiteMutation.mutateAsync(values);
   };
 
-  function handleEdit(values: SiteFormValues) {
+  const handleEdit = async (values: SiteFormValues) => {
     if (!editTarget) return;
-    console.log(values);
-    setEditTarget(null);
-  }
+
+    try {
+      await updateSiteMutation.mutateAsync({ id: editTarget.id, values });
+      setEditTarget(null);
+    } catch {
+      pushErrorNotification(t("appPage.sites.errors.updateFailed"));
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;

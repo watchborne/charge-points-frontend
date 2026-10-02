@@ -20,6 +20,9 @@ vi.mock("next/headers", () => ({
   cookies: () => ({ getAll: () => [], set: vi.fn() }),
 }));
 
+const { captureException } = vi.hoisted(() => ({ captureException: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({ captureException }));
+
 const mockFetch = vi.fn();
 
 function backendResponse(body: string, status = 200) {
@@ -180,5 +183,18 @@ describe("proxyToBackend", () => {
 
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ error: "Backend unreachable" });
+  });
+
+  it("SHOULD report the error to Sentry WHEN the backend fetch throws a network error", async () => {
+    const error = new TypeError("fetch failed");
+    mockFetch.mockRejectedValue(error);
+    const proxyToBackend = await importProxy();
+
+    await proxyToBackend(requestOf("/api/charge-points"), "/api/charge-points");
+
+    expect(captureException).toHaveBeenCalledWith(
+      error,
+      expect.objectContaining({ tags: { area: "api-proxy" } }),
+    );
   });
 });
