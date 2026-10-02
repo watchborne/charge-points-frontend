@@ -1256,6 +1256,9 @@
       "deletion": {
         "description": "Action destructive : ce site sera irrécupérable."
       },
+      "errors": {
+        "updateFailed": "Impossible de mettre à jour le site. Veuillez réessayer."
+      },
       "siteCombobox": {
         "placeholder": "Sélectionner un site...",
         "search": "Chercher un site...",
