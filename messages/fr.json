@@ -575,6 +575,7 @@
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
           "nameCreatePlaceholder": "Optionnel — un nom sera généré si laissé vide",
+          "nameRequired": "Le nom est obligatoire",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",
