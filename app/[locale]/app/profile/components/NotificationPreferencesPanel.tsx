@@ -13,18 +13,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
-import type { NotificationPreferences } from "@/lib/api-notification-preferences";
+import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
 import { queryKeys } from "@/lib/queryKeys";
 
 const DIGEST_HOURS_UTC = Array.from({ length: 24 }, (_, hour) => hour);
 
+// Each language is named in itself, whatever the dashboard's own locale: that
+// is how a user who landed on the wrong one can still find theirs.
+const EMAIL_LOCALES: { value: EmailLocale; label: string }[] = [
+  { value: "fr", label: "Français" },
+  { value: "en", label: "English" },
+];
+
 const formatHourUtc = (hour: number) => `${String(hour).padStart(2, "0")}:00 UTC`;
 
 /**
- * Lets a user opt in/out of the daily alert digest email and pick their own
+ * Lets a user opt in/out of the daily alert digest email, pick their own
  * send hour (UTC), overriding charge-points-server's global default hour
- * (ADR 0018 there). Both fields default to the backend's own resolved
- * defaults — this panel never invents a client-side fallback for a user who
+ * (ADR 0018 there), and choose the language of every email the backend sends
+ * them (ADR 0022 there). Every field defaults to the backend's own resolved
+ * default — this panel never invents a client-side fallback for a user who
  * has not set anything yet.
  */
 export const NotificationPreferencesPanel = () => {
@@ -109,6 +117,34 @@ export const NotificationPreferencesPanel = () => {
                     {DIGEST_HOURS_UTC.map((hour) => (
                       <SelectItem key={hour} value={String(hour)}>
                         {formatHourUtc(hour)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm">{t("appPage.profile.notifications.locale.title")}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("appPage.profile.notifications.locale.description")}
+                  </span>
+                </div>
+                <Select
+                  value={preferences.locale}
+                  disabled={saving}
+                  onValueChange={(value) => updateMutation.mutate({ locale: value as EmailLocale })}
+                >
+                  <SelectTrigger
+                    className="w-[140px]"
+                    aria-label={t("appPage.profile.notifications.locale.title")}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EMAIL_LOCALES.map(({ value, label }) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
                       </SelectItem>
                     ))}
                   </SelectContent>
