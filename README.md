@@ -44,6 +44,7 @@ ENABLE_DEV_LOGIN=<optional, local dev only — see below>
 SUPABASE_SERVICE_ROLE_KEY=<optional, local dev only — see below>
 NEXT_PUBLIC_SENTRY_DSN=<optional, unset disables Sentry entirely>
 NEXT_PUBLIC_SENTRY_ENVIRONMENT=<optional, overrides NODE_ENV as the Sentry "environment" tag>
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=<optional, 0-1, defaults to 1 (trace everything)>
 SENTRY_ORG=<optional, CI/build only — source map upload>
 SENTRY_PROJECT=<optional, CI/build only — source map upload>
 SENTRY_AUTH_TOKEN=<optional, CI/build only, secret — source map upload>
