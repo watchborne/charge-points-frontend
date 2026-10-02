@@ -737,7 +737,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     body: InstallCertificateBody,
   ): Promise<InstallCertificateOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/certificates`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -753,10 +753,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to install a certificate on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.installCertificate");
   },
   /**
    * Deletes an installed certificate (OCPP `DeleteCertificate`), identified
@@ -767,7 +764,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     certificateHashData: CertificateHashData,
   ): Promise<DeleteCertificateOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/certificates`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -783,9 +780,6 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to delete a certificate on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.deleteCertificate");
   },
 };
