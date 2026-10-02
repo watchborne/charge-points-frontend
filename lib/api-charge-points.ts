@@ -35,7 +35,7 @@ import type {
 import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 import type { ChargePointLogUpload, LogUploadView } from "@/types/log-upload";
 
-import { withErrorLogging } from "./api-error-wrapper";
+import { withErrorLogging, withErrorLoggingAsync } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
@@ -236,12 +236,10 @@ export type ChargingSessionCost = {
 
 export const chargePointApis = {
   getChargePoints: async function (): Promise<ChargePointWithConnectors[]> {
-    try {
-      return await httpClient.get<ChargePointWithConnectors[]>("/api/charge-points");
-    } catch (error) {
-      console.error("Failed to fetch charge points", error);
-      throw error;
-    }
+    return withErrorLogging(
+      () => httpClient.get<ChargePointWithConnectors[]>("/api/charge-points"),
+      "ChargePoint.getChargePoints",
+    );
   },
   getChargePoint: async function (
     ChargePointId: ChargePoint["id"],
@@ -280,7 +278,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     type: ResetType,
   ): Promise<ResetChargePointOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -293,17 +291,14 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to reset charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.resetChargePoint");
   },
   changeAvailability: async function (
     chargePointId: ChargePoint["id"],
     connectorId: number,
     type: AvailabilityType,
   ): Promise<ChangeAvailabilityOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/availability`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -316,16 +311,13 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to change availability of charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.changeAvailability");
   },
   unlockConnector: async function (
     chargePointId: ChargePoint["id"],
     connectorId: number,
   ): Promise<UnlockConnectorOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/unlock-connector`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -338,10 +330,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to unlock connector of charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.unlockConnector");
   },
   /**
    * Reads the station's settings as a flat key/value list.
@@ -357,7 +346,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     key?: string[],
   ): Promise<GetSettingsOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -373,10 +362,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to read settings of charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.getSettings");
   },
   /** Writes one setting by flat key — the write half of `getSettings` above. */
   setSetting: async function (
@@ -384,7 +370,7 @@ export const chargePointApis = {
     key: string,
     value: string,
   ): Promise<SetSettingOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -397,10 +383,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to change a setting of charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.setSetting");
   },
   /**
    * The charge point's firmware picture: the update in flight and the last
@@ -483,7 +466,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     body: StartFirmwareUpdateBody,
   ): Promise<StartFirmwareUpdateOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/firmware`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -499,10 +482,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to start a firmware update on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.startFirmwareUpdate");
   },
   /**
    * The charge point's remote-log-retrieval picture: the upload in flight and
@@ -579,7 +559,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     body: StartLogUploadBody,
   ): Promise<StartLogUploadOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/log-upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -595,17 +575,14 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to start a log upload on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.startLogUpload");
   },
   triggerMessage: async function (
     chargePointId: ChargePoint["id"],
     requestedMessage: TriggerMessageType,
     connectorId?: number,
   ): Promise<TriggerMessageOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/trigger`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -620,17 +597,14 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to trigger a message on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.triggerMessage");
   },
   /** Pushes a message to the station's physical display (OCPP `SetDisplayMessage`, 2.0.1-only). */
   setDisplayMessage: async function (
     chargePointId: ChargePoint["id"],
     body: SetDisplayMessageBody,
   ): Promise<SetDisplayMessageOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/display-messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -649,17 +623,14 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to set a display message on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.setDisplayMessage");
   },
   /** Removes a previously set display message by id (OCPP `ClearDisplayMessage`, 2.0.1-only). */
   clearDisplayMessage: async function (
     chargePointId: ChargePoint["id"],
     messageId: number,
   ): Promise<ClearDisplayMessageOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(
         `/api/charge-points/${chargePointId}/display-messages/${messageId}`,
         { method: "DELETE" },
@@ -671,10 +642,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to clear a display message on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.clearDisplayMessage");
   },
   /**
    * The charge point's installed OCPP trust-anchor certificates (OCPP
@@ -700,7 +668,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     body: InstallCertificateBody,
   ): Promise<InstallCertificateOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/certificates`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -716,10 +684,7 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to install a certificate on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.installCertificate");
   },
   /**
    * Deletes an installed certificate (OCPP `DeleteCertificate`), identified
@@ -730,7 +695,7 @@ export const chargePointApis = {
     chargePointId: ChargePoint["id"],
     certificateHashData: CertificateHashData,
   ): Promise<DeleteCertificateOutcome> {
-    try {
+    return withErrorLoggingAsync(async () => {
       const response = await fetch(`/api/charge-points/${chargePointId}/certificates`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -746,9 +711,6 @@ export const chargePointApis = {
       }
 
       return { ok: false, httpStatus: response.status };
-    } catch (error) {
-      console.error(`Failed to delete a certificate on charge point ${chargePointId}`, error);
-      return { ok: false, httpStatus: 0 };
-    }
+    }, "ChargePoint.deleteCertificate");
   },
 };
