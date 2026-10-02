@@ -170,7 +170,8 @@ app/
   assets/                # static assets used by app/ components
 proxy.ts                # Supabase session refresh, next-intl URL-based locale
                         # routing (via next-intl/middleware), and auth guard for
-                        # /app, /api, /login, /signup (Next's renamed
+                        # /app, /login, /signup (not /api — the backend
+                        # alone gates it; Next's renamed
                         # middleware.ts file convention as of Next 16). /api and
                         # /auth skip next-intl's routing entirely (they're
                         # outside [locale]); everything else goes through
@@ -216,8 +217,10 @@ The browser never calls `charge-points-server` directly. It calls same-origin
 exists, also forwards the caller's access token as `Authorization: Bearer
 <token>` (via `(await createClient()).auth.getSession()`) so the backend can
 resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
-0002). Routes exempted from the session gate (e.g. `/api/access-requests`, see
-`PUBLIC_API_PATHS` in `proxy.ts`) simply have no token to attach.
+0002). `/api/*` is not gated in `proxy.ts` (issue #349): the backend alone enforces
+auth from the forwarded bearer token and answers 401 when there is none. A
+public endpoint (e.g. `/api/access-requests`) therefore needs no allowlist
+here — a request without a session simply reaches the backend with no token.
 
 - `API_SECRET_KEY` must **never** get a `NEXT_PUBLIC_` prefix, or it leaks into
   the client bundle.
@@ -383,13 +386,16 @@ hook — do not construct `new WebSocket` directly in components. Prefer
   permanently to `watch-borne.com` (an unprefixed path there already means fr,
   the default locale — see i18n/routing.ts), refreshes the Supabase session via
   `lib/supabase/middleware.ts` (that helper's filename is unrelated to the
-  file-convention rename), then gates `/app/*` and `/api/*` behind a valid
-  session (redirecting to `/login`, or returning 401 for `/api/*`) — except the
-  paths listed in `PUBLIC_API_PATHS` (currently just `/api/access-requests`,
-  reachable by unauthenticated visitors from `/signup`). The Supabase session
-  lookup (`getUser()`, a network round trip) only runs for the authenticated
-  surface (`/api`, `/app`, `/login`, `/signup`); public marketing pages skip it
-  entirely. There is no `app.*` subdomain routing — `/app/*` is served at that
+  file-convention rename), then gates `/app/*` behind a valid session
+  (redirecting to `/login`) and bounces signed-in visitors off `/login` and
+  `/signup`. `/api/*` is deliberately **not** gated here: `getUser()`
+  revalidates against Supabase Auth on every call (~400–530 ms), and the
+  backend re-verifies the same JWT anyway, resolving the caller's
+  `AccessScope` and failing closed with 401 (charge-points-server ADR 0002,
+  issue #349) — one authority, not two. The Supabase session lookup
+  (`getUser()`, a network round trip) only runs for the authenticated page
+  surface (`/app`, `/login`, `/signup`); public marketing pages and `/api/*`
+  skip it entirely. There is no `app.*` subdomain routing — `/app/*` is served at that
   path (under the active locale prefix) on the main host in every environment.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,
