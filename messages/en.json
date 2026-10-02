@@ -1256,6 +1256,9 @@
       "deletion": {
         "description": "Destroy action: this site will be unrecoverable."
       },
+      "errors": {
+        "updateFailed": "Couldn't update the site. Please try again."
+      },
       "siteCombobox": {
         "placeholder": "Select a site...",
         "search": "Search for site...",
