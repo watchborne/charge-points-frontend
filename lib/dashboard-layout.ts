@@ -6,6 +6,8 @@
 // the per-user notification-preferences feature uses (charge-points-server),
 // which is out of scope here.
 
+import { safeLocalStorage } from "./safe-local-storage";
+
 export type DashboardWidgetId =
   "siteHealth" | "chargePointsBreakdown" | "fleetOverview" | "fleetReliability";
 
@@ -55,7 +57,7 @@ const sanitize = (stored: unknown): DashboardWidgetPreference[] => {
 };
 
 export const readDashboardLayout = (): DashboardWidgetPreference[] => {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = safeLocalStorage.getItem(STORAGE_KEY);
   if (!stored) return defaultDashboardLayout();
 
   try {
@@ -66,5 +68,5 @@ export const readDashboardLayout = (): DashboardWidgetPreference[] => {
 };
 
 export const writeDashboardLayout = (layout: DashboardWidgetPreference[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+  safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
 };
