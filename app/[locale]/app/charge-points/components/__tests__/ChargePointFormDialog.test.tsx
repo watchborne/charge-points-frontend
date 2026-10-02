@@ -84,7 +84,9 @@ describe("ChargePointFormDialog", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "common.actions.save" }));
 
-    await waitFor(() => expect(screen.getByText("Name is required")).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText("appPage.chargePoints.form.fields.nameRequired")).toBeTruthy(),
+    );
     expect(onSubmit).not.toHaveBeenCalled();
   });
 });

@@ -48,9 +48,19 @@ export const queryKeys = {
     all: () => ["siteVisits"] as const,
     site: (siteId: string) => [...queryKeys.siteVisits.all(), siteId] as const,
   },
+  siteTariff: {
+    all: () => ["siteTariff"] as const,
+    site: (siteId: string) => [...queryKeys.siteTariff.all(), siteId] as const,
+  },
   siteVisitSchedule: {
     all: () => ["siteVisitSchedule"] as const,
     site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
+  },
+  firmwareCampaigns: {
+    all: () => ["firmwareCampaigns"] as const,
+    lists: () => [...queryKeys.firmwareCampaigns.all(), "list"] as const,
+    details: () => [...queryKeys.firmwareCampaigns.all(), "detail"] as const,
+    detail: (id: string) => [...queryKeys.firmwareCampaigns.details(), id] as const,
   },
   me: {
     all: () => ["me"] as const,
@@ -58,6 +68,9 @@ export const queryKeys = {
   commissioningToken: {
     all: () => ["commissioningToken"] as const,
     status: () => [...queryKeys.commissioningToken.all(), "status"] as const,
+  },
+  notificationPreferences: {
+    all: () => ["notificationPreferences"] as const,
   },
   deviceEvents: {
     all: () => ["deviceEvents"] as const,
@@ -84,6 +97,11 @@ export const queryKeys = {
     history: (chargePointId: string) =>
       [...queryKeys.logUpload.chargePoint(chargePointId), "history"] as const,
   },
+  certificates: {
+    all: () => ["certificates"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.certificates.all(), chargePointId] as const,
+  },
   alerts: {
     all: () => ["alerts"] as const,
     chargePoint: (chargePointId: string) => [...queryKeys.alerts.all(), chargePointId] as const,
@@ -99,9 +117,17 @@ export const queryKeys = {
       [...queryKeys.uptime.all(), "chargePoint", chargePointId] as const,
     site: (siteId: string) => [...queryKeys.uptime.all(), "site", siteId] as const,
   },
+  fleetReliability: {
+    all: () => ["fleetReliability"] as const,
+  },
   settings: {
     all: () => ["settings"] as const,
     chargePoint: (chargePointId: string) => [...queryKeys.settings.all(), chargePointId] as const,
+  },
+  siteReport: {
+    all: () => ["siteReport"] as const,
+    site: (siteId: string, filters?: Record<string, unknown>) =>
+      [...queryKeys.siteReport.all(), siteId, ...(filters ? [filters] : [])] as const,
   },
   consumption: {
     all: () => ["consumption"] as const,

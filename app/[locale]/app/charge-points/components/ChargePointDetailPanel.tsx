@@ -11,9 +11,11 @@ import {
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
 } from "@/lib/api-charge-points";
+import { safeLocalStorage } from "@/lib/safe-local-storage";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { AlertsPanelContainer } from "./AlertsPanelContainer";
+import { CertificatesPanel } from "./CertificatesPanel";
 import { ChargePointActionsSection } from "./ChargePointActionsSection";
 import { ChargePointConsumptionPanelContainer } from "./ChargePointConsumptionPanelContainer";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
@@ -60,7 +62,7 @@ export const isDetailTab = (value: string): value is DetailTab =>
 const LAST_TAB_STORAGE_KEY = "cp-detail-last-tab";
 
 const readLastUsedTab = (): DetailTab | undefined => {
-  const stored = localStorage.getItem(LAST_TAB_STORAGE_KEY);
+  const stored = safeLocalStorage.getItem(LAST_TAB_STORAGE_KEY);
   return stored && isDetailTab(stored) ? stored : undefined;
 };
 
@@ -141,7 +143,7 @@ export const ChargePointDetailPanel = ({
   const handleTabChange = (value: string) => {
     if (!isDetailTab(value)) return;
     setTab(value);
-    localStorage.setItem(LAST_TAB_STORAGE_KEY, value);
+    safeLocalStorage.setItem(LAST_TAB_STORAGE_KEY, value);
     onTabChange?.(value);
   };
 
@@ -293,6 +295,8 @@ export const ChargePointDetailPanel = ({
           />
 
           <LogUploadPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
+
+          <CertificatesPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
         </>
       )}
     </div>

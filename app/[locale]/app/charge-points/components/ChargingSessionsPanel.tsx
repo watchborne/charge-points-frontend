@@ -13,9 +13,10 @@ import {
 } from "@watchborne/electrons";
 import { format } from "date-fns";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Fragment, useState, type ReactNode } from "react";
 
+import type { ChargingSessionCost } from "@/lib/api-charge-points";
 import { formatDurationShort } from "@/lib/status-history";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -35,6 +36,13 @@ export type ChargingSessionListEntry = Pick<
 > & {
   startedAt: Date | string;
   endedAt: Date | string | null;
+  /**
+   * The session's estimated cost, fetched by `ChargingSessionsPanelContainer`
+   * alongside the list itself. `undefined` while that per-session fetch is
+   * still in flight or failed — distinct from a resolved envelope whose own
+   * `amountCents` is null (charge-points-server issue #580).
+   */
+  cost?: ChargingSessionCost;
 };
 
 type ChargingSessionsPanelProps = {
@@ -59,6 +67,33 @@ const energyDelivered = (session: ChargingSessionListEntry): number | null =>
     : null;
 
 /**
+ * Only `NO_TARIFF_CONFIGURED` gets its own label — it's the one reason an
+ * installer can act on (go set a tariff); `SESSION_STILL_ACTIVE` and
+ * `NO_ENERGY_DATA` read the same as "nothing to show yet" as a bare dash.
+ */
+const CostCell = ({
+  cost,
+  intlFormat,
+  t,
+}: {
+  cost: ChargingSessionCost | undefined;
+  intlFormat: ReturnType<typeof useFormatter>;
+  t: ReturnType<typeof useTranslations>;
+}) => {
+  if (!cost || cost.amountCents === null || cost.currency === null) {
+    const label =
+      cost?.reason === "NO_TARIFF_CONFIGURED"
+        ? t("appPage.chargePoints.chargingSessions.costReasons.NO_TARIFF_CONFIGURED")
+        : "—";
+    return <span className="text-muted-foreground">{label}</span>;
+  }
+
+  return (
+    <>{intlFormat.number(cost.amountCents / 100, { style: "currency", currency: cost.currency })}</>
+  );
+};
+
+/**
  * The charging-session history section of a charge point's detail panel:
  * one row per `StartTransaction`/`StopTransaction` pair (OCPP 1.6) or
  * `Started`/.../`Ended` `TransactionEvent` sequence (OCPP 2.0.1), across
@@ -79,6 +114,7 @@ export const ChargingSessionsPanel = ({
   renderSessionDetail,
 }: ChargingSessionsPanelProps) => {
   const t = useTranslations("");
+  const intlFormat = useFormatter();
 
   // Which sessions have their consumption chart expanded — several can be
   // open at once, each fetching independently.
@@ -132,6 +168,9 @@ export const ChargingSessionsPanel = ({
                 </TableHead>
                 <TableHead className="text-right text-xs">
                   {t("appPage.chargePoints.chargingSessions.energy")}
+                </TableHead>
+                <TableHead className="text-right text-xs">
+                  {t("appPage.chargePoints.chargingSessions.cost")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -188,10 +227,13 @@ export const ChargingSessionsPanel = ({
                       <TableCell className="text-right font-mono text-xs">
                         {energy === null ? "—" : `${energy.toLocaleString()} Wh`}
                       </TableCell>
+                      <TableCell className="text-right font-mono text-xs">
+                        <CostCell cost={session.cost} intlFormat={intlFormat} t={t} />
+                      </TableCell>
                     </TableRow>
                     {expanded && (
                       <TableRow>
-                        <TableCell colSpan={6} className="p-0">
+                        <TableCell colSpan={7} className="p-0">
                           {renderSessionDetail ? (
                             renderSessionDetail(session)
                           ) : (

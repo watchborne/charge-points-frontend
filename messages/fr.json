@@ -76,7 +76,8 @@
           "chargePoints": "Bornes de recharge",
           "sites": "Sites",
           "configuration": "Configuration",
-          "profile": "Profil"
+          "profile": "Profil",
+          "firmwareCampaigns": "Campagnes de firmware"
         },
         "wsStatus": {
           "connecting": "Connexion en cours…",
@@ -453,7 +454,8 @@
         "widgets": {
           "siteHealth": "Santé des sites",
           "chargePointsBreakdown": "Répartition des bornes",
-          "fleetOverview": "Vue d'ensemble du parc"
+          "fleetOverview": "Vue d'ensemble du parc",
+          "fleetReliability": "Fiabilité de la flotte"
         }
       },
       "siteHealth": {
@@ -488,6 +490,23 @@
       },
       "chargePoints": {
         "sectionTitle": "Santé des bornes"
+      },
+      "fleetReliability": {
+        "title": "Fiabilité de la flotte",
+        "subtitle": "30 derniers jours, du pire au meilleur",
+        "empty": "Aucune borne visible pour le moment.",
+        "error": "Impossible de charger le classement de fiabilité.",
+        "columns": {
+          "chargePoint": "Borne",
+          "status": "Statut",
+          "uptime": "Disponibilité",
+          "incidents": "Incidents"
+        },
+        "bucket": {
+          "healthy": "Saine",
+          "degraded": "Dégradée",
+          "critical": "Critique"
+        }
       },
       "onboarding": {
         "title": "Bienvenue sur Watchborne",
@@ -556,6 +575,7 @@
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
           "nameCreatePlaceholder": "Optionnel — un nom sera généré si laissé vide",
+          "nameRequired": "Le nom est obligatoire",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",
@@ -790,6 +810,58 @@
           }
         }
       },
+      "certificates": {
+        "title": "Certificats",
+        "loading": "Chargement des certificats installés…",
+        "loadError": "Impossible de charger les certificats de cette borne.",
+        "empty": "Aucun certificat installé",
+        "typeNotReported": "Type non communiqué",
+        "types": {
+          "V2GRootCertificate": "Certificat racine V2G",
+          "MORootCertificate": "Certificat racine opérateur de mobilité",
+          "CSMSRootCertificate": "Certificat racine CSMS",
+          "ManufacturerRootCertificate": "Certificat racine fabricant"
+        },
+        "row": {
+          "delete": "Supprimer"
+        },
+        "install": {
+          "button": "Installer un certificat",
+          "title": "Installer un certificat",
+          "description": "Collez un certificat racine de confiance au format PEM à installer sur cette borne.",
+          "submit": "Installer",
+          "unsupportedV201Types": "Cette borne utilise l'OCPP 1.6, qui n'a pas de notion de certificat V2G/opérateur de mobilité : seuls les certificats racine CSMS et fabricant peuvent être installés.",
+          "fields": {
+            "certificateType": "Type de certificat",
+            "certificate": "Certificat (PEM)",
+            "certificateLooksInvalid": "Ceci ne ressemble pas à un certificat PEM — vérifiez qu'il commence par « -----BEGIN CERTIFICATE----- »."
+          },
+          "result": {
+            "accepted": "Certificat accepté par la borne.",
+            "rejected": "La borne a rejeté ce certificat.",
+            "failed": "La borne n'a pas réussi à installer ce certificat.",
+            "notFound": "Borne inconnue.",
+            "notConnectedOrUnsupported": "Borne non connectée, ou ce type/cette longueur de certificat n'est pas pris en charge par cette borne.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "Le certificat n'a pas pu être installé."
+          }
+        },
+        "delete": {
+          "confirmTitle": "Supprimer ce certificat ?",
+          "confirmDescription": "Ceci demande à la borne de supprimer le certificat de numéro de série {serialNumber}. Cette action est irréversible.",
+          "result": {
+            "accepted": "Certificat supprimé de la borne.",
+            "failed": "La borne n'a pas réussi à supprimer ce certificat.",
+            "notfound": "La borne ne trouve pas ce certificat.",
+            "notFound": "Borne inconnue.",
+            "notConnected": "Borne non connectée.",
+            "stationError": "La borne a renvoyé une réponse invalide.",
+            "timeout": "La borne n'a pas répondu à temps.",
+            "genericError": "Le certificat n'a pas pu être supprimé."
+          }
+        }
+      },
       "chargingSessions": {
         "title": "Sessions de recharge",
         "loading": "Chargement des sessions de recharge…",
@@ -800,6 +872,10 @@
         "startedAt": "Démarrée",
         "duration": "Durée",
         "energy": "Énergie",
+        "cost": "Coût",
+        "costReasons": {
+          "NO_TARIFF_CONFIGURED": "Tarif non défini"
+        },
         "consumption": {
           "show": "Afficher la consommation de la session",
           "hide": "Masquer la consommation de la session",
@@ -1180,6 +1256,9 @@
       "deletion": {
         "description": "Action destructive : ce site sera irrécupérable."
       },
+      "errors": {
+        "updateFailed": "Impossible de mettre à jour le site. Veuillez réessayer."
+      },
       "siteCombobox": {
         "placeholder": "Sélectionner un site...",
         "search": "Chercher un site...",
@@ -1192,6 +1271,15 @@
         "reliability": {
           "label": "Fiabilité (7 derniers jours)",
           "noData": "Pas encore de données"
+        },
+        "report": {
+          "exportButton": "Exporter en PDF",
+          "exportError": "Impossible de générer le rapport PDF. Veuillez réessayer.",
+          "pdf": {
+            "uptimeSection": "Disponibilité",
+            "alertsSection": "Alertes",
+            "noAlerts": "Aucune alerte sur cette période."
+          }
         },
         "nextVisit": {
           "title": "Prochaine visite planifiée",
@@ -1224,6 +1312,23 @@
               "visitedAtPlaceholder": "Date de la visite...",
               "note": "Note",
               "notePlaceholder": "Ex: Inspection annuelle, câble connecteur 2 remplacé"
+            }
+          }
+        },
+        "tariff": {
+          "title": "Tarif électrique",
+          "loading": "Chargement du tarif...",
+          "loadError": "Impossible de charger le tarif de ce site.",
+          "notConfigured": "Aucun tarif configuré pour ce site.",
+          "currentLabel": "Tarif actuel",
+          "setButton": "Définir un tarif",
+          "editButton": "Modifier le tarif",
+          "dialog": {
+            "title": "Configurer le tarif",
+            "description": "Ce tarif sert à estimer le coût des sessions de recharge de ce site. Il n'est pas historisé : le changer ne modifie que les estimations futures.",
+            "fields": {
+              "pricePerKwh": "Prix par kWh",
+              "currency": "Devise"
             }
           }
         }
@@ -1312,6 +1417,17 @@
         "light": "Thème clair",
         "dark": "Thème sombre"
       },
+      "notifications": {
+        "title": "Notifications",
+        "digestEnabled": {
+          "title": "Résumé quotidien par email",
+          "description": "Recevez un résumé quotidien des alertes ouvertes et des sites à visiter."
+        },
+        "digestHour": {
+          "title": "Heure d'envoi",
+          "description": "Heure (UTC) à laquelle le résumé quotidien vous est envoyé."
+        }
+      },
       "session": {
         "title": "Session",
         "userId": "Identifiant utilisateur",
@@ -1322,6 +1438,100 @@
         "verified": "Vérifié",
         "notVerified": "Non vérifié"
       }
+    },
+    "firmwareCampaigns": {
+      "page": {
+        "title": "Campagnes de mise à jour firmware",
+        "subtitle": "Déployez une mise à jour firmware sur plusieurs bornes en une seule fois, immédiatement ou à une date planifiée.",
+        "buttons": {
+          "create": "Nouvelle campagne"
+        },
+        "table": {
+          "columns": {
+            "name": "Nom",
+            "status": "Statut",
+            "targetMode": "Cible",
+            "targetCount": "Bornes ciblées",
+            "scheduledAt": "Date de déploiement"
+          },
+          "empty": "Aucune campagne pour le moment."
+        }
+      },
+      "status": {
+        "scheduled": "Planifiée",
+        "dispatching": "En cours de déploiement",
+        "dispatched": "Déployée",
+        "cancelled": "Annulée"
+      },
+      "create": {
+        "title": "Créer une campagne de mise à jour",
+        "description": "Déployez un firmware sur un site, une liste de bornes ou toute la flotte, immédiatement ou à une date planifiée.",
+        "submit": "Créer la campagne",
+        "fields": {
+          "name": "Nom de la campagne",
+          "namePlaceholder": "Ex: Mise à jour sécurité Q3",
+          "targetLocation": "URL du firmware",
+          "targetLocationPlaceholder": "https://firmware.example.com/v2.4.0.bin",
+          "targetLocationDescription": "L'adresse à laquelle les bornes iront récupérer le firmware.",
+          "toVersion": "Version cible (optionnel)",
+          "toVersionPlaceholder": "Ex: 2.4.0",
+          "retrieveDateTime": "Date et heure de récupération",
+          "targetMode": "Mode de ciblage",
+          "targetModeOptions": {
+            "SITE": "Un site",
+            "LIST": "Une liste de bornes",
+            "FLEET": "Toute la flotte"
+          },
+          "targetSite": "Site ciblé",
+          "targetSitePlaceholder": "Sélectionner un site...",
+          "targetChargePoints": "Bornes ciblées",
+          "targetChargePointsEmpty": "Aucune borne disponible.",
+          "scheduledAt": "Date de déploiement (optionnel)",
+          "scheduledAtPlaceholder": "Choisir une date...",
+          "scheduledAtDescription": "Laissez vide pour déployer la campagne dès que possible.",
+          "staggerMs": "Délai entre chaque borne (ms)",
+          "staggerMsDescription": "Temps d'attente, en millisecondes, entre le déploiement sur chaque borne ciblée."
+        },
+        "validation": {
+          "nameRequired": "Le nom de la campagne est requis.",
+          "targetLocationInvalid": "Indiquez une URL valide.",
+          "retrieveDateTimeRequired": "La date et l'heure de récupération sont requises.",
+          "targetSiteRequired": "Sélectionnez un site.",
+          "targetChargePointsRequired": "Sélectionnez au moins une borne.",
+          "scheduledAtPast": "La date de déploiement doit être future."
+        }
+      },
+      "detail": {
+        "targetLocation": "Firmware : {location}",
+        "targetMode": "Mode de ciblage",
+        "targetCount": "Bornes ciblées",
+        "scheduledAt": "Date de déploiement",
+        "toVersion": "Version cible",
+        "heterogeneousTargetsNote": "{count, plural, =1 {1 borne ciblée signale un matériel différent du reste} other {# bornes ciblées signalent un matériel différent du reste}} — le même firmware leur sera tout de même envoyé.",
+        "progressTitle": "Progression du déploiement",
+        "progressLoading": "Chargement de la progression...",
+        "progress": {
+          "attempted": "Tentées",
+          "notAttempted": "Non tentées",
+          "inProgress": "En cours",
+          "succeeded": "Réussies",
+          "failed": "Échouées",
+          "total": "Total"
+        },
+        "cancelButton": "Annuler la campagne",
+        "cancelConfirm": {
+          "title": "Annuler « {name} » ?",
+          "description": "Action destructive : cette campagne planifiée ne sera pas déployée.",
+          "confirm": "Annuler la campagne"
+        }
+      },
+      "errors": {
+        "invalidRequest": "Requête invalide : vérifiez les champs de la campagne.",
+        "siteNotFound": "Site introuvable ou hors de votre périmètre.",
+        "notFound": "Campagne introuvable.",
+        "alreadyDispatching": "Cette campagne a déjà commencé à se déployer et ne peut plus être annulée.",
+        "genericError": "Une erreur est survenue."
+      }
     }
   },
   "errors": {
@@ -1329,6 +1539,7 @@
     "loadingChargePoints": "Impossible de charger les bornes.",
     "loadingSites": "Impossible de charger les sites.",
     "loadingSitesHealth": "Impossible de charger la santé des sites.",
-    "loadingConsumption": "Le chargement de la consommation a échoué."
+    "loadingConsumption": "Le chargement de la consommation a échoué.",
+    "loadingFirmwareCampaigns": "Impossible de charger les campagnes de mise à jour."
   }
 }

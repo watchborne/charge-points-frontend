@@ -21,6 +21,11 @@ export const Header = () => {
       url: "/app/charge-points",
     },
     {
+      key: "firmware-campaigns",
+      label: t("layout.navbar.app.links.firmwareCampaigns"),
+      url: "/app/firmware-campaigns",
+    },
+    {
       key: "configuration",
       label: t("layout.navbar.app.links.configuration"),
       url: "/app/configuration",

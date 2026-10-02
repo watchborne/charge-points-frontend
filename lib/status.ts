@@ -1,6 +1,8 @@
 import { AlertStatus, SiteHealthStatus } from "@watchborne/charge-points-types";
 import type { ColorName } from "@watchborne/electrons";
 
+import type { FirmwareCampaignStatus } from "@/lib/api-firmware-campaigns";
+import type { ReliabilityBucket } from "@/lib/fleet-reliability";
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
 /**
@@ -85,6 +87,36 @@ export const alertStatusColor = (status: AlertStatus): ColorName => {
       return "red";
     case "RESOLVED":
       return "green";
+    default:
+      return "gray";
+  }
+};
+
+/** A charge point's derived reliability bucket (`lib/fleet-reliability.ts`'s `reliabilityBucket`). */
+export const reliabilityBucketColor = (bucket: ReliabilityBucket): ColorName => {
+  switch (bucket) {
+    case "healthy":
+      return "green";
+    case "degraded":
+      return "amber";
+    case "critical":
+      return "red";
+    default:
+      return "gray";
+  }
+};
+
+/** A fleet-wide firmware campaign's lifecycle state (`FirmwareCampaign.status`). */
+export const firmwareCampaignStatusColor = (status: FirmwareCampaignStatus): ColorName => {
+  switch (status) {
+    case "SCHEDULED":
+      return "blue";
+    case "DISPATCHING":
+      return "amber";
+    case "DISPATCHED":
+      return "green";
+    case "CANCELLED":
+      return "gray";
     default:
       return "gray";
   }
