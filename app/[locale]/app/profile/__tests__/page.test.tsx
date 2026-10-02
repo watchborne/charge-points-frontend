@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -42,6 +43,11 @@ vi.mock("../../../../../lib/supabase/client", () => ({ createClient }));
 vi.mock("../../hooks/usePushSubscription", () => ({ usePushSubscription }));
 vi.mock("sonner", () => ({ toast: { warning: toastWarning, error: toastError } }));
 
+// A relative path is required here (not the usual "@/lib/api" alias): test
+// files are excluded from tsconfig.json, and vite-tsconfig-paths only
+// resolves "@/*" aliases for files it considers part of the project (see
+// CommissioningTokenPanel.test.tsx for the same convention).
+import { api } from "../../../../../lib/api";
 import ProfilePage from "../page";
 
 const defaultPushSubscriptionState = {
@@ -62,6 +68,10 @@ const user = {
   user_metadata: { email_verified: true },
 };
 
+const getPreferences = vi.spyOn(api.NotificationPreferences, "getPreferences");
+
+let queryClient: QueryClient;
+
 beforeEach(() => {
   useTheme.mockReset().mockReturnValue({ theme: "light", setTheme });
   setTheme.mockReset();
@@ -72,13 +82,25 @@ beforeEach(() => {
   toastWarning.mockReset();
   toastError.mockReset();
   usePushSubscription.mockReset().mockReturnValue(defaultPushSubscriptionState);
+  getPreferences.mockReset().mockResolvedValue({ digestEnabled: true, digestHourUtc: 7 });
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+const renderPage = () =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <ProfilePage />
+    </QueryClientProvider>,
+  );
 
 describe("ProfilePage", () => {
   it("SHOULD show the authenticated user's session info WHEN getUser resolves", async () => {
-    render(<ProfilePage />);
+    renderPage();
 
     expect(await screen.findByText(user.id)).toBeTruthy();
     expect(screen.getByText(user.email)).toBeTruthy();
@@ -92,7 +114,7 @@ describe("ProfilePage", () => {
       data: { user: { ...user, user_metadata: { email_verified: false } } },
     });
 
-    render(<ProfilePage />);
+    renderPage();
 
     expect(await screen.findByText("appPage.profile.session.notVerified")).toBeTruthy();
   });
@@ -100,7 +122,7 @@ describe("ProfilePage", () => {
   it("SHOULD reflect the current theme from the theme provider", () => {
     useTheme.mockReturnValue({ theme: "dark", setTheme });
 
-    render(<ProfilePage />);
+    renderPage();
 
     expect(screen.getByText("appPage.profile.theme.dark")).toBeTruthy();
     expect(
@@ -113,11 +135,20 @@ describe("ProfilePage", () => {
   it("SHOULD switch the theme WHEN the toggle is clicked", async () => {
     useTheme.mockReturnValue({ theme: "light", setTheme });
 
-    render(<ProfilePage />);
+    renderPage();
 
     fireEvent.click(screen.getByRole("switch", { name: "appPage.profile.theme.title" }));
 
     await waitFor(() => expect(setTheme).toHaveBeenCalledWith("dark"));
+  });
+
+  it("SHOULD show the notification preferences panel WHEN preferences load", async () => {
+    renderPage();
+
+    const digestToggle = await screen.findByRole("switch", {
+      name: "appPage.profile.notifications.digestEnabled.title",
+    });
+    expect(digestToggle.getAttribute("aria-checked")).toBe("true");
   });
 });
 
@@ -125,7 +156,7 @@ describe("ProfilePage push notifications section", () => {
   const pushSwitch = () => screen.getByRole("switch", { name: "appPage.profile.push.title" });
 
   it("SHOULD render a switch WHEN push notifications are supported", () => {
-    render(<ProfilePage />);
+    renderPage();
 
     expect(pushSwitch()).toBeTruthy();
   });
@@ -133,7 +164,7 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD render a Callout instead of a switch WHEN push notifications are not supported", () => {
     usePushSubscription.mockReturnValue({ ...defaultPushSubscriptionState, isSupported: false });
 
-    render(<ProfilePage />);
+    renderPage();
 
     expect(screen.queryByRole("switch", { name: "appPage.profile.push.title" })).toBeNull();
     expect(screen.getByText("appPage.profile.push.unsupported")).toBeTruthy();
@@ -146,7 +177,7 @@ describe("ProfilePage push notifications section", () => {
       permission: "granted",
     });
 
-    render(<ProfilePage />);
+    renderPage();
 
     expect(pushSwitch().getAttribute("aria-checked")).toBe("true");
   });
@@ -158,7 +189,7 @@ describe("ProfilePage push notifications section", () => {
       isSubscribing: true,
     });
 
-    render(<ProfilePage />);
+    renderPage();
 
     expect((pushSwitch() as HTMLButtonElement).disabled).toBe(true);
   });
@@ -166,7 +197,7 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD call subscribe WHEN turned on", async () => {
     subscribeToPush.mockResolvedValue("granted");
 
-    render(<ProfilePage />);
+    renderPage();
     fireEvent.click(pushSwitch());
 
     await waitFor(() => expect(subscribeToPush).toHaveBeenCalled());
@@ -181,7 +212,7 @@ describe("ProfilePage push notifications section", () => {
     });
     unsubscribeFromPush.mockResolvedValue(undefined);
 
-    render(<ProfilePage />);
+    renderPage();
     fireEvent.click(pushSwitch());
 
     await waitFor(() => expect(unsubscribeFromPush).toHaveBeenCalled());
@@ -191,7 +222,7 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD show a distinct blocked-notifications toast WHEN permission resolves to denied", async () => {
     subscribeToPush.mockResolvedValue("denied");
 
-    render(<ProfilePage />);
+    renderPage();
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>
@@ -203,7 +234,7 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD NOT show any toast WHEN subscribe resolves to granted", async () => {
     subscribeToPush.mockResolvedValue("granted");
 
-    render(<ProfilePage />);
+    renderPage();
     fireEvent.click(pushSwitch());
 
     await waitFor(() => expect(subscribeToPush).toHaveBeenCalled());
@@ -214,7 +245,7 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD show a generic error toast WHEN subscribe rejects", async () => {
     subscribeToPush.mockRejectedValue(new Error("boom"));
 
-    render(<ProfilePage />);
+    renderPage();
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>
@@ -231,7 +262,7 @@ describe("ProfilePage push notifications section", () => {
     });
     unsubscribeFromPush.mockRejectedValue(new Error("boom"));
 
-    render(<ProfilePage />);
+    renderPage();
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>

@@ -28,6 +28,7 @@ describe("dashboard-layout", () => {
       { id: "fleetOverview" as const, visible: false },
       { id: "siteHealth" as const, visible: true },
       { id: "chargePointsBreakdown" as const, visible: true },
+      { id: "fleetReliability" as const, visible: true },
     ];
 
     writeDashboardLayout(layout);
@@ -54,6 +55,7 @@ describe("dashboard-layout", () => {
       { id: "siteHealth", visible: false },
       { id: "chargePointsBreakdown", visible: true },
       { id: "fleetOverview", visible: true },
+      { id: "fleetReliability", visible: true },
     ]);
   });
 });

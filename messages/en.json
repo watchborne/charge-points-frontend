@@ -76,7 +76,8 @@
           "chargePoints": "Charge Points",
           "sites": "Sites",
           "configuration": "Configuration",
-          "profile": "Profile"
+          "profile": "Profile",
+          "firmwareCampaigns": "Firmware campaigns"
         },
         "wsStatus": {
           "connecting": "Connecting…",
@@ -453,7 +454,8 @@
         "widgets": {
           "siteHealth": "Site health",
           "chargePointsBreakdown": "Charge points breakdown",
-          "fleetOverview": "Fleet overview"
+          "fleetOverview": "Fleet overview",
+          "fleetReliability": "Fleet reliability"
         }
       },
       "siteHealth": {
@@ -488,6 +490,23 @@
       },
       "chargePoints": {
         "sectionTitle": "Charge points health"
+      },
+      "fleetReliability": {
+        "title": "Fleet reliability",
+        "subtitle": "Last 30 days, worst first",
+        "empty": "No charge points visible yet.",
+        "error": "Couldn't load the fleet reliability ranking.",
+        "columns": {
+          "chargePoint": "Charge point",
+          "status": "Status",
+          "uptime": "Uptime",
+          "incidents": "Incidents"
+        },
+        "bucket": {
+          "healthy": "Healthy",
+          "degraded": "Degraded",
+          "critical": "Critical"
+        }
       },
       "onboarding": {
         "title": "Welcome to Watchborne",
@@ -556,6 +575,7 @@
           "name": "Name",
           "namePlaceholder": "Ex: CP-001",
           "nameCreatePlaceholder": "Optional — a name will be generated if left blank",
+          "nameRequired": "Name is required",
           "site": "Site",
           "technicalInformation": "Technical information",
           "vendor": "Vendor",
@@ -790,6 +810,58 @@
           }
         }
       },
+      "certificates": {
+        "title": "Certificates",
+        "loading": "Loading installed certificates…",
+        "loadError": "Could not load this charge point's certificates.",
+        "empty": "No certificates installed",
+        "typeNotReported": "Type not reported",
+        "types": {
+          "V2GRootCertificate": "V2G root certificate",
+          "MORootCertificate": "Mobility operator root certificate",
+          "CSMSRootCertificate": "CSMS root certificate",
+          "ManufacturerRootCertificate": "Manufacturer root certificate"
+        },
+        "row": {
+          "delete": "Delete"
+        },
+        "install": {
+          "button": "Install certificate",
+          "title": "Install a certificate",
+          "description": "Paste a PEM-encoded trust-anchor certificate to install on this station.",
+          "submit": "Install",
+          "unsupportedV201Types": "This station speaks OCPP 1.6, which has no V2G/mobility-operator certificate concept: only CSMS and manufacturer root certificates can be installed.",
+          "fields": {
+            "certificateType": "Certificate type",
+            "certificate": "Certificate (PEM)",
+            "certificateLooksInvalid": "This doesn't look like a PEM certificate — check it starts with \"-----BEGIN CERTIFICATE-----\"."
+          },
+          "result": {
+            "accepted": "Certificate accepted by the station.",
+            "rejected": "The station rejected this certificate.",
+            "failed": "The station failed to install this certificate.",
+            "notFound": "Unknown charge point.",
+            "notConnectedOrUnsupported": "Station not connected, or this certificate type/length isn't supported by this station.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The certificate could not be installed."
+          }
+        },
+        "delete": {
+          "confirmTitle": "Delete this certificate?",
+          "confirmDescription": "This asks the station to remove the certificate with serial number {serialNumber}. This cannot be undone.",
+          "result": {
+            "accepted": "Certificate deleted from the station.",
+            "failed": "The station failed to delete this certificate.",
+            "notfound": "The station reports no such certificate.",
+            "notFound": "Unknown charge point.",
+            "notConnected": "Station not connected.",
+            "stationError": "The station returned an invalid response.",
+            "timeout": "The station did not answer in time.",
+            "genericError": "The certificate could not be deleted."
+          }
+        }
+      },
       "chargingSessions": {
         "title": "Charging sessions",
         "loading": "Loading charging sessions…",
@@ -800,6 +872,10 @@
         "startedAt": "Started",
         "duration": "Duration",
         "energy": "Energy",
+        "cost": "Cost",
+        "costReasons": {
+          "NO_TARIFF_CONFIGURED": "No tariff set"
+        },
         "consumption": {
           "show": "Show session consumption",
           "hide": "Hide session consumption",
@@ -1180,6 +1256,9 @@
       "deletion": {
         "description": "Destroy action: this site will be unrecoverable."
       },
+      "errors": {
+        "updateFailed": "Couldn't update the site. Please try again."
+      },
       "siteCombobox": {
         "placeholder": "Select a site...",
         "search": "Search for site...",
@@ -1192,6 +1271,15 @@
         "reliability": {
           "label": "Reliability (last 7 days)",
           "noData": "No data yet"
+        },
+        "report": {
+          "exportButton": "Export as PDF",
+          "exportError": "Couldn't generate the PDF report. Please try again.",
+          "pdf": {
+            "uptimeSection": "Uptime",
+            "alertsSection": "Alerts",
+            "noAlerts": "No alerts in this period."
+          }
         },
         "nextVisit": {
           "title": "Next planned visit",
@@ -1224,6 +1312,23 @@
               "visitedAtPlaceholder": "Visit date...",
               "note": "Note",
               "notePlaceholder": "Ex: Annual inspection, connector 2 cable replaced"
+            }
+          }
+        },
+        "tariff": {
+          "title": "Electricity tariff",
+          "loading": "Loading tariff...",
+          "loadError": "Could not load this site's tariff.",
+          "notConfigured": "No tariff configured for this site.",
+          "currentLabel": "Current tariff",
+          "setButton": "Set a tariff",
+          "editButton": "Edit tariff",
+          "dialog": {
+            "title": "Configure the tariff",
+            "description": "This tariff is used to estimate the cost of this site's charging sessions. It isn't historized: changing it only affects future estimates.",
+            "fields": {
+              "pricePerKwh": "Price per kWh",
+              "currency": "Currency"
             }
           }
         }
@@ -1321,6 +1426,17 @@
           "error": "Something went wrong while updating your notification settings. Please try again."
         }
       },
+      "notifications": {
+        "title": "Notifications",
+        "digestEnabled": {
+          "title": "Daily email digest",
+          "description": "Receive a daily digest of open alerts and sites due for a visit."
+        },
+        "digestHour": {
+          "title": "Send time",
+          "description": "Hour (UTC) at which the daily digest is sent to you."
+        }
+      },
       "session": {
         "title": "Session",
         "userId": "User ID",
@@ -1331,6 +1447,100 @@
         "verified": "Verified",
         "notVerified": "Not verified"
       }
+    },
+    "firmwareCampaigns": {
+      "page": {
+        "title": "Firmware campaigns",
+        "subtitle": "Roll out a firmware update to many charge points at once, right away or scheduled for later.",
+        "buttons": {
+          "create": "New campaign"
+        },
+        "table": {
+          "columns": {
+            "name": "Name",
+            "status": "Status",
+            "targetMode": "Target",
+            "targetCount": "Targeted charge points",
+            "scheduledAt": "Scheduled for"
+          },
+          "empty": "No campaigns yet."
+        }
+      },
+      "status": {
+        "scheduled": "Scheduled",
+        "dispatching": "Dispatching",
+        "dispatched": "Dispatched",
+        "cancelled": "Cancelled"
+      },
+      "create": {
+        "title": "Create a firmware campaign",
+        "description": "Push a firmware update to a site, a list of charge points, or the whole fleet — right away or scheduled for later.",
+        "submit": "Create campaign",
+        "fields": {
+          "name": "Campaign name",
+          "namePlaceholder": "e.g. Q3 security update",
+          "targetLocation": "Firmware URL",
+          "targetLocationPlaceholder": "https://firmware.example.com/v2.4.0.bin",
+          "targetLocationDescription": "The address stations will fetch the firmware from.",
+          "toVersion": "Target version (optional)",
+          "toVersionPlaceholder": "e.g. 2.4.0",
+          "retrieveDateTime": "Retrieval date and time",
+          "targetMode": "Target mode",
+          "targetModeOptions": {
+            "SITE": "A site",
+            "LIST": "A list of charge points",
+            "FLEET": "The whole fleet"
+          },
+          "targetSite": "Target site",
+          "targetSitePlaceholder": "Select a site...",
+          "targetChargePoints": "Targeted charge points",
+          "targetChargePointsEmpty": "No charge points available.",
+          "scheduledAt": "Scheduled for (optional)",
+          "scheduledAtPlaceholder": "Pick a date...",
+          "scheduledAtDescription": "Leave empty to dispatch the campaign as soon as possible.",
+          "staggerMs": "Delay between stations (ms)",
+          "staggerMsDescription": "How long to wait, in milliseconds, between dispatching to each targeted station."
+        },
+        "validation": {
+          "nameRequired": "The campaign name is required.",
+          "targetLocationInvalid": "Enter a valid URL.",
+          "retrieveDateTimeRequired": "The retrieval date and time are required.",
+          "targetSiteRequired": "Select a site.",
+          "targetChargePointsRequired": "Select at least one charge point.",
+          "scheduledAtPast": "The scheduled date must be in the future."
+        }
+      },
+      "detail": {
+        "targetLocation": "Firmware: {location}",
+        "targetMode": "Target mode",
+        "targetCount": "Targeted charge points",
+        "scheduledAt": "Scheduled for",
+        "toVersion": "Target version",
+        "heterogeneousTargetsNote": "{count, plural, =1 {1 targeted charge point reports different hardware than the rest} other {# targeted charge points report different hardware than the rest}} — the same firmware will still be sent to all of them.",
+        "progressTitle": "Dispatch progress",
+        "progressLoading": "Loading progress...",
+        "progress": {
+          "attempted": "Attempted",
+          "notAttempted": "Not attempted",
+          "inProgress": "In progress",
+          "succeeded": "Succeeded",
+          "failed": "Failed",
+          "total": "Total"
+        },
+        "cancelButton": "Cancel campaign",
+        "cancelConfirm": {
+          "title": "Cancel \"{name}\"?",
+          "description": "Destructive action: this scheduled campaign will not be dispatched.",
+          "confirm": "Cancel campaign"
+        }
+      },
+      "errors": {
+        "invalidRequest": "Invalid request: check the campaign's fields.",
+        "siteNotFound": "Site not found or outside your scope.",
+        "notFound": "Campaign not found.",
+        "alreadyDispatching": "This campaign has already started dispatching and can no longer be cancelled.",
+        "genericError": "Something went wrong."
+      }
     }
   },
   "errors": {
@@ -1338,6 +1548,7 @@
     "loadingChargePoints": "Loading charge points failed.",
     "loadingSites": "Loading sites failed.",
     "loadingSitesHealth": "Loading sites health failed.",
-    "loadingConsumption": "Loading consumption failed."
+    "loadingConsumption": "Loading consumption failed.",
+    "loadingFirmwareCampaigns": "Unable to load firmware campaigns."
   }
 }
