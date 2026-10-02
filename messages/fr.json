@@ -575,6 +575,7 @@
           "name": "Nom",
           "namePlaceholder": "Ex: CP-001",
           "nameCreatePlaceholder": "Optionnel — un nom sera généré si laissé vide",
+          "nameRequired": "Le nom est obligatoire",
           "site": "Site",
           "technicalInformation": "Informations techniques",
           "vendor": "Fabricant",
@@ -1254,6 +1255,9 @@
       },
       "deletion": {
         "description": "Action destructive : ce site sera irrécupérable."
+      },
+      "errors": {
+        "updateFailed": "Impossible de mettre à jour le site. Veuillez réessayer."
       },
       "siteCombobox": {
         "placeholder": "Sélectionner un site...",

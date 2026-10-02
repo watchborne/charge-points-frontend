@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -51,7 +52,10 @@ export async function proxyToBackend(
   try {
     backendResponse = await fetch(backendUrl.toString(), init);
   } catch (error) {
-    console.error(`Failed to reach backend at ${backendUrl.toString()}:`, error);
+    Sentry.captureException(error, {
+      tags: { area: "api-proxy" },
+      extra: { backendUrl: backendUrl.toString(), method: request.method },
+    });
     return new NextResponse(JSON.stringify({ error: "Backend unreachable" }), {
       status: 502,
       headers: { "Content-Type": "application/json" },
