@@ -2,6 +2,8 @@
 
 import React, { ReactNode, useEffect, useState } from "react";
 
+import { safeLocalStorage } from "@/lib/safe-local-storage";
+
 export type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "theme-preference";
@@ -27,7 +29,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || "light";
+    const stored = (safeLocalStorage.getItem(THEME_STORAGE_KEY) as Theme) || "light";
     setTheme(stored);
     applyTheme(stored);
     setMounted(true);
@@ -35,7 +37,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const updateTheme = (newTheme: Theme) => {
     setTheme(newTheme);
-    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    safeLocalStorage.setItem(THEME_STORAGE_KEY, newTheme);
     applyTheme(newTheme);
   };
 
