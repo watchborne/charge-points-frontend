@@ -12,7 +12,7 @@ import {
 import classNames from "classnames";
 import { Zap, ChevronDown, Server } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
@@ -66,12 +66,16 @@ const createChargePointSchema = z.object({
   meta: metaSchema,
 });
 
-const editChargePointSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  siteId: siteIdSchema,
-  isActive: isActiveSchema,
-  meta: metaSchema,
-});
+// A factory rather than a constant: the "required" message has to be the
+// caller's already-translated string, since zod messages are not run through
+// next-intl.
+const makeEditChargePointSchema = (nameRequiredMessage: string) =>
+  z.object({
+    name: z.string().min(1, nameRequiredMessage),
+    siteId: siteIdSchema,
+    isActive: isActiveSchema,
+    meta: metaSchema,
+  });
 
 // The wider of the two shapes (name optional): both `onSubmit` consumers
 // (create and edit) already forward `values.name` into an optional field —
@@ -91,8 +95,15 @@ export const ChargePointFormDialog = ({
   const t = useTranslations("");
   const [metaOpen, setMetaOpen] = useState(false);
 
+  const nameRequiredMessage = t("appPage.chargePoints.form.fields.nameRequired");
+  const schema = useMemo(
+    () =>
+      mode === "create" ? createChargePointSchema : makeEditChargePointSchema(nameRequiredMessage),
+    [mode, nameRequiredMessage],
+  );
+
   const form = useForm<ChargePointFormValues>({
-    resolver: zodResolver(mode === "create" ? createChargePointSchema : editChargePointSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       siteId: defaultSiteId ?? "",

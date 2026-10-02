@@ -14,6 +14,7 @@ describe("useDashboardLayout", () => {
       "siteHealth",
       "chargePointsBreakdown",
       "fleetOverview",
+      "fleetReliability",
     ]);
     expect(result.current.layout.every((entry) => entry.visible)).toBe(true);
   });
@@ -35,6 +36,7 @@ describe("useDashboardLayout", () => {
       "chargePointsBreakdown",
       "siteHealth",
       "fleetOverview",
+      "fleetReliability",
     ]);
   });
 
@@ -47,6 +49,7 @@ describe("useDashboardLayout", () => {
       "siteHealth",
       "chargePointsBreakdown",
       "fleetOverview",
+      "fleetReliability",
     ]);
   });
 
@@ -61,6 +64,7 @@ describe("useDashboardLayout", () => {
       { id: "siteHealth", visible: true },
       { id: "chargePointsBreakdown", visible: true },
       { id: "fleetOverview", visible: true },
+      { id: "fleetReliability", visible: true },
     ]);
   });
 
