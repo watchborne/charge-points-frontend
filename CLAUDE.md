@@ -11,7 +11,8 @@ shows charge points and sites in real time, backed by `charge-points-server`.
 Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `@tanstack/react-query` for server-state, `next-intl` for i18n, `sonner` for
-toast notifications, `recharts` for charts, `@sentry/nextjs` for error
+toast notifications, `recharts` for charts, `@react-pdf/renderer` +
+`html2canvas` for the printable site report PDF, `@sentry/nextjs` for error
 tracking. Dev server runs on **port 3001**. Domain types come from
 `@watchborne/charge-points-types`.
 Production builds run with `next build --webpack` (see Commands below) — a
@@ -37,9 +38,20 @@ app/
       dashboard/ sites/    # pages (no local components/ subfolder); dashboard renders
                            #   components/dashboard/ (below)
       profile/             # user profile page: theme toggle (existing ThemeProvider/
-                           #   useTheme, also used by the marketing Navbar)
+                           #   useTheme, also used by the marketing Navbar); components/
+                           #   NotificationPreferencesPanel: digest opt-in/out + digest
+                           #   send hour (UTC), GET/PATCH /api/me/notification-preferences
+                           #   (charge-points-server ADR 0018)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
+      firmware-campaigns/  # page + its own components/ (FirmwareCampaignsList,
+                           #   FirmwareCampaignDetailModal, CreateFirmwareCampaignDialog,
+                           #   FirmwareCampaignStatusBadge + skeleton): fleet-wide firmware
+                           #   campaign management (dispatch UpdateFirmware to many charge
+                           #   points, track per-station outcome). lib/api-firmware-campaigns.ts
+                           #   (api.FirmwareCampaigns) is the client — FirmwareCampaign is a
+                           #   server-local type, not in @watchborne/charge-points-types, same
+                           #   pattern as SiteVisitSchedule
       charge-points/       # page + its own components/ (commissioning dialog/queue/
                            #   checklist, fleet panel — FleetBulkActionBar +
                            #   hooks/useBulkChargePointActions.ts add multi-select
@@ -52,7 +64,12 @@ app/
                            #   ChargingSessionsPanel: charging-session history (one row per
                            #   StartTransaction/StopTransaction or TransactionEvent lifecycle,
                            #   charge-points-server's ADR 0012) with a per-session
-                           #   SessionConsumptionChart, on its own "Sessions" tab,
+                           #   SessionConsumptionChart and a per-session estimated cost column
+                           #   (ChargingSessionCost, from lib/api-charge-points.ts, with a
+                           #   NO_TARIFF_CONFIGURED reason state when the site has no tariff —
+                           #   charge-points-server ADR 0019/0020), on its own "Sessions" tab,
+                           #   AlertsPanelContainer wraps AlertsPanel to own the acknowledge
+                           #   mutation (api.ChargePoints.acknowledgeAlert),
                            #   DeviceEventsPanel: OCPP 2.0.1 NotifyEvent history, and
                            #   DeviceVariableReportsPanel/RequestDeviceReportDialog:
                            #   NotifyReport history + installer-triggered device report
@@ -66,8 +83,14 @@ app/
                            #   history — moved here from the security tab so the write and
                            #   read sides of display messages sit together),
                            #   ChargePointConnectionUrlDialog: reveals the OCPP connection
-                           #   URL). ChargePointDetailPanel is the tabbed container these
-                           #   render into (tabs: main/actions/consumption/sessions/alerts/
+                           #   URL, and CertificatesPanel/InstallCertificateDialog/
+                           #   DeleteCertificateDialog: charge-point certificate management
+                           #   (InstallCertificate/DeleteCertificate/GetInstalledCertificateIds,
+                           #   applies to both OCPP dialects — only some certificate types in
+                           #   the install dialog are 2.0.1-only — rendered in the "security"
+                           #   tab alongside SecurityEventsPanel). ChargePointDetailPanel is
+                           #   the tabbed container these render into (tabs: main/actions/
+                           #   consumption/sessions/alerts/
                            #   security), and persists the last-viewed tab per browser
                            #   (localStorage key cp-detail-last-tab) as the default on the
                            #   next mount or charge-point switch. It is itself decomposed
@@ -81,13 +104,24 @@ app/
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard, SiteGrid,
                            #   SiteGridSkeleton, SiteDeletionDialog, SiteDetailModal,
                            #   SiteReliabilityValue (7-day uptime %, rendered in
-                           #   SiteDetailModal), LogSiteVisitDialog: logs a site visit
+                           #   SiteDetailModal), SetSiteTariffDialog: configures a site's
+                           #   per-kWh tariff (GET/PUT /api/sites/:id/tariff via
+                           #   hooks/useSiteTariff.ts + lib/api-site-tariff.ts,
+                           #   charge-points-server ADR 0019) from SiteDetailModal,
+                           #   LogSiteVisitDialog: logs a site visit
                            #   (POST /api/sites/:id/visits, charge-points-server ADR 0015)
                            #   from SiteDetailModal, ScheduleNextVisitDialog: plans/edits/
                            #   cancels a site's next visit (GET/PUT/DELETE
                            #   /api/sites/:id/next-visit, charge-points-server issue #579/
                            #   ADR 0016) from SiteDetailModal — the proactive counterpart to
-                           #   LogSiteVisitDialog's reactive history
+                           #   LogSiteVisitDialog's reactive history, and SiteReportExportButton:
+                           #   exports a printable PDF site report (via
+                           #   hooks/useSiteReport.ts + @react-pdf/renderer) from SiteDetailModal
+                           #   — SiteReportDocument is the PDF layout, SiteReportChartCapture
+                           #   rasterizes each charge point's consumption chart to an embeddable
+                           #   PNG first (lib/capture-chart-image.ts, html2canvas) since
+                           #   @react-pdf/renderer's own primitives can't render a live
+                           #   `recharts` chart directly
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; plus generic display/interaction
@@ -97,8 +131,12 @@ app/
                           #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile, derived client-side from already-fetched
                           #   charge points (lib/derive-site-health.ts) rather than a
-                          #   dedicated API call — DashboardOnboarding, and
-                          #   DashboardLayoutDialog (configurable/reorderable dashboard
+                          #   dedicated API call — FleetReliabilityPanel/FleetReliabilityBadge
+                          #   + skeleton: fleet-wide 7-day uptime %, via
+                          #   hooks/useFleetReliability.ts + lib/api-fleet-reliability.ts
+                          #   (api.FleetReliability, GET /api/charge-points/reliability) and
+                          #   lib/fleet-reliability.ts (derive helper) — DashboardOnboarding,
+                          #   and DashboardLayoutDialog (configurable/reorderable dashboard
                           #   widget visibility + order, persisted via
                           #   lib/dashboard-layout.ts + hooks/useDashboardLayout.ts);
                           #   charge-points/: ChargePointsBreakdown,
@@ -107,7 +145,9 @@ app/
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
                           #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
                           #   useDashboardLayout (widget visibility/order, see dashboard/ above),
-                          #   useSiteVisitSchedule
+                          #   useSiteVisitSchedule, useSiteTariff, useSiteReport (see
+                          #   sites/components/ above), useFleetReliability (see dashboard/
+                          #   above)
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -130,7 +170,8 @@ app/
   assets/                # static assets used by app/ components
 proxy.ts                # Supabase session refresh, next-intl URL-based locale
                         # routing (via next-intl/middleware), and auth guard for
-                        # /app, /api, /login, /signup (Next's renamed
+                        # /app, /login, /signup (not /api — the backend
+                        # alone gates it; Next's renamed
                         # middleware.ts file convention as of Next 16). /api and
                         # /auth skip next-intl's routing entirely (they're
                         # outside [locale]); everything else goes through
@@ -176,8 +217,10 @@ The browser never calls `charge-points-server` directly. It calls same-origin
 exists, also forwards the caller's access token as `Authorization: Bearer
 <token>` (via `(await createClient()).auth.getSession()`) so the backend can
 resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
-0002). Routes exempted from the session gate (e.g. `/api/access-requests`, see
-`PUBLIC_API_PATHS` in `proxy.ts`) simply have no token to attach.
+0002). `/api/*` is not gated in `proxy.ts` (issue #349): the backend alone enforces
+auth from the forwarded bearer token and answers 401 when there is none. A
+public endpoint (e.g. `/api/access-requests`) therefore needs no allowlist
+here — a request without a session simply reaches the backend with no token.
 
 - `API_SECRET_KEY` must **never** get a `NEXT_PUBLIC_` prefix, or it leaks into
   the client bundle.
@@ -199,6 +242,13 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   self-service commissioning-token flow on `/app/configuration`
   (`CommissioningTokenPanel`) — the plaintext token is only ever returned
   once, on issue, and is never persisted client-side.
+  `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
+  `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
+  opt-in/out and preferred digest send hour (UTC), behind
+  `NotificationPreferencesPanel` on `/app/profile`
+  (charge-points-server ADR 0018). `digestHourUtc` in the response is always a
+  resolved 0-23 value; the backend substitutes its own global default when the
+  caller has never set one, so this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
   `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
   per connector/measurand/unit). Its response types are declared locally, like
@@ -250,6 +300,24 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   behind `useSiteVisitSchedule`/`ScheduleNextVisitDialog` (charge-points-server
   issue #579, ADR 0016). Like `SiteVisit`, `SiteVisitSchedule` is declared locally
   rather than in `@watchborne/charge-points-types` — it's kept server-local too.
+- `lib/api-site-tariff.ts` (`api.SiteTariff`, `get`/`set`) reads/writes
+  `GET`/`PUT /api/sites/:id/tariff` behind `useSiteTariff`/`SetSiteTariffDialog` —
+  a site's configurable per-kWh tariff (charge-points-server ADR 0019), consumed
+  by `ChargingSessionsPanel`'s cost column via `ChargingSessionCost`
+  (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is declared locally, same
+  server-local pattern as `SiteVisitSchedule` above.
+- `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
+  `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
+  `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
+  `lib/api-uptime.ts`'s per-charge-point/per-site reads above.
+  `lib/fleet-reliability.ts` holds the client-side derive helper the panel
+  builds on.
+- `lib/api-firmware-campaigns.ts` (`api.FirmwareCampaigns`) reads/writes
+  `/api/firmware-campaigns` behind the `firmware-campaigns/` page — fleet-wide
+  firmware campaign management (dispatch `UpdateFirmware` to many charge points,
+  track per-station outcome), charge-points-server ADR 0017.
+  `FirmwareCampaign` is declared locally, same server-local pattern as
+  `SiteVisitSchedule` above.
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
@@ -260,6 +328,15 @@ resolve the caller's per-user `AccessScope` (see `charge-points-server`'s ADR
   station's OCPP `SecurityEventNotification` history. Its response type is
   declared locally too, same reasoning as `Me`/`ConnectionStateEvent` above:
   the backend keeps `SecurityEvent` server-local (its ADR 0009).
+- `api.ChargePoints.listCertificates`/`installCertificate`/`deleteCertificate`
+  (`lib/api-charge-points.ts`) back `CertificatesPanel`/`InstallCertificateDialog`/
+  `DeleteCertificateDialog` — OCPP `GetInstalledCertificateIds`/
+  `InstallCertificate`/`DeleteCertificate` (charge-points-types issue #535)
+  proxied through `POST /api/charge-points/:id/certificates/query` and
+  `POST`/`DELETE /api/charge-points/:id/certificates`. `ChargePointCertificates`
+  and friends are declared locally in `types/certificate.ts`, same server-local
+  response-type pattern as `SecurityEvent` above (the backend has no persisted
+  certificate entity to re-export a shared type for).
 - `lib/api-error-wrapper.ts` — the standardized error-handling wrapper the
   `lib/api-*.ts` methods above are built on, so a failed request surfaces a
   consistent shape regardless of which method threw.
@@ -309,13 +386,16 @@ hook — do not construct `new WebSocket` directly in components. Prefer
   permanently to `watch-borne.com` (an unprefixed path there already means fr,
   the default locale — see i18n/routing.ts), refreshes the Supabase session via
   `lib/supabase/middleware.ts` (that helper's filename is unrelated to the
-  file-convention rename), then gates `/app/*` and `/api/*` behind a valid
-  session (redirecting to `/login`, or returning 401 for `/api/*`) — except the
-  paths listed in `PUBLIC_API_PATHS` (currently just `/api/access-requests`,
-  reachable by unauthenticated visitors from `/signup`). The Supabase session
-  lookup (`getUser()`, a network round trip) only runs for the authenticated
-  surface (`/api`, `/app`, `/login`, `/signup`); public marketing pages skip it
-  entirely. There is no `app.*` subdomain routing — `/app/*` is served at that
+  file-convention rename), then gates `/app/*` behind a valid session
+  (redirecting to `/login`) and bounces signed-in visitors off `/login` and
+  `/signup`. `/api/*` is deliberately **not** gated here: `getUser()`
+  revalidates against Supabase Auth on every call (~400–530 ms), and the
+  backend re-verifies the same JWT anyway, resolving the caller's
+  `AccessScope` and failing closed with 401 (charge-points-server ADR 0002,
+  issue #349) — one authority, not two. The Supabase session lookup
+  (`getUser()`, a network round trip) only runs for the authenticated page
+  surface (`/app`, `/login`, `/signup`); public marketing pages and `/api/*`
+  skip it entirely. There is no `app.*` subdomain routing — `/app/*` is served at that
   path (under the active locale prefix) on the main host in every environment.
 - `lib/supabase/{client,server,middleware}.ts` are the only places that should
   construct a Supabase client — use the one matching your context (browser,

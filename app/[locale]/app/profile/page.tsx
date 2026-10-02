@@ -11,6 +11,7 @@ import { useTheme } from "@/app/components/ThemeProvider";
 import { isIosDevice, isStandaloneDisplayMode } from "@/lib/pwa-install";
 import { createClient } from "@/lib/supabase/client";
 
+import { NotificationPreferencesPanel } from "./components/NotificationPreferencesPanel";
 import { usePushSubscription } from "../hooks/usePushSubscription";
 
 export default function ProfilePage() {
@@ -108,6 +109,8 @@ export default function ProfilePage() {
           />
         </div>
       </section>
+
+      <NotificationPreferencesPanel />
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
