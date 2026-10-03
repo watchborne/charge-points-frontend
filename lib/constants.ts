@@ -23,6 +23,19 @@ export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
+// VAPID public key this browser subscribes to Web Push with
+// (charge-points-server issues #587-590 — the notification-channel epic's
+// backend half). Public by design: it identifies this server to the push
+// service and is meant to travel to the browser, so it's NEXT_PUBLIC_ like
+// the Supabase values above, not a secret needing API_SECRET_KEY-style
+// protection. No sensible localhost fallback either, same reasoning as
+// SUPABASE_URL above — each environment mints its own VAPID keypair.
+// Unlike Supabase's client construction, nothing here throws on an empty
+// value at import time: `usePushSubscription` checks for it itself and fails
+// soft (logs, does not subscribe) rather than letting `pushManager.subscribe`
+// blow up on a garbage applicationServerKey.
+export const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+
 // WebSocket reconnection configuration (see app/[locale]/app/ws/ws-manager.ts).
 export const WS_DISCONNECT_GRACE_TIMEOUT_MS = 300;
 export const WS_RECONNECT_BASE_DELAY_MS = 1_000;

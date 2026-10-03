@@ -9,6 +9,7 @@ import { fleetReliabilityApis } from "./api-fleet-reliability";
 import { meApis } from "./api-me";
 import { meteringApis } from "./api-metering";
 import { notificationPreferencesApis } from "./api-notification-preferences";
+import { pushSubscriptionApis } from "./api-push-subscriptions";
 import { securityEventApis } from "./api-security-events";
 import { siteTariffApis } from "./api-site-tariff";
 import { siteVisitApis } from "./api-site-visits";
@@ -28,6 +29,7 @@ export const api = {
   Me: meApis,
   Metering: meteringApis,
   NotificationPreferences: notificationPreferencesApis,
+  PushSubscriptions: pushSubscriptionApis,
   SecurityEvents: securityEventApis,
   Sites: siteApis,
   SiteTariff: siteTariffApis,
