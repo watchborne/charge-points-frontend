@@ -1,10 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang='{{if eq .Data.locale "fr"}}fr{{else}}en{{end}}'>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Your Watchborne Alpha access is approved</title>
+    <title>
+      {{if eq .Data.locale "fr"}}Votre accès à l'Alpha Watchborne est approuvé{{else}}Your
+      Watchborne Alpha access is approved{{end}}
+    </title>
     <!--[if mso]>
       <noscript>
         <xml>
@@ -154,7 +157,7 @@
                   <tr>
                     <td align="center" style="padding: 8px 0 36px">
                       <a
-                        href='{{if eq .Data.locale "fr"}}{{ .SiteURL }}/login?lang=fr{{else}}{{ .SiteURL }}/login{{end}}'
+                        href='{{ .SiteURL }}{{if ne .Data.locale "fr"}}/en{{end}}/login'
                         style="
                           display: inline-block;
                           background-color: #f59e0b;
@@ -232,9 +235,9 @@
                         lien dans votre navigateur :{{else}}Button not working? Copy and paste this
                         link into your browser:{{end}}<br />
                         <a
-                          href='{{if eq .Data.locale "fr"}}{{ .SiteURL }}/login?lang=fr{{else}}{{ .SiteURL }}/login{{end}}'
+                          href='{{ .SiteURL }}{{if ne .Data.locale "fr"}}/en{{end}}/login'
                           style="color: #b45309; word-break: break-all; text-decoration: none"
-                          >{{ .SiteURL }}/login{{if eq .Data.locale "fr"}}?lang=fr{{end}}</a
+                          >{{ .SiteURL }}{{if ne .Data.locale "fr"}}/en{{end}}/login</a
                         >
                       </p>
                     </td>
