@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 
+import { parseTracesSampleRate } from "./lib/sentry-sample-rate";
+
 // Reporting Web Vitals (LCP, CLS, INP, FCP, TTFB) is automatic once
 // performance tracing is enabled here — Sentry's browser tracing
 // integration attaches them to the pageload transaction, no manual
@@ -10,8 +12,9 @@ Sentry.init({
   environment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? process.env.NODE_ENV,
   // Fraction of pageloads/navigations traced for performance data (which is
   // what carries Web Vitals). Tune down if ingest volume/cost becomes a
-  // concern at higher traffic.
-  tracesSampleRate: 1.0,
+  // concern at higher traffic: set NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE (0-1,
+  // defaults to 1).
+  tracesSampleRate: parseTracesSampleRate(process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE),
 });
 
 // Required so client-side route changes (App Router navigations, not just
