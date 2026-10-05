@@ -328,7 +328,7 @@ describe("ProfilePage push notifications section on iOS", () => {
     isIosDevice.mockReturnValue(true);
     isStandaloneDisplayMode.mockReturnValue(false);
 
-    render(<ProfilePage />);
+    renderPage();
 
     expect(await screen.findByText("appPage.profile.push.iosInstallRequired")).toBeTruthy();
     expect(pushSwitch()).toBeNull();
@@ -339,7 +339,7 @@ describe("ProfilePage push notifications section on iOS", () => {
     isIosDevice.mockReturnValue(true);
     isStandaloneDisplayMode.mockReturnValue(true);
 
-    render(<ProfilePage />);
+    renderPage();
 
     await waitFor(() => expect(pushSwitch()).toBeTruthy());
     expect(screen.queryByText("appPage.profile.push.iosInstallRequired")).toBeNull();
@@ -348,7 +348,7 @@ describe("ProfilePage push notifications section on iOS", () => {
   it("SHOULD show the switch WHEN not on iOS at all", async () => {
     isIosDevice.mockReturnValue(false);
 
-    render(<ProfilePage />);
+    renderPage();
 
     await waitFor(() => expect(pushSwitch()).toBeTruthy());
     expect(screen.queryByText("appPage.profile.push.iosInstallRequired")).toBeNull();
