@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 import { VAPID_PUBLIC_KEY } from "@/lib/constants";
@@ -36,9 +36,19 @@ async function getOrRegisterServiceWorker(): Promise<ServiceWorkerRegistration> 
 export type UsePushSubscriptionReturn = {
   isSupported: boolean;
   permission: NotificationPermission | null;
-  subscribe: () => Promise<void>;
+  isSubscribed: boolean;
+  /**
+   * Resolves to the `Notification.requestPermission()` outcome the attempt
+   * reached (`"granted"` / `"denied"` / `"default"`), or `null` when
+   * permission was never requested (misconfigured VAPID key — see the
+   * soft-fail below). `"denied"` is a normal, non-throwing outcome, not a
+   * failure: callers should branch on the resolved value to tell it apart
+   * from a rejected promise (a real error).
+   */
+  subscribe: () => Promise<NotificationPermission | null>;
   unsubscribe: () => Promise<void>;
   isSubscribing: boolean;
+  isPending: boolean;
 };
 
 /**
@@ -47,8 +57,12 @@ export type UsePushSubscriptionReturn = {
  * charge-points-server issues #587-590). Deliberately exposes nothing beyond
  * what #401's settings toggle needs — registering the service worker,
  * requesting permission, and subscribing/unsubscribing through
- * `api.PushSubscriptions` — and is not mounted anywhere yet; #401 renders the
- * toggle that calls it.
+ * `api.PushSubscriptions` — plus (#401) `isSubscribed`, an on-mount check of
+ * the browser's actual subscription state via
+ * `navigator.serviceWorker.getRegistration()` +
+ * `registration.pushManager.getSubscription()`, so the settings toggle
+ * reflects reality on page load rather than only tracking in-session
+ * mutation state.
  *
  * Built on `useMutation` rather than local `useState`/try-catch, mirroring
  * `useSiteVisits`'s `recordVisit` — both are one-shot actions against a
@@ -62,9 +76,29 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
   const [permission, setPermission] = useState<NotificationPermission | null>(() =>
     typeof Notification !== "undefined" ? Notification.permission : null,
   );
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    if (!isSupported) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const registration = await navigator.serviceWorker.getRegistration(SERVICE_WORKER_URL);
+      const subscription = await registration?.pushManager.getSubscription();
+      if (!cancelled) setIsSubscribed(Boolean(subscription));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // isSupported is derived from navigator/window, not a value that changes
+    // across renders, so it's deliberately left out of the dependency array.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const subscribeMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (): Promise<NotificationPermission | null> => {
       if (!isSupported) {
         throw new Error("Push notifications are not supported in this browser.");
       }
@@ -77,14 +111,14 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
         console.error(
           "[usePushSubscription] NEXT_PUBLIC_VAPID_PUBLIC_KEY is not set — cannot subscribe.",
         );
-        return;
+        return null;
       }
 
       const registration = await getOrRegisterServiceWorker();
       const result = await Notification.requestPermission();
       setPermission(result);
 
-      if (result !== "granted") return;
+      if (result !== "granted") return result;
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -110,6 +144,11 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
         type: "SET_VAPID_PUBLIC_KEY",
         key: VAPID_PUBLIC_KEY,
       });
+
+      return result;
+    },
+    onSuccess: (result) => {
+      if (result === "granted") setIsSubscribed(true);
     },
   });
 
@@ -124,13 +163,20 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
       await api.PushSubscriptions.unsubscribe(subscription.endpoint);
       await subscription.unsubscribe();
     },
+    // unsubscribe() always ends in "not subscribed" from the caller's point
+    // of view — whether there was nothing to unsubscribe from, or the
+    // browser-side subscription was just torn down — so this fires
+    // unconditionally rather than branching on the (void-returning) result.
+    onSuccess: () => setIsSubscribed(false),
   });
 
   return {
     isSupported,
     permission,
+    isSubscribed,
     subscribe: () => subscribeMutation.mutateAsync(),
     unsubscribe: () => unsubscribeMutation.mutateAsync(),
     isSubscribing: subscribeMutation.isPending,
+    isPending: subscribeMutation.isPending || unsubscribeMutation.isPending,
   };
 }

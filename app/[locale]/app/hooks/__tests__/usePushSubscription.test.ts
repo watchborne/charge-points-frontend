@@ -125,8 +125,9 @@ describe("subscribe", () => {
 
     const { result } = renderUsePushSubscription();
 
+    let outcome: NotificationPermission | null = null;
     await act(async () => {
-      await result.current.subscribe();
+      outcome = await result.current.subscribe();
     });
 
     expect(mockGetRegistration).toHaveBeenCalledWith("/sw.js");
@@ -146,6 +147,8 @@ describe("subscribe", () => {
       type: "SET_VAPID_PUBLIC_KEY",
       key: "dGVzdC12YXBpZC1rZXk",
     });
+    expect(outcome).toBe("granted");
+    expect(result.current.isSubscribed).toBe(true);
   });
 
   it("SHOULD reuse an existing registration instead of registering again", async () => {
@@ -165,21 +168,24 @@ describe("subscribe", () => {
     expect(mockRegister).not.toHaveBeenCalled();
   });
 
-  it("SHOULD update permission and NOT subscribe WHEN permission is denied", async () => {
+  it('SHOULD update permission, resolve to "denied", and NOT subscribe WHEN permission is denied', async () => {
     mockRequestPermission.mockResolvedValue("denied");
     mockGetRegistration.mockResolvedValue(fakeRegistration());
 
     const { result } = renderUsePushSubscription();
 
+    let outcome: NotificationPermission | null = null;
     await act(async () => {
-      await result.current.subscribe();
+      outcome = await result.current.subscribe();
     });
 
     await waitFor(() => expect(result.current.permission).toBe("denied"));
     expect(subscribeApi).not.toHaveBeenCalled();
+    expect(outcome).toBe("denied");
+    expect(result.current.isSubscribed).toBe(false);
   });
 
-  it("SHOULD log an error and do nothing browser-side WHEN the VAPID key is not set", async () => {
+  it("SHOULD log an error, resolve to null, and do nothing browser-side WHEN the VAPID key is not set", async () => {
     // Isolated per-test module graph: lib/constants is mocked with an empty
     // key here only, so it can't leak into the "granted"-path tests above via
     // a shared static vi.mock factory.
@@ -194,20 +200,23 @@ describe("subscribe", () => {
       createElement(QueryClientProvider, { client: queryClient }, children);
     const { result } = renderHook(() => usePushSubscriptionWithNoKey(), { wrapper });
 
+    let outcome: NotificationPermission | null = "granted";
     await act(async () => {
-      await result.current.subscribe();
+      outcome = await result.current.subscribe();
     });
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("NEXT_PUBLIC_VAPID_PUBLIC_KEY"));
     expect(mockRegister).not.toHaveBeenCalled();
     expect(subscribeApi).not.toHaveBeenCalled();
+    expect(outcome).toBeNull();
+    expect(result.current.isSubscribed).toBe(false);
 
     vi.doUnmock("../../../../../lib/constants");
   });
 });
 
 describe("unsubscribe", () => {
-  it("SHOULD unsubscribe browser-side and notify the API WHEN a subscription exists", async () => {
+  it("SHOULD unsubscribe browser-side, notify the API, and clear isSubscribed WHEN a subscription exists", async () => {
     const unsubscribeBrowserSide = vi.fn().mockResolvedValue(true);
     const registration = fakeRegistration();
     registration.pushManager.getSubscription.mockResolvedValue({
@@ -219,12 +228,17 @@ describe("unsubscribe", () => {
 
     const { result } = renderUsePushSubscription();
 
+    // Let the on-mount isSubscribed check settle first, so it can't race
+    // with (and overwrite) the state unsubscribe() sets below.
+    await waitFor(() => expect(result.current.isSubscribed).toBe(true));
+
     await act(async () => {
       await result.current.unsubscribe();
     });
 
     expect(unsubscribeApi).toHaveBeenCalledWith("https://push.example/abc");
     expect(unsubscribeBrowserSide).toHaveBeenCalled();
+    expect(result.current.isSubscribed).toBe(false);
   });
 
   it("SHOULD do nothing WHEN there is no existing subscription", async () => {
@@ -239,6 +253,7 @@ describe("unsubscribe", () => {
     });
 
     expect(unsubscribeApi).not.toHaveBeenCalled();
+    expect(result.current.isSubscribed).toBe(false);
   });
 
   it("SHOULD do nothing WHEN there is no registration at all", async () => {
@@ -251,5 +266,126 @@ describe("unsubscribe", () => {
     });
 
     expect(unsubscribeApi).not.toHaveBeenCalled();
+  });
+});
+
+describe("isSubscribed (on-mount check)", () => {
+  it("SHOULD become true WHEN the browser already holds a push subscription on mount", async () => {
+    const registration = fakeRegistration();
+    registration.pushManager.getSubscription.mockResolvedValue({
+      endpoint: "https://push.example/existing",
+    });
+    mockGetRegistration.mockResolvedValue(registration);
+
+    const { result } = renderUsePushSubscription();
+
+    expect(result.current.isSubscribed).toBe(false);
+    await waitFor(() => expect(result.current.isSubscribed).toBe(true));
+    expect(mockGetRegistration).toHaveBeenCalledWith("/sw.js");
+  });
+
+  it("SHOULD stay false WHEN there is no existing subscription on mount", async () => {
+    const registration = fakeRegistration();
+    registration.pushManager.getSubscription.mockResolvedValue(null);
+    mockGetRegistration.mockResolvedValue(registration);
+
+    const { result } = renderUsePushSubscription();
+
+    await waitFor(() => expect(mockGetRegistration).toHaveBeenCalled());
+    expect(result.current.isSubscribed).toBe(false);
+  });
+
+  it("SHOULD stay false and skip the check entirely WHEN the browser does not support push", () => {
+    delete (navigator as unknown as { serviceWorker?: unknown }).serviceWorker;
+
+    const { result } = renderUsePushSubscription();
+
+    expect(result.current.isSubscribed).toBe(false);
+    expect(mockGetRegistration).not.toHaveBeenCalled();
+  });
+});
+
+// A promise this test controls the settling of, so a mutation can be held
+// genuinely in flight for an assertion rather than racing its own mocked
+// dependencies — every mock in this file resolves on the next microtask, so
+// an entire mutationFn (several awaits deep) can complete before a
+// macrotask-polling waitFor() ever gets to observe the pending state in
+// between, and did (that's the failure this replaced).
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
+}
+
+describe("isPending", () => {
+  it("SHOULD be true while a subscribe mutation is in flight and false once it settles", async () => {
+    const registration = fakeRegistration();
+    mockGetRegistration.mockResolvedValue(undefined);
+    mockRegister.mockResolvedValue(registration);
+    registration.pushManager.subscribe.mockResolvedValue({
+      toJSON: () => ({ endpoint: "https://push.example/abc", keys: { p256dh: "a", auth: "b" } }),
+    });
+    // Held open deliberately: this is the mutation's last awaited step, so
+    // isPending stays true for as long as this promise is unresolved.
+    const { promise: apiCall, resolve: resolveApiCall } = deferred<{
+      endpoint: string;
+      createdAt: string;
+    }>();
+    subscribeApi.mockReturnValue(apiCall);
+
+    const { result } = renderUsePushSubscription();
+
+    let subscribePromise!: Promise<NotificationPermission | null>;
+    act(() => {
+      subscribePromise = result.current.subscribe();
+    });
+
+    await waitFor(() => expect(subscribeApi).toHaveBeenCalled());
+    expect(result.current.isPending).toBe(true);
+    expect(result.current.isSubscribing).toBe(true);
+
+    resolveApiCall({ endpoint: "https://push.example/abc", createdAt: "now" });
+    await act(async () => {
+      await subscribePromise;
+    });
+
+    expect(result.current.isPending).toBe(false);
+  });
+
+  it("SHOULD be true while an unsubscribe mutation is in flight and false once it settles", async () => {
+    const registration = fakeRegistration();
+    registration.pushManager.getSubscription.mockResolvedValue({
+      endpoint: "https://push.example/abc",
+      unsubscribe: vi.fn(),
+    });
+    mockGetRegistration.mockResolvedValue(registration);
+
+    const { result } = renderUsePushSubscription();
+    await waitFor(() => expect(mockGetRegistration).toHaveBeenCalled());
+
+    // Same reasoning as the subscribe case above: held open on the
+    // mutation's last awaited step.
+    const { promise: apiCall, resolve: resolveApiCall } = deferred<void>();
+    unsubscribeApi.mockReturnValue(apiCall);
+
+    let unsubscribePromise!: Promise<void>;
+    act(() => {
+      unsubscribePromise = result.current.unsubscribe();
+    });
+
+    await waitFor(() => expect(unsubscribeApi).toHaveBeenCalled());
+    expect(result.current.isPending).toBe(true);
+    // The subscribe-only flag stays false: isPending is what covers both
+    // directions.
+    expect(result.current.isSubscribing).toBe(false);
+
+    resolveApiCall();
+    await act(async () => {
+      await unsubscribePromise;
+    });
+
+    expect(result.current.isPending).toBe(false);
   });
 });
