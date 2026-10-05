@@ -18,6 +18,17 @@ const { getUser, createClient } = vi.hoisted(() => ({
   createClient: vi.fn(),
 }));
 
+const { usePushSubscription, subscribeToPush, unsubscribeFromPush } = vi.hoisted(() => ({
+  usePushSubscription: vi.fn(),
+  subscribeToPush: vi.fn(),
+  unsubscribeFromPush: vi.fn(),
+}));
+
+const { toastWarning, toastError } = vi.hoisted(() => ({
+  toastWarning: vi.fn(),
+  toastError: vi.fn(),
+}));
+
 vi.mock("next-intl", () => ({
   useTranslations: () => translate,
   useFormatter: () => formatter,
@@ -29,6 +40,8 @@ vi.mock("next-intl", () => ({
 // convention).
 vi.mock("../../../../components/ThemeProvider", () => ({ useTheme }));
 vi.mock("../../../../../lib/supabase/client", () => ({ createClient }));
+vi.mock("../../hooks/usePushSubscription", () => ({ usePushSubscription }));
+vi.mock("sonner", () => ({ toast: { warning: toastWarning, error: toastError } }));
 
 // A relative path is required here (not the usual "@/lib/api" alias): test
 // files are excluded from tsconfig.json, and vite-tsconfig-paths only
@@ -36,6 +49,16 @@ vi.mock("../../../../../lib/supabase/client", () => ({ createClient }));
 // CommissioningTokenPanel.test.tsx for the same convention).
 import { api } from "../../../../../lib/api";
 import ProfilePage from "../page";
+
+const defaultPushSubscriptionState = {
+  isSupported: true,
+  isSubscribed: false,
+  isPending: false,
+  isSubscribing: false,
+  permission: null as NotificationPermission | null,
+  subscribe: subscribeToPush,
+  unsubscribe: unsubscribeFromPush,
+};
 
 const user = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -58,6 +81,11 @@ beforeEach(() => {
     .mockReset()
     .mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  subscribeToPush.mockReset();
+  unsubscribeFromPush.mockReset();
+  toastWarning.mockReset();
+  toastError.mockReset();
+  usePushSubscription.mockReset().mockReturnValue(defaultPushSubscriptionState);
 });
 
 afterEach(() => {
@@ -123,5 +151,164 @@ describe("ProfilePage", () => {
       name: "appPage.profile.notifications.digestEnabled.title",
     });
     expect(digestToggle.getAttribute("aria-checked")).toBe("true");
+  });
+});
+
+describe("ProfilePage push notifications section", () => {
+  const pushSwitch = () => screen.getByRole("switch", { name: "appPage.profile.push.title" });
+
+  it("SHOULD render a switch WHEN push notifications are supported", () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+
+    expect(pushSwitch()).toBeTruthy();
+  });
+
+  it("SHOULD render a Callout instead of a switch WHEN push notifications are not supported", () => {
+    usePushSubscription.mockReturnValue({ ...defaultPushSubscriptionState, isSupported: false });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.queryByRole("switch", { name: "appPage.profile.push.title" })).toBeNull();
+    expect(screen.getByText("appPage.profile.push.unsupported")).toBeTruthy();
+  });
+
+  it("SHOULD reflect an active subscription as checked", () => {
+    usePushSubscription.mockReturnValue({
+      ...defaultPushSubscriptionState,
+      isSubscribed: true,
+      permission: "granted",
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+
+    expect(pushSwitch().getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("SHOULD disable the switch WHILE a subscribe/unsubscribe mutation is pending", () => {
+    usePushSubscription.mockReturnValue({
+      ...defaultPushSubscriptionState,
+      isPending: true,
+      isSubscribing: true,
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+
+    expect((pushSwitch() as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("SHOULD call subscribe WHEN turned on", async () => {
+    subscribeToPush.mockResolvedValue("granted");
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() => expect(subscribeToPush).toHaveBeenCalled());
+    expect(unsubscribeFromPush).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD call unsubscribe WHEN turned off", async () => {
+    usePushSubscription.mockReturnValue({
+      ...defaultPushSubscriptionState,
+      isSubscribed: true,
+      permission: "granted",
+    });
+    unsubscribeFromPush.mockResolvedValue(undefined);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() => expect(unsubscribeFromPush).toHaveBeenCalled());
+    expect(subscribeToPush).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD show a distinct blocked-notifications toast WHEN permission resolves to denied", async () => {
+    subscribeToPush.mockResolvedValue("denied");
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() =>
+      expect(toastWarning).toHaveBeenCalledWith("appPage.profile.push.toast.permissionDenied"),
+    );
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD NOT show any toast WHEN subscribe resolves to granted", async () => {
+    subscribeToPush.mockResolvedValue("granted");
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() => expect(subscribeToPush).toHaveBeenCalled());
+    expect(toastWarning).not.toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD show a generic error toast WHEN subscribe rejects", async () => {
+    subscribeToPush.mockRejectedValue(new Error("boom"));
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"),
+    );
+    expect(toastWarning).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD show a generic error toast WHEN unsubscribe rejects", async () => {
+    usePushSubscription.mockReturnValue({
+      ...defaultPushSubscriptionState,
+      isSubscribed: true,
+      permission: "granted",
+    });
+    unsubscribeFromPush.mockRejectedValue(new Error("boom"));
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"),
+    );
   });
 });

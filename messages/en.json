@@ -1432,6 +1432,15 @@
           "description": "Language of the emails Watchborne sends you (alerts, daily digest, firmware campaigns)."
         }
       },
+      "push": {
+        "title": "Notifications",
+        "description": "Get push notifications in this browser for real-time charge point alerts.",
+        "unsupported": "Push notifications are not available in this browser.",
+        "toast": {
+          "permissionDenied": "Notifications are blocked for this site. Allow them in your browser's settings to enable this.",
+          "error": "Something went wrong while updating your notification settings. Please try again."
+        }
+      },
       "session": {
         "title": "Session",
         "userId": "User ID",
