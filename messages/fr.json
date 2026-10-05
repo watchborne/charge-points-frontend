@@ -1426,6 +1426,10 @@
         "digestHour": {
           "title": "Heure d'envoi",
           "description": "Heure (UTC) à laquelle le résumé quotidien vous est envoyé."
+        },
+        "locale": {
+          "title": "Langue des emails",
+          "description": "Langue des emails envoyés par Watchborne (alertes, résumé quotidien, campagnes firmware)."
         }
       },
       "push": {

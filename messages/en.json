@@ -1426,6 +1426,10 @@
         "digestHour": {
           "title": "Send time",
           "description": "Hour (UTC) at which the daily digest is sent to you."
+        },
+        "locale": {
+          "title": "Email language",
+          "description": "Language of the emails Watchborne sends you (alerts, daily digest, firmware campaigns)."
         }
       },
       "push": {
