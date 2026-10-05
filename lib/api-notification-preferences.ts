@@ -7,9 +7,14 @@ import { httpClient } from "./http-client";
 // lib/api-me.ts's `Me`). `digestHourUtc` is always a resolved 0-23 value:
 // the backend already substitutes its own global default when the caller
 // has never set one, so this client never needs to know about that fallback.
+// `locale` is resolved the same way (the language of the emails the backend
+// sends this user — charge-points-server ADR 0022): never null in a response.
+export type EmailLocale = "fr" | "en";
+
 export type NotificationPreferences = {
   digestEnabled: boolean;
   digestHourUtc: number;
+  locale: EmailLocale;
 };
 
 export type NotificationPreferencesUpdate = Partial<NotificationPreferences>;

@@ -77,7 +77,9 @@ beforeEach(() => {
   setTheme.mockReset();
   getUser.mockReset().mockResolvedValue({ data: { user } });
   createClient.mockReset().mockReturnValue({ auth: { getUser } });
-  getPreferences.mockReset().mockResolvedValue({ digestEnabled: true, digestHourUtc: 7 });
+  getPreferences
+    .mockReset()
+    .mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   subscribeToPush.mockReset();
   unsubscribeFromPush.mockReset();

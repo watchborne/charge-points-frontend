@@ -40,8 +40,9 @@ app/
       profile/             # user profile page: theme toggle (existing ThemeProvider/
                            #   useTheme, also used by the marketing Navbar); components/
                            #   NotificationPreferencesPanel: digest opt-in/out + digest
-                           #   send hour (UTC), GET/PATCH /api/me/notification-preferences
-                           #   (charge-points-server ADR 0018)
+                           #   send hour (UTC) + email language (fr/en), GET/PATCH
+                           #   /api/me/notification-preferences (charge-points-server
+                           #   ADR 0018, 0022)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
       firmware-campaigns/  # page + its own components/ (FirmwareCampaignsList,
@@ -247,8 +248,10 @@ here — a request without a session simply reaches the backend with no token.
   opt-in/out and preferred digest send hour (UTC), behind
   `NotificationPreferencesPanel` on `/app/profile`
   (charge-points-server ADR 0018). `digestHourUtc` in the response is always a
-  resolved 0-23 value; the backend substitutes its own global default when the
-  caller has never set one, so this client never guesses a fallback.
+  resolved 0-23 value, and `locale` (the language of the emails the backend
+  sends the caller, ADR 0022) is always a resolved `"fr" | "en"`; the backend
+  substitutes its own global default when the caller has never set either, so
+  this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
   `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
   per connector/measurand/unit). Its response types are declared locally, like
