@@ -306,6 +306,14 @@ here — a request without a session simply reaches the backend with no token.
   by `ChargingSessionsPanel`'s cost column via `ChargingSessionCost`
   (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is declared locally, same
   server-local pattern as `SiteVisitSchedule` above.
+- Web Push (Desktop/Android; charge-points-server issues #587-590):
+  `public/sw.js` is the plain, unbundled service worker (it can't import or read
+  `process.env`; the page `postMessage`s it the VAPID public key after
+  registering it), and `app/[locale]/app/hooks/usePushSubscription.ts` registers
+  it and subscribes the browser using `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (must be the
+  same key as the server's `VAPID_PUBLIC_KEY`; unset disables subscribing
+  rather than throwing). Plumbing only so far — the settings toggle that calls
+  it is a follow-up (#401).
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
@@ -582,6 +590,7 @@ bumping the `@watchborne/charge-points-types` version in `package.json`.
 NEXT_PUBLIC_API_URL=http://localhost:3000        # backend base URL
 NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws         # dashboard WebSocket
 NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp  # public OCPP endpoint (Configuration page)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=                     # optional; Web Push VAPID public key (same as server's)
 API_SECRET_KEY=<shared secret>                    # SERVER-SIDE ONLY (x-api-key)
 NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)
