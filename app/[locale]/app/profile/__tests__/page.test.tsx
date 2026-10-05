@@ -156,7 +156,11 @@ describe("ProfilePage push notifications section", () => {
   const pushSwitch = () => screen.getByRole("switch", { name: "appPage.profile.push.title" });
 
   it("SHOULD render a switch WHEN push notifications are supported", () => {
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
 
     expect(pushSwitch()).toBeTruthy();
   });
@@ -164,7 +168,11 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD render a Callout instead of a switch WHEN push notifications are not supported", () => {
     usePushSubscription.mockReturnValue({ ...defaultPushSubscriptionState, isSupported: false });
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
 
     expect(screen.queryByRole("switch", { name: "appPage.profile.push.title" })).toBeNull();
     expect(screen.getByText("appPage.profile.push.unsupported")).toBeTruthy();
@@ -177,7 +185,11 @@ describe("ProfilePage push notifications section", () => {
       permission: "granted",
     });
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
 
     expect(pushSwitch().getAttribute("aria-checked")).toBe("true");
   });
@@ -189,7 +201,11 @@ describe("ProfilePage push notifications section", () => {
       isSubscribing: true,
     });
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
 
     expect((pushSwitch() as HTMLButtonElement).disabled).toBe(true);
   });
@@ -197,7 +213,11 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD call subscribe WHEN turned on", async () => {
     subscribeToPush.mockResolvedValue("granted");
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
     fireEvent.click(pushSwitch());
 
     await waitFor(() => expect(subscribeToPush).toHaveBeenCalled());
@@ -212,7 +232,11 @@ describe("ProfilePage push notifications section", () => {
     });
     unsubscribeFromPush.mockResolvedValue(undefined);
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
     fireEvent.click(pushSwitch());
 
     await waitFor(() => expect(unsubscribeFromPush).toHaveBeenCalled());
@@ -222,7 +246,11 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD show a distinct blocked-notifications toast WHEN permission resolves to denied", async () => {
     subscribeToPush.mockResolvedValue("denied");
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>
@@ -234,7 +262,11 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD NOT show any toast WHEN subscribe resolves to granted", async () => {
     subscribeToPush.mockResolvedValue("granted");
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
     fireEvent.click(pushSwitch());
 
     await waitFor(() => expect(subscribeToPush).toHaveBeenCalled());
@@ -245,7 +277,11 @@ describe("ProfilePage push notifications section", () => {
   it("SHOULD show a generic error toast WHEN subscribe rejects", async () => {
     subscribeToPush.mockRejectedValue(new Error("boom"));
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>
@@ -262,7 +298,11 @@ describe("ProfilePage push notifications section", () => {
     });
     unsubscribeFromPush.mockRejectedValue(new Error("boom"));
 
-    render(<ProfilePage />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ProfilePage />
+      </QueryClientProvider>,
+    );
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>
