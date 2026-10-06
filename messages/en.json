@@ -129,12 +129,10 @@
       "badge": "Roadmap",
       "title": "What's coming next",
       "items": {
-        "alertCustomization": "Alert customization",
-        "interventionTracking": "On-site intervention tracking",
-        "availabilityReportExport": "PDF export of availability reports",
+        "alertCustomization": "Alert customization (thresholds, channels)",
         "historyExport": "Export of OCPP event, alert & metric history",
-        "bulkActions": "Multi-station actions",
-        "rbac": "Role-based access control"
+        "rbac": "Role- and team-based access management",
+        "integrations": "Integrations with your business tools"
       }
     },
     "featuresSection": {
@@ -154,11 +152,20 @@
         "firmware": "Firmware update tracking & triggering",
         "siteHealth": "Site health overview",
         "reliability": "7-day charge point & site availability rate",
-        "alerting": "Automatic real-time email alerts (offline, fault, firmware)",
+        "alerting": "Automatic real-time alerts (email and push notifications) and email digest (offline, fault, firmware)",
         "statusHistory": "Connection & connector status history",
         "chargingSessions": "Charging session history",
         "securityEvents": "OCPP security event history",
-        "logDiagnostics": "Remote log & diagnostics retrieval"
+        "logDiagnostics": "Remote log & diagnostics retrieval",
+        "bulkActions": "Bulk actions across multiple charge points",
+        "firmwareCampaigns": "Fleet-wide firmware update campaigns with per-station tracking",
+        "commissioning": "Commissioning: queue, checklist and self-service OCPP commissioning token",
+        "siteVisits": "On-site visit tracking: history and next-visit planning",
+        "siteReport": "PDF site report with per-station consumption charts",
+        "tariff": "Per-site tariff and estimated cost of each charging session",
+        "certificates": "Charge point certificate management",
+        "ocpp201": "Display messages and device reports (OCPP 2.0.1)",
+        "dashboardLayout": "Customizable dashboard"
       }
     },
     "cta": {
@@ -212,7 +219,7 @@
         },
         "reporting": {
           "title": "Customer reporting",
-          "description": "Give your customers reliable visibility into their charger availability and consumption, without manual reporting."
+          "description": "Give your customers reliable visibility into the availability and consumption of their stations, with a one-click PDF site report and no manual reporting."
         }
       }
     },
@@ -225,11 +232,8 @@
       "title": "What we're building",
       "items": {
         "alertCustomization": "Alert customization (thresholds, channels, recipients)",
-        "interventionTracking": "On-site maintenance intervention tracking",
-        "availabilityReportExport": "PDF export of availability reports for your customers",
         "historyExport": "Export of OCPP event, alert & metric history",
-        "bulkActions": "Bulk actions across multiple charge points",
-        "rbac": "Team- and site-level access management",
+        "rbac": "Team-, role- and site-level access management",
         "integrations": "Integrations with your business tools"
       }
     },
@@ -393,7 +397,11 @@
         "multisite": "Multi-site organization",
         "alphaAccess": "Alpha access",
         "alerting": "Automatic alerts",
-        "firmware": "Firmware update tracking"
+        "firmware": "Firmware update tracking",
+        "commissioning": "Commissioning and commissioning token",
+        "bulkActions": "Bulk actions and firmware campaigns",
+        "siteReport": "PDF site report",
+        "chargingSessions": "Charging session history"
       }
     },
     "futurePricing": {
