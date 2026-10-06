@@ -5,13 +5,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
     if (key === "layout.footer.copyright") return `© ${values?.year} Watchborne`;
-    if (key === "layout.footer.version") return `v${values?.version}`;
+    if (key === "layout.footer.version") return `Version ${values?.version}`;
     if (key === "layout.footer.sections.company.links.contact") return "Contact";
     return key;
   },
 }));
 
-vi.mock("../../../../../../lib/constants", () => ({ APP_VERSION: "1.2.3" }));
+vi.mock("../../../../../../lib/constants", () => ({ APP_VERSION: "abc1234" }));
 
 vi.mock("../../../../../../i18n/navigation", () => ({
   Link: ({
@@ -51,6 +51,6 @@ describe("Footer", () => {
   it("SHOULD render the app version WHEN one is configured", () => {
     render(<Footer />);
 
-    expect(screen.getByText("v1.2.3")).toBeTruthy();
+    expect(screen.getByText("Version abc1234")).toBeTruthy();
   });
 });

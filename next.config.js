@@ -10,6 +10,22 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000/ws";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 
+// Release version shown in the footer: the short commit SHA, which is what
+// release.yml names the release/tag after (no semver, see that workflow). The
+// deploy checks out the release tag, so the local git HEAD is the released
+// commit; CI env vars are only a fallback (e.g. a build with no .git).
+function releaseVersion() {
+  let sha = "";
+  try {
+    sha = require("child_process")
+      .execSync("git rev-parse HEAD", { stdio: ["ignore", "pipe", "ignore"] })
+      .toString();
+  } catch {
+    sha = process.env.COMMIT_REF || process.env.GITHUB_SHA || "";
+  }
+  return sha.trim().slice(0, 7);
+}
+
 function originOf(url) {
   try {
     return new URL(url).origin;
@@ -59,8 +75,8 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Inlined at build time from package.json (see APP_VERSION in lib/constants.ts).
-  env: { NEXT_PUBLIC_APP_VERSION: require("./package.json").version },
+  // Inlined at build time (see APP_VERSION in lib/constants.ts).
+  env: { NEXT_PUBLIC_APP_VERSION: releaseVersion() },
   async headers() {
     return [
       {
