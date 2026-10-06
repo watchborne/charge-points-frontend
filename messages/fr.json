@@ -128,12 +128,10 @@
       "badge": "Feuille de route",
       "title": "Ce qui arrive ensuite",
       "items": {
-        "alertCustomization": "Personnalisation des alertes",
-        "interventionTracking": "Suivi des interventions sur site",
-        "availabilityReportExport": "Export PDF des rapports de disponibilité",
+        "alertCustomization": "Personnalisation des alertes (seuils, canaux)",
         "historyExport": "Export d'historique des événements OCPP, alertes et métriques",
-        "bulkActions": "Actions multi-bornes",
-        "rbac": "Contrôle d'accès basé sur les rôles"
+        "rbac": "Gestion des accès par rôle et par équipe",
+        "integrations": "Intégrations avec vos outils métier"
       }
     },
     "featuresSection": {
@@ -153,11 +151,20 @@
         "firmware": "Suivi et déclenchement des mises à jour firmware",
         "siteHealth": "Vue d'ensemble de la santé des sites",
         "reliability": "Taux de disponibilité des bornes et des sites (7 jours)",
-        "alerting": "Alertes automatiques en temps réel par email (déconnexion, panne, firmware)",
+        "alerting": "Alertes automatiques en temps réel (email et notifications push) et digest par email (déconnexion, panne, firmware)",
         "statusHistory": "Historique des connexions et de l'état des connecteurs",
         "chargingSessions": "Historique des sessions de charge",
         "securityEvents": "Historique des événements de sécurité OCPP",
-        "logDiagnostics": "Récupération à distance des journaux et diagnostics"
+        "logDiagnostics": "Récupération à distance des journaux et diagnostics",
+        "bulkActions": "Actions groupées sur plusieurs bornes à la fois",
+        "firmwareCampaigns": "Campagnes de mise à jour firmware sur tout le parc, avec suivi par borne",
+        "commissioning": "Mise en service : file d'attente, checklist et jeton de commissioning OCPP en libre-service",
+        "siteVisits": "Suivi des visites sur site : historique et planification de la prochaine visite",
+        "siteReport": "Rapport PDF de site avec graphiques de consommation par borne",
+        "tariff": "Tarif par site et coût estimé de chaque session de charge",
+        "certificates": "Gestion des certificats des bornes",
+        "ocpp201": "Messages d'affichage et rapports d'appareil (OCPP 2.0.1)",
+        "dashboardLayout": "Tableau de bord personnalisable"
       }
     },
     "cta": {
@@ -211,7 +218,7 @@
         },
         "reporting": {
           "title": "Reporting client",
-          "description": "Donnez à vos clients une visibilité fiable sur la disponibilité et la consommation de leurs bornes, sans reporting manuel."
+          "description": "Donnez à vos clients une visibilité fiable sur la disponibilité et la consommation de leurs bornes, avec un rapport PDF de site généré en un clic, sans reporting manuel."
         }
       }
     },
@@ -224,11 +231,8 @@
       "title": "Ce que nous construisons",
       "items": {
         "alertCustomization": "Personnalisation des alertes (seuils, canaux, destinataires)",
-        "interventionTracking": "Suivi des interventions de maintenance sur site",
-        "availabilityReportExport": "Export PDF des rapports de disponibilité pour vos clients",
         "historyExport": "Export d'historique des événements OCPP, des alertes et des métriques",
-        "bulkActions": "Actions groupées sur plusieurs bornes à la fois",
-        "rbac": "Gestion des accès par équipe et par site",
+        "rbac": "Gestion des accès par équipe, par rôle et par site",
         "integrations": "Intégrations avec vos outils métier"
       }
     },
@@ -392,7 +396,11 @@
         "multisite": "Organisation multi-sites",
         "alphaAccess": "Accès Alpha",
         "alerting": "Alertes automatiques",
-        "firmware": "Suivi des mises à jour firmware"
+        "firmware": "Suivi des mises à jour firmware",
+        "commissioning": "Mise en service et jeton de commissioning",
+        "bulkActions": "Actions groupées et campagnes firmware",
+        "siteReport": "Rapport PDF de site",
+        "chargingSessions": "Historique des sessions de charge"
       }
     },
     "futurePricing": {
