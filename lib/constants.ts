@@ -1,5 +1,9 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
+// Release version of this build (short commit SHA, the release/tag name — see
+// .github/workflows/release.yml), injected by next.config.js at build time.
+export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "";
+
 export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000/ws";
 
 // Public-facing OCPP endpoint that charge points themselves dial into — distinct

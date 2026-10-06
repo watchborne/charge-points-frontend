@@ -146,6 +146,13 @@ export async function proxy(request: NextRequest) {
   return withSessionCookies(intlResponse);
 }
 
+// Excludes anything under public/ with a file extension (sw.js, manifest.json,
+// icon-*.png, favicon.svg, ...) in addition to _next's own internals: without
+// this, next-intl's routing middleware rewrites these requests as if they
+// were locale-prefixed pages, so the browser gets a 404 HTML page back
+// instead of the actual static asset — e.g. navigator.serviceWorker.register
+// failing because /sw.js resolves to that 404 page rather than the real
+// script (its MIME type isn't a JS one, so the browser rejects it outright).
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

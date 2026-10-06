@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const translate = (key: string) => key;
 
@@ -20,6 +20,15 @@ const updatePreferences = vi.spyOn(api.NotificationPreferences, "updatePreferenc
 
 let queryClient: QueryClient;
 
+// Radix Select drives its listbox through pointer capture and scrollIntoView,
+// which jsdom lacks (same stubs as DeleteCertificateDialog.test.tsx).
+beforeAll(() => {
+  Element.prototype.hasPointerCapture = vi.fn(() => false);
+  Element.prototype.setPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+});
+
 beforeEach(() => {
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
@@ -38,7 +47,7 @@ const renderPanel = () =>
 
 describe("NotificationPreferencesPanel", () => {
   it("SHOULD show the resolved digest preferences WHEN they load", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7 });
+    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
 
     renderPanel();
 
@@ -48,7 +57,7 @@ describe("NotificationPreferencesPanel", () => {
   });
 
   it("SHOULD reflect an opted-out user", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 14 });
+    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 14, locale: "fr" });
 
     renderPanel();
 
@@ -57,8 +66,8 @@ describe("NotificationPreferencesPanel", () => {
   });
 
   it("SHOULD toggle the digest opt-in WHEN the switch is clicked", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7 });
-    updatePreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7 });
+    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
+    updatePreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7, locale: "fr" });
 
     renderPanel();
 
@@ -70,13 +79,55 @@ describe("NotificationPreferencesPanel", () => {
   });
 
   it("SHOULD disable the hour select WHEN the digest is opted out", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7 });
+    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7, locale: "fr" });
 
     renderPanel();
 
     await screen.findByRole("switch");
-    const trigger = screen.getByRole("combobox");
+    const trigger = screen.getByRole("combobox", {
+      name: "appPage.profile.notifications.digestHour.title",
+    });
     expect(trigger.hasAttribute("disabled")).toBe(true);
+  });
+
+  it("SHOULD show the resolved email language WHEN the preferences load", async () => {
+    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "en" });
+
+    renderPanel();
+
+    await screen.findByRole("switch");
+    const trigger = screen.getByRole("combobox", {
+      name: "appPage.profile.notifications.locale.title",
+    });
+    expect(trigger.textContent).toContain("English");
+  });
+
+  it("SHOULD keep the language select enabled WHEN the digest is opted out", async () => {
+    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7, locale: "fr" });
+
+    renderPanel();
+
+    await screen.findByRole("switch");
+    const trigger = screen.getByRole("combobox", {
+      name: "appPage.profile.notifications.locale.title",
+    });
+    expect(trigger.hasAttribute("disabled")).toBe(false);
+  });
+
+  it("SHOULD save the language WHEN another one is picked", async () => {
+    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
+    updatePreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "en" });
+
+    renderPanel();
+
+    await screen.findByRole("switch");
+    fireEvent.keyDown(
+      screen.getByRole("combobox", { name: "appPage.profile.notifications.locale.title" }),
+      { key: "ArrowDown" },
+    );
+    fireEvent.click(await screen.findByRole("option", { name: "English" }));
+
+    await waitFor(() => expect(updatePreferences).toHaveBeenCalledWith({ locale: "en" }));
   });
 
   it("SHOULD show an error WHEN the preferences fail to load", async () => {

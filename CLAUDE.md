@@ -40,8 +40,9 @@ app/
       profile/             # user profile page: theme toggle (existing ThemeProvider/
                            #   useTheme, also used by the marketing Navbar); components/
                            #   NotificationPreferencesPanel: digest opt-in/out + digest
-                           #   send hour (UTC), GET/PATCH /api/me/notification-preferences
-                           #   (charge-points-server ADR 0018)
+                           #   send hour (UTC) + email language (fr/en), GET/PATCH
+                           #   /api/me/notification-preferences (charge-points-server
+                           #   ADR 0018, 0022)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
                            #   installer self-service OCPP commissioning token)
       firmware-campaigns/  # page + its own components/ (FirmwareCampaignsList,
@@ -247,8 +248,10 @@ here — a request without a session simply reaches the backend with no token.
   opt-in/out and preferred digest send hour (UTC), behind
   `NotificationPreferencesPanel` on `/app/profile`
   (charge-points-server ADR 0018). `digestHourUtc` in the response is always a
-  resolved 0-23 value; the backend substitutes its own global default when the
-  caller has never set one, so this client never guesses a fallback.
+  resolved 0-23 value, and `locale` (the language of the emails the backend
+  sends the caller, ADR 0022) is always a resolved `"fr" | "en"`; the backend
+  substitutes its own global default when the caller has never set either, so
+  this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
   `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
   per connector/measurand/unit). Its response types are declared locally, like
@@ -306,6 +309,14 @@ here — a request without a session simply reaches the backend with no token.
   by `ChargingSessionsPanel`'s cost column via `ChargingSessionCost`
   (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is declared locally, same
   server-local pattern as `SiteVisitSchedule` above.
+- Web Push (Desktop/Android; charge-points-server issues #587-590):
+  `public/sw.js` is the plain, unbundled service worker (it can't import or read
+  `process.env`; the page `postMessage`s it the VAPID public key after
+  registering it), and `app/[locale]/app/hooks/usePushSubscription.ts` registers
+  it and subscribes the browser using `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (must be the
+  same key as the server's `VAPID_PUBLIC_KEY`; unset disables subscribing
+  rather than throwing). Plumbing only so far — the settings toggle that calls
+  it is a follow-up (#401).
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
@@ -582,6 +593,7 @@ bumping the `@watchborne/charge-points-types` version in `package.json`.
 NEXT_PUBLIC_API_URL=http://localhost:3000        # backend base URL
 NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws         # dashboard WebSocket
 NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp  # public OCPP endpoint (Configuration page)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=                     # optional; Web Push VAPID public key (same as server's)
 API_SECRET_KEY=<shared secret>                    # SERVER-SIDE ONLY (x-api-key)
 NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)

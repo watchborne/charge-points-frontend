@@ -19,6 +19,7 @@
   "layout": {
     "footer": {
       "copyright": "© {year} Watchborne. Tous droits réservés.",
+      "version": "Version {version}",
       "description": "Watchborne aide les installateurs IRVE à superviser leurs bornes de recharge sur plusieurs sites en temps réel.",
       "sections": {
         "product": {
@@ -1426,6 +1427,19 @@
         "digestHour": {
           "title": "Heure d'envoi",
           "description": "Heure (UTC) à laquelle le résumé quotidien vous est envoyé."
+        },
+        "locale": {
+          "title": "Langue des emails",
+          "description": "Langue des emails envoyés par Watchborne (alertes, résumé quotidien, campagnes firmware)."
+        }
+      },
+      "push": {
+        "title": "Notifications",
+        "description": "Recevez des notifications push dans ce navigateur pour les alertes en temps réel de vos bornes.",
+        "unsupported": "Les notifications push ne sont pas disponibles sur ce navigateur.",
+        "toast": {
+          "permissionDenied": "Les notifications sont bloquées pour ce site. Autorisez-les dans les réglages de votre navigateur pour activer cette option.",
+          "error": "Une erreur est survenue lors de la mise à jour de vos réglages de notifications. Veuillez réessayer."
         }
       },
       "session": {
