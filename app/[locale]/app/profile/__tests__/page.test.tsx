@@ -29,6 +29,11 @@ const { toastWarning, toastError } = vi.hoisted(() => ({
   toastError: vi.fn(),
 }));
 
+const { isIosDevice, isStandaloneDisplayMode } = vi.hoisted(() => ({
+  isIosDevice: vi.fn(),
+  isStandaloneDisplayMode: vi.fn(),
+}));
+
 vi.mock("next-intl", () => ({
   useTranslations: () => translate,
   useFormatter: () => formatter,
@@ -40,6 +45,7 @@ vi.mock("next-intl", () => ({
 // convention).
 vi.mock("../../../../components/ThemeProvider", () => ({ useTheme }));
 vi.mock("../../../../../lib/supabase/client", () => ({ createClient }));
+vi.mock("../../../../../lib/pwa-install", () => ({ isIosDevice, isStandaloneDisplayMode }));
 vi.mock("../../hooks/usePushSubscription", () => ({ usePushSubscription }));
 vi.mock("sonner", () => ({ toast: { warning: toastWarning, error: toastError } }));
 
@@ -85,6 +91,8 @@ beforeEach(() => {
   unsubscribeFromPush.mockReset();
   toastWarning.mockReset();
   toastError.mockReset();
+  isIosDevice.mockReset().mockReturnValue(false);
+  isStandaloneDisplayMode.mockReset().mockReturnValue(false);
   usePushSubscription.mockReset().mockReturnValue(defaultPushSubscriptionState);
 });
 
@@ -310,5 +318,39 @@ describe("ProfilePage push notifications section", () => {
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith("appPage.profile.push.toast.error"),
     );
+  });
+});
+
+describe("ProfilePage push notifications section on iOS", () => {
+  const pushSwitch = () => screen.queryByRole("switch", { name: "appPage.profile.push.title" });
+
+  it("SHOULD show install guidance instead of the switch WHEN on iOS and not standalone", async () => {
+    isIosDevice.mockReturnValue(true);
+    isStandaloneDisplayMode.mockReturnValue(false);
+
+    renderPage();
+
+    expect(await screen.findByText("appPage.profile.push.iosInstallRequired")).toBeTruthy();
+    expect(pushSwitch()).toBeNull();
+    expect(screen.queryByText("appPage.profile.push.unsupported")).toBeNull();
+  });
+
+  it("SHOULD show the switch WHEN on iOS but already running standalone", async () => {
+    isIosDevice.mockReturnValue(true);
+    isStandaloneDisplayMode.mockReturnValue(true);
+
+    renderPage();
+
+    await waitFor(() => expect(pushSwitch()).toBeTruthy());
+    expect(screen.queryByText("appPage.profile.push.iosInstallRequired")).toBeNull();
+  });
+
+  it("SHOULD show the switch WHEN not on iOS at all", async () => {
+    isIosDevice.mockReturnValue(false);
+
+    renderPage();
+
+    await waitFor(() => expect(pushSwitch()).toBeTruthy());
+    expect(screen.queryByText("appPage.profile.push.iosInstallRequired")).toBeNull();
   });
 });
