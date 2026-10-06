@@ -10,10 +10,18 @@ vi.mock("next-intl", () => ({
 
 // `vi.hoisted` because vi.mock factories are hoisted above these
 // declarations — the repo's existing pattern (see SiteReliabilityValue.test.tsx).
-const { useSiteReportMock, pdfMock, toBlobMock } = vi.hoisted(() => ({
-  useSiteReportMock: vi.fn(),
-  toBlobMock: vi.fn(),
-  pdfMock: vi.fn(),
+const { useSiteReportMock, pdfMock, toBlobMock, pushWarningNotificationMock, captureState } =
+  vi.hoisted(() => ({
+    useSiteReportMock: vi.fn(),
+    toBlobMock: vi.fn(),
+    pdfMock: vi.fn(),
+    pushWarningNotificationMock: vi.fn(),
+    // How many charts the fake capture step below reports as failed.
+    captureState: { failedCount: 0 },
+  }));
+
+vi.mock("../../../../../components/ToastNotification", () => ({
+  useToastNotification: () => ({ pushWarningNotification: pushWarningNotificationMock }),
 }));
 
 vi.mock("../../../hooks/useSiteReport", () => ({ useSiteReport: useSiteReportMock }));
@@ -23,15 +31,16 @@ vi.mock("../../../hooks/useSiteReport", () => ({ useSiteReport: useSiteReportMoc
 // note: verify generation triggers with the assembled data, not pixel
 // output). Its `onCaptured` contract is exercised here via a fake that
 // fires it immediately with no images, same as "no charge point had
-// anything chartable".
+// anything chartable" — or, when `captureState.failedCount` is set, as
+// "that many charts could not be rasterized" (issue #454).
 vi.mock("../SiteReportChartCapture", () => ({
   SiteReportChartCapture: ({
     onCaptured,
   }: {
-    onCaptured: (images: Record<string, string>) => void;
+    onCaptured: (images: Record<string, string>, failedCount: number) => void;
   }) => {
     useEffect(() => {
-      onCaptured({});
+      onCaptured({}, captureState.failedCount);
     }, [onCaptured]);
     return null;
   },
@@ -78,6 +87,7 @@ const REPORT = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  captureState.failedCount = 0;
   pdfMock.mockReturnValue({ toBlob: toBlobMock });
   toBlobMock.mockResolvedValue(new Blob(["pdf"], { type: "application/pdf" }));
   useSiteReportMock.mockReturnValue({ report: REPORT, loading: false, failed: false });
@@ -122,5 +132,33 @@ describe("SiteReportExportButton", () => {
     fireEvent.click(screen.getByRole("button"));
 
     expect(await screen.findByText("appPage.sites.detail.report.exportError")).toBeTruthy();
+  });
+
+  it("SHOULD NOT warn WHEN every chart was captured", async () => {
+    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+
+    fireEvent.click(screen.getByRole("button"));
+
+    await waitFor(() => expect(toBlobMock).toHaveBeenCalled());
+    expect(pushWarningNotificationMock).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD still generate the PDF, warn, and re-enable the button WHEN some charts could not be captured (issue #454)", async () => {
+    captureState.failedCount = 2;
+
+    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+
+    fireEvent.click(screen.getByRole("button"));
+
+    await waitFor(() => expect(toBlobMock).toHaveBeenCalled());
+    expect(pushWarningNotificationMock).toHaveBeenCalledTimes(1);
+    expect(pushWarningNotificationMock).toHaveBeenCalledWith(
+      "appPage.sites.detail.report.chartsFailed",
+    );
+    await waitFor(() =>
+      expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(false),
+    );
+    // A degraded report is not a failed export: no inline error.
+    expect(screen.queryByText("appPage.sites.detail.report.exportError")).toBeNull();
   });
 });
