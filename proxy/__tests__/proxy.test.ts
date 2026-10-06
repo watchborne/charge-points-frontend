@@ -245,6 +245,43 @@ describe("locale routing", () => {
   });
 });
 
+describe("middleware matcher", () => {
+  // Regression guard for a real production bug: any public/ static asset NOT
+  // excluded here gets routed through next-intl's middleware like a page,
+  // which rewrites it and serves a 404 HTML page back instead of the actual
+  // file (wrong MIME type, so e.g. navigator.serviceWorker.register("/sw.js")
+  // fails outright — no error that reaches this proxy's own logic, since the
+  // static file never gets here to be gated or locale-routed in the first
+  // place).
+  it.each([
+    "/sw.js",
+    "/manifest.json",
+    "/icon-192.png",
+    "/icon-512.png",
+    "/icon-maskable-512.png",
+    "/favicon.svg",
+    "/favicon.ico",
+    "/apple-touch-icon.png",
+    "/_next/static/chunks/main.js",
+    "/_next/image",
+  ])("SHOULD exclude the static asset path %s from the matcher", async (path) => {
+    const { config } = await import("../../proxy");
+    const pattern = new RegExp(`^${config.matcher[0]}$`);
+
+    expect(pattern.test(path)).toBe(false);
+  });
+
+  it.each(["/app/dashboard", "/api/charge-points", "/pricing", "/login", "/en/pricing"])(
+    "SHOULD still route %s through the matcher",
+    async (path) => {
+      const { config } = await import("../../proxy");
+      const pattern = new RegExp(`^${config.matcher[0]}$`);
+
+      expect(pattern.test(path)).toBe(true);
+    },
+  );
+});
+
 describe("Supabase session lookup scoping", () => {
   it("SHOULD NOT hit Supabase for a public marketing page", async () => {
     setUser(null);
