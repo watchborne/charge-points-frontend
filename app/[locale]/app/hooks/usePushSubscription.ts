@@ -30,7 +30,18 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 async function getOrRegisterServiceWorker(): Promise<ServiceWorkerRegistration> {
   const existing = await navigator.serviceWorker.getRegistration(SERVICE_WORKER_URL);
-  return existing ?? navigator.serviceWorker.register(SERVICE_WORKER_URL);
+  if (!existing) {
+    await navigator.serviceWorker.register(SERVICE_WORKER_URL);
+  }
+
+  // `register()` resolves once registration begins, not once a worker is
+  // active — on a brand-new registration (e.g. the very first time a freshly
+  // installed PWA registers this worker, with nothing already active from an
+  // earlier visit) the worker can still be installing/waiting at that point.
+  // `pushManager.subscribe()` requires an active worker, so calling it right
+  // off `register()`'s result races activation and throws. `.ready` resolves
+  // only once this scope has an active worker, existing or brand new.
+  return navigator.serviceWorker.ready;
 }
 
 export type UsePushSubscriptionReturn = {

@@ -43,10 +43,19 @@ function renderUsePushSubscription() {
 const mockGetRegistration = vi.fn();
 const mockRegister = vi.fn();
 const mockRequestPermission = vi.fn();
+// `.ready` is what getOrRegisterServiceWorker actually awaits to get an
+// active worker — register()'s own resolved value is never used directly
+// (see usePushSubscription.ts's comment on why), so tests assert against
+// what `ready` resolves to, not what `register` resolves to.
+const mockReady = vi.fn();
 
 function stubSupportedBrowser() {
   Object.defineProperty(navigator, "serviceWorker", {
     value: { getRegistration: mockGetRegistration, register: mockRegister },
+    configurable: true,
+  });
+  Object.defineProperty(navigator.serviceWorker, "ready", {
+    get: mockReady,
     configurable: true,
   });
   (window as unknown as { PushManager: unknown }).PushManager = function PushManager() {};
@@ -72,6 +81,7 @@ beforeEach(() => {
   unsubscribeApi.mockReset();
   mockGetRegistration.mockReset();
   mockRegister.mockReset();
+  mockReady.mockReset();
   mockRequestPermission.mockReset().mockResolvedValue("granted");
   stubSupportedBrowser();
 });
@@ -112,6 +122,7 @@ describe("subscribe", () => {
     const registration = fakeRegistration();
     mockGetRegistration.mockResolvedValue(undefined);
     mockRegister.mockResolvedValue(registration);
+    mockReady.mockResolvedValue(registration);
     registration.pushManager.subscribe.mockResolvedValue({
       toJSON: () => ({
         endpoint: "https://push.example/abc",
@@ -154,6 +165,7 @@ describe("subscribe", () => {
   it("SHOULD reuse an existing registration instead of registering again", async () => {
     const registration = fakeRegistration();
     mockGetRegistration.mockResolvedValue(registration);
+    mockReady.mockResolvedValue(registration);
     registration.pushManager.subscribe.mockResolvedValue({
       toJSON: () => ({ endpoint: "https://push.example/abc", keys: { p256dh: "a", auth: "b" } }),
     });
@@ -170,7 +182,9 @@ describe("subscribe", () => {
 
   it('SHOULD update permission, resolve to "denied", and NOT subscribe WHEN permission is denied', async () => {
     mockRequestPermission.mockResolvedValue("denied");
-    mockGetRegistration.mockResolvedValue(fakeRegistration());
+    const registration = fakeRegistration();
+    mockGetRegistration.mockResolvedValue(registration);
+    mockReady.mockResolvedValue(registration);
 
     const { result } = renderUsePushSubscription();
 
@@ -324,6 +338,7 @@ describe("isPending", () => {
     const registration = fakeRegistration();
     mockGetRegistration.mockResolvedValue(undefined);
     mockRegister.mockResolvedValue(registration);
+    mockReady.mockResolvedValue(registration);
     registration.pushManager.subscribe.mockResolvedValue({
       toJSON: () => ({ endpoint: "https://push.example/abc", keys: { p256dh: "a", auth: "b" } }),
     });
