@@ -1,8 +1,9 @@
-import { Button, Input } from "@watchborne/electrons";
 import { Mail, Building2, Phone } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import type { Locale } from "@/i18n/locale";
+
+import { ContactForm } from "./components/ContactForm";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -28,21 +29,7 @@ export default async function ContactPage({ params }: Props) {
 
       <div className="mx-auto mt-16 grid max-w-6xl gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="space-y-6 p-8">
-            <Input placeholder={t("contactPage.form.company")} />
-
-            <Input placeholder={t("contactPage.form.name")} />
-
-            <Input type="email" placeholder={t("contactPage.form.email")} />
-
-            <Input placeholder={t("contactPage.form.phone")} />
-
-            <Input placeholder={t("contactPage.form.chargePoints")} />
-
-            <Input placeholder={t("contactPage.form.message")} />
-
-            <Button className="w-full">{t("contactPage.form.submit")}</Button>
-          </div>
+          <ContactForm />
         </div>
 
         <div className="space-y-6">

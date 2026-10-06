@@ -251,7 +251,9 @@
       "phone": "Téléphone",
       "chargePoints": "Nombre de bornes de recharge",
       "message": "Parlez-nous de votre infrastructure...",
-      "submit": "Envoyer le message"
+      "submit": "Envoyer le message",
+      "success": "Merci ! Votre message a bien été envoyé, nous vous répondrons sous un jour ouvrable.",
+      "error": "Impossible d'envoyer votre message. Veuillez réessayer."
     },
     "contact": {
       "email": {

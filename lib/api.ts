@@ -1,6 +1,7 @@
 import { accessRequestApis } from "./api-access-requests";
 import { chargePointApis } from "./api-charge-points";
 import { commissioningTokenApis } from "./api-commissioning-token";
+import { contactApis } from "./api-contact";
 import { deviceEventApis } from "./api-device-events";
 import { deviceVariableReportApis } from "./api-device-variable-reports";
 import { displayMessageApis } from "./api-display-messages";
@@ -21,6 +22,7 @@ export const api = {
   AccessRequests: accessRequestApis,
   ChargePoints: chargePointApis,
   CommissioningToken: commissioningTokenApis,
+  Contact: contactApis,
   DeviceEvents: deviceEventApis,
   DeviceVariableReports: deviceVariableReportApis,
   DisplayMessages: displayMessageApis,
