@@ -562,6 +562,7 @@ npm run typecheck  # tsc --noEmit
 npm test           # vitest run (test:watch to iterate)
 npm run test:ci    # vitest run
 npm run format     # prettier --write . (format:check to verify only)
+npm run test:e2e   # Playwright (e2e/): boots the app on :3001 and drives Chromium
 npm run all-checks # scripts/all-checks.sh - runs the full CI suite locally
 ```
 
@@ -652,6 +653,21 @@ describe("...", () => {
   });
 });
 ```
+
+### End-to-end tests (Playwright)
+
+- Specs live in `e2e/*.spec.ts`, config in `playwright.config.ts` (excluded from
+  vitest via `vitest.config.ts`). `npm run test:e2e` starts `npm run dev` (or reuses
+  a running server); in CI (`CI=true`) it serves the production build instead.
+- Current specs are **frontend-only**: backend `/api/*` calls and the browser-side
+  Supabase calls (`/auth/v1/otp`, `/auth/v1/verify`) are stubbed with `page.route`,
+  and the app boots against a fake Supabase URL. The proxy's server-side `getUser()`
+  can't be stubbed, so anything needing a real session (the dashboard itself) needs a
+  real/local Supabase and belongs to a future full-stack tier.
+- Inputs are controlled: fill them inside `expect(...).toPass()` so a value typed
+  before hydration is retried rather than lost.
+- In a sandbox with a pre-installed browser, set
+  `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of running `playwright install`.
 
 ### Typescript
 

@@ -4,3 +4,5 @@ dist/
 public/
 junit-reports/
 *.lock
+playwright-report/
+test-results/

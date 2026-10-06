@@ -1,0 +1,62 @@
+name: E2E (Playwright)
+
+# Deliberately NOT one of main's required checks and kept out of
+# build-test-pull-request.yml: Actions bills per job rounded up to the minute, and
+# this job (build + browser install + specs) is the slowest thing we run. The
+# path filter limits it to PRs that can plausibly change what a browser sees; a
+# path-filtered required check never reports and would deadlock merges.
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - "components/**"
+      - "lib/**"
+      - "i18n/**"
+      - "messages/**"
+      - "e2e/**"
+      - "proxy.ts"
+      - "playwright.config.ts"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        uses: ./.github/workflows/composites/install-dependencies
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      # NEXT_PUBLIC_* values are inlined at build time, so the fake Supabase URL
+      # the specs rely on (see playwright.config.ts) must be set here too.
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3000
+          NEXT_PUBLIC_WS_URL: ws://localhost:3000/ws
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: e2e-anon-key
+
+      - name: Run Playwright
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

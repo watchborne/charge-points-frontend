@@ -141,3 +141,8 @@ vite.config.ts.timestamp-*
 # Test files
 
 /junit-reports/
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
