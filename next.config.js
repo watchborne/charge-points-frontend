@@ -59,6 +59,8 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Inlined at build time from package.json (see APP_VERSION in lib/constants.ts).
+  env: { NEXT_PUBLIC_APP_VERSION: require("./package.json").version },
   async headers() {
     return [
       {

@@ -19,6 +19,7 @@
   "layout": {
     "footer": {
       "copyright": "© {year} Watchborne. All rights reserved.",
+      "version": "v{version}",
       "description": "Watchborne helps EV charging installers monitor charging stations across multiple sites in real time.",
       "sections": {
         "product": {

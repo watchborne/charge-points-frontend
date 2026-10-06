@@ -19,6 +19,7 @@
   "layout": {
     "footer": {
       "copyright": "© {year} Watchborne. Tous droits réservés.",
+      "version": "v{version}",
       "description": "Watchborne aide les installateurs IRVE à superviser leurs bornes de recharge sur plusieurs sites en temps réel.",
       "sections": {
         "product": {
