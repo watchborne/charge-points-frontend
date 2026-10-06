@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { LocaleSwitcher } from "@/app/components/layout/LocaleSwitcher";
 import { Link } from "@/i18n/navigation";
+import { APP_VERSION } from "@/lib/constants";
 
 export const Footer = () => {
   const t = useTranslations("");
@@ -15,6 +16,8 @@ export const Footer = () => {
           <Link href="/contact" className="hover:text-foreground">
             {t("layout.footer.sections.company.links.contact")}
           </Link>
+
+          {APP_VERSION && <span>{t("layout.footer.version", { version: APP_VERSION })}</span>}
 
           <LocaleSwitcher />
         </div>

@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { LocaleSwitcher } from "@/app/components/layout/LocaleSwitcher";
 import { Link } from "@/i18n/navigation";
+import { APP_VERSION } from "@/lib/constants";
 
 export function Footer() {
   const t = useTranslations("");
@@ -71,7 +72,10 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t py-6 text-sm text-muted-foreground">
-          <span>{t("layout.footer.copyright", { year: new Date().getFullYear() })}</span>
+          <span>
+            {t("layout.footer.copyright", { year: new Date().getFullYear() })}
+            {APP_VERSION && <> · {t("layout.footer.version", { version: APP_VERSION })}</>}
+          </span>
 
           <LocaleSwitcher />
         </div>
