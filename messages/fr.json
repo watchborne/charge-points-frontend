@@ -1284,6 +1284,7 @@
         "report": {
           "exportButton": "Exporter en PDF",
           "exportError": "Impossible de générer le rapport PDF. Veuillez réessayer.",
+          "chartsFailed": "{count, plural, =1 {1 graphique n'a pas pu être ajouté} other {# graphiques n'ont pas pu être ajoutés}} au rapport, qui a été généré sans {count, plural, =1 {lui} other {eux}}.",
           "pdf": {
             "uptimeSection": "Disponibilité",
             "alertsSection": "Alertes",
