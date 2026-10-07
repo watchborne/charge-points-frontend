@@ -23,11 +23,14 @@ vi.mock("../../../../../lib/api", () => ({
       }),
     },
     Metering: {
-      getConsumption: vi.fn().mockResolvedValue({
-        chargePointId: "cp-1",
+      // The per-charge-point read the report no longer uses: kept as a mock so
+      // a test can assert it is never called.
+      getConsumption: vi.fn(),
+      getSiteConsumption: vi.fn().mockResolvedValue({
+        siteId: "site-1",
         from: "2026-08-01T00:00:00.000Z",
         to: "2026-08-08T00:00:00.000Z",
-        series: [],
+        chargePoints: [],
       }),
       getMeterSamples: vi.fn().mockResolvedValue([]),
     },
@@ -124,32 +127,37 @@ describe("useSiteReport", () => {
   });
 
   it("SHOULD chart the energy register over alphabetically-first WHEN the station reports both", async () => {
-    vi.mocked(api.Metering.getConsumption).mockResolvedValueOnce({
-      chargePointId: "cp-1",
+    vi.mocked(api.Metering.getSiteConsumption).mockResolvedValueOnce({
+      siteId: "site-1",
       from: "2026-08-01T00:00:00.000Z",
       to: "2026-08-08T00:00:00.000Z",
-      series: [
+      chargePoints: [
         {
-          connectorId: 1,
-          measurand: "Current.Import",
-          unit: "A",
-          min: 0,
-          max: 10,
-          avg: 5,
-          sampleCount: 2,
-          firstMeasuredAt: "2026-08-01T00:00:00.000Z",
-          lastMeasuredAt: "2026-08-02T00:00:00.000Z",
-        },
-        {
-          connectorId: 1,
-          measurand: "Energy.Active.Import.Register",
-          unit: "Wh",
-          min: 0,
-          max: 1000,
-          avg: 500,
-          sampleCount: 2,
-          firstMeasuredAt: "2026-08-01T00:00:00.000Z",
-          lastMeasuredAt: "2026-08-02T00:00:00.000Z",
+          chargePointId: "cp-1",
+          series: [
+            {
+              connectorId: 1,
+              measurand: "Current.Import",
+              unit: "A",
+              min: 0,
+              max: 10,
+              avg: 5,
+              sampleCount: 2,
+              firstMeasuredAt: "2026-08-01T00:00:00.000Z",
+              lastMeasuredAt: "2026-08-02T00:00:00.000Z",
+            },
+            {
+              connectorId: 1,
+              measurand: "Energy.Active.Import.Register",
+              unit: "Wh",
+              min: 0,
+              max: 1000,
+              avg: 500,
+              sampleCount: 2,
+              firstMeasuredAt: "2026-08-01T00:00:00.000Z",
+              lastMeasuredAt: "2026-08-02T00:00:00.000Z",
+            },
+          ],
         },
       ],
     });
@@ -199,7 +207,130 @@ describe("useSiteReport", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.report?.chargePoints).toEqual([]);
+    expect(api.Metering.getSiteConsumption).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD read consumption once for the whole site, never once per charge point", async () => {
+    const chargePoints = [
+      buildChargePoint("cp-1", "CP 1"),
+      buildChargePoint("cp-2", "CP 2"),
+      buildChargePoint("cp-3", "CP 3"),
+    ];
+
+    const { result } = renderHook(() => useSiteReport(SITE, chargePoints), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(api.Metering.getSiteConsumption).toHaveBeenCalledTimes(1);
+    expect(api.Metering.getSiteConsumption).toHaveBeenCalledWith("site-1", {});
     expect(api.Metering.getConsumption).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD forward the window to the site consumption read", async () => {
+    const window = {
+      from: new Date("2026-08-01T00:00:00.000Z"),
+      to: new Date("2026-08-08T00:00:00.000Z"),
+    };
+
+    const { result } = renderHook(
+      () => useSiteReport(SITE, [buildChargePoint("cp-1", "CP 1")], window),
+      { wrapper: wrapper() },
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(api.Metering.getSiteConsumption).toHaveBeenCalledWith("site-1", window);
+  });
+
+  it("SHOULD give each charge point its own series from the site read", async () => {
+    const series = (measurand: string) => ({
+      connectorId: 1,
+      measurand,
+      unit: "Wh",
+      min: 0,
+      max: 1,
+      avg: 1,
+      sampleCount: 1,
+      firstMeasuredAt: "2026-08-01T00:00:00.000Z",
+      lastMeasuredAt: "2026-08-02T00:00:00.000Z",
+    });
+    vi.mocked(api.Metering.getSiteConsumption).mockResolvedValueOnce({
+      siteId: "site-1",
+      from: "2026-08-01T00:00:00.000Z",
+      to: "2026-08-08T00:00:00.000Z",
+      chargePoints: [
+        { chargePointId: "cp-1", series: [series("Energy.Active.Import.Register")] },
+        { chargePointId: "cp-2", series: [series("Power.Active.Import")] },
+      ],
+    });
+
+    const { result } = renderHook(
+      () =>
+        useSiteReport(SITE, [buildChargePoint("cp-1", "CP 1"), buildChargePoint("cp-2", "CP 2")]),
+      { wrapper: wrapper() },
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const [first, second] = result.current.report?.chargePoints ?? [];
+    expect(first.consumption.series.map((s) => s.measurand)).toEqual([
+      "Energy.Active.Import.Register",
+    ]);
+    expect(second.consumption.series.map((s) => s.measurand)).toEqual(["Power.Active.Import"]);
+    expect(first.consumption).toMatchObject({
+      chargePointId: "cp-1",
+      from: "2026-08-01T00:00:00.000Z",
+      to: "2026-08-08T00:00:00.000Z",
+    });
+  });
+
+  it("SHOULD leave out a charge point the caller does not list, even though the site read returns it", async () => {
+    vi.mocked(api.Metering.getSiteConsumption).mockResolvedValueOnce({
+      siteId: "site-1",
+      from: "2026-08-01T00:00:00.000Z",
+      to: "2026-08-08T00:00:00.000Z",
+      // The backend covers every charge point on the site, the caller's or not.
+      chargePoints: [
+        { chargePointId: "cp-1", series: [] },
+        { chargePointId: "cp-not-mine", series: [] },
+      ],
+    });
+
+    const { result } = renderHook(() => useSiteReport(SITE, [buildChargePoint("cp-1", "CP 1")]), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.report?.chargePoints.map((cp) => cp.chargePointId)).toEqual(["cp-1"]);
+    expect(api.ChargePoints.getAlerts).not.toHaveBeenCalledWith("cp-not-mine");
+  });
+
+  it("SHOULD report an empty series, not fail, WHEN the site read omits a listed charge point", async () => {
+    const { result } = renderHook(() => useSiteReport(SITE, [buildChargePoint("cp-1", "CP 1")]), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.failed).toBe(false);
+    const [chargePoint] = result.current.report?.chargePoints ?? [];
+    expect(chargePoint.consumption.series).toEqual([]);
+    expect(chargePoint.chartMeasurand).toBeNull();
+  });
+
+  it("SHOULD set failed WHEN the site consumption read rejects", async () => {
+    vi.mocked(api.Metering.getSiteConsumption).mockRejectedValueOnce(new Error("boom"));
+
+    const { result } = renderHook(() => useSiteReport(SITE, [buildChargePoint("cp-1", "CP 1")]), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() => expect(result.current.failed).toBe(true));
+
+    expect(result.current.report).toBeNull();
   });
 
   it("SHOULD set failed and leave report null WHEN a fetch rejects", async () => {

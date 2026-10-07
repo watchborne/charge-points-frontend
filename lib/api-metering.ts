@@ -1,4 +1,4 @@
-import type { ChargePoint } from "@watchborne/charge-points-types";
+import type { ChargePoint, Site } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
@@ -57,6 +57,26 @@ export type ChargePointConsumption = {
   series: MeterSampleSummary[];
 };
 
+/**
+ * One site's consumption, as `GET /api/sites/:id/consumption` returns it: each
+ * of the site's charge points' own `series`, exactly what
+ * {@link ChargePointConsumption} carries for one, in a single read.
+ *
+ * Nothing is merged across charge points (whether a `min`/`max`/`avg` can be
+ * summed depends on the measurand, which only the renderer knows). The list
+ * covers **every** charge point on the site, including ones the caller has no
+ * membership on (the same deliberate asymmetry as the site uptime read), so a
+ * caller assembling something for the charge points *it* lists must pick those
+ * out by `chargePointId` rather than render the whole array.
+ */
+export type SiteConsumption = {
+  siteId: string;
+  /** The window the backend actually reduced — echoed back, like on a charge point's. */
+  from: string;
+  to: string;
+  chargePoints: { chargePointId: string; series: MeterSampleSummary[] }[];
+};
+
 export type MeterSamplesQuery = {
   connectorId?: number;
   from?: Date;
@@ -112,6 +132,15 @@ export const meteringApis = {
           `/api/charge-points/${chargePointId}/consumption${buildQuery(query)}`,
         ),
       `Metering.getConsumption(${chargePointId})`,
+    );
+  },
+  getSiteConsumption: async function (
+    siteId: Site["id"],
+    query: Omit<MeterSamplesQuery, "limit"> = {},
+  ): Promise<SiteConsumption> {
+    return withErrorLogging(
+      () => httpClient.get<SiteConsumption>(`/api/sites/${siteId}/consumption${buildQuery(query)}`),
+      `Metering.getSiteConsumption(${siteId})`,
     );
   },
 };
