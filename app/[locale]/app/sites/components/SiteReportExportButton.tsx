@@ -7,6 +7,7 @@ import { FileDown, Loader2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 
+import { useToastNotification } from "@/app/components/ToastNotification";
 import type { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { SiteReportChartCapture } from "./SiteReportChartCapture";
@@ -47,13 +48,22 @@ export const SiteReportExportButton = ({ site, chargePoints }: Props) => {
   const format = useFormatter();
   const { report, loading, failed } = useSiteReport(site, chargePoints);
   const [phase, setPhase] = useState<Phase>("idle");
+  const { pushWarningNotification } = useToastNotification();
   const [exportFailed, setExportFailed] = useState(false);
 
   const handleCaptured = useCallback(
-    async (chartImages: Record<string, string>) => {
+    async (chartImages: Record<string, string>, failedCount: number) => {
       if (!report) {
         setPhase("idle");
         return;
+      }
+
+      // The report is still worth having without those charts, so generation
+      // goes ahead; the warning is what tells the installer it is incomplete.
+      if (failedCount > 0) {
+        pushWarningNotification(
+          t("appPage.sites.detail.report.chartsFailed", { count: failedCount }),
+        );
       }
 
       setPhase("generating");
@@ -75,7 +85,7 @@ export const SiteReportExportButton = ({ site, chargePoints }: Props) => {
         setPhase("idle");
       }
     },
-    [report, site, t, format],
+    [report, site, t, format, pushWarningNotification],
   );
 
   const handleExport = () => {

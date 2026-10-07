@@ -1286,6 +1286,7 @@
         "report": {
           "exportButton": "Export as PDF",
           "exportError": "Couldn't generate the PDF report. Please try again.",
+          "chartsFailed": "{count, plural, =1 {1 chart} other {# charts}} couldn't be added to the report, which was generated without {count, plural, =1 {it} other {them}}.",
           "pdf": {
             "uptimeSection": "Uptime",
             "alertsSection": "Alerts",
@@ -1447,6 +1448,7 @@
         "title": "Notifications",
         "description": "Get push notifications in this browser for real-time charge point alerts.",
         "unsupported": "Push notifications are not available in this browser.",
+        "iosInstallRequired": "On iPhone and iPad, notifications only work once this app is added to the home screen. Tap Share, then \"Add to Home Screen\".",
         "toast": {
           "permissionDenied": "Notifications are blocked for this site. Allow them in your browser's settings to enable this.",
           "error": "Something went wrong while updating your notification settings. Please try again."
