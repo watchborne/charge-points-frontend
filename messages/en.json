@@ -255,7 +255,9 @@
       "phone": "Phone",
       "chargePoints": "Number of charge points",
       "message": "Tell us about your infrastructure...",
-      "submit": "Send Message"
+      "submit": "Send Message",
+      "success": "Thank you! Your message has been sent, we'll reply within one business day.",
+      "error": "Couldn't send your message. Please try again."
     },
     "contact": {
       "email": {
