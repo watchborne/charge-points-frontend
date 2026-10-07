@@ -253,8 +253,11 @@ here — a request without a session simply reaches the backend with no token.
   substitutes its own global default when the caller has never set either, so
   this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
-  `getMeterSamples` (the raw time series) and `getConsumption` (the window reduced
-  per connector/measurand/unit). Its response types are declared locally, like
+  `getMeterSamples` (the raw time series), `getConsumption` (the window reduced
+  per connector/measurand/unit) and `getSiteConsumption` (that same reduction for
+  every charge point of a site in one `GET /api/sites/:id/consumption`, which
+  `useSiteReport` reads instead of one call per charge point — it covers all the
+  site's charge points, so callers pick their own out by id). Its response types are declared locally, like
   `Me`: the backend keeps `MeterSample` server-local (its ADR 0004), so these
   response contracts are the shared surface. `lib/api-status-history.ts`
   (`api.StatusHistory`) reads the connection/connector status timeline behind
