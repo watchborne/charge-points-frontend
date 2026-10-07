@@ -26,7 +26,8 @@
           "title": "Produit",
           "links": {
             "features": "Fonctionnalités",
-            "pricing": "Tarifs"
+            "pricing": "Tarifs",
+            "roadmap": "Feuille de route"
           }
         },
         "company": {
@@ -122,51 +123,12 @@
       },
       "alerting": {
         "title": "Alertes automatiques",
-        "description": "Soyez notifié dès qu'une borne se déconnecte, tombe en panne ou qu'une mise à jour firmware échoue, avec un suivi de qui a été notifié et quand."
-      }
-    },
-    "roadmap": {
-      "badge": "Feuille de route",
-      "title": "Ce qui arrive ensuite",
-      "items": {
-        "alertCustomization": "Personnalisation des alertes (seuils, canaux)",
-        "historyExport": "Export d'historique des événements OCPP, alertes et métriques",
-        "rbac": "Gestion des accès par rôle et par équipe",
-        "integrations": "Intégrations avec vos outils métier"
+        "description": "Soyez notifié dès qu'une borne se déconnecte, tombe en panne ou qu'une mise à jour firmware échoue."
       }
     },
     "featuresSection": {
       "title": "Conçu pour les installateurs IRVE",
       "subtitle": "Concentrez-vous sur l'exploitation de votre infrastructure, pas sur la recherche du statut des chargeurs."
-    },
-    "mvpFeatures": {
-      "title": "Inclus aujourd'hui",
-      "subtitle": "Tout ce qui est nécessaire pour superviser un parc de bornes de recharge.",
-      "items": {
-        "management": "Gestion des bornes de recharge",
-        "stateTracking": "Suivi de l'état de connexion",
-        "dashboard": "Tableau de bord en temps réel",
-        "offlineDetection": "Détection des déconnexions",
-        "multisite": "Organisation multi-sites",
-        "consumption": "Historique de consommation par borne",
-        "firmware": "Suivi et déclenchement des mises à jour firmware",
-        "siteHealth": "Vue d'ensemble de la santé des sites",
-        "reliability": "Taux de disponibilité des bornes et des sites (7 jours)",
-        "alerting": "Alertes automatiques en temps réel (email et notifications push) et digest par email (déconnexion, panne, firmware)",
-        "statusHistory": "Historique des connexions et de l'état des connecteurs",
-        "chargingSessions": "Historique des sessions de charge",
-        "securityEvents": "Historique des événements de sécurité OCPP",
-        "logDiagnostics": "Récupération à distance des journaux et diagnostics",
-        "bulkActions": "Actions groupées sur plusieurs bornes à la fois",
-        "firmwareCampaigns": "Campagnes de mise à jour firmware sur tout le parc, avec suivi par borne",
-        "commissioning": "Mise en service : file d'attente, checklist et jeton de commissioning OCPP en libre-service",
-        "siteVisits": "Suivi des visites sur site : historique et planification de la prochaine visite",
-        "siteReport": "Rapport PDF de site avec graphiques de consommation par borne",
-        "tariff": "Tarif par site et coût estimé de chaque session de charge",
-        "certificates": "Gestion des certificats des bornes",
-        "ocpp201": "Messages d'affichage et rapports d'appareil (OCPP 2.0.1)",
-        "dashboardLayout": "Tableau de bord personnalisable"
-      }
     },
     "cta": {
       "title": "Arrêtez de deviner.",
@@ -184,6 +146,12 @@
         "offline": "Hors ligne",
         "online": "En ligne"
       }
+    },
+    "discover": {
+      "title": "Une plateforme qui couvre tout le cycle de vie de vos bornes",
+      "subtitle": "De la mise en service au reporting client, découvrez le détail de chaque fonctionnalité et ce qui arrive ensuite.",
+      "features": "Voir les fonctionnalités",
+      "roadmap": "Voir la feuille de route"
     }
   },
   "productPreview": {
@@ -227,20 +195,142 @@
       "title": "Un produit en construction, une roadmap ambitieuse",
       "description": "Watchborne est en développement actif. Les fonctionnalités ci-dessous font partie d'une feuille de route ambitieuse, construite avec des installateurs IRVE pour répondre à leurs besoins réels sur le terrain."
     },
-    "roadmap": {
-      "badge": "Feuille de route",
-      "title": "Ce que nous construisons",
-      "items": {
-        "alertCustomization": "Personnalisation des alertes (seuils, canaux, destinataires)",
-        "historyExport": "Export d'historique des événements OCPP, des alertes et des métriques",
-        "rbac": "Gestion des accès par équipe, par rôle et par site",
-        "integrations": "Intégrations avec vos outils métier"
-      }
-    },
     "cta": {
       "title": "Construisons cette plateforme avec vous.",
       "subtitle": "Rejoignez l'alpha et participez à façonner les outils dont les installateurs IRVE ont besoin.",
       "button": "Demander l'accès à l'alpha"
+    },
+    "catalog": {
+      "title": "Le détail des fonctionnalités",
+      "subtitle": "Tout ce que Watchborne vous permet de faire aujourd'hui, par domaine.",
+      "groups": {
+        "supervision": {
+          "title": "Supervision en temps réel",
+          "items": {
+            "realtime": {
+              "title": "Tableau de bord en direct",
+              "description": "L'état de connexion et celui de chaque connecteur se mettent à jour sans rechargement, sur l'ensemble de vos sites."
+            },
+            "ocpp": {
+              "title": "OCPP 1.6 et 2.0.1",
+              "description": "Les deux versions du protocole cohabitent sur un même parc, sans configuration spécifique."
+            },
+            "offline": {
+              "title": "Détection des déconnexions",
+              "description": "Une borne qui cesse de répondre est signalée rapidement, avant que vos clients ne s'en aperçoivent."
+            },
+            "multisite": {
+              "title": "Organisation multi-sites",
+              "description": "Regroupez vos bornes par site et par client, avec une vue d'ensemble de la santé de chaque site."
+            },
+            "reliability": {
+              "title": "Taux de disponibilité",
+              "description": "Disponibilité sur 7 jours, par borne, par site et pour l'ensemble du parc."
+            },
+            "layout": {
+              "title": "Tableau de bord personnalisable",
+              "description": "Choisissez les widgets à afficher et leur ordre."
+            }
+          }
+        },
+        "commissioning": {
+          "title": "Mise en service",
+          "items": {
+            "queue": {
+              "title": "File d'attente et checklist",
+              "description": "Suivez l'avancement de chaque borne à mettre en service, étape par étape."
+            },
+            "token": {
+              "title": "Jeton de commissioning en libre-service",
+              "description": "Générez vous-même le jeton OCPP d'une borne, sans dépendre du support. Il n'est affiché qu'une seule fois."
+            },
+            "url": {
+              "title": "URL de connexion OCPP",
+              "description": "Retrouvez en un clic l'adresse à renseigner dans la configuration de la borne."
+            }
+          }
+        },
+        "maintenance": {
+          "title": "Maintenance et firmware",
+          "items": {
+            "alerts": {
+              "title": "Alertes automatiques",
+              "description": "Déconnexion, panne ou échec de mise à jour : une alerte en temps réel par email et par notification push, avec accusé de réception, historique et digest par email (heure et langue au choix)."
+            },
+            "firmware": {
+              "title": "Mises à jour firmware",
+              "description": "Déclenchez une mise à jour sur une borne et suivez sa progression."
+            },
+            "campaigns": {
+              "title": "Campagnes firmware",
+              "description": "Envoyez une mise à jour à plusieurs bornes à la fois et suivez le résultat borne par borne."
+            },
+            "bulk": {
+              "title": "Actions groupées",
+              "description": "Sélectionnez plusieurs bornes et appliquez la même action en une seule fois."
+            },
+            "visits": {
+              "title": "Suivi des visites sur site",
+              "description": "Consignez chaque intervention et planifiez la prochaine visite d'un site. Les sites sans visite récente sont signalés."
+            },
+            "logs": {
+              "title": "Journaux et diagnostics à distance",
+              "description": "Récupérez les journaux d'une borne sans vous déplacer."
+            }
+          }
+        },
+        "reporting": {
+          "title": "Analyse et reporting",
+          "items": {
+            "consumption": {
+              "title": "Historique de consommation",
+              "description": "Courbes par borne et par connecteur, avec une vue tableau des mêmes valeurs."
+            },
+            "sessions": {
+              "title": "Sessions de charge",
+              "description": "L'historique des sessions de chaque borne, avec la consommation de chacune."
+            },
+            "tariff": {
+              "title": "Tarif et coût estimé",
+              "description": "Définissez un tarif au kWh par site : le coût estimé de chaque session s'affiche automatiquement."
+            },
+            "report": {
+              "title": "Rapport PDF de site",
+              "description": "Un rapport prêt à transmettre à votre client, avec les graphiques de consommation de chaque borne."
+            },
+            "status": {
+              "title": "Historique des statuts",
+              "description": "La chronologie des connexions et de l'état des connecteurs de chaque borne."
+            }
+          }
+        },
+        "security": {
+          "title": "Sécurité et OCPP 2.0.1",
+          "items": {
+            "events": {
+              "title": "Événements de sécurité",
+              "description": "L'historique des événements de sécurité OCPP remontés par vos bornes."
+            },
+            "certificates": {
+              "title": "Gestion des certificats",
+              "description": "Listez, installez et supprimez les certificats d'une borne."
+            },
+            "reports": {
+              "title": "Rapports d'appareil",
+              "description": "Demandez l'inventaire des variables d'une borne 2.0.1 et consultez les événements qu'elle remonte."
+            },
+            "display": {
+              "title": "Messages d'affichage",
+              "description": "Affichez ou retirez un message sur l'écran d'une borne 2.0.1."
+            }
+          }
+        }
+      }
+    },
+    "roadmapLink": {
+      "title": "Et la suite ?",
+      "description": "Retrouvez tout ce qui a été livré et ce qui arrive ensuite sur la feuille de route.",
+      "button": "Voir la feuille de route"
     }
   },
   "contactPage": {
@@ -1567,5 +1657,85 @@
     "loadingSitesHealth": "Impossible de charger la santé des sites.",
     "loadingConsumption": "Le chargement de la consommation a échoué.",
     "loadingFirmwareCampaigns": "Impossible de charger les campagnes de mise à jour."
+  },
+  "roadmapPage": {
+    "meta": {
+      "title": "Feuille de route"
+    },
+    "badge": "Feuille de route",
+    "hero": {
+      "title": "Ce qui est livré, et ce qui arrive",
+      "subtitle": "Watchborne est construit avec des installateurs IRVE. Voici le chemin parcouru et les prochaines étapes."
+    },
+    "status": {
+      "delivered": "Livré",
+      "upcoming": "À venir"
+    },
+    "back": "Retour aux fonctionnalités",
+    "phases": {
+      "foundations": {
+        "title": "Les fondations",
+        "description": "Superviser un parc multi-sites en temps réel.",
+        "items": {
+          "realtime": "Tableau de bord en temps réel",
+          "multisite": "Organisation multi-sites",
+          "ocpp": "Compatibilité OCPP 1.6 et 2.0.1",
+          "offline": "Détection des déconnexions",
+          "statusHistory": "Historique des connexions et des statuts de connecteurs"
+        }
+      },
+      "operations": {
+        "title": "L'exploitation au quotidien",
+        "description": "Mettre en service, suivre et maintenir les bornes.",
+        "items": {
+          "commissioning": "Mise en service : file d'attente, checklist et jeton de commissioning",
+          "consumption": "Historique de consommation par borne",
+          "sessions": "Historique des sessions de charge",
+          "firmware": "Suivi et déclenchement des mises à jour firmware",
+          "alerting": "Alertes automatiques par email",
+          "reliability": "Taux de disponibilité sur 7 jours",
+          "logs": "Journaux et diagnostics à distance",
+          "security": "Événements de sécurité OCPP"
+        }
+      },
+      "fleet": {
+        "title": "Le pilotage du parc",
+        "description": "Agir à l'échelle de tout un parc.",
+        "items": {
+          "bulk": "Actions groupées sur plusieurs bornes",
+          "layout": "Tableau de bord personnalisable",
+          "campaigns": "Campagnes de mise à jour firmware",
+          "visits": "Suivi et planification des visites sur site",
+          "certificates": "Gestion des certificats",
+          "ocpp201": "Messages d'affichage et rapports d'appareil (OCPP 2.0.1)"
+        }
+      },
+      "reporting": {
+        "title": "Reporting et notifications",
+        "description": "Rendre compte aux clients et rester informé.",
+        "items": {
+          "tariff": "Tarif par site et coût estimé des sessions",
+          "report": "Rapport PDF de site",
+          "push": "Notifications push",
+          "digest": "Digest par email, avec heure et langue au choix",
+          "pwa": "Application installable sur mobile"
+        }
+      },
+      "upcoming": {
+        "title": "Prochainement",
+        "description": "Les prochaines étapes, sans date engagée.",
+        "items": {
+          "alertCustomization": "Personnalisation des alertes (seuils, canaux, destinataires)",
+          "historyExport": "Export d'historique des événements OCPP, des alertes et des métriques",
+          "rbac": "Gestion des accès par équipe, par rôle et par site",
+          "integrations": "Intégrations avec vos outils métier"
+        }
+      }
+    },
+    "cta": {
+      "title": "Construisons cette plateforme avec vous.",
+      "subtitle": "Rejoignez l'alpha et participez à façonner les prochaines étapes.",
+      "button": "Demander l'accès à l'alpha"
+    }
   }
 }
