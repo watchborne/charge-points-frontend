@@ -6,6 +6,7 @@ import {
   isCumulativeRegister,
   type ChargePointConsumption,
   type MeterSample,
+  type MeterSampleSummary,
 } from "@/lib/api-metering";
 import type { SiteUptime, UptimeQuery } from "@/lib/api-uptime";
 import { queryKeys } from "@/lib/queryKeys";
@@ -62,11 +63,22 @@ export type UseSiteReportReturn = {
 };
 
 /**
- * Assembles one site's printable report: fans out a consumption + alerts
- * read per charge point on the site, alongside one site-scoped uptime read,
- * and reduces them into a single report-shaped object. Kept separate from
- * rendering (per the issue's own delivery slicing) so it is unit-testable
- * against mocked API calls without touching PDF generation.
+ * Assembles one site's printable report from one site-scoped uptime read, one
+ * site-scoped consumption read (`GET /api/sites/:id/consumption`, a batch of
+ * every charge point's series — no longer one read per charge point), and an
+ * alerts read plus a chart-samples read per charge point, reduced into a single
+ * report-shaped object. Kept separate from rendering (per the issue's own
+ * delivery slicing) so it is unit-testable against mocked API calls without
+ * touching PDF generation.
+ *
+ * The site consumption read covers **every** charge point on the site, ones the
+ * caller has no membership on included, so the report is built from the
+ * `chargePoints` the caller passes in and looks each up by id: a charge point
+ * the caller cannot see never reaches the report, and one the response omits
+ * simply has no series.
+ *
+ * Alerts and chart samples stay per charge point: alerts have no site-level
+ * read, and which measurand to chart is only known once its consumption is.
  *
  * `GET .../alerts` has no date-range filter (unlike consumption/uptime), so
  * alerts are filtered here to those opened within the resolved window — an
@@ -88,16 +100,27 @@ export const useSiteReport = (
       to: window.to?.toISOString(),
     }),
     queryFn: async (): Promise<SiteReport> => {
-      const uptime = await api.Uptime.getSiteUptime(siteId!, window);
+      // A site with no charge points has nothing to read consumption for.
+      const [uptime, siteConsumption] = await Promise.all([
+        api.Uptime.getSiteUptime(siteId!, window),
+        chargePoints.length > 0 ? api.Metering.getSiteConsumption(siteId!, window) : null,
+      ]);
       const from = new Date(uptime.from).getTime();
       const to = new Date(uptime.to).getTime();
 
+      const seriesByChargePoint = new Map<string, MeterSampleSummary[]>(
+        siteConsumption?.chargePoints.map((cp) => [cp.chargePointId, cp.series]),
+      );
+
       const perChargePoint = await Promise.all(
         chargePoints.map(async (cp): Promise<SiteReportChargePoint> => {
-          const [consumption, alerts] = await Promise.all([
-            api.Metering.getConsumption(cp.id, window),
-            api.ChargePoints.getAlerts(cp.id),
-          ]);
+          const consumption: ChargePointConsumption = {
+            chargePointId: cp.id,
+            from: siteConsumption?.from ?? uptime.from,
+            to: siteConsumption?.to ?? uptime.to,
+            series: seriesByChargePoint.get(cp.id) ?? [],
+          };
+          const alerts = await api.ChargePoints.getAlerts(cp.id);
 
           const measurands = Array.from(
             new Set(consumption.series.map((series) => series.measurand)),
