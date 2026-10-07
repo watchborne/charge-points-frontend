@@ -1431,9 +1431,14 @@
       },
       "notifications": {
         "title": "Notifications",
-        "digestEnabled": {
+        "digestEmailEnabled": {
           "title": "Résumé quotidien par email",
           "description": "Recevez un résumé quotidien des alertes ouvertes et des sites à visiter."
+        },
+        "digestPushEnabled": {
+          "title": "Résumé quotidien par notification push",
+          "description": "Recevez aussi le résumé quotidien en notification push sur cet appareil.",
+          "requiresSubscription": "Activez d'abord les notifications push ci-dessous pour recevoir le résumé sur cet appareil."
         },
         "digestHour": {
           "title": "Heure d'envoi",

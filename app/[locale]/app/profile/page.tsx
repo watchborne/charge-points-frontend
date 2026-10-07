@@ -110,7 +110,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <NotificationPreferencesPanel />
+      <NotificationPreferencesPanel isPushSubscribed={isPushSubscribed} />
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">

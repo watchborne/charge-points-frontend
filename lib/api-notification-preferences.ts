@@ -9,10 +9,14 @@ import { httpClient } from "./http-client";
 // has never set one, so this client never needs to know about that fallback.
 // `locale` is resolved the same way (the language of the emails the backend
 // sends this user — charge-points-server ADR 0022): never null in a response.
+// `digestEmailEnabled`/`digestPushEnabled` are independent per-channel toggles
+// (charge-points-server ADR 0023) — either, both or neither can be on at
+// once; `digestHourUtc` applies to whichever channel(s) are enabled.
 export type EmailLocale = "fr" | "en";
 
 export type NotificationPreferences = {
-  digestEnabled: boolean;
+  digestEmailEnabled: boolean;
+  digestPushEnabled: boolean;
   digestHourUtc: number;
   locale: EmailLocale;
 };

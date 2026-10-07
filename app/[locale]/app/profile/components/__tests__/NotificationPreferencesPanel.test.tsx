@@ -38,76 +38,192 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-const renderPanel = () =>
+const emailSwitch = () =>
+  screen.getByRole("switch", { name: "appPage.profile.notifications.digestEmailEnabled.title" });
+const pushSwitch = () =>
+  screen.getByRole("switch", { name: "appPage.profile.notifications.digestPushEnabled.title" });
+
+const renderPanel = (isPushSubscribed = false) =>
   render(
     <QueryClientProvider client={queryClient}>
-      <NotificationPreferencesPanel />
+      <NotificationPreferencesPanel isPushSubscribed={isPushSubscribed} />
     </QueryClientProvider>,
   );
 
 describe("NotificationPreferencesPanel", () => {
   it("SHOULD show the resolved digest preferences WHEN they load", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
 
     renderPanel();
 
-    const toggle = await screen.findByRole("switch");
-    expect(toggle.getAttribute("aria-checked")).toBe("true");
-    expect(screen.getByText("07:00 UTC")).toBeTruthy();
+    await screen.findByText("07:00 UTC");
+    expect(emailSwitch().getAttribute("aria-checked")).toBe("true");
+    expect(pushSwitch().getAttribute("aria-checked")).toBe("false");
   });
 
   it("SHOULD reflect an opted-out user", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 14, locale: "fr" });
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: false,
+      digestPushEnabled: false,
+      digestHourUtc: 14,
+      locale: "fr",
+    });
 
     renderPanel();
 
-    const toggle = await screen.findByRole("switch");
-    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    await screen.findByText("14:00 UTC");
+    expect(emailSwitch().getAttribute("aria-checked")).toBe("false");
   });
 
-  it("SHOULD toggle the digest opt-in WHEN the switch is clicked", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
-    updatePreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7, locale: "fr" });
+  it("SHOULD toggle the email digest opt-in WHEN its switch is clicked", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+    updatePreferences.mockResolvedValue({
+      digestEmailEnabled: false,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
 
     renderPanel();
+    await screen.findByText("07:00 UTC");
+    fireEvent.click(emailSwitch());
 
-    const toggle = await screen.findByRole("switch");
-    fireEvent.click(toggle);
-
-    await waitFor(() => expect(updatePreferences).toHaveBeenCalledWith({ digestEnabled: false }));
-    await waitFor(() => expect(toggle.getAttribute("aria-checked")).toBe("false"));
+    await waitFor(() =>
+      expect(updatePreferences).toHaveBeenCalledWith({ digestEmailEnabled: false }),
+    );
+    await waitFor(() => expect(emailSwitch().getAttribute("aria-checked")).toBe("false"));
   });
 
-  it("SHOULD disable the hour select WHEN the digest is opted out", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7, locale: "fr" });
+  it("SHOULD toggle the push digest opt-in WHEN its switch is clicked WHILE subscribed", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+    updatePreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: true,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+
+    renderPanel(true);
+    await screen.findByText("07:00 UTC");
+    fireEvent.click(pushSwitch());
+
+    await waitFor(() =>
+      expect(updatePreferences).toHaveBeenCalledWith({ digestPushEnabled: true }),
+    );
+    await waitFor(() => expect(pushSwitch().getAttribute("aria-checked")).toBe("true"));
+  });
+
+  it("SHOULD disable the push digest switch WHEN the browser has no active push subscription", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+
+    renderPanel(false);
+
+    await screen.findByText("07:00 UTC");
+    expect((pushSwitch() as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      screen.getByText("appPage.profile.notifications.digestPushEnabled.requiresSubscription"),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD enable the push digest switch WHEN the browser already has an active push subscription", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+
+    renderPanel(true);
+
+    await screen.findByText("07:00 UTC");
+    expect((pushSwitch() as HTMLButtonElement).disabled).toBe(false);
+    expect(
+      screen.getByText("appPage.profile.notifications.digestPushEnabled.description"),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD disable the hour select WHEN both digest channels are opted out", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: false,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
 
     renderPanel();
 
-    await screen.findByRole("switch");
+    await screen.findByText("07:00 UTC");
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.digestHour.title",
     });
     expect(trigger.hasAttribute("disabled")).toBe(true);
   });
 
+  it("SHOULD keep the hour select enabled WHEN only the push channel is opted in", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: false,
+      digestPushEnabled: true,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+
+    renderPanel(true);
+
+    await screen.findByText("07:00 UTC");
+    const trigger = screen.getByRole("combobox", {
+      name: "appPage.profile.notifications.digestHour.title",
+    });
+    expect(trigger.hasAttribute("disabled")).toBe(false);
+  });
+
   it("SHOULD show the resolved email language WHEN the preferences load", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "en" });
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "en",
+    });
 
     renderPanel();
 
-    await screen.findByRole("switch");
+    await screen.findByText("07:00 UTC");
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.locale.title",
     });
     expect(trigger.textContent).toContain("English");
   });
 
-  it("SHOULD keep the language select enabled WHEN the digest is opted out", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: false, digestHourUtc: 7, locale: "fr" });
+  it("SHOULD keep the language select enabled WHEN both digest channels are opted out", async () => {
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: false,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
 
     renderPanel();
 
-    await screen.findByRole("switch");
+    await screen.findByText("07:00 UTC");
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.locale.title",
     });
@@ -115,12 +231,22 @@ describe("NotificationPreferencesPanel", () => {
   });
 
   it("SHOULD save the language WHEN another one is picked", async () => {
-    getPreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
-    updatePreferences.mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "en" });
+    getPreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "fr",
+    });
+    updatePreferences.mockResolvedValue({
+      digestEmailEnabled: true,
+      digestPushEnabled: false,
+      digestHourUtc: 7,
+      locale: "en",
+    });
 
     renderPanel();
 
-    await screen.findByRole("switch");
+    await screen.findByText("07:00 UTC");
     fireEvent.keyDown(
       screen.getByRole("combobox", { name: "appPage.profile.notifications.locale.title" }),
       { key: "ArrowDown" },

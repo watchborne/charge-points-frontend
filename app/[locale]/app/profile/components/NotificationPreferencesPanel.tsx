@@ -28,14 +28,25 @@ const EMAIL_LOCALES: { value: EmailLocale; label: string }[] = [
 const formatHourUtc = (hour: number) => `${String(hour).padStart(2, "0")}:00 UTC`;
 
 /**
- * Lets a user opt in/out of the daily alert digest email, pick their own
- * send hour (UTC), overriding charge-points-server's global default hour
- * (ADR 0018 there), and choose the language of every email the backend sends
- * them (ADR 0022 there). Every field defaults to the backend's own resolved
+ * Lets a user opt in/out of the daily alert digest, per channel (email
+ * and/or push — charge-points-server ADR 0023), pick their own send hour
+ * (UTC), overriding charge-points-server's global default hour (ADR 0018
+ * there), and choose the language of every email the backend sends them
+ * (ADR 0022 there). Every field defaults to the backend's own resolved
  * default — this panel never invents a client-side fallback for a user who
  * has not set anything yet.
+ *
+ * `isPushSubscribed` comes from the separate browser-level push card further
+ * down this page (`usePushSubscription`, owned by `ProfilePage`): turning on
+ * the digest's push channel is meaningless without a live subscription to
+ * send it to, so that toggle stays disabled until one exists, rather than
+ * silently accepting a preference this browser can never receive.
  */
-export const NotificationPreferencesPanel = () => {
+export const NotificationPreferencesPanel = ({
+  isPushSubscribed,
+}: {
+  isPushSubscribed: boolean;
+}) => {
   const t = useTranslations("");
   const queryClient = useQueryClient();
 
@@ -79,17 +90,40 @@ export const NotificationPreferencesPanel = () => {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-sm">
-                    {t("appPage.profile.notifications.digestEnabled.title")}
+                    {t("appPage.profile.notifications.digestEmailEnabled.title")}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {t("appPage.profile.notifications.digestEnabled.description")}
+                    {t("appPage.profile.notifications.digestEmailEnabled.description")}
                   </span>
                 </div>
                 <Switch
-                  checked={preferences.digestEnabled}
+                  checked={preferences.digestEmailEnabled}
                   disabled={saving}
-                  onCheckedChange={(checked) => updateMutation.mutate({ digestEnabled: checked })}
-                  aria-label={t("appPage.profile.notifications.digestEnabled.title")}
+                  onCheckedChange={(checked) =>
+                    updateMutation.mutate({ digestEmailEnabled: checked })
+                  }
+                  aria-label={t("appPage.profile.notifications.digestEmailEnabled.title")}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm">
+                    {t("appPage.profile.notifications.digestPushEnabled.title")}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {isPushSubscribed
+                      ? t("appPage.profile.notifications.digestPushEnabled.description")
+                      : t("appPage.profile.notifications.digestPushEnabled.requiresSubscription")}
+                  </span>
+                </div>
+                <Switch
+                  checked={preferences.digestPushEnabled}
+                  disabled={!isPushSubscribed || saving}
+                  onCheckedChange={(checked) =>
+                    updateMutation.mutate({ digestPushEnabled: checked })
+                  }
+                  aria-label={t("appPage.profile.notifications.digestPushEnabled.title")}
                 />
               </div>
 
@@ -104,7 +138,9 @@ export const NotificationPreferencesPanel = () => {
                 </div>
                 <Select
                   value={String(preferences.digestHourUtc)}
-                  disabled={!preferences.digestEnabled || saving}
+                  disabled={
+                    (!preferences.digestEmailEnabled && !preferences.digestPushEnabled) || saving
+                  }
                   onValueChange={(value) => updateMutation.mutate({ digestHourUtc: Number(value) })}
                 >
                   <SelectTrigger
