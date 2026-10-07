@@ -1,14 +1,5 @@
 import { Badge, Button } from "@watchborne/electrons";
-import {
-  ArrowRight,
-  Activity,
-  Bell,
-  Building2,
-  PlugZap,
-  ShieldCheck,
-  Clock3,
-  MapPin,
-} from "lucide-react";
+import { ArrowRight, Activity, Bell, Building2, PlugZap, Clock3, MapPin } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import type { Locale } from "@/i18n/locale";
@@ -63,9 +54,6 @@ export default async function HomePage({ params }: Props) {
       description: t("homePage.features.alerting.description"),
     },
   ];
-
-  const roadmap = Object.entries(t.raw("homePage.roadmap.items") as Record<string, string>);
-  const mvpFeatures = Object.entries(t.raw("homePage.mvpFeatures.items") as Record<string, string>);
 
   return (
     <main className="flex flex-col">
@@ -238,41 +226,21 @@ export default async function HomePage({ params }: Props) {
 
       <hr />
 
-      {/* MVP FEATURES */}
+      {/* DISCOVER */}
       <section className="container mx-auto px-6 py-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold">{t("homePage.mvpFeatures.title")}</h2>
+          <h2 className="text-4xl font-bold tracking-tight">{t("homePage.discover.title")}</h2>
 
-          <p className="mt-4 text-muted-foreground">{t("homePage.mvpFeatures.subtitle")}</p>
-        </div>
+          <p className="mt-4 text-muted-foreground">{t("homePage.discover.subtitle")}</p>
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-2">
-          {mvpFeatures.map(([key, item]) => (
-            <div key={key}>
-              <div className="flex items-center gap-3 p-5">
-                <ShieldCheck className="h-5 w-5 text-charge-strong" />
-                <span>{item}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/features">{t("homePage.discover.features")}</Link>
+            </Button>
 
-      <hr />
-
-      {/* ROADMAP */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="mx-auto max-w-4xl rounded-3xl border bg-muted/30 p-10">
-          <Badge className="mb-4">{t("homePage.roadmap.badge")}</Badge>
-
-          <h2 className="text-3xl font-bold">{t("homePage.roadmap.title")}</h2>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {roadmap.map(([key, item]) => (
-              <div key={key} className="rounded-xl border bg-background p-4">
-                {item}
-              </div>
-            ))}
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/features/roadmap">{t("homePage.discover.roadmap")}</Link>
+            </Button>
           </div>
         </div>
       </section>

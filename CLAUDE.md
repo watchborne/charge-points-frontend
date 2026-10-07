@@ -33,7 +33,7 @@ app/
                          #   itself (required per-segment, not just the layout)
                          #   with getTranslations (not useTranslations, which
                          #   can't be called in an async Server Component).
-    (marketing)/          # public site (route group): home, pricing, contact, features
+    (marketing)/          # public site (route group): home, pricing, contact, features (+ features/roadmap: delivered/upcoming timeline)
     app/                  # authenticated dashboard
       dashboard/ sites/    # pages (no local components/ subfolder); dashboard renders
                            #   components/dashboard/ (below)

@@ -26,7 +26,8 @@
           "title": "Product",
           "links": {
             "features": "Features",
-            "pricing": "Pricing"
+            "pricing": "Pricing",
+            "roadmap": "Roadmap"
           }
         },
         "company": {
@@ -122,51 +123,12 @@
       },
       "alerting": {
         "title": "Automatic alerting",
-        "description": "Get notified the moment a station disconnects, faults, or a firmware update stalls, with a record of who was notified and when."
-      }
-    },
-    "roadmap": {
-      "badge": "Roadmap",
-      "title": "What's coming next",
-      "items": {
-        "alertCustomization": "Alert customization (thresholds, channels)",
-        "historyExport": "Export of OCPP event, alert & metric history",
-        "rbac": "Role- and team-based access management",
-        "integrations": "Integrations with your business tools"
+        "description": "Get notified as soon as a charge point goes offline, faults, or a firmware update fails."
       }
     },
     "featuresSection": {
       "title": "Built for EV charging installers",
       "subtitle": "Focus on operating your infrastructure, not chasing charger status."
-    },
-    "mvpFeatures": {
-      "title": "Included today",
-      "subtitle": "Everything required to supervise a fleet of charging stations.",
-      "items": {
-        "management": "Charge Point Management",
-        "stateTracking": "Connection State Tracking",
-        "dashboard": "Real-Time Dashboard",
-        "offlineDetection": "Offline Detection",
-        "multisite": "Multi-Site Organization",
-        "consumption": "Per-station consumption history",
-        "firmware": "Firmware update tracking & triggering",
-        "siteHealth": "Site health overview",
-        "reliability": "7-day charge point & site availability rate",
-        "alerting": "Automatic real-time alerts (email and push notifications) and email digest (offline, fault, firmware)",
-        "statusHistory": "Connection & connector status history",
-        "chargingSessions": "Charging session history",
-        "securityEvents": "OCPP security event history",
-        "logDiagnostics": "Remote log & diagnostics retrieval",
-        "bulkActions": "Bulk actions across multiple charge points",
-        "firmwareCampaigns": "Fleet-wide firmware update campaigns with per-station tracking",
-        "commissioning": "Commissioning: queue, checklist and self-service OCPP commissioning token",
-        "siteVisits": "On-site visit tracking: history and next-visit planning",
-        "siteReport": "PDF site report with per-station consumption charts",
-        "tariff": "Per-site tariff and estimated cost of each charging session",
-        "certificates": "Charge point certificate management",
-        "ocpp201": "Display messages and device reports (OCPP 2.0.1)",
-        "dashboardLayout": "Customizable dashboard"
-      }
     },
     "cta": {
       "title": "Stop guessing.",
@@ -184,6 +146,12 @@
         "offline": "Offline",
         "online": "Online"
       }
+    },
+    "discover": {
+      "title": "A platform that covers the whole life of your charge points",
+      "subtitle": "From commissioning to customer reporting, see the details of every feature and what comes next.",
+      "features": "See the features",
+      "roadmap": "See the roadmap"
     }
   },
   "productPreview": {
@@ -227,20 +195,142 @@
       "title": "A product under construction, an ambitious roadmap",
       "description": "Watchborne is under active development. The capabilities below are part of an ambitious roadmap, built together with EV installers to address their real needs in the field."
     },
-    "roadmap": {
-      "badge": "Roadmap",
-      "title": "What we're building",
-      "items": {
-        "alertCustomization": "Alert customization (thresholds, channels, recipients)",
-        "historyExport": "Export of OCPP event, alert & metric history",
-        "rbac": "Team-, role- and site-level access management",
-        "integrations": "Integrations with your business tools"
-      }
-    },
     "cta": {
       "title": "Let's build this platform with you.",
       "subtitle": "Join the alpha and help shape the tools EV installers actually need.",
       "button": "Request alpha access"
+    },
+    "catalog": {
+      "title": "Features in detail",
+      "subtitle": "Everything Watchborne lets you do today, by area.",
+      "groups": {
+        "supervision": {
+          "title": "Real-time supervision",
+          "items": {
+            "realtime": {
+              "title": "Live dashboard",
+              "description": "Connection and connector status update without reloading, across all your sites."
+            },
+            "ocpp": {
+              "title": "OCPP 1.6 and 2.0.1",
+              "description": "Both protocol versions live side by side in the same fleet, with no specific setup."
+            },
+            "offline": {
+              "title": "Offline detection",
+              "description": "A charge point that stops responding is flagged quickly, before your customers notice."
+            },
+            "multisite": {
+              "title": "Multi-site organization",
+              "description": "Group your charge points by site and customer, with an overview of each site's health."
+            },
+            "reliability": {
+              "title": "Availability rate",
+              "description": "7-day availability per charge point, per site and for the whole fleet."
+            },
+            "layout": {
+              "title": "Customizable dashboard",
+              "description": "Choose which widgets to show and in what order."
+            }
+          }
+        },
+        "commissioning": {
+          "title": "Commissioning",
+          "items": {
+            "queue": {
+              "title": "Queue and checklist",
+              "description": "Track the progress of each charge point being commissioned, step by step."
+            },
+            "token": {
+              "title": "Self-service commissioning token",
+              "description": "Generate a charge point's OCPP token yourself, without relying on support. It is only shown once."
+            },
+            "url": {
+              "title": "OCPP connection URL",
+              "description": "Find the address to enter in the charge point's configuration in one click."
+            }
+          }
+        },
+        "maintenance": {
+          "title": "Maintenance and firmware",
+          "items": {
+            "alerts": {
+              "title": "Automatic alerts",
+              "description": "Offline, fault or failed update: a real-time alert by email and push notification, with acknowledgement, history and an email digest (time and language of your choice)."
+            },
+            "firmware": {
+              "title": "Firmware updates",
+              "description": "Trigger an update on a charge point and follow its progress."
+            },
+            "campaigns": {
+              "title": "Firmware campaigns",
+              "description": "Send an update to many charge points at once and track the outcome station by station."
+            },
+            "bulk": {
+              "title": "Bulk actions",
+              "description": "Select several charge points and apply the same action in one go."
+            },
+            "visits": {
+              "title": "On-site visit tracking",
+              "description": "Log each intervention and plan a site's next visit. Sites without a recent visit are flagged."
+            },
+            "logs": {
+              "title": "Remote logs and diagnostics",
+              "description": "Retrieve a charge point's logs without going on site."
+            }
+          }
+        },
+        "reporting": {
+          "title": "Analysis and reporting",
+          "items": {
+            "consumption": {
+              "title": "Consumption history",
+              "description": "Charts per charge point and connector, with a table view of the same values."
+            },
+            "sessions": {
+              "title": "Charging sessions",
+              "description": "Each charge point's session history, with the consumption of each session."
+            },
+            "tariff": {
+              "title": "Tariff and estimated cost",
+              "description": "Set a per-kWh tariff per site: the estimated cost of each session is shown automatically."
+            },
+            "report": {
+              "title": "PDF site report",
+              "description": "A report ready to hand to your customer, with each charge point's consumption charts."
+            },
+            "status": {
+              "title": "Status history",
+              "description": "The timeline of each charge point's connections and connector states."
+            }
+          }
+        },
+        "security": {
+          "title": "Security and OCPP 2.0.1",
+          "items": {
+            "events": {
+              "title": "Security events",
+              "description": "The history of OCPP security events reported by your charge points."
+            },
+            "certificates": {
+              "title": "Certificate management",
+              "description": "List, install and delete a charge point's certificates."
+            },
+            "reports": {
+              "title": "Device reports",
+              "description": "Request the variable inventory of a 2.0.1 charge point and browse the events it reports."
+            },
+            "display": {
+              "title": "Display messages",
+              "description": "Show or clear a message on a 2.0.1 charge point's screen."
+            }
+          }
+        }
+      }
+    },
+    "roadmapLink": {
+      "title": "What's next?",
+      "description": "See everything that has shipped and what is coming next on the roadmap.",
+      "button": "See the roadmap"
     }
   },
   "contactPage": {
@@ -1567,5 +1657,85 @@
     "loadingSitesHealth": "Loading sites health failed.",
     "loadingConsumption": "Loading consumption failed.",
     "loadingFirmwareCampaigns": "Unable to load firmware campaigns."
+  },
+  "roadmapPage": {
+    "meta": {
+      "title": "Roadmap"
+    },
+    "badge": "Roadmap",
+    "hero": {
+      "title": "What has shipped, and what's coming",
+      "subtitle": "Watchborne is built with EV charging installers. Here is the road so far and the next steps."
+    },
+    "status": {
+      "delivered": "Shipped",
+      "upcoming": "Upcoming"
+    },
+    "back": "Back to features",
+    "phases": {
+      "foundations": {
+        "title": "The foundations",
+        "description": "Supervise a multi-site fleet in real time.",
+        "items": {
+          "realtime": "Real-time dashboard",
+          "multisite": "Multi-site organization",
+          "ocpp": "OCPP 1.6 and 2.0.1 compatibility",
+          "offline": "Offline detection",
+          "statusHistory": "Connection and connector status history"
+        }
+      },
+      "operations": {
+        "title": "Day-to-day operations",
+        "description": "Commission, monitor and maintain charge points.",
+        "items": {
+          "commissioning": "Commissioning: queue, checklist and commissioning token",
+          "consumption": "Per-charge-point consumption history",
+          "sessions": "Charging session history",
+          "firmware": "Firmware update tracking and triggering",
+          "alerting": "Automatic email alerts",
+          "reliability": "7-day availability rate",
+          "logs": "Remote logs and diagnostics",
+          "security": "OCPP security events"
+        }
+      },
+      "fleet": {
+        "title": "Fleet management",
+        "description": "Act at the scale of a whole fleet.",
+        "items": {
+          "bulk": "Bulk actions across charge points",
+          "layout": "Customizable dashboard",
+          "campaigns": "Firmware update campaigns",
+          "visits": "On-site visit tracking and planning",
+          "certificates": "Certificate management",
+          "ocpp201": "Display messages and device reports (OCPP 2.0.1)"
+        }
+      },
+      "reporting": {
+        "title": "Reporting and notifications",
+        "description": "Report to customers and stay informed.",
+        "items": {
+          "tariff": "Per-site tariff and estimated session cost",
+          "report": "PDF site report",
+          "push": "Push notifications",
+          "digest": "Email digest, with time and language of your choice",
+          "pwa": "Installable mobile app"
+        }
+      },
+      "upcoming": {
+        "title": "Coming soon",
+        "description": "The next steps, with no committed dates.",
+        "items": {
+          "alertCustomization": "Alert customization (thresholds, channels, recipients)",
+          "historyExport": "Export of OCPP event, alert and metric history",
+          "rbac": "Team-, role- and site-level access management",
+          "integrations": "Integrations with your business tools"
+        }
+      }
+    },
+    "cta": {
+      "title": "Let's build this platform with you.",
+      "subtitle": "Join the alpha and help shape the next steps.",
+      "button": "Request alpha access"
+    }
   }
 }
