@@ -198,3 +198,102 @@ describe("proxyToBackend", () => {
     );
   });
 });
+
+describe("proxyFileToBackend", () => {
+  const importFileProxy = async () => (await import("../proxy-request")).proxyFileToBackend;
+
+  const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0xff, 0x00, 0xfe]);
+
+  function fileResponse(headers: Record<string, string> = {}, status = 200) {
+    return Promise.resolve(
+      new Response(pdfBytes, {
+        status,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": 'attachment; filename="site-report.pdf"',
+          ...headers,
+        },
+      }),
+    );
+  }
+
+  it("SHOULD forward the request exactly like proxyToBackend: path, query, key and bearer token", async () => {
+    getSession.mockResolvedValue({ data: { session: { access_token: "the-jwt" } } });
+    mockFetch.mockReturnValue(fileResponse());
+    const proxyFileToBackend = await importFileProxy();
+
+    await proxyFileToBackend(
+      requestOf("/api/sites/s1/report?locale=en&from=2026-08-01T00:00:00.000Z"),
+      "/api/sites/s1/report.pdf",
+    );
+
+    const { url, init } = fetchCall();
+    expect(new URL(url).pathname).toBe("/api/sites/s1/report.pdf");
+    expect(new URL(url).searchParams.get("locale")).toBe("en");
+    expect(new URL(url).searchParams.get("from")).toBe("2026-08-01T00:00:00.000Z");
+    expect(init.headers).toMatchObject({
+      "x-api-key": "secret-key",
+      Authorization: "Bearer the-jwt",
+    });
+  });
+
+  it("SHOULD return the binary body untouched", async () => {
+    mockFetch.mockReturnValue(fileResponse());
+    const proxyFileToBackend = await importFileProxy();
+
+    const response = await proxyFileToBackend(requestOf("/api/sites/s1/report"), "/x.pdf");
+
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(pdfBytes);
+  });
+
+  it("SHOULD pass through the content type and the download filename", async () => {
+    mockFetch.mockReturnValue(fileResponse());
+    const proxyFileToBackend = await importFileProxy();
+
+    const response = await proxyFileToBackend(requestOf("/api/sites/s1/report"), "/x.pdf");
+
+    expect(response.headers.get("Content-Type")).toBe("application/pdf");
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'attachment; filename="site-report.pdf"',
+    );
+  });
+
+  it("SHOULD never let the file be cached", async () => {
+    mockFetch.mockReturnValue(fileResponse());
+    const proxyFileToBackend = await importFileProxy();
+
+    const response = await proxyFileToBackend(requestOf("/api/sites/s1/report"), "/x.pdf");
+
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+  });
+
+  it("SHOULD keep the backend's status and JSON content type WHEN it answers with an error", async () => {
+    mockFetch.mockReturnValue(
+      Promise.resolve(
+        new Response(JSON.stringify({ message: "Unknown site 's1'." }), {
+          status: 404,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        }),
+      ),
+    );
+    const proxyFileToBackend = await importFileProxy();
+
+    const response = await proxyFileToBackend(requestOf("/api/sites/s1/report"), "/x.pdf");
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("Content-Type")).toContain("application/json");
+    expect(response.headers.get("Content-Disposition")).toBeNull();
+    expect(await response.json()).toEqual({ message: "Unknown site 's1'." });
+  });
+
+  it("SHOULD answer 502 and report to Sentry WHEN the backend is unreachable", async () => {
+    mockFetch.mockRejectedValue(new Error("ECONNREFUSED"));
+    const proxyFileToBackend = await importFileProxy();
+
+    const response = await proxyFileToBackend(requestOf("/api/sites/s1/report"), "/x.pdf");
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ error: "Backend unreachable" });
+    expect(captureException).toHaveBeenCalled();
+  });
+});

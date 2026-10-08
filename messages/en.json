@@ -1375,13 +1375,7 @@
         },
         "report": {
           "exportButton": "Export as PDF",
-          "exportError": "Couldn't generate the PDF report. Please try again.",
-          "chartsFailed": "{count, plural, =1 {1 chart} other {# charts}} couldn't be added to the report, which was generated without {count, plural, =1 {it} other {them}}.",
-          "pdf": {
-            "uptimeSection": "Uptime",
-            "alertsSection": "Alerts",
-            "noAlerts": "No alerts in this period."
-          }
+          "exportError": "Couldn't generate the PDF report. Please try again."
         },
         "nextVisit": {
           "title": "Next planned visit",

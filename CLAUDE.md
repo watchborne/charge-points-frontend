@@ -11,8 +11,7 @@ shows charge points and sites in real time, backed by `charge-points-server`.
 Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `@tanstack/react-query` for server-state, `next-intl` for i18n, `sonner` for
-toast notifications, `recharts` for charts, `@react-pdf/renderer` +
-`html2canvas` for the printable site report PDF, `@sentry/nextjs` for error
+toast notifications, `recharts` for charts, `@sentry/nextjs` for error
 tracking. Dev server runs on **port 3001**. Domain types come from
 `@watchborne/charge-points-types`.
 Production builds run with `next build --webpack` (see Commands below) — a
@@ -116,13 +115,13 @@ app/
                            #   /api/sites/:id/next-visit, charge-points-server issue #579/
                            #   ADR 0016) from SiteDetailModal — the proactive counterpart to
                            #   LogSiteVisitDialog's reactive history, and SiteReportExportButton:
-                           #   exports a printable PDF site report (via
-                           #   hooks/useSiteReport.ts + @react-pdf/renderer) from SiteDetailModal
-                           #   — SiteReportDocument is the PDF layout, SiteReportChartCapture
-                           #   rasterizes each charge point's consumption chart to an embeddable
-                           #   PNG first (lib/capture-chart-image.ts, html2canvas) since
-                           #   @react-pdf/renderer's own primitives can't render a live
-                           #   `recharts` chart directly
+                           #   downloads the printable PDF site report from SiteDetailModal —
+                           #   generated entirely by charge-points-server (ADR 0023, GET
+                           #   /api/sites/:id/report.pdf): it reads its own data, draws its
+                           #   charts as vectors and writes the file in the dashboard's
+                           #   language, so this only calls api.Sites.downloadReport and
+                           #   hands the blob to the browser (no client-side PDF/chart
+                           #   rasterization any more)
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; plus generic display/interaction
@@ -146,9 +145,8 @@ app/
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
                           #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
                           #   useDashboardLayout (widget visibility/order, see dashboard/ above),
-                          #   useSiteVisitSchedule, useSiteTariff, useSiteReport (see
-                          #   sites/components/ above), useFleetReliability (see dashboard/
-                          #   above)
+                          #   useSiteVisitSchedule, useSiteTariff (see sites/components/
+                          #   above), useFleetReliability (see dashboard/ above)
       ws/ws-manager.ts    # singleton WebSocket manager (see below)
     404/                   # top-level not-found page
     login/                 # login page (OTP sign-in)
@@ -228,11 +226,16 @@ here — a request without a session simply reaches the backend with no token.
 - To add a backend-backed endpoint: create `app/api/<resource>/route.ts` that
   calls `proxyToBackend(request, "/api/<resource>")`, then add a client method in
   `lib/api-*.ts` that hits the local `/api/...` path through `httpClient`.
+- An endpoint that answers with a **file** (the site report PDF) uses
+  `proxyFileToBackend` instead: it streams the body through untouched (reading
+  it as text would corrupt binary) and passes `Content-Type` /
+  `Content-Disposition` from the backend, which owns the file's type and name;
+  the client side is `httpClient.getFile`, which returns `{ blob, filename }`.
 
 ### Data access layers
 
-- `lib/http-client.ts` — thin `fetch` wrapper (`get/post/patch/delete`), throws on
-  non-2xx.
+- `lib/http-client.ts` — thin `fetch` wrapper (`get/getFile/post/patch/delete`),
+  throws on non-2xx.
 - `lib/api-charge-points.ts`, `lib/api-sites.ts` — typed API methods, aggregated
   in `lib/api.ts` as `api.ChargePoints` / `api.Sites`. `lib/api-me.ts`
   (`api.Me.getMe()`) fetches the caller's own scoped charge points via
@@ -254,10 +257,7 @@ here — a request without a session simply reaches the backend with no token.
   this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
   `getMeterSamples` (the raw time series), `getConsumption` (the window reduced
-  per connector/measurand/unit) and `getSiteConsumption` (that same reduction for
-  every charge point of a site in one `GET /api/sites/:id/consumption`, which
-  `useSiteReport` reads instead of one call per charge point — it covers all the
-  site's charge points, so callers pick their own out by id). Its response types are declared locally, like
+  per connector/measurand/unit). Its response types are declared locally, like
   `Me`: the backend keeps `MeterSample` server-local (its ADR 0004), so these
   response contracts are the shared surface. `lib/api-status-history.ts`
   (`api.StatusHistory`) reads the connection/connector status timeline behind
