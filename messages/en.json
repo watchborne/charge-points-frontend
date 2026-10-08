@@ -1462,6 +1462,17 @@
         "exampleUrlPlaceholder": "'<charge-point-id>'",
         "commissioningTokenPlaceholder": "'<commissioning-token>'",
         "createdAtLabel": "Token generated on {date}",
+        "expiresAtLabel": "expires on {date}",
+        "expiredWarning": "Your token expired on {date} and no longer works: charge points connecting with it are no longer commissioned. Generate a new token and update the address on the charge points that still need commissioning.",
+        "howItWorks": {
+          "title": "How it works",
+          "steps": {
+            "generate": "Generate your personal token. It is shown in full only once, so copy it right away.",
+            "configure": "Add it as a `token` parameter to the OCPP address of each charge point to commission (see the example below).",
+            "connect": "On its first connection with this token, an unclaimed charge point is automatically linked to your account and appears in your charge points. A charge point already claimed by another installer is refused.",
+            "expire": "The token is valid for a limited time (90 days by default) and its expiry date is shown here. Once expired, it is treated as unknown: generate a new one. Charge points already commissioned are not affected."
+          }
+        },
         "revealedWarning": "Copy this token now — it will never be shown in full again.",
         "revokeCta": "Revoke",
         "regenerateConfirm": {

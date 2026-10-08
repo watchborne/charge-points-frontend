@@ -1462,6 +1462,17 @@
         "exampleUrlPlaceholder": "'<identifiant-de-la-borne>'",
         "commissioningTokenPlaceholder": "'<jeton-de-commissioning>'",
         "createdAtLabel": "Jeton généré le {date}",
+        "expiresAtLabel": "expire le {date}",
+        "expiredWarning": "Votre jeton a expiré le {date} et ne fonctionne plus : les bornes qui se connectent avec ne sont plus mises en service. Générez un nouveau jeton et mettez à jour l'adresse des bornes qu'il reste à mettre en service.",
+        "howItWorks": {
+          "title": "Comment ça marche",
+          "steps": {
+            "generate": "Générez votre jeton personnel. Il n'est affiché en clair qu'une seule fois : copiez-le immédiatement.",
+            "configure": "Ajoutez-le en paramètre `token` à l'adresse OCPP de chaque borne à mettre en service (voir l'exemple ci-dessous).",
+            "connect": "À sa première connexion avec ce jeton, une borne non encore attribuée est automatiquement associée à votre compte et apparaît dans vos bornes. Une borne déjà attribuée à un autre installateur est refusée.",
+            "expire": "Le jeton est valable pour une durée limitée (90 jours par défaut) et sa date d'expiration est affichée ici. Une fois expiré, il est traité comme inconnu : générez-en un nouveau. Les bornes déjà mises en service ne sont pas affectées."
+          }
+        },
         "revealedWarning": "Copiez ce jeton maintenant : il ne sera plus jamais affiché en clair.",
         "revokeCta": "Révoquer",
         "regenerateConfirm": {

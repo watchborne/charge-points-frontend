@@ -242,7 +242,12 @@ here — a request without a session simply reaches the backend with no token.
   `GET`/`POST` `/api/me/commissioning-token` for the installer
   self-service commissioning-token flow on `/app/configuration`
   (`CommissioningTokenPanel`) — the plaintext token is only ever returned
-  once, on issue, and is never persisted client-side.
+  once, on issue, and is never persisted client-side. The token
+  expires (90 days by default, server-configurable): both the status and the
+  issue response carry `expiresAt`, and an expired token reports
+  `hasToken: false` with its past `expiresAt` (the panel shows an expiry
+  warning and re-offers "Generate"). The panel also explains the process
+  (`howItWorks` steps).
   `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
   `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
   opt-in/out and preferred digest send hour (UTC), behind
