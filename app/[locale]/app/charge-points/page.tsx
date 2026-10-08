@@ -341,6 +341,9 @@ function ChargePointsPageContent() {
               onSelect={updateDetailTarget}
               onEditClicked={(cp) => setEditTarget(cp)}
               onDeleteClicked={(cp) => setDeleteTarget(cp)}
+              onReleased={(cp) => {
+                if (detailTarget?.id === cp.id) updateDetailTarget(null);
+              }}
               initialTab={detailTarget?.id === highlightedId ? highlightedTab : undefined}
               onTabChange={handleTabChange}
             />

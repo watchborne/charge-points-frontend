@@ -217,6 +217,17 @@ export type DeleteCertificateOutcome =
   | { ok: false; httpStatus: number };
 
 /**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
+ * reason: releasing a charge point (charge-points-server ADR 0028) can fail
+ * with a specific, user-meaningful outcome — the charge point is out of the
+ * caller's scope, or already released from a different tab — that the caller
+ * needs to distinguish from a generic failure. Success carries no payload:
+ * the backend answers 204, and the charge point simply drops out of this
+ * caller's `getChargePoints()` list from then on.
+ */
+export type ReleaseChargePointOutcome = { ok: true } | { ok: false; httpStatus: number };
+
+/**
  * An *estimated* cost for one charging session (charge-points-server issue
  * #580) — not part of @watchborne/charge-points-types, like `SiteTariff`,
  * since it's a computation rather than a domain entity. `amountCents` is
@@ -273,6 +284,31 @@ export const chargePointApis = {
       () => httpClient.delete(`/api/charge-points/${chargePointId}`),
       "ChargePoint.deleteChargePoint",
     );
+  },
+  /**
+   * Drops the caller's own membership on a charge point (charge-points-server
+   * ADR 0028, issue #424) — the corrective path for a station claimed by the
+   * wrong installer. Other members, if any, keep their access; when the
+   * caller was the last one the charge point returns to unclaimed and is
+   * detached from its site. A charge point outside the caller's scope, or
+   * already released, is a 404 either way.
+   */
+  releaseChargePoint: async function (
+    chargePointId: ChargePoint["id"],
+  ): Promise<ReleaseChargePointOutcome> {
+    return withErrorLoggingAsync(async () => {
+      const response = await fetch(`/api/charge-points/${chargePointId}/release`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        return { ok: true };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    }, "ChargePoint.releaseChargePoint");
   },
   resetChargePoint: async function (
     chargePointId: ChargePoint["id"],
