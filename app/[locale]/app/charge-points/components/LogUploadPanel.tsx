@@ -3,11 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { AlertTriangle, CheckCircle2, Clock, FileText, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 import type { LogUploadView } from "@/types/log-upload";
@@ -41,6 +41,7 @@ const VISIBLE_HISTORY_COUNT = 5;
  */
 export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   const {
     data: logUpload,
@@ -139,7 +140,7 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
                   {outcomeIcon(logUpload.lastCompleted)}
                   {formatDistanceToNow(new Date(logUpload.lastCompleted.finishedAt!), {
                     addSuffix: true,
-                    locale: enGB,
+                    locale: dateLocale,
                   })}
                 </span>
                 <span className="text-[10px] text-muted-foreground">

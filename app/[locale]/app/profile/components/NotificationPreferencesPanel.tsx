@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Callout, Skeleton, Switch } from "@watchborne/electrons";
+import { format } from "date-fns";
+import type { Locale } from "date-fns";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -14,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
 import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { queryKeys } from "@/lib/queryKeys";
 
 const DIGEST_HOURS_UTC = Array.from({ length: 24 }, (_, hour) => hour);
@@ -25,12 +28,20 @@ const EMAIL_LOCALES: { value: EmailLocale; label: string }[] = [
   { value: "en", label: "English" },
 ];
 
-const formatHourUtc = (hour: number) => `${String(hour).padStart(2, "0")}:00 UTC`;
+// The stored value stays a UTC hour (what the backend schedules on); only the
+// label is shown in the browser's local time.
+const formatHourLocal = (hour: number, locale: Locale) => {
+  const now = new Date();
+  const utcDate = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour),
+  );
+  return format(utcDate, "HH:mm", { locale });
+};
 
 /**
  * Lets a user opt in/out of the daily alert digest, per channel (email
  * and/or push — charge-points-server ADR 0023), pick their own send hour
- * (UTC), overriding charge-points-server's global default hour (ADR 0018
+ * (shown in local time, stored as UTC), overriding charge-points-server's global default hour (ADR 0018
  * there), and choose the language of every email the backend sends them
  * (ADR 0022 there). Every field defaults to the backend's own resolved
  * default — this panel never invents a client-side fallback for a user who
@@ -48,6 +59,7 @@ export const NotificationPreferencesPanel = ({
   isPushSubscribed: boolean;
 }) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
   const queryClient = useQueryClient();
 
   const {
@@ -152,7 +164,7 @@ export const NotificationPreferencesPanel = ({
                   <SelectContent>
                     {DIGEST_HOURS_UTC.map((hour) => (
                       <SelectItem key={hour} value={String(hour)}>
-                        {formatHourUtc(hour)}
+                        {formatHourLocal(hour, dateLocale)}
                       </SelectItem>
                     ))}
                   </SelectContent>

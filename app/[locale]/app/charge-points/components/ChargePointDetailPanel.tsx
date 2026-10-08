@@ -1,7 +1,6 @@
 import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
 import { Callout, Tag, Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
 import { formatDistanceToNow, format } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +10,7 @@ import {
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
 } from "@/lib/api-charge-points";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { safeLocalStorage } from "@/lib/safe-local-storage";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -93,6 +93,7 @@ export const ChargePointDetailPanel = ({
   onTabChange,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   const actions = useChargePointActions({
     chargePointId: chargePoint.id,
@@ -177,7 +178,7 @@ export const ChargePointDetailPanel = ({
     chargePoint.connection.lastSeenAt &&
     formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
       addSuffix: true,
-      locale: enGB,
+      locale: dateLocale,
     });
 
   return (

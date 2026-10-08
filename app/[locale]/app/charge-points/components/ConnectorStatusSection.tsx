@@ -1,11 +1,11 @@
 import { AvailabilityType } from "@watchborne/charge-points-types";
 import { Button, Callout } from "@watchborne/electrons";
 import { formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Loader2, Power, Unlock, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChangeAvailabilityOutcome, UnlockConnectorOutcome } from "@/lib/api-charge-points";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { formatUnit } from "@/lib/format-unit";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -72,6 +72,7 @@ export const ConnectorStatusSection = ({
   onUnlockConnector,
 }: ConnectorStatusSectionProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   if (chargePoint.connectors.length === 0) {
     return null;
@@ -106,7 +107,7 @@ export const ConnectorStatusSection = ({
                             (
                             {formatDistanceToNow(new Date(connector.lastMeterValue.timestamp), {
                               addSuffix: true,
-                              locale: enGB,
+                              locale: dateLocale,
                             })}
                             )
                           </small>

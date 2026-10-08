@@ -3,7 +3,6 @@
 import { Alert, AlertType } from "@watchborne/charge-points-types";
 import { Button, Switch } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import {
   AlertTriangle,
   Ban,
@@ -18,6 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useDateFnsLocale } from "@/lib/date-locale";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { AlertStatusBadge } from "../../components/charge-points/AlertStatusBadge";
@@ -111,6 +111,7 @@ export const AlertsPanel = ({
   acknowledgingAlertId = null,
 }: AlertsPanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   return (
     <div className="flex flex-col gap-3">
@@ -196,7 +197,7 @@ export const AlertsPanel = ({
                         ·{" "}
                         {formatDistanceToNow(new Date(alert.acknowledgedAt), {
                           addSuffix: true,
-                          locale: enGB,
+                          locale: dateLocale,
                         })}
                       </span>
                     )}
@@ -210,13 +211,13 @@ export const AlertsPanel = ({
                       ? t("appPage.chargePoints.alerts.openedAt", {
                           date: formatDistanceToNow(new Date(alert.openedAt), {
                             addSuffix: true,
-                            locale: enGB,
+                            locale: dateLocale,
                           }),
                         })
                       : t("appPage.chargePoints.alerts.resolvedAt", {
                           date: formatDistanceToNow(new Date(alert.resolvedAt ?? alert.openedAt), {
                             addSuffix: true,
-                            locale: enGB,
+                            locale: dateLocale,
                           }),
                         })}
                   </span>
@@ -236,7 +237,7 @@ export const AlertsPanel = ({
                         ·{" "}
                         {formatDistanceToNow(new Date(alert.lastNotifiedAt), {
                           addSuffix: true,
-                          locale: enGB,
+                          locale: dateLocale,
                         })}
                       </span>
                     </>

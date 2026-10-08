@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Badge, Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { api } from "@/lib/api";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint, ChargePointMeta } from "@/types/charge-point";
 import type { FirmwareUpdateView } from "@/types/firmware";
@@ -40,6 +40,7 @@ export const FirmwarePanel = ({
   ocppVersion,
 }: FirmwarePanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
   const { lastMessage } = useWebSocketContext();
 
   const {
@@ -128,7 +129,7 @@ export const FirmwarePanel = ({
                     {outcomeIcon(firmware.lastCompleted)}
                     {formatDistanceToNow(new Date(firmware.lastCompleted.finishedAt!), {
                       addSuffix: true,
-                      locale: enGB,
+                      locale: dateLocale,
                     })}
                   </div>
                   <div className="text-[10px] text-muted-foreground">

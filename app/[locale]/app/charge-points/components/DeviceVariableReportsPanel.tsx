@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Clock, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -13,6 +12,7 @@ import type {
   DeviceVariableReport,
   DeviceVariableReportEntry,
 } from "@/lib/api-device-variable-reports";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -60,6 +60,7 @@ const attributesLabel = (entry: DeviceVariableReportEntry): string =>
  */
 export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableReportsPanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   const {
     data: reports,
@@ -126,7 +127,7 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
                 <span>
                   {formatDistanceToNow(new Date(entry.generatedAt), {
                     addSuffix: true,
-                    locale: enGB,
+                    locale: dateLocale,
                   })}
                 </span>
                 <span>({format(new Date(entry.generatedAt), "dd/MM/yyyy HH:mm")})</span>

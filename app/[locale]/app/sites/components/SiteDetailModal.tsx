@@ -2,7 +2,6 @@ import { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import {
   CalendarCheck,
   CalendarClock,
@@ -25,6 +24,7 @@ import {
   Dialog,
 } from "@/components/ui/dialog";
 import { useRouter } from "@/i18n/navigation";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -56,6 +56,7 @@ export const SiteDetailModal = ({
   onDeleteClicked,
 }: SiteDetailModalProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
   const format = useFormatter();
   const router = useRouter();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -206,7 +207,7 @@ export const SiteDetailModal = ({
                     );
                     const lastSeenText = chargePoint.connection.lastSeenAt
                       ? formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
-                          locale: enGB,
+                          locale: dateLocale,
                         })
                       : null;
                     const vendorModel = [chargePoint.meta?.vendor, chargePoint.meta?.model]
@@ -359,7 +360,7 @@ export const SiteDetailModal = ({
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(schedule.nextVisitAt), {
                         addSuffix: true,
-                        locale: enGB,
+                        locale: dateLocale,
                       })}
                     </span>
                   </div>
@@ -425,7 +426,7 @@ export const SiteDetailModal = ({
                         <span className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(visit.visitedAt), {
                             addSuffix: true,
-                            locale: enGB,
+                            locale: dateLocale,
                           })}
                         </span>
                       </div>

@@ -35,6 +35,7 @@ const { isIosDevice, isStandaloneDisplayMode } = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => translate,
   useFormatter: () => formatter,
 }));

@@ -3,13 +3,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Clock, Loader2, MessageSquare, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { api } from "@/lib/api";
 import type { DisplayMessageInfo, DisplayMessageReport } from "@/lib/api-display-messages";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -66,6 +66,7 @@ const errorMessageKey = (httpStatus: number): string => {
  */
 export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   const {
     data: reports,
@@ -150,7 +151,7 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
                 <span>
                   {formatDistanceToNow(new Date(entry.createdAt), {
                     addSuffix: true,
-                    locale: enGB,
+                    locale: dateLocale,
                   })}
                 </span>
                 <span>({format(new Date(entry.createdAt), "dd/MM/yyyy HH:mm")})</span>

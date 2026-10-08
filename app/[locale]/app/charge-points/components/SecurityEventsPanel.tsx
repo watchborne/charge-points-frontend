@@ -3,11 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
 import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Clock, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
+import { useDateFnsLocale } from "@/lib/date-locale";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -39,6 +39,7 @@ const humanizeEventType = (type: string): string =>
  */
 export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps) => {
   const t = useTranslations("");
+  const dateLocale = useDateFnsLocale();
 
   const {
     data: events = [],
@@ -88,7 +89,7 @@ export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps)
                 <span>
                   {formatDistanceToNow(new Date(event.occurredAt), {
                     addSuffix: true,
-                    locale: enGB,
+                    locale: dateLocale,
                   })}
                 </span>
                 <span>({format(new Date(event.occurredAt), "dd/MM/yyyy HH:mm")})</span>
