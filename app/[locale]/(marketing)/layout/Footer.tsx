@@ -25,6 +25,13 @@ export function Footer() {
                 {t("layout.footer.sections.product.links.features")}
               </Link>
 
+              <Link
+                href="/features/roadmap"
+                className="block text-muted-foreground hover:text-foreground"
+              >
+                {t("layout.footer.sections.product.links.roadmap")}
+              </Link>
+
               <Link href="/pricing" className="block text-muted-foreground hover:text-foreground">
                 {t("layout.footer.sections.product.links.pricing")}
               </Link>

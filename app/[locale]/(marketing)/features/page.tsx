@@ -1,5 +1,14 @@
 import { Badge, Button } from "@watchborne/electrons";
-import { Activity, AlertTriangle, Check, FileText, Hammer, Rocket, Wrench } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  Check,
+  FileText,
+  Hammer,
+  ShieldCheck,
+  Wrench,
+} from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import type { Locale } from "@/i18n/locale";
@@ -42,7 +51,23 @@ export default async function FeaturesPage({ params }: Props) {
     },
   ];
 
-  const roadmap = Object.entries(t.raw("featuresPage.roadmap.items") as Record<string, string>);
+  const catalog = [
+    { key: "supervision", icon: Activity },
+    { key: "commissioning", icon: Wrench },
+    { key: "maintenance", icon: AlertTriangle },
+    { key: "reporting", icon: FileText },
+    { key: "security", icon: ShieldCheck },
+  ].map(({ key, icon }) => ({
+    key,
+    icon,
+    title: t(`featuresPage.catalog.groups.${key}.title`),
+    items: Object.entries(
+      t.raw(`featuresPage.catalog.groups.${key}.items`) as Record<
+        string,
+        { title: string; description: string }
+      >,
+    ),
+  }));
 
   return (
     <main className="flex flex-col">
@@ -97,6 +122,47 @@ export default async function FeaturesPage({ params }: Props) {
 
       <hr />
 
+      {/* CATALOG */}
+      <section className="container mx-auto px-6 py-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-4xl font-bold tracking-tight">{t("featuresPage.catalog.title")}</h2>
+
+          <p className="mt-4 text-muted-foreground">{t("featuresPage.catalog.subtitle")}</p>
+        </div>
+
+        <div className="mx-auto mt-16 max-w-5xl space-y-16">
+          {catalog.map((group) => {
+            const Icon = group.icon;
+
+            return (
+              <div key={group.key}>
+                <div className="mb-6 flex items-center gap-3">
+                  <Icon className="h-6 w-6 text-charge-strong" />
+
+                  <h3 className="text-2xl font-semibold">{group.title}</h3>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  {group.items.map(([key, item]) => (
+                    <div key={key} className="flex items-start gap-3 rounded-lg border p-5">
+                      <Check className="mt-1 h-4 w-4 shrink-0 text-charge-strong" />
+
+                      <div>
+                        <h4 className="font-medium">{item.title}</h4>
+
+                        <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <hr />
+
       {/* PRODUCT PREVIEW */}
       <section className="container mx-auto px-6 py-24">
         <div className="mx-auto max-w-3xl text-center">
@@ -131,24 +197,19 @@ export default async function FeaturesPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ROADMAP */}
+      {/* ROADMAP LINK */}
       <section className="container mx-auto px-6 pb-24">
-        <div className="mx-auto max-w-4xl rounded-3xl border bg-muted/30 p-10">
-          <Badge className="mb-4">
-            <Rocket className="mr-1 h-3 w-3" />
-            {t("featuresPage.roadmap.badge")}
-          </Badge>
+        <div className="mx-auto max-w-4xl rounded-3xl border bg-muted/30 p-10 text-center">
+          <h2 className="text-3xl font-bold">{t("featuresPage.roadmapLink.title")}</h2>
 
-          <h2 className="text-3xl font-bold">{t("featuresPage.roadmap.title")}</h2>
+          <p className="mt-4 text-muted-foreground">{t("featuresPage.roadmapLink.description")}</p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {roadmap.map(([key, item]) => (
-              <div key={key} className="flex items-start gap-3 rounded-xl border bg-background p-4">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
+          <Button variant="outline" className="mt-6" asChild>
+            <Link href="/features/roadmap">
+              {t("featuresPage.roadmapLink.button")}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </section>
 
