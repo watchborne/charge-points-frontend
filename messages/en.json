@@ -1521,9 +1521,14 @@
       },
       "notifications": {
         "title": "Notifications",
-        "digestEnabled": {
+        "digestEmailEnabled": {
           "title": "Daily email digest",
           "description": "Receive a daily digest of open alerts and sites due for a visit."
+        },
+        "digestPushEnabled": {
+          "title": "Daily push digest",
+          "description": "Also receive the daily digest as a push notification on this device.",
+          "requiresSubscription": "Turn on push notifications below first to receive the digest on this device."
         },
         "digestHour": {
           "title": "Send time",
