@@ -2,14 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
-import { format, formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { api } from "@/lib/api";
 import type { DeviceEventEntry, DeviceEventReport } from "@/lib/api-device-events";
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -47,7 +46,7 @@ const componentLabel = (entry: DeviceEventEntry): string =>
  */
 export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => {
   const t = useTranslations("");
-  const dateLocale = useDateFnsLocale();
+  const { formatRelative, formatDateTime } = useDateFormat();
 
   const {
     data: reports,
@@ -104,13 +103,8 @@ export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => 
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 shrink-0" />
-                <span>
-                  {formatDistanceToNow(new Date(entry.timestamp), {
-                    addSuffix: true,
-                    locale: dateLocale,
-                  })}
-                </span>
-                <span>({format(new Date(entry.timestamp), "dd/MM/yyyy HH:mm")})</span>
+                <span>{formatRelative(entry.timestamp)}</span>
+                <span>({formatDateTime(entry.timestamp)})</span>
               </div>
             </div>
           ))}

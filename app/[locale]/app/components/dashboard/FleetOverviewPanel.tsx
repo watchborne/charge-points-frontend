@@ -1,12 +1,11 @@
 import { Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
-import { formatDistanceToNow } from "date-fns";
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useDateFormat } from "@/lib/date-format";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -19,7 +18,7 @@ interface FleetOverviewPanelProps {
 
 export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelProps) => {
   const t = useTranslations("");
-  const dateLocale = useDateFnsLocale();
+  const { formatRelative } = useDateFormat();
   const router = useRouter();
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -116,9 +115,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
               const isExpanded = expandedIds.has(chargePoint.id);
               const isOnline = ["SYNCED", "CONNECTED"].includes(chargePoint.connection.status);
               const lastSeenText = chargePoint.connection.lastSeenAt
-                ? formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
-                    locale: dateLocale,
-                  })
+                ? formatRelative(chargePoint.connection.lastSeenAt)
                 : null;
               const vendorModel = [chargePoint.meta?.vendor, chargePoint.meta?.model]
                 .filter(Boolean)

@@ -11,6 +11,7 @@ const formatter = {
 };
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string) => key,
   useFormatter: () => formatter,
 }));

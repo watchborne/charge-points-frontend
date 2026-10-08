@@ -2,14 +2,13 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Callout } from "@watchborne/electrons";
-import { format, formatDistanceToNow } from "date-fns";
 import { Clock, Loader2, MessageSquare, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { api } from "@/lib/api";
 import type { DisplayMessageInfo, DisplayMessageReport } from "@/lib/api-display-messages";
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -66,7 +65,7 @@ const errorMessageKey = (httpStatus: number): string => {
  */
 export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProps) => {
   const t = useTranslations("");
-  const dateLocale = useDateFnsLocale();
+  const { formatRelative, formatDateTime } = useDateFormat();
 
   const {
     data: reports,
@@ -148,13 +147,8 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 shrink-0" />
-                <span>
-                  {formatDistanceToNow(new Date(entry.createdAt), {
-                    addSuffix: true,
-                    locale: dateLocale,
-                  })}
-                </span>
-                <span>({format(new Date(entry.createdAt), "dd/MM/yyyy HH:mm")})</span>
+                <span>{formatRelative(entry.createdAt)}</span>
+                <span>({formatDateTime(entry.createdAt)})</span>
               </div>
             </div>
           ))}

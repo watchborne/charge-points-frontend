@@ -2,8 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Callout, Skeleton, Switch } from "@watchborne/electrons";
-import { format } from "date-fns";
-import type { Locale } from "date-fns";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -16,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
 import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 
 const DIGEST_HOURS_UTC = Array.from({ length: 24 }, (_, hour) => hour);
@@ -30,12 +28,9 @@ const EMAIL_LOCALES: { value: EmailLocale; label: string }[] = [
 
 // The stored value stays a UTC hour (what the backend schedules on); only the
 // label is shown in the browser's local time.
-const formatHourLocal = (hour: number, locale: Locale) => {
+const toLocalHourDate = (hour: number) => {
   const now = new Date();
-  const utcDate = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour),
-  );
-  return format(utcDate, "HH:mm", { locale });
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour));
 };
 
 /**
@@ -59,7 +54,7 @@ export const NotificationPreferencesPanel = ({
   isPushSubscribed: boolean;
 }) => {
   const t = useTranslations("");
-  const dateLocale = useDateFnsLocale();
+  const { formatTime } = useDateFormat();
   const queryClient = useQueryClient();
 
   const {
@@ -164,7 +159,7 @@ export const NotificationPreferencesPanel = ({
                   <SelectContent>
                     {DIGEST_HOURS_UTC.map((hour) => (
                       <SelectItem key={hour} value={String(hour)}>
-                        {formatHourLocal(hour, dateLocale)}
+                        {formatTime(toLocalHourDate(hour))}
                       </SelectItem>
                     ))}
                   </SelectContent>

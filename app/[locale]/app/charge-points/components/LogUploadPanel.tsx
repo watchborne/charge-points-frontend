@@ -2,12 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
-import { format, formatDistanceToNow } from "date-fns";
 import { AlertTriangle, CheckCircle2, Clock, FileText, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 import type { LogUploadView } from "@/types/log-upload";
@@ -41,7 +40,7 @@ const VISIBLE_HISTORY_COUNT = 5;
  */
 export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelProps) => {
   const t = useTranslations("");
-  const dateLocale = useDateFnsLocale();
+  const { formatRelative, formatDateTime } = useDateFormat();
 
   const {
     data: logUpload,
@@ -138,13 +137,10 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
               <span className="flex flex-col items-end text-sm font-medium">
                 <span className="flex items-center gap-1.5">
                   {outcomeIcon(logUpload.lastCompleted)}
-                  {formatDistanceToNow(new Date(logUpload.lastCompleted.finishedAt!), {
-                    addSuffix: true,
-                    locale: dateLocale,
-                  })}
+                  {formatRelative(logUpload.lastCompleted.finishedAt!)}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  {format(new Date(logUpload.lastCompleted.finishedAt!), "dd/MM/yyyy HH:mm")}
+                  {formatDateTime(logUpload.lastCompleted.finishedAt!)}
                   {logUpload.lastCompleted.fileName && ` · ${logUpload.lastCompleted.fileName}`}
                 </span>
               </span>
@@ -206,7 +202,7 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
                     </div>
                     <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                       <Clock className="h-3 w-3 shrink-0" />
-                      {format(new Date(upload.startedAt), "dd/MM/yyyy HH:mm")}
+                      {formatDateTime(upload.startedAt)}
                       {upload.fileName && ` · ${upload.fileName}`}
                     </div>
                   </div>

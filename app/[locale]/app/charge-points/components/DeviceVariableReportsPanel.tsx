@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
-import { format, formatDistanceToNow } from "date-fns";
 import { Clock, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -12,7 +11,7 @@ import type {
   DeviceVariableReport,
   DeviceVariableReportEntry,
 } from "@/lib/api-device-variable-reports";
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -60,7 +59,7 @@ const attributesLabel = (entry: DeviceVariableReportEntry): string =>
  */
 export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableReportsPanelProps) => {
   const t = useTranslations("");
-  const dateLocale = useDateFnsLocale();
+  const { formatRelative, formatDateTime } = useDateFormat();
 
   const {
     data: reports,
@@ -124,13 +123,8 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 shrink-0" />
-                <span>
-                  {formatDistanceToNow(new Date(entry.generatedAt), {
-                    addSuffix: true,
-                    locale: dateLocale,
-                  })}
-                </span>
-                <span>({format(new Date(entry.generatedAt), "dd/MM/yyyy HH:mm")})</span>
+                <span>{formatRelative(entry.generatedAt)}</span>
+                <span>({formatDateTime(entry.generatedAt)})</span>
               </div>
             </div>
           ))}

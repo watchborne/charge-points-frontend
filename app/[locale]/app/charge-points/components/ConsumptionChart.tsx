@@ -16,6 +16,7 @@ import {
 } from "recharts";
 
 import type { MeterSample } from "@/lib/api-metering";
+import { useDateFormat } from "@/lib/date-format";
 import { formatUnit } from "@/lib/format-unit";
 
 /**
@@ -79,6 +80,7 @@ type Props = {
  */
 export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spansDays }: Props) => {
   const t = useTranslations("");
+  const { formatDateTime } = useDateFormat();
   const locale = useLocale();
 
   const rows = useMemo(() => toChartRows(samples, connectorIds), [samples, connectorIds]);
@@ -148,7 +150,7 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
               return (
                 <div className="rounded-md border bg-popover px-3 py-2 shadow-card">
                   <p className="mb-1 text-[11px] text-muted-foreground">
-                    {format(new Date(label as number), "dd/MM/yyyy HH:mm:ss")}
+                    {formatDateTime(label as number, { withSeconds: true })}
                   </p>
                   {payload.map((entry) => (
                     <p

@@ -8,8 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@watchborne/electrons";
-import { format } from "date-fns";
 
+import { useDateFormat } from "@/lib/date-format";
 import { colorBadgeClass, colorDotClass, type ColorName } from "@/lib/status";
 import { computeDurations, formatDurationShort, type StatusSegment } from "@/lib/status-history";
 
@@ -39,6 +39,7 @@ export const StatusHistoryTable = <S extends string>({
   statusHeader,
   durationHeader,
 }: Props<S>) => {
+  const { formatDateTime } = useDateFormat();
   const durations = computeDurations(segments);
 
   return (
@@ -73,9 +74,7 @@ export const StatusHistoryTable = <S extends string>({
             {/* Newest first, the opposite of the bar's left-to-right axis. */}
             {[...segments].reverse().map((segment) => (
               <TableRow key={`${segment.start.getTime()}-${segment.status ?? "unknown"}`}>
-                <TableCell className="text-xs">
-                  {format(segment.start, "dd/MM/yyyy HH:mm")}
-                </TableCell>
+                <TableCell className="text-xs">{formatDateTime(segment.start)}</TableCell>
                 <TableCell className="text-xs">
                   <span className="inline-flex items-center gap-1.5">
                     {segment.status !== null && (

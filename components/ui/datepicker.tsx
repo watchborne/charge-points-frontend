@@ -1,10 +1,9 @@
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
-import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
-import { useDateFnsLocale } from "@/lib/date-locale";
+import { useCalendarLocale, useDateFormat } from "@/lib/date-format";
 
 import { Calendar } from "./calendar";
 
@@ -19,7 +18,8 @@ export const Datepicker = ({
   placeholder?: string;
   disabled?: (date: Date) => boolean;
 }) => {
-  const dateLocale = useDateFnsLocale();
+  const calendarLocale = useCalendarLocale();
+  const { formatDate } = useDateFormat();
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -31,7 +31,7 @@ export const Datepicker = ({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-          {value ? format(value, "dd MMMM yyyy", { locale: dateLocale }) : placeholder}
+          {value ? formatDate(value) : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -40,7 +40,7 @@ export const Datepicker = ({
           selected={value}
           onSelect={onChange}
           disabled={disabled}
-          locale={dateLocale}
+          locale={calendarLocale}
         />
       </PopoverContent>
     </Popover>
