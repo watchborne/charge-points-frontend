@@ -1092,7 +1092,8 @@
         "groups": {
           "controls": "Contrôles de la borne",
           "messaging": "Tests de notification",
-          "displayMessages": "Message d'affichage"
+          "displayMessages": "Message d'affichage",
+          "access": "Accès à la borne"
         }
       },
       "configuration": {
@@ -1305,6 +1306,15 @@
           "timestamp": "Horodatage",
           "status": "Statut",
           "duration": "Durée"
+        }
+      },
+      "release": {
+        "button": "Oublier cette borne",
+        "confirmTitle": "Oublier « {name} » ?",
+        "confirmDescription": "Vous perdrez votre accès à cette borne. Les autres installateurs qui y ont accès conservent le leur. Si vous étiez le seul, la borne redevient disponible à la commission et est retirée de son site actuel.",
+        "result": {
+          "notFound": "Cette borne est déjà hors de votre périmètre.",
+          "genericError": "Impossible d'oublier cette borne. Veuillez réessayer."
         }
       }
     },

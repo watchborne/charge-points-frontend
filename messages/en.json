@@ -1092,7 +1092,8 @@
         "groups": {
           "controls": "Charge point controls",
           "messaging": "Testing notifications",
-          "displayMessages": "Display messages"
+          "displayMessages": "Display messages",
+          "access": "Charge point access"
         }
       },
       "configuration": {
@@ -1305,6 +1306,15 @@
           "timestamp": "Timestamp",
           "status": "Status",
           "duration": "Duration"
+        }
+      },
+      "release": {
+        "button": "Forget this charge point",
+        "confirmTitle": "Forget \"{name}\"?",
+        "confirmDescription": "You will lose your own access to this charge point. Other installers who have access to it keep theirs. If you were the only one, the charge point returns to the commissioning queue and is detached from its current site.",
+        "result": {
+          "notFound": "This charge point is already outside your scope.",
+          "genericError": "Failed to forget this charge point. Please try again."
         }
       }
     },
