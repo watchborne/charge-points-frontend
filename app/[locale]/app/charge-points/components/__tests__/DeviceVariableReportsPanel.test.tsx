@@ -8,6 +8,7 @@ import type {
 } from "@/lib/api-device-variable-reports";
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string) => key,
 }));
 

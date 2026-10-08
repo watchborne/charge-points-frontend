@@ -1543,7 +1543,7 @@
         },
         "digestHour": {
           "title": "Send time",
-          "description": "Hour (UTC) at which the daily digest is sent to you."
+          "description": "Time (your local time) at which the daily digest is sent to you."
         },
         "locale": {
           "title": "Email language",

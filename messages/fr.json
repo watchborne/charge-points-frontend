@@ -1543,7 +1543,7 @@
         },
         "digestHour": {
           "title": "Heure d'envoi",
-          "description": "Heure (UTC) à laquelle le résumé quotidien vous est envoyé."
+          "description": "Heure (heure locale) à laquelle le résumé quotidien vous est envoyé."
         },
         "locale": {
           "title": "Langue des emails",

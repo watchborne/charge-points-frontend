@@ -1,10 +1,14 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { StatusTone } from "@/lib/status";
 import type { StatusSegment } from "@/lib/status-history";
 
 import { StatusHistoryTable } from "../StatusHistoryTable";
+
+vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
+}));
 
 afterEach(() => cleanup());
 

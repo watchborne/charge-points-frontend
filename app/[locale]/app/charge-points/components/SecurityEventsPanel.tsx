@@ -2,12 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Callout } from "@watchborne/electrons";
-import { format, formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Clock, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -39,6 +38,7 @@ const humanizeEventType = (type: string): string =>
  */
 export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps) => {
   const t = useTranslations("");
+  const { formatRelative, formatDateTime } = useDateFormat();
 
   const {
     data: events = [],
@@ -85,13 +85,8 @@ export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps)
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 shrink-0" />
-                <span>
-                  {formatDistanceToNow(new Date(event.occurredAt), {
-                    addSuffix: true,
-                    locale: enGB,
-                  })}
-                </span>
-                <span>({format(new Date(event.occurredAt), "dd/MM/yyyy HH:mm")})</span>
+                <span>{formatRelative(event.occurredAt)}</span>
+                <span>({formatDateTime(event.occurredAt)})</span>
               </div>
             </div>
           ))}

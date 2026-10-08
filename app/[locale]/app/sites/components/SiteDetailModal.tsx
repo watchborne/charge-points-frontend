@@ -1,8 +1,6 @@
 import { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
 import classNames from "classnames";
-import { formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
 import {
   CalendarCheck,
   CalendarClock,
@@ -25,6 +23,7 @@ import {
   Dialog,
 } from "@/components/ui/dialog";
 import { useRouter } from "@/i18n/navigation";
+import { useDateFormat } from "@/lib/date-format";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -56,6 +55,7 @@ export const SiteDetailModal = ({
   onDeleteClicked,
 }: SiteDetailModalProps) => {
   const t = useTranslations("");
+  const { formatRelative } = useDateFormat();
   const format = useFormatter();
   const router = useRouter();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -205,9 +205,7 @@ export const SiteDetailModal = ({
                       chargePoint.connection.status,
                     );
                     const lastSeenText = chargePoint.connection.lastSeenAt
-                      ? formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
-                          locale: enGB,
-                        })
+                      ? formatRelative(chargePoint.connection.lastSeenAt)
                       : null;
                     const vendorModel = [chargePoint.meta?.vendor, chargePoint.meta?.model]
                       .filter(Boolean)
@@ -357,10 +355,7 @@ export const SiteDetailModal = ({
                       })}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(schedule.nextVisitAt), {
-                        addSuffix: true,
-                        locale: enGB,
-                      })}
+                      {formatRelative(schedule.nextVisitAt)}
                     </span>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
@@ -423,10 +418,7 @@ export const SiteDetailModal = ({
                           })}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(visit.visitedAt), {
-                            addSuffix: true,
-                            locale: enGB,
-                          })}
+                          {formatRelative(visit.visitedAt)}
                         </span>
                       </div>
                       {visit.note && <span className="text-muted-foreground">{visit.note}</span>}

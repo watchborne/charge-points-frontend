@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SecurityEvent } from "@/lib/api-security-events";
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string) => key,
 }));
 

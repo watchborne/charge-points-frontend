@@ -7,6 +7,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 const push = vi.fn();
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string) => key,
 }));
 
