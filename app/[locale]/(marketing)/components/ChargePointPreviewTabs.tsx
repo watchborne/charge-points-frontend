@@ -304,13 +304,19 @@ const activeSessionAt = (sessions: DemoSession[], t: number): DemoSession | unde
 type ConnectorSeries = Record<(typeof CONSUMPTION_MEASURANDS)[number], MeterSample[]>;
 
 /** One connector's full multi-measurand history over a window. */
-const buildConnectorSeries = (
-  connectorId: number,
-  windowStart: number,
-  now: number,
-  idleStepMs: number,
-  rng: () => number,
-): ConnectorSeries => {
+const buildConnectorSeries = ({
+  connectorId,
+  windowStart,
+  now,
+  idleStepMs,
+  rng,
+}: {
+  connectorId: number;
+  windowStart: number;
+  now: number;
+  idleStepMs: number;
+  rng: () => number;
+}): ConnectorSeries => {
   const profile = CONNECTOR_PROFILES[connectorId];
   const sessions = buildSessions(connectorId, windowStart, now);
 
@@ -410,7 +416,7 @@ const buildConsumptionFixture = (
     // across re-renders (a re-render from unrelated state shouldn't reshuffle
     // the chart) while still varying between connectors and ranges.
     const rng = mulberry32(connectorId * 7_919 + RANGE_HOURS[range]);
-    const series = buildConnectorSeries(connectorId, windowStart, now, idleStepMs, rng);
+    const series = buildConnectorSeries({ connectorId, windowStart, now, idleStepMs, rng });
 
     for (const measurand of CONSUMPTION_MEASURANDS) {
       const samples = series[measurand];
