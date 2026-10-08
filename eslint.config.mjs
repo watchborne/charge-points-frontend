@@ -6,6 +6,8 @@ const eslintConfig = [
   ...nextTypescript,
   {
     rules: {
+      // More than 4 parameters: take a single options object instead.
+      "max-params": ["error", 4],
       "import/order": [
         "error",
         {
