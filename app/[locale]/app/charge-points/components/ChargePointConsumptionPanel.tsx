@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
+import { useDateFormat } from "@/lib/date-format";
 import { formatUnit } from "@/lib/format-unit";
 
 import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
@@ -77,6 +78,7 @@ export const ChargePointConsumptionPanel = ({
   truncated,
 }: Props) => {
   const t = useTranslations("");
+  const { formatDateTime } = useDateFormat();
   const locale = useLocale();
 
   const [view, setView] = useState<"chart" | "table">("chart");
@@ -216,7 +218,7 @@ export const ChargePointConsumptionPanel = ({
                   {[...samples].reverse().map((sample) => (
                     <TableRow key={sample.id}>
                       <TableCell className="text-xs">
-                        {format(new Date(sample.measuredAt), "dd/MM/yyyy HH:mm:ss")}
+                        {formatDateTime(sample.measuredAt, { withSeconds: true })}
                       </TableCell>
                       <TableCell className="text-xs">{sample.connectorId}</TableCell>
                       <TableCell className="text-right font-mono text-xs">

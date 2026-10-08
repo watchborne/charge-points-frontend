@@ -4,6 +4,7 @@ import { Alert } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
     switch (key) {
       case "appPage.chargePoints.alerts.connector":
