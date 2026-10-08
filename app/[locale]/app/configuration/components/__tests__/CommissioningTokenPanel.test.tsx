@@ -79,7 +79,7 @@ const renderPanel = () =>
 
 describe("CommissioningTokenPanel", () => {
   it("SHOULD show the generate CTA WHEN no token exists yet", async () => {
-    getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
 
     renderPanel();
 
@@ -94,10 +94,11 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD reveal the token WHEN generated for the first time (no confirmation needed)", async () => {
-    getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
     issueToken.mockResolvedValue({
       token: "abc123",
       createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
 
     renderPanel();
@@ -117,10 +118,11 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD show a placeholder station id in the example URL, never a concrete-looking one", async () => {
-    getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
     issueToken.mockResolvedValue({
       token: "abc123",
       createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
 
     renderPanel();
@@ -142,6 +144,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-03-15T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
 
     renderPanel();
@@ -153,14 +156,63 @@ describe("CommissioningTokenPanel", () => {
     ).toBeTruthy();
   });
 
+  it("SHOULD show the expiry date through useFormatter WHEN a token is active", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-03-15T00:00:00.000Z",
+      expiresAt: "2024-06-13T00:00:00.000Z",
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText(
+        /appPage.configuration.commissioningToken.expiresAtLabel.*formatted:2024-06-13/,
+      ),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD warn that the token expired WHEN the server reports an expired one", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: false,
+      createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-03-31T00:00:00.000Z",
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText(
+        /appPage.configuration.commissioningToken.expiredWarning.*formatted:2024-03-31/,
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: "appPage.configuration.commissioningToken.generateCta",
+      }),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD explain the process WHEN the panel renders", async () => {
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("appPage.configuration.commissioningToken.howItWorks.steps.expire"),
+    ).toBeTruthy();
+  });
+
   it("SHOULD ask for confirmation before regenerating WHEN a token already exists", async () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
     issueToken.mockResolvedValue({
       token: "new-token",
       createdAt: "2024-06-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
 
     renderPanel();
@@ -183,7 +235,7 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD NOT show a revoke option WHEN no token exists yet", async () => {
-    getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
 
     renderPanel();
 
@@ -199,6 +251,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
     revoke.mockResolvedValue(undefined);
 
@@ -233,6 +286,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
     });
     revoke.mockRejectedValue(new Error("boom"));
 
@@ -252,7 +306,7 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD NOT show recent activity WHEN there are no commissioning attempts", async () => {
-    getStatus.mockResolvedValue({ hasToken: false, createdAt: null });
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
 
     renderPanel();
 
@@ -265,7 +319,11 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD render a claim, resolving the station name from Me.chargePoints", async () => {
-    getStatus.mockResolvedValue({ hasToken: true, createdAt: "2024-01-01T00:00:00.000Z" });
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
+    });
     getMe.mockResolvedValue({
       userId: "user-1",
       chargePoints: [makeChargePoint({ id: "cp-1", name: "Station Nord" })],
@@ -291,7 +349,11 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD render a refused claim WHEN the station belongs to another installer", async () => {
-    getStatus.mockResolvedValue({ hasToken: true, createdAt: "2024-01-01T00:00:00.000Z" });
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
+    });
     getMe.mockResolvedValue({
       userId: "user-1",
       chargePoints: [],
@@ -317,7 +379,11 @@ describe("CommissioningTokenPanel", () => {
   });
 
   it("SHOULD sort commissioning attempts newest first and cap the list at 5", async () => {
-    getStatus.mockResolvedValue({ hasToken: true, createdAt: "2024-01-01T00:00:00.000Z" });
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T00:00:00.000Z",
+    });
     const attempts = Array.from({ length: 6 }, (_, i) => ({
       id: `attempt-${i}`,
       chargePointId: `cp-${i}`,

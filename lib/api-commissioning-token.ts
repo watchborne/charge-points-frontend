@@ -5,13 +5,17 @@ import { httpClient } from "./http-client";
 // return — not a domain entity, so it isn't part of
 // @watchborne/charge-points-types (same reasoning as lib/api-me.ts's `Me`).
 export type CommissioningTokenStatus = {
+  // true only while the token is usable: an expired one reports false, with
+  // its past expiresAt (null only when the caller never issued one).
   hasToken: boolean;
   createdAt: string | null;
+  expiresAt: string | null;
 };
 
 export type IssuedCommissioningToken = {
   token: string;
   createdAt: string;
+  expiresAt: string;
 };
 
 export const commissioningTokenApis = {
