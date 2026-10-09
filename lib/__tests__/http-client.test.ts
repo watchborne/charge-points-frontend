@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { httpClient } from "../http-client";
+import { fetchWithFreshSession, httpClient } from "../http-client";
 
 // Every request refreshes the browser session first (issue #349). Mocked at
 // the external @supabase/ssr boundary (a bare specifier — reliably
@@ -75,6 +75,27 @@ describe("session refresh", () => {
     await httpClient.delete("/api/items/1");
 
     expect(getSession).toHaveBeenCalledTimes(5);
+  });
+});
+
+describe("fetchWithFreshSession", () => {
+  it("SHOULD refresh the session BEFORE issuing the request AND return the raw response", async () => {
+    const order: string[] = [];
+    getSession.mockImplementation(async () => {
+      order.push("refresh");
+      return { data: { session: null } };
+    });
+    mockFetch.mockImplementation(() => {
+      order.push("fetch");
+      return errorResponse(401);
+    });
+
+    const response = await fetchWithFreshSession("/api/charge-points/cp-1/reset", {
+      method: "POST",
+    });
+
+    expect(order).toEqual(["refresh", "fetch"]);
+    expect(response.status).toBe(401);
   });
 });
 
