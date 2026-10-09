@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { contactRateLimiter } from "../../../../lib/contact-rate-limit";
 import { POST } from "../route";
 
 const mockFetch = vi.fn();
@@ -14,14 +15,16 @@ const validBody = {
   message: "Hello there",
 };
 
-const requestOf = (body: unknown) =>
+const requestOf = (body: unknown, ip = "203.0.113.1") =>
   new NextRequest("http://localhost:3001/api/contact", {
     method: "POST",
+    headers: { "x-forwarded-for": ip },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
 
 describe("POST /api/contact", () => {
   beforeEach(() => {
+    contactRateLimiter.reset();
     vi.stubGlobal("fetch", mockFetch);
     vi.stubEnv("RESEND_API_KEY", "re_test");
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -77,5 +80,27 @@ describe("POST /api/contact", () => {
     const response = await POST(requestOf(validBody));
 
     expect(response.status).toBe(502);
+  });
+
+  it("SHOULD answer 429 with Retry-After AND NOT email WHEN a client exceeds the limit", async () => {
+    for (let i = 0; i < 5; i++) {
+      expect((await POST(requestOf(validBody))).status).toBe(200);
+    }
+    mockFetch.mockClear();
+
+    const response = await POST(requestOf(validBody));
+
+    expect(response.status).toBe(429);
+    expect(await response.json()).toEqual({ code: "RATE_LIMITED" });
+    expect(Number(response.headers.get("Retry-After"))).toBeGreaterThan(0);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD keep serving another client WHEN one client is rate limited", async () => {
+    for (let i = 0; i < 6; i++) await POST(requestOf(validBody));
+
+    const response = await POST(requestOf(validBody, "198.51.100.7"));
+
+    expect(response.status).toBe(200);
   });
 });
