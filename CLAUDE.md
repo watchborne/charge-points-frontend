@@ -659,21 +659,16 @@ describe("...", () => {
 - Specs live in `e2e/*.spec.ts`, config in `playwright.config.ts` (excluded from
   vitest via `vitest.config.ts`). `npm run test:e2e` starts `npm run dev` (or reuses
   a running server); in CI (`CI=true`) it serves the production build instead.
-- Current specs are **frontend-only**: backend `/api/*` calls and the browser-side
+- These specs are **frontend-only**: backend `/api/*` calls and the browser-side
   Supabase calls (`/auth/v1/otp`, `/auth/v1/verify`) are stubbed with `page.route`,
   and the app boots against a fake Supabase URL. The proxy's server-side `getUser()`
-  can't be stubbed, so anything needing a real session (the dashboard itself) needs a
-  real/local Supabase and belongs to a future full-stack tier.
-- **Full-stack tier** (`e2e/full-stack/`, project `full-stack`, nightly via
-  `.github/workflows/e2e-full-stack.yml` + `workflow_dispatch`, never a required check):
-  a real local Supabase (`supabase start`) plus the last released backend image
-  (`ghcr.io/watchborne/charge-points-server`, `PERSISTENCE=memory`, seeded fleet granted
-  to the test user via `SEED_MEMBERSHIP_USER_ID`). It runs `next dev` with
-  `E2E_FULL_STACK=true` and signs in through `/auth/dev-login` (404 in production
-  builds): the form's access gate needs a db-approved access request the in-memory
-  backend can't hold, and is covered by the frontend-only specs instead. Run it locally
-  with `npx playwright test --project=full-stack` once a backend, Supabase and the
-  `E2E_USER_EMAIL`/`E2E_USER_ID`/`E2E_FULL_STACK` env are in place.
+  can't be stubbed, so anything needing a real session (the dashboard itself) is not
+  tested here.
+- The **full-stack flows** (real login against a local Supabase, commissioning of a
+  charge point with a real backend) live in the dedicated repository
+  [`watchborne/charge-points-e2e`](https://github.com/watchborne/charge-points-e2e):
+  it builds this app and `charge-points-server` from source, runs nightly and on demand
+  (`workflow_dispatch`, with the ref of each app), and is never a required check here.
 - Inputs are controlled: fill them inside `expect(...).toPass()` so a value typed
   before hydration is retried rather than lost.
 - In a sandbox with a pre-installed browser, set
