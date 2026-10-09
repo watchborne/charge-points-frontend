@@ -712,7 +712,8 @@
           "sessions": "Sessions",
           "alerts": "Alertes",
           "security": "Sécurité & historique"
-        }
+        },
+        "toggleError": "Échec de la mise à jour de cette borne. Veuillez réessayer."
       },
       "commissioning": {
         "title": "À mettre en service",

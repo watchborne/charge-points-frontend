@@ -712,7 +712,8 @@
           "sessions": "Sessions",
           "alerts": "Alerts",
           "security": "Security & history"
-        }
+        },
+        "toggleError": "Failed to update this charge point. Please try again."
       },
       "commissioning": {
         "title": "Awaiting commissioning",
