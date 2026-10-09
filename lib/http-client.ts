@@ -42,7 +42,12 @@ export const fetchWithFreshSession = async (
   return fetch(url, options);
 };
 
-const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> => {
+const makeRequest = async <T>(
+  url: string,
+  options?: RequestInit,
+  // How a successful body is read: JSON for every API call, a blob for a file.
+  parse: (response: Response) => Promise<T> = (response) => response.json() as Promise<T>,
+): Promise<T> => {
   const response = await fetchWithFreshSession(url, options);
 
   if (!response.ok) {
@@ -59,7 +64,7 @@ const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> =>
     return undefined as T;
   }
 
-  return response.json() as Promise<T>;
+  return parse(response);
 };
 
 const get = <T>(url: string): Promise<T> => {
@@ -67,6 +72,27 @@ const get = <T>(url: string): Promise<T> => {
     method: "GET",
     headers: JSON_HEADERS,
   });
+};
+
+export type DownloadedFile = {
+  blob: Blob;
+  /** The name the server gave the file (`Content-Disposition`), when it gave one. */
+  filename?: string;
+};
+
+// Quoted form only — the one the backend sends (`attachment; filename="x.pdf"`).
+const FILENAME_PATTERN = /filename="([^"]+)"/;
+
+/**
+ * A GET for an endpoint that answers with a file. Same session refresh and same
+ * `HttpError` on a non-2xx as every other call — the proxy keeps a backend
+ * error's JSON body, so a failed download is read like a failed API call.
+ */
+const getFile = (url: string): Promise<DownloadedFile> => {
+  return makeRequest<DownloadedFile>(url, { method: "GET" }, async (response) => ({
+    blob: await response.blob(),
+    filename: FILENAME_PATTERN.exec(response.headers.get("Content-Disposition") ?? "")?.[1],
+  }));
 };
 
 const post = <T>(url: string, body: unknown): Promise<T> => {
@@ -109,6 +135,7 @@ const del = (url: string, body?: unknown): Promise<void> => {
 
 export const httpClient = {
   get,
+  getFile,
   post,
   patch,
   put,

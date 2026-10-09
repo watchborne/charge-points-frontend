@@ -322,7 +322,7 @@ export const SiteDetailModal = ({
               <CalendarCheck className="h-4 w-4 mr-2" />
               {t("appPage.sites.detail.visits.logButton")}
             </Button>
-            <SiteReportExportButton site={site} chargePoints={siteChargePoints} />
+            <SiteReportExportButton site={site} />
             <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
               <Coins className="h-4 w-4 mr-2" />
               {tariff

@@ -1,164 +1,117 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { Site } from "@watchborne/charge-points-types";
-import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { localeMock } = vi.hoisted(() => ({ localeMock: { current: "fr" } }));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
-  useFormatter: () => ({ dateTime: (date: Date) => date.toISOString() }),
+  useLocale: () => localeMock.current,
 }));
 
 // `vi.hoisted` because vi.mock factories are hoisted above these
 // declarations — the repo's existing pattern (see SiteReliabilityValue.test.tsx).
-const { useSiteReportMock, pdfMock, toBlobMock, pushWarningNotificationMock, captureState } =
-  vi.hoisted(() => ({
-    useSiteReportMock: vi.fn(),
-    toBlobMock: vi.fn(),
-    pdfMock: vi.fn(),
-    pushWarningNotificationMock: vi.fn(),
-    // How many charts the fake capture step below reports as failed.
-    captureState: { failedCount: 0 },
-  }));
+const { downloadReportMock } = vi.hoisted(() => ({ downloadReportMock: vi.fn() }));
 
-vi.mock("../../../../../components/ToastNotification", () => ({
-  useToastNotification: () => ({ pushWarningNotification: pushWarningNotificationMock }),
-}));
-
-vi.mock("../../../hooks/useSiteReport", () => ({ useSiteReport: useSiteReportMock }));
-
-// The chart capture step is a real off-screen render + html2canvas
-// rasterization — out of scope for this test (per the issue's own testing
-// note: verify generation triggers with the assembled data, not pixel
-// output). Its `onCaptured` contract is exercised here via a fake that
-// fires it immediately with no images, same as "no charge point had
-// anything chartable" — or, when `captureState.failedCount` is set, as
-// "that many charts could not be rasterized" (issue #454).
-vi.mock("../SiteReportChartCapture", () => ({
-  SiteReportChartCapture: ({
-    onCaptured,
-  }: {
-    onCaptured: (images: Record<string, string>, failedCount: number) => void;
-  }) => {
-    useEffect(() => {
-      onCaptured({}, captureState.failedCount);
-    }, [onCaptured]);
-    return null;
-  },
-}));
-
-// `StyleSheet.create` runs at `SiteReportDocument`'s module top level, so
-// even though `pdf(...)` below never actually renders the element it's
-// given, importing that module still needs a working stub. `Document`/
-// `Page`/etc. are never invoked in this test: React elements are just data
-// until something renders them, and `pdf` is mocked to ignore its argument.
-vi.mock("@react-pdf/renderer", () => ({
-  pdf: pdfMock,
-  Document: () => null,
-  Page: () => null,
-  View: () => null,
-  Text: () => null,
-  Image: () => null,
-  StyleSheet: { create: (styles: unknown) => styles },
+// Mocked via the relative module path, not the "@/lib/api" alias — this
+// project's Vitest config does not alias "@/" for the mock resolver (see
+// useFleetReliability.test.ts's identical note).
+vi.mock("../../../../../../lib/api", () => ({
+  api: { Sites: { downloadReport: downloadReportMock } },
 }));
 
 import { SiteReportExportButton } from "../SiteReportExportButton";
 
 afterEach(() => cleanup());
 
-const SITE = { id: "site-1", name: "Test Site", customer: "Acme" } as unknown as Site;
+const SITE = { id: "site-1", name: "Site Nord — Été", customer: "Acme" } as unknown as Site;
 
-// Untyped: `useSiteReport` is fully mocked below, so the fixture only needs
-// to structurally match what `SiteReportExportButton` reads from it.
-const REPORT = {
-  siteId: "site-1",
-  from: "2026-08-01T00:00:00.000Z",
-  to: "2026-08-08T00:00:00.000Z",
-  uptime: {
-    siteId: "site-1",
-    from: "2026-08-01T00:00:00.000Z",
-    to: "2026-08-08T00:00:00.000Z",
-    onlineMs: 500_000,
-    totalMs: 600_000,
-    lastActivity: null,
-    chargePoints: [],
-  },
-  chargePoints: [],
-};
+let clickedLink: { download: string; href: string } | undefined;
 
 beforeEach(() => {
   vi.clearAllMocks();
-  captureState.failedCount = 0;
-  pdfMock.mockReturnValue({ toBlob: toBlobMock });
-  toBlobMock.mockResolvedValue(new Blob(["pdf"], { type: "application/pdf" }));
-  useSiteReportMock.mockReturnValue({ report: REPORT, loading: false, failed: false });
+  localeMock.current = "fr";
+  clickedLink = undefined;
+  downloadReportMock.mockResolvedValue({
+    blob: new Blob(["pdf"], { type: "application/pdf" }),
+    filename: "site-nord-ete-report.pdf",
+  });
   vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
   vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+    this: HTMLAnchorElement,
+  ) {
+    clickedLink = { download: this.download, href: this.href };
+  });
 });
 
+const button = () => screen.getByRole("button") as HTMLButtonElement;
+
 describe("SiteReportExportButton", () => {
-  it("SHOULD disable the export button WHILE the report is loading", () => {
-    useSiteReportMock.mockReturnValue({ report: null, loading: true, failed: false });
+  it("SHOULD ask the backend for the site's report in the page's language WHEN clicked", async () => {
+    localeMock.current = "en";
+    render(<SiteReportExportButton site={SITE} />);
 
-    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+    fireEvent.click(button());
 
-    expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(true);
+    await waitFor(() => expect(downloadReportMock).toHaveBeenCalledTimes(1));
+    expect(downloadReportMock).toHaveBeenCalledWith("site-1", { locale: "en" });
   });
 
-  it("SHOULD disable the export button WHEN the report failed to load", () => {
-    useSiteReportMock.mockReturnValue({ report: null, loading: false, failed: true });
+  it("SHOULD hand the file to the browser under the server's filename", async () => {
+    render(<SiteReportExportButton site={SITE} />);
 
-    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+    fireEvent.click(button());
 
-    expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(true);
+    await waitFor(() => expect(clickedLink).toBeDefined());
+    expect(clickedLink?.download).toBe("site-nord-ete-report.pdf");
+    expect(clickedLink?.href).toBe("blob:mock-url");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
 
-  it("SHOULD generate and download a PDF WHEN clicked", async () => {
-    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+  it("SHOULD fall back to a name derived from the site WHEN the server sent none", async () => {
+    downloadReportMock.mockResolvedValue({ blob: new Blob(["pdf"]), filename: undefined });
+    render(<SiteReportExportButton site={SITE} />);
 
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(button());
 
-    await waitFor(() => expect(toBlobMock).toHaveBeenCalled());
-    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled());
-    await waitFor(() =>
-      expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(false),
-    );
+    await waitFor(() => expect(clickedLink).toBeDefined());
+    expect(clickedLink?.download).toBe("site-nord-ete-report.pdf");
   });
 
-  it("SHOULD show an error message WHEN PDF generation fails", async () => {
-    toBlobMock.mockRejectedValueOnce(new Error("boom"));
+  it("SHOULD disable the button WHILE the report is being generated", async () => {
+    let finish: (value: unknown) => void = () => {};
+    downloadReportMock.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    render(<SiteReportExportButton site={SITE} />);
 
-    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+    fireEvent.click(button());
 
-    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => expect(button().disabled).toBe(true));
+    finish({ blob: new Blob(["pdf"]), filename: "r.pdf" });
+    await waitFor(() => expect(button().disabled).toBe(false));
+  });
+
+  it("SHOULD show an error and re-enable the button WHEN the download fails", async () => {
+    downloadReportMock.mockRejectedValueOnce(new Error("boom"));
+    render(<SiteReportExportButton site={SITE} />);
+
+    fireEvent.click(button());
 
     expect(await screen.findByText("appPage.sites.detail.report.exportError")).toBeTruthy();
+    expect(button().disabled).toBe(false);
+    expect(clickedLink).toBeUndefined();
   });
 
-  it("SHOULD NOT warn WHEN every chart was captured", async () => {
-    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
+  it("SHOULD clear a previous error WHEN retrying", async () => {
+    downloadReportMock.mockRejectedValueOnce(new Error("boom"));
+    render(<SiteReportExportButton site={SITE} />);
+    fireEvent.click(button());
+    await screen.findByText("appPage.sites.detail.report.exportError");
 
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(button());
 
-    await waitFor(() => expect(toBlobMock).toHaveBeenCalled());
-    expect(pushWarningNotificationMock).not.toHaveBeenCalled();
-  });
-
-  it("SHOULD still generate the PDF, warn, and re-enable the button WHEN some charts could not be captured (issue #454)", async () => {
-    captureState.failedCount = 2;
-
-    render(<SiteReportExportButton site={SITE} chargePoints={[]} />);
-
-    fireEvent.click(screen.getByRole("button"));
-
-    await waitFor(() => expect(toBlobMock).toHaveBeenCalled());
-    expect(pushWarningNotificationMock).toHaveBeenCalledTimes(1);
-    expect(pushWarningNotificationMock).toHaveBeenCalledWith(
-      "appPage.sites.detail.report.chartsFailed",
-    );
     await waitFor(() =>
-      expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(false),
+      expect(screen.queryByText("appPage.sites.detail.report.exportError")).toBeNull(),
     );
-    // A degraded report is not a failed export: no inline error.
-    expect(screen.queryByText("appPage.sites.detail.report.exportError")).toBeNull();
   });
 });
