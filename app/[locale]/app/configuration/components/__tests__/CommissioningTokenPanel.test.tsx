@@ -172,6 +172,58 @@ describe("CommissioningTokenPanel", () => {
     ).toBeTruthy();
   });
 
+  it("SHOULD show how many charge points were commissioned WHEN the token is unlimited", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-03-15T00:00:00.000Z",
+      expiresAt: "2024-06-13T00:00:00.000Z",
+      useCount: 3,
+      maxUses: null,
+      lastUsedAt: null,
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("appPage.configuration.commissioningToken.usesLabel(count=3)"),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD show the count against the ceiling WHEN the token has a maximum number of uses", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-03-15T00:00:00.000Z",
+      expiresAt: "2024-06-13T00:00:00.000Z",
+      useCount: 2,
+      maxUses: 5,
+      lastUsedAt: null,
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText(
+        "appPage.configuration.commissioningToken.usesLabelWithMax(count=2, max=5)",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD NOT show a count WHEN the caller has no token", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: false,
+      createdAt: null,
+      expiresAt: null,
+      useCount: null,
+      maxUses: null,
+      lastUsedAt: null,
+    });
+
+    renderPanel();
+
+    await screen.findByText("appPage.configuration.commissioningToken.generateCta");
+    expect(screen.queryByText(/commissioningToken\.usesLabel/)).toBeNull();
+  });
+
   it("SHOULD warn that the token expired WHEN the server reports an expired one", async () => {
     getStatus.mockResolvedValue({
       hasToken: false,

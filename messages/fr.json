@@ -1468,6 +1468,8 @@
         "commissioningTokenPlaceholder": "'<jeton-de-commissioning>'",
         "createdAtLabel": "Jeton généré le {date}",
         "expiresAtLabel": "expire le {date}",
+        "usesLabel": "{count, plural, =0 {Aucune borne commissionnée avec ce jeton pour l'instant} one {# borne commissionnée avec ce jeton} other {# bornes commissionnées avec ce jeton}}",
+        "usesLabelWithMax": "{count, plural, one {# borne sur {max} commissionnée avec ce jeton} other {# bornes sur {max} commissionnées avec ce jeton}}",
         "expiredWarning": "Votre jeton a expiré le {date} et ne fonctionne plus : les bornes qui se connectent avec ne sont plus mises en service. Générez un nouveau jeton et mettez à jour l'adresse des bornes qu'il reste à mettre en service.",
         "howItWorks": {
           "title": "Comment ça marche",

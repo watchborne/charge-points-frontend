@@ -250,7 +250,9 @@ here — a request without a session simply reaches the backend with no token.
   issue response carry `expiresAt`, and an expired token reports
   `hasToken: false` with its past `expiresAt` (the panel shows an expiry
   warning and re-offers "Generate"). The panel also explains the process
-  (`howItWorks` steps).
+  (`howItWorks` steps), and shows how many charge points were commissioned with
+  the current token (`useCount`, plus the optional `maxUses` ceiling) from the
+  status response (charge-points-server ADR 0029).
   `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
   `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
   opt-in/out and preferred digest send hour (UTC), behind

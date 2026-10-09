@@ -81,6 +81,8 @@ export const CommissioningTokenPanel = () => {
   const expiresAt = status?.expiresAt ?? null;
   // The server reports an expired token as hasToken: false while keeping its
   // past expiresAt, which is what tells "expired" apart from "never issued".
+  const useCount = status?.useCount ?? null;
+  const maxUses = status?.maxUses ?? null;
   const expired = !hasToken && expiresAt !== null;
 
   // Recent commissioning activity (issue #420 / #278): best-effort — a
@@ -102,6 +104,10 @@ export const CommissioningTokenPanel = () => {
         hasToken: true,
         createdAt: issued.createdAt,
         expiresAt: issued.expiresAt,
+        // Re-issuing starts over: nothing is commissioned with the new token yet.
+        useCount: 0,
+        maxUses: null,
+        lastUsedAt: null,
       });
     },
     onSettled: () => setConfirmRegenerateOpen(false),
@@ -115,6 +121,9 @@ export const CommissioningTokenPanel = () => {
         hasToken: false,
         createdAt: null,
         expiresAt: null,
+        useCount: null,
+        maxUses: null,
+        lastUsedAt: null,
       });
     },
     onSettled: () => setConfirmRevokeOpen(false),
@@ -244,6 +253,17 @@ export const CommissioningTokenPanel = () => {
               ` · ${t("appPage.configuration.commissioningToken.expiresAtLabel", {
                 date: formatDate(expiresAt),
               })}`}
+          </p>
+        )}
+
+        {!loading && useCount !== null && (
+          <p className="text-sm text-muted-foreground">
+            {maxUses !== null
+              ? t("appPage.configuration.commissioningToken.usesLabelWithMax", {
+                  count: useCount,
+                  max: maxUses,
+                })
+              : t("appPage.configuration.commissioningToken.usesLabel", { count: useCount })}
           </p>
         )}
 

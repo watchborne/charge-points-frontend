@@ -1468,6 +1468,8 @@
         "commissioningTokenPlaceholder": "'<commissioning-token>'",
         "createdAtLabel": "Token generated on {date}",
         "expiresAtLabel": "expires on {date}",
+        "usesLabel": "{count, plural, =0 {No charge point commissioned with this token yet} one {# charge point commissioned with this token} other {# charge points commissioned with this token}}",
+        "usesLabelWithMax": "{count, plural, one {# of {max} charge point commissioned with this token} other {# of {max} charge points commissioned with this token}}",
         "expiredWarning": "Your token expired on {date} and no longer works: charge points connecting with it are no longer commissioned. Generate a new token and update the address on the charge points that still need commissioning.",
         "howItWorks": {
           "title": "How it works",
