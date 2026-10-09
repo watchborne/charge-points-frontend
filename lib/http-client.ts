@@ -23,15 +23,27 @@ export class HttpError extends Error {
   }
 }
 
-const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> => {
-  // Before the fetch, not after: the request authenticates with the session
-  // cookie the browser holds at the moment it goes out. Refreshing here means
-  // one refresh per burst, serialized by the browser client, instead of one
-  // per parallel request in its own isolated edge invocation — see
-  // ensureFreshSession.
+/**
+ * `fetch` preceded by `ensureFreshSession()`. Before the fetch, not after: the
+ * request authenticates with the session cookie the browser holds at the
+ * moment it goes out. Refreshing here means one refresh per burst, serialized
+ * by the browser client, instead of one per parallel request in its own
+ * isolated edge invocation — see ensureFreshSession.
+ *
+ * `makeRequest` builds on it; the API methods that must read the raw HTTP
+ * status themselves (the OCPP command outcomes) call it directly so they don't
+ * lose the refresh guard by skipping `httpClient`.
+ */
+export const fetchWithFreshSession = async (
+  url: string,
+  options?: RequestInit,
+): Promise<Response> => {
   await ensureFreshSession();
+  return fetch(url, options);
+};
 
-  const response = await fetch(url, options);
+const makeRequest = async <T>(url: string, options?: RequestInit): Promise<T> => {
+  const response = await fetchWithFreshSession(url, options);
 
   if (!response.ok) {
     // Best-effort: an empty or non-JSON error body must not stop the failure

@@ -6,7 +6,7 @@ import {
 } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
-import { httpClient } from "./http-client";
+import { fetchWithFreshSession, httpClient } from "./http-client";
 
 export { GET_BASE_REPORT_TYPES_V201 };
 export type { GetBaseReportBaseV201 };
@@ -113,11 +113,14 @@ export const deviceVariableReportApis = {
     reportBase: GetBaseReportBaseV201,
   ): Promise<RequestDeviceReportOutcome> {
     try {
-      const response = await fetch(`/api/charge-points/${chargePointId}/base-report`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportBase }),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/base-report`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reportBase }),
+        },
+      );
 
       if (response.ok) {
         const { status, reportRequest } = (await response.json()) as {
@@ -143,7 +146,7 @@ export const deviceVariableReportApis = {
     chargePointId: ChargePoint["id"],
   ): Promise<RequestDeviceReportOutcome> {
     try {
-      const response = await fetch(`/api/charge-points/${chargePointId}/report`, {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),

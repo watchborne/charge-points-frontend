@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../http-client", () => ({
   httpClient: { post: vi.fn().mockResolvedValue({ status: "Accepted", certificates: [] }) },
+  fetchWithFreshSession: (url: string, init?: RequestInit) => fetch(url, init),
 }));
 
 import { chargePointApis } from "../api-charge-points";
