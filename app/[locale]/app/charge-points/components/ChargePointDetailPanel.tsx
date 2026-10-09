@@ -191,6 +191,10 @@ export const ChargePointDetailPanel = ({
         onDeleteClicked={onDeleteClicked}
       />
 
+      {actions.toggleError && (
+        <Callout description={t("appPage.chargePoints.detail.toggleError")} variant="error" />
+      )}
+
       {chargePoint.connection.statusMessage && (
         <Callout description={chargePoint.connection.statusMessage} variant="warning" />
       )}
