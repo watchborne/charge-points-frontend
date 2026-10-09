@@ -10,6 +10,12 @@ export type CommissioningTokenStatus = {
   hasToken: boolean;
   createdAt: string | null;
   expiresAt: string | null;
+  // Charge points commissioned with the current token (a use is a claim that
+  // succeeded) and the optional ceiling on them. Null when the caller has no
+  // token; absent from backends predating charge-points-server ADR 0029.
+  useCount?: number | null;
+  maxUses?: number | null;
+  lastUsedAt?: string | null;
 };
 
 export type IssuedCommissioningToken = {
