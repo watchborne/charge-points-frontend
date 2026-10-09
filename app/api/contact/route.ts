@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { contactMessageSchema, type ContactMessage } from "@/lib/contact-message";
+import { contactRateLimiter } from "@/lib/contact-rate-limit";
+import { getClientIp } from "@/lib/rate-limit";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const DEFAULT_RECIPIENT = "adrien.miquel.pro@gmail.com";
@@ -20,13 +22,21 @@ const buildBody = ({ company, name, email, phone, chargePoints, message }: Conta
   ].join("\n");
 
 // Public endpoint (the contact form is on a marketing page): not gated by
-// proxy.ts. Sends the visitor's message by email through Resend's REST API.
+// proxy.ts, so it rate-limits itself. Sends the visitor's message by email through Resend's REST API.
 // RESEND_API_KEY is server-side only — never give it a NEXT_PUBLIC_ prefix.
 export async function POST(request: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error("contact: RESEND_API_KEY is not set");
     return NextResponse.json({ code: "NOT_CONFIGURED" }, { status: 500 });
+  }
+
+  const limit = contactRateLimiter.check(getClientIp(request.headers));
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { code: "RATE_LIMITED" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
   }
 
   const payload = await request.json().catch(() => null);
