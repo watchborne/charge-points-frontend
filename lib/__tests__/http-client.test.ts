@@ -256,3 +256,61 @@ describe("httpClient.delete", () => {
     });
   });
 });
+
+describe("httpClient.getFile", () => {
+  const pdfResponse = (headers: Record<string, string> = {}) =>
+    Promise.resolve(
+      new Response("%PDF-bytes", {
+        status: 200,
+        headers: { "Content-Type": "application/pdf", ...headers },
+      }),
+    );
+
+  it("SHOULD call fetch with GET and no JSON content type", async () => {
+    mockFetch.mockReturnValue(pdfResponse());
+
+    await httpClient.getFile("/api/sites/1/report");
+
+    expect(mockFetch).toHaveBeenCalledWith("/api/sites/1/report", { method: "GET" });
+  });
+
+  it("SHOULD return the body as a blob, with the filename the server gave", async () => {
+    mockFetch.mockReturnValue(
+      pdfResponse({ "Content-Disposition": 'attachment; filename="site-nord-report.pdf"' }),
+    );
+
+    const { blob, filename } = await httpClient.getFile("/api/sites/1/report");
+
+    expect(await blob.text()).toBe("%PDF-bytes");
+    expect(blob.type).toBe("application/pdf");
+    expect(filename).toBe("site-nord-report.pdf");
+  });
+
+  it("SHOULD leave the filename undefined WHEN the server sent none", async () => {
+    mockFetch.mockReturnValue(pdfResponse());
+
+    const { filename } = await httpClient.getFile("/api/sites/1/report");
+
+    expect(filename).toBeUndefined();
+  });
+
+  it("SHOULD refresh the session first, like every other call", async () => {
+    mockFetch.mockReturnValue(pdfResponse());
+
+    await httpClient.getFile("/api/sites/1/report");
+
+    expect(getSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("SHOULD throw an HttpError carrying the JSON body WHEN the response is not ok", async () => {
+    mockFetch.mockReturnValue(
+      Promise.resolve(new Response(JSON.stringify({ message: "Unknown site" }), { status: 404 })),
+    );
+
+    await expect(httpClient.getFile("/api/sites/x/report")).rejects.toMatchObject({
+      name: "HttpError",
+      status: 404,
+      body: { message: "Unknown site" },
+    });
+  });
+});

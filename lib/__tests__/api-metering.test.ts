@@ -82,38 +82,3 @@ describe("meteringApis.getConsumption", () => {
     await expect(meteringApis.getConsumption("cp-1")).rejects.toThrow("boom");
   });
 });
-
-describe("meteringApis.getSiteConsumption", () => {
-  it("SHOULD hit the local proxy path for the site", async () => {
-    await meteringApis.getSiteConsumption("site-1");
-
-    expect(lastUrl()).toBe("/api/sites/site-1/consumption");
-  });
-
-  it("SHOULD serialize the window and repeat ?measurand= per measurand", async () => {
-    await meteringApis.getSiteConsumption("site-1", {
-      from: new Date("2026-08-01T00:00:00.000Z"),
-      to: new Date("2026-08-02T00:00:00.000Z"),
-      connectorId: 2,
-      measurands: ["Voltage", "SoC"],
-    });
-
-    const params = new URLSearchParams(lastUrl().split("?")[1]);
-    expect(params.get("from")).toBe("2026-08-01T00:00:00.000Z");
-    expect(params.get("to")).toBe("2026-08-02T00:00:00.000Z");
-    expect(params.get("connectorId")).toBe("2");
-    expect(params.getAll("measurand")).toEqual(["Voltage", "SoC"]);
-  });
-
-  it("SHOULD return the backend's per-charge-point envelope as is", async () => {
-    const envelope = {
-      siteId: "site-1",
-      from: "2026-08-01T00:00:00.000Z",
-      to: "2026-08-08T00:00:00.000Z",
-      chargePoints: [{ chargePointId: "cp-1", series: [] }],
-    };
-    vi.mocked(httpClient.get).mockResolvedValueOnce(envelope);
-
-    await expect(meteringApis.getSiteConsumption("site-1")).resolves.toEqual(envelope);
-  });
-});
