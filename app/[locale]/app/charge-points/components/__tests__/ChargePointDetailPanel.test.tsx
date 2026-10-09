@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { StrictMode, type ReactElement } from "react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -211,7 +211,27 @@ describe("ChargePointDetailPanel", () => {
     });
     fireEvent.click(realtimeToggle);
 
-    expect(updateChargePoint).toHaveBeenCalledWith("cp-1", { realtimeAlertsEnabled: true });
+    await waitFor(() =>
+      expect(updateChargePoint).toHaveBeenCalledWith("cp-1", { realtimeAlertsEnabled: true }),
+    );
+  });
+
+  it("SHOULD show an error WHEN toggling the active state fails", async () => {
+    updateChargePoint.mockRejectedValueOnce(new Error("HTTP error! status: 500"));
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("switch", { name: "Toggle CP-001 active state" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("appPage.chargePoints.detail.toggleError")).toBeTruthy(),
+    );
   });
 
   it("SHOULD default to the Overview tab", () => {
