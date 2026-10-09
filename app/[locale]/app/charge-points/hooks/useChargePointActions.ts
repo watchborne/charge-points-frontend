@@ -1,7 +1,7 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AvailabilityType, ResetType } from "@watchborne/charge-points-types";
 import type { ChargePoint } from "@watchborne/charge-points-types";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import { api } from "@/lib/api";
 import type {
@@ -12,8 +12,10 @@ import type {
 import { queryKeys } from "@/lib/queryKeys";
 
 export interface ChargePointActions {
-  toggleActive: () => Promise<void>;
-  toggleRealtimeAlerts: () => Promise<void>;
+  toggleActive: () => void;
+  toggleRealtimeAlerts: () => void;
+  /** True once the last active/real-time-alerts toggle failed, until the next attempt. */
+  toggleError: boolean;
   edit: () => void;
   delete: () => void;
   reset: (type: ResetType) => Promise<ResetChargePointOutcome>;
@@ -39,21 +41,32 @@ export function useChargePointActions({
 }: UseChargePointActionsProps): ChargePointActions {
   const queryClient = useQueryClient();
 
-  const toggleActive = useCallback(async () => {
-    if (!currentChargePoint) return;
-    await api.ChargePoints.updateChargePoint(chargePointId, {
-      isActive: !currentChargePoint.isActive,
-    });
-    queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
-  }, [chargePointId, currentChargePoint, queryClient]);
+  // Mutations rather than bare awaited calls: updateChargePoint throws on any
+  // non-2xx, and a fire-and-forget caller would turn that into an unhandled
+  // rejection with no feedback. `isError` lets the panel say the toggle failed.
+  const updateMutation = useMutation({
+    mutationFn: (body: Parameters<typeof api.ChargePoints.updateChargePoint>[1]) =>
+      api.ChargePoints.updateChargePoint(chargePointId, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+    },
+  });
+  const { mutate: update, reset: resetUpdate } = updateMutation;
 
-  const toggleRealtimeAlerts = useCallback(async () => {
+  // A failure belongs to the station it happened on, not the next one opened.
+  useEffect(() => {
+    resetUpdate();
+  }, [chargePointId, resetUpdate]);
+
+  const toggleActive = useCallback(() => {
     if (!currentChargePoint) return;
-    await api.ChargePoints.updateChargePoint(chargePointId, {
-      realtimeAlertsEnabled: !currentChargePoint.realtimeAlertsEnabled,
-    });
-    queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
-  }, [chargePointId, currentChargePoint, queryClient]);
+    update({ isActive: !currentChargePoint.isActive });
+  }, [currentChargePoint, update]);
+
+  const toggleRealtimeAlerts = useCallback(() => {
+    if (!currentChargePoint) return;
+    update({ realtimeAlertsEnabled: !currentChargePoint.realtimeAlertsEnabled });
+  }, [currentChargePoint, update]);
 
   // reset/changeAvailability/unlockConnector are OCPP request/response
   // commands: `api.ChargePoints` already catches every failure (including a
@@ -90,6 +103,7 @@ export function useChargePointActions({
   return {
     toggleActive,
     toggleRealtimeAlerts,
+    toggleError: updateMutation.isError,
     edit: onEditClick,
     delete: onDeleteClick,
     reset,
