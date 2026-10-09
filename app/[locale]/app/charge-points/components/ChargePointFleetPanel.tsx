@@ -26,6 +26,7 @@ interface ChargePointFleetPanelProps {
   onSelect: (chargePoint: ChargePointWithConnectors | null) => void;
   onEditClicked: (chargePoint: ChargePointWithConnectors) => void;
   onDeleteClicked: (chargePoint: ChargePointWithConnectors) => void;
+  onReleased: (chargePoint: ChargePointWithConnectors) => void;
   initialTab?: DetailTab;
   onTabChange?: (tab: DetailTab) => void;
 }
@@ -37,6 +38,7 @@ export const ChargePointFleetPanel = ({
   onSelect,
   onEditClicked,
   onDeleteClicked,
+  onReleased,
   initialTab,
   onTabChange,
 }: ChargePointFleetPanelProps) => {
@@ -219,6 +221,7 @@ export const ChargePointFleetPanel = ({
               site={sites.find((site) => site.id === selected.siteId)}
               onEditClicked={onEditClicked}
               onDeleteClicked={onDeleteClicked}
+              onReleased={onReleased}
               initialTab={initialTab}
               onTabChange={onTabChange}
             />

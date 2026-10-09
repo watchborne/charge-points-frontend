@@ -1,7 +1,5 @@
 import { AvailabilityType, ResetType, Site } from "@watchborne/charge-points-types";
 import { Callout, Tag, Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
-import { formatDistanceToNow, format } from "date-fns";
-import { enGB } from "date-fns/locale";
 import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +9,7 @@ import {
   ResetChargePointOutcome,
   UnlockConnectorOutcome,
 } from "@/lib/api-charge-points";
+import { useDateFormat } from "@/lib/date-format";
 import { safeLocalStorage } from "@/lib/safe-local-storage";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -71,6 +70,11 @@ type ChargePointDetailPanelProps = {
   site: Site | undefined;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
+  // Fired when this caller successfully releases their own access to this
+  // charge point (see ChargePointActionsSection's "access" group) — the
+  // charge point then drops out of this caller's own fleet, so the page
+  // should stop showing its detail panel.
+  onReleased: (cp: ChargePointWithConnectors) => void;
   // The tab to preselect on mount — set by the page from the `tab` query
   // param when the charge point itself was also selected from the URL (see
   // page.tsx's `highlightedId` effect). Only consulted at mount: a later
@@ -89,10 +93,12 @@ export const ChargePointDetailPanel = ({
   site,
   onEditClicked,
   onDeleteClicked,
+  onReleased,
   initialTab,
   onTabChange,
 }: ChargePointDetailPanelProps) => {
   const t = useTranslations("");
+  const { formatRelative, formatDateTime } = useDateFormat();
 
   const actions = useChargePointActions({
     chargePointId: chargePoint.id,
@@ -174,11 +180,7 @@ export const ChargePointDetailPanel = ({
   ] ?? { status: "idle" };
 
   const lastSeenText =
-    chargePoint.connection.lastSeenAt &&
-    formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
-      addSuffix: true,
-      locale: enGB,
-    });
+    chargePoint.connection.lastSeenAt && formatRelative(chargePoint.connection.lastSeenAt);
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -188,6 +190,10 @@ export const ChargePointDetailPanel = ({
         onEditClicked={onEditClicked}
         onDeleteClicked={onDeleteClicked}
       />
+
+      {actions.toggleError && (
+        <Callout description={t("appPage.chargePoints.detail.toggleError")} variant="error" />
+      )}
 
       {chargePoint.connection.statusMessage && (
         <Callout description={chargePoint.connection.statusMessage} variant="warning" />
@@ -224,7 +230,7 @@ export const ChargePointDetailPanel = ({
               </span>
               {chargePoint.connection.lastSeenAt && (
                 <span className="text-[10px] text-muted-foreground">
-                  {format(new Date(chargePoint.connection.lastSeenAt), "dd/MM/yyyy HH:mm:ss")}
+                  {formatDateTime(chargePoint.connection.lastSeenAt, { withSeconds: true })}
                 </span>
               )}
             </span>
@@ -260,6 +266,7 @@ export const ChargePointDetailPanel = ({
           onReset={handleReset}
           wholeChargePointAvailability={wholeChargePointAvailability}
           onChangeAvailability={(type) => handleChangeAvailability(WHOLE_CHARGE_POINT_KEY, 0, type)}
+          onReleased={() => onReleased(chargePoint)}
         />
       )}
 

@@ -1,26 +1,31 @@
-import { Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { useRouter } from "@/i18n/navigation";
 import { useDateFormat } from "@/lib/date-format";
 import { connectionStatusColor, colorDotClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { ConnectorStatusIcon } from "../common/ConnectorStatusIcon";
+import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 
-interface FleetOverviewPanelProps {
+type SiteChargePointsListProps = {
   chargePoints: ChargePointWithConnectors[];
-  sites: Site[];
-}
+  onViewChargePoint: (chargePointId: ChargePointWithConnectors["id"]) => void;
+};
 
-export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelProps) => {
+/**
+ * The charge points of one site as an expandable list (status, model, uptime,
+ * connectors), with a jump to each one's detail page. Owns which rows are
+ * expanded; navigation is the caller's, since leaving the page also means
+ * closing the modal this renders in.
+ */
+export const SiteChargePointsList = ({
+  chargePoints,
+  onViewChargePoint,
+}: SiteChargePointsListProps) => {
   const t = useTranslations("");
   const { formatRelative } = useDateFormat();
-  const router = useRouter();
-  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (id: string) => {
@@ -35,82 +40,16 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
     });
   };
 
-  const chargePointsForSite = (siteId: string) =>
-    chargePoints.filter((chargePoint) => chargePoint.siteId === siteId);
-
-  const onlineCount = (siteId: string) =>
-    chargePointsForSite(siteId).filter(({ connection }) =>
-      ["SYNCED", "CONNECTED"].includes(connection.status),
-    ).length;
-
-  const offlineCount = (siteId: string) =>
-    chargePointsForSite(siteId).filter(({ connection }) => connection.status === "OFFLINE").length;
-
-  const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? null;
-  const displayedChargePoints = selectedSite ? chargePointsForSite(selectedSite.id) : chargePoints;
-
-  const panelTitle = selectedSite
-    ? t("appPage.dashboard.fleetOverviewForSite", { site: selectedSite.name })
-    : t("appPage.dashboard.fleetOverview");
-
   return (
-    <div className="rounded-xl border bg-card shadow-2xl overflow-hidden">
-      <div className="grid grid grid-cols-1 md:grid-cols-3">
-        <div className="border-b bg-muted/30 p-4 sm:p-6 md:border-b-0 md:border-r">
-          <div className="text-sm font-medium text-muted-foreground">
-            {t("appPage.dashboard.sites")}
-          </div>
+    <>
+      {chargePoints.length > 0 && (
+        <div className="space-y-3 border-t pt-4">
+          <h4 className="text-sm font-semibold text-foreground">
+            {t("appPage.dashboard.chargePoints.sectionTitle")}
+          </h4>
 
-          <div className="mt-6 space-y-4">
-            {sites.map((site) => {
-              const online = onlineCount(site.id);
-              const offline = offlineCount(site.id);
-              const isSelected = selectedSiteId === site.id;
-
-              return (
-                <button
-                  key={site.id}
-                  type="button"
-                  onClick={() => setSelectedSiteId(isSelected ? null : site.id)}
-                  className={classNames(
-                    "block w-full rounded-lg border p-4 text-left transition-shadow hover:shadow-md",
-                    isSelected
-                      ? "border-charge ring-1 ring-charge bg-charge-soft/40"
-                      : "bg-background",
-                  )}
-                >
-                  <div className="font-medium">{site.name}</div>
-
-                  {online > 0 && (
-                    <div className="mt-2 text-sm text-status-available-foreground">
-                      {online} {t("appPage.dashboard.online")}
-                    </div>
-                  )}
-
-                  {offline > 0 && (
-                    <div className="mt-1 text-sm text-status-offline-foreground">
-                      {offline} {t("appPage.dashboard.offline")}
-                    </div>
-                  )}
-
-                  {online === 0 && offline === 0 && (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      {t("appPage.dashboard.noChargePoints")}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-6 md:col-span-2">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold">{panelTitle}</h3>
-          </div>
-
-          <div className="space-y-4">
-            {displayedChargePoints.map((chargePoint) => {
+          <div className="space-y-2">
+            {chargePoints.map((chargePoint) => {
               const color = connectionStatusColor(chargePoint.connection.status);
               const isExpanded = expandedIds.has(chargePoint.id);
               const isOnline = ["SYNCED", "CONNECTED"].includes(chargePoint.connection.status);
@@ -151,7 +90,7 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(`/app/charge-points?id=${chargePoint.id}`);
+                          onViewChargePoint(chargePoint.id);
                         }}
                         aria-label={t("appPage.dashboard.viewChargePoint")}
                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -221,7 +160,13 @@ export const FleetOverviewPanel = ({ chargePoints, sites }: FleetOverviewPanelPr
             })}
           </div>
         </div>
-      </div>
-    </div>
+      )}
+
+      {chargePoints.length === 0 && (
+        <div className="border-t pt-4 text-center text-sm text-muted-foreground">
+          {t("appPage.sites.detail.noChargePoints")}
+        </div>
+      )}
+    </>
   );
 };

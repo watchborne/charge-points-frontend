@@ -1,0 +1,44 @@
+name: CodeQL
+
+# Static security analysis of the TypeScript sources.
+#
+# Scheduled and manual only — deliberately NOT a `pull_request` trigger. Actions
+# bills per job rounded up to the whole minute and this repo's CI is sized
+# around that (see build-test-pull-request.yml); a CodeQL run on every PR would
+# be the single most expensive job. A weekly sweep of `main` keeps the cost to
+# one job a week; add a path-filtered `pull_request` trigger here (src/**,
+# package-lock.json) if per-PR findings are worth that bill.
+#
+on:
+  schedule:
+    - cron: "17 4 * * 1" # Mondays 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      # `build-mode: none` — JavaScript/TypeScript needs no build, and skipping
+      # `npm ci` also means no NPM_TOKEN is exposed to this job.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"

@@ -8,6 +8,7 @@ import { getResetErrorMessageKey, getAvailabilityErrorMessageKey } from "@/lib/e
 import type { ChargePoint } from "@/types/charge-point";
 
 import { ChargePointConfigurationDialog } from "./ChargePointConfigurationDialog";
+import { ChargePointReleaseControl } from "./ChargePointReleaseControl";
 import { DisplayMessageControl } from "./DisplayMessageControl";
 import { DisplayMessagesPanel } from "./DisplayMessagesPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
@@ -35,6 +36,10 @@ type ChargePointActionsSectionProps = {
   onReset: (type: ResetType) => Promise<void>;
   wholeChargePointAvailability: AvailabilityState;
   onChangeAvailability: (type: AvailabilityType) => Promise<void>;
+  // Fired when this caller successfully gives up their own access to the
+  // charge point (see ChargePointReleaseControl) — lets the page deselect it,
+  // since it then drops out of this caller's own fleet.
+  onReleased: () => void;
 };
 
 /**
@@ -51,9 +56,10 @@ type ChargePointActionsSectionProps = {
  * "displayMessages" (`DisplayMessageControl`'s set/clear controls alongside
  * `DisplayMessagesPanel`'s `NotifyDisplayMessages` history — moved here from
  * the security tab so the write and read sides of display messages sit
- * together). Each group's own outcome banner renders directly under it
- * instead of at the bottom of the whole tab, so feedback stays next to the
- * button that produced it.
+ * together), and "access" (`ChargePointReleaseControl` — giving up the
+ * caller's own membership, charge-points-server ADR 0028). Each group's own
+ * outcome banner renders directly under it instead of at the bottom of the
+ * whole tab, so feedback stays next to the button that produced it.
  */
 export const ChargePointActionsSection = ({
   chargePointId,
@@ -63,6 +69,7 @@ export const ChargePointActionsSection = ({
   onReset,
   wholeChargePointAvailability,
   onChangeAvailability,
+  onReleased,
 }: ChargePointActionsSectionProps) => {
   const t = useTranslations("");
 
@@ -181,6 +188,18 @@ export const ChargePointActionsSection = ({
           <DisplayMessagesPanel chargePointId={chargePointId} />
         </section>
       )}
+
+      <section className="flex flex-col gap-3 rounded-lg border p-4">
+        <h4 className="text-sm font-semibold text-muted-foreground">
+          {t("appPage.chargePoints.actionsTab.groups.access")}
+        </h4>
+
+        <ChargePointReleaseControl
+          chargePointId={chargePointId}
+          chargePointName={chargePointName}
+          onReleased={onReleased}
+        />
+      </section>
     </div>
   );
 };

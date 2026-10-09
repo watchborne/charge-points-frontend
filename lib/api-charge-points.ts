@@ -36,7 +36,7 @@ import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 import type { ChargePointLogUpload, LogUploadView } from "@/types/log-upload";
 
 import { withErrorLogging, withErrorLoggingAsync } from "./api-error-wrapper";
-import { httpClient } from "./http-client";
+import { fetchWithFreshSession, httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
   /**
@@ -217,6 +217,17 @@ export type DeleteCertificateOutcome =
   | { ok: false; httpStatus: number };
 
 /**
+ * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
+ * reason: releasing a charge point (charge-points-server ADR 0028) can fail
+ * with a specific, user-meaningful outcome — the charge point is out of the
+ * caller's scope, or already released from a different tab — that the caller
+ * needs to distinguish from a generic failure. Success carries no payload:
+ * the backend answers 204, and the charge point simply drops out of this
+ * caller's `getChargePoints()` list from then on.
+ */
+export type ReleaseChargePointOutcome = { ok: true } | { ok: false; httpStatus: number };
+
+/**
  * An *estimated* cost for one charging session (charge-points-server issue
  * #580) — not part of @watchborne/charge-points-types, like `SiteTariff`,
  * since it's a computation rather than a domain entity. `amountCents` is
@@ -274,12 +285,37 @@ export const chargePointApis = {
       "ChargePoint.deleteChargePoint",
     );
   },
+  /**
+   * Drops the caller's own membership on a charge point (charge-points-server
+   * ADR 0028, issue #424) — the corrective path for a station claimed by the
+   * wrong installer. Other members, if any, keep their access; when the
+   * caller was the last one the charge point returns to unclaimed and is
+   * detached from its site. A charge point outside the caller's scope, or
+   * already released, is a 404 either way.
+   */
+  releaseChargePoint: async function (
+    chargePointId: ChargePoint["id"],
+  ): Promise<ReleaseChargePointOutcome> {
+    return withErrorLoggingAsync(async () => {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/release`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        return { ok: true };
+      }
+
+      return { ok: false, httpStatus: response.status };
+    }, "ChargePoint.releaseChargePoint");
+  },
   resetChargePoint: async function (
     chargePointId: ChargePoint["id"],
     type: ResetType,
   ): Promise<ResetChargePointOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/reset`, {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type }),
@@ -299,11 +335,14 @@ export const chargePointApis = {
     type: AvailabilityType,
   ): Promise<ChangeAvailabilityOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/availability`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ connectorId, type }),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/availability`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ connectorId, type }),
+        },
+      );
 
       if (response.ok) {
         const { status } = (await response.json()) as { status: ChangeAvailabilityStatus };
@@ -318,11 +357,14 @@ export const chargePointApis = {
     connectorId: number,
   ): Promise<UnlockConnectorOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/unlock-connector`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ connectorId }),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/unlock-connector`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ connectorId }),
+        },
+      );
 
       if (response.ok) {
         const { status } = (await response.json()) as { status: UnlockConnectorStatus };
@@ -347,7 +389,7 @@ export const chargePointApis = {
     key?: string[],
   ): Promise<GetSettingsOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/settings`, {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(key ? { key } : {}),
@@ -371,7 +413,7 @@ export const chargePointApis = {
     value: string,
   ): Promise<SetSettingOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/settings`, {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key, value }),
@@ -467,7 +509,7 @@ export const chargePointApis = {
     body: StartFirmwareUpdateBody,
   ): Promise<StartFirmwareUpdateOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/firmware`, {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/firmware`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -560,11 +602,14 @@ export const chargePointApis = {
     body: StartLogUploadBody,
   ): Promise<StartLogUploadOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/log-upload`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/log-upload`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
 
       if (response.ok) {
         const { status, upload } = (await response.json()) as {
@@ -583,7 +628,7 @@ export const chargePointApis = {
     connectorId?: number,
   ): Promise<TriggerMessageOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/trigger`, {
+      const response = await fetchWithFreshSession(`/api/charge-points/${chargePointId}/trigger`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
@@ -605,17 +650,20 @@ export const chargePointApis = {
     body: SetDisplayMessageBody,
   ): Promise<SetDisplayMessageOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/display-messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: {
-            id: body.id,
-            priority: body.priority,
-            message: { format: "UTF8", content: body.content },
-          },
-        }),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/display-messages`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: {
+              id: body.id,
+              priority: body.priority,
+              message: { format: "UTF8", content: body.content },
+            },
+          }),
+        },
+      );
 
       if (response.ok) {
         const { status } = (await response.json()) as { status: SetDisplayMessageStatusV201 };
@@ -631,7 +679,7 @@ export const chargePointApis = {
     messageId: number,
   ): Promise<ClearDisplayMessageOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(
+      const response = await fetchWithFreshSession(
         `/api/charge-points/${chargePointId}/display-messages/${messageId}`,
         { method: "DELETE" },
       );
@@ -669,11 +717,14 @@ export const chargePointApis = {
     body: InstallCertificateBody,
   ): Promise<InstallCertificateOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/certificates`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/certificates`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
 
       if (response.ok) {
         const { status, statusInfo } = (await response.json()) as {
@@ -696,11 +747,14 @@ export const chargePointApis = {
     certificateHashData: CertificateHashData,
   ): Promise<DeleteCertificateOutcome> {
     return withErrorLoggingAsync(async () => {
-      const response = await fetch(`/api/charge-points/${chargePointId}/certificates`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ certificateHashData }),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/certificates`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ certificateHashData }),
+        },
+      );
 
       if (response.ok) {
         const { status, statusInfo } = (await response.json()) as {

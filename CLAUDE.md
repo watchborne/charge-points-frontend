@@ -245,7 +245,12 @@ here — a request without a session simply reaches the backend with no token.
   `GET`/`POST` `/api/me/commissioning-token` for the installer
   self-service commissioning-token flow on `/app/configuration`
   (`CommissioningTokenPanel`) — the plaintext token is only ever returned
-  once, on issue, and is never persisted client-side.
+  once, on issue, and is never persisted client-side. The token
+  expires (90 days by default, server-configurable): both the status and the
+  issue response carry `expiresAt`, and an expired token reports
+  `hasToken: false` with its past `expiresAt` (the panel shows an expiry
+  warning and re-offers "Generate"). The panel also explains the process
+  (`howItWorks` steps).
   `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
   `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
   opt-in/out and preferred digest send hour (UTC), behind
@@ -337,7 +342,10 @@ here — a request without a session simply reaches the backend with no token.
   is handled by this app itself: it validates with `lib/contact-message.ts` (zod)
   and emails the message to `CONTACT_EMAIL_TO` (default
   adrien.miquel.pro@gmail.com) through Resend's REST API, using the server-side-only
-  `RESEND_API_KEY` and `CONTACT_EMAIL_FROM`.
+  `RESEND_API_KEY` and `CONTACT_EMAIL_FROM`. Being public and handled here (not by the
+  backend's limiter), it rate-limits itself per client address
+  (`lib/rate-limit.ts` + `lib/contact-rate-limit.ts`, in-memory per instance;
+  `CONTACT_RATE_LIMIT_MAX` / `CONTACT_RATE_LIMIT_WINDOW_MS`, default 5 / 60s, answers 429).
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
   localhost fallbacks.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so

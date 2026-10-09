@@ -78,6 +78,10 @@ export const CommissioningTokenPanel = () => {
   });
   const hasToken = status?.hasToken ?? false;
   const createdAt = status?.createdAt ?? null;
+  const expiresAt = status?.expiresAt ?? null;
+  // The server reports an expired token as hasToken: false while keeping its
+  // past expiresAt, which is what tells "expired" apart from "never issued".
+  const expired = !hasToken && expiresAt !== null;
 
   // Recent commissioning activity (issue #420 / #278): best-effort — a
   // failure here must never block the token panel itself, so its error is
@@ -97,6 +101,7 @@ export const CommissioningTokenPanel = () => {
       queryClient.setQueryData(queryKeys.commissioningToken.status(), {
         hasToken: true,
         createdAt: issued.createdAt,
+        expiresAt: issued.expiresAt,
       });
     },
     onSettled: () => setConfirmRegenerateOpen(false),
@@ -109,6 +114,7 @@ export const CommissioningTokenPanel = () => {
       queryClient.setQueryData(queryKeys.commissioningToken.status(), {
         hasToken: false,
         createdAt: null,
+        expiresAt: null,
       });
     },
     onSettled: () => setConfirmRevokeOpen(false),
@@ -139,6 +145,16 @@ export const CommissioningTokenPanel = () => {
   // on — adopts a charge point literally named that, and with a valid token
   // claims it for the caller.
   const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
+  const formatDate = (date: string) =>
+    format.dateTime(new Date(date), { year: "numeric", month: "2-digit", day: "2-digit" });
+
+  const steps = [
+    t("appPage.configuration.commissioningToken.howItWorks.steps.generate"),
+    t("appPage.configuration.commissioningToken.howItWorks.steps.configure"),
+    t("appPage.configuration.commissioningToken.howItWorks.steps.connect"),
+    t("appPage.configuration.commissioningToken.howItWorks.steps.expire"),
+  ];
+
   const exampleUrl = `${OCPP_SERVER_URL}/${stationIdPlaceholder}?token=${revealedToken ?? "..."}`;
 
   return (
@@ -154,7 +170,32 @@ export const CommissioningTokenPanel = () => {
           {t("appPage.configuration.commissioningToken.description")}
         </p>
 
+        <div className="flex flex-col gap-2.5">
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("appPage.configuration.commissioningToken.howItWorks.title")}
+          </p>
+          <ol className="flex flex-col gap-2.5">
+            {steps.map((step, index) => (
+              <li key={index} className="flex gap-3 text-sm">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-charge-soft text-xs font-medium text-charge-strong">
+                  {index + 1}
+                </span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {error && <Callout variant="error" description={error} />}
+
+        {!loading && expired && expiresAt && (
+          <Callout
+            variant="warning"
+            description={t("appPage.configuration.commissioningToken.expiredWarning", {
+              date: formatDate(expiresAt),
+            })}
+          />
+        )}
 
         {!loading && revealedToken && (
           <div className="flex flex-col gap-2">
@@ -162,6 +203,13 @@ export const CommissioningTokenPanel = () => {
               variant="warning"
               description={t("appPage.configuration.commissioningToken.revealedWarning")}
             />
+            {expiresAt && (
+              <p className="text-sm text-muted-foreground">
+                {t("appPage.configuration.commissioningToken.expiresAtLabel", {
+                  date: formatDate(expiresAt),
+                })}
+              </p>
+            )}
             <div className="flex items-center gap-2">
               <code className="block w-full min-w-0 flex-1 rounded-md bg-muted px-3 py-2 font-mono text-sm break-all">
                 {revealedToken}
@@ -190,12 +238,12 @@ export const CommissioningTokenPanel = () => {
         {!loading && !revealedToken && hasToken && createdAt && (
           <p className="text-sm text-muted-foreground">
             {t("appPage.configuration.commissioningToken.createdAtLabel", {
-              date: format.dateTime(new Date(createdAt), {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              }),
+              date: formatDate(createdAt),
             })}
+            {expiresAt &&
+              ` · ${t("appPage.configuration.commissioningToken.expiresAtLabel", {
+                date: formatDate(expiresAt),
+              })}`}
           </p>
         )}
 

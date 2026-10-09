@@ -712,7 +712,8 @@
           "sessions": "Sessions",
           "alerts": "Alerts",
           "security": "Security & history"
-        }
+        },
+        "toggleError": "Failed to update this charge point. Please try again."
       },
       "commissioning": {
         "title": "Awaiting commissioning",
@@ -1092,7 +1093,8 @@
         "groups": {
           "controls": "Charge point controls",
           "messaging": "Testing notifications",
-          "displayMessages": "Display messages"
+          "displayMessages": "Display messages",
+          "access": "Charge point access"
         }
       },
       "configuration": {
@@ -1306,6 +1308,15 @@
           "status": "Status",
           "duration": "Duration"
         }
+      },
+      "release": {
+        "button": "Forget this charge point",
+        "confirmTitle": "Forget \"{name}\"?",
+        "confirmDescription": "You will lose your own access to this charge point. Other installers who have access to it keep theirs. If you were the only one, the charge point returns to the commissioning queue and is detached from its current site.",
+        "result": {
+          "notFound": "This charge point is already outside your scope.",
+          "genericError": "Failed to forget this charge point. Please try again."
+        }
       }
     },
     "sites": {
@@ -1456,6 +1467,17 @@
         "exampleUrlPlaceholder": "'<charge-point-id>'",
         "commissioningTokenPlaceholder": "'<commissioning-token>'",
         "createdAtLabel": "Token generated on {date}",
+        "expiresAtLabel": "expires on {date}",
+        "expiredWarning": "Your token expired on {date} and no longer works: charge points connecting with it are no longer commissioned. Generate a new token and update the address on the charge points that still need commissioning.",
+        "howItWorks": {
+          "title": "How it works",
+          "steps": {
+            "generate": "Generate your personal token. It is shown in full only once, so copy it right away.",
+            "configure": "Add it as a `token` parameter to the OCPP address of each charge point to commission (see the example below).",
+            "connect": "On its first connection with this token, an unclaimed charge point is automatically linked to your account and appears in your charge points. A charge point already claimed by another installer is refused.",
+            "expire": "The token is valid for a limited time (90 days by default) and its expiry date is shown here. Once expired, it is treated as unknown: generate a new one. Charge points already commissioned are not affected."
+          }
+        },
         "revealedWarning": "Copy this token now — it will never be shown in full again.",
         "revokeCta": "Revoke",
         "regenerateConfirm": {
@@ -1515,13 +1537,18 @@
       },
       "notifications": {
         "title": "Notifications",
-        "digestEnabled": {
+        "digestEmailEnabled": {
           "title": "Daily email digest",
           "description": "Receive a daily digest of open alerts and sites due for a visit."
         },
+        "digestPushEnabled": {
+          "title": "Daily push digest",
+          "description": "Also receive the daily digest as a push notification on this device.",
+          "requiresSubscription": "Turn on push notifications below first to receive the digest on this device."
+        },
         "digestHour": {
           "title": "Send time",
-          "description": "Hour (UTC) at which the daily digest is sent to you."
+          "description": "Time (your local time) at which the daily digest is sent to you."
         },
         "locale": {
           "title": "Email language",

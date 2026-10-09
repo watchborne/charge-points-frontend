@@ -1,19 +1,6 @@
 import { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
-import classNames from "classnames";
-import { formatDistanceToNow } from "date-fns";
-import { enGB } from "date-fns/locale";
-import {
-  CalendarCheck,
-  CalendarClock,
-  ChevronDown,
-  Coins,
-  ExternalLink,
-  MapPin,
-  Pencil,
-  Trash2,
-  X,
-} from "lucide-react";
+import { CalendarCheck, CalendarClock, Coins, MapPin, Pencil, Trash2, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -25,15 +12,15 @@ import {
   Dialog,
 } from "@/components/ui/dialog";
 import { useRouter } from "@/i18n/navigation";
-import { connectionStatusColor, colorDotClass } from "@/lib/status";
+import { useDateFormat } from "@/lib/date-format";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
 import { ScheduleNextVisitDialog, ScheduleNextVisitValues } from "./ScheduleNextVisitDialog";
 import { SetSiteTariffDialog, SiteTariffFormValues } from "./SetSiteTariffDialog";
+import { SiteChargePointsList } from "./SiteChargePointsList";
 import { SiteReliabilityValue } from "./SiteReliabilityValue";
 import { SiteReportExportButton } from "./SiteReportExportButton";
-import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
 import { useSiteTariff } from "../../hooks/useSiteTariff";
 import { useSiteVisitSchedule } from "../../hooks/useSiteVisitSchedule";
 import { useSiteVisits } from "../../hooks/useSiteVisits";
@@ -56,9 +43,9 @@ export const SiteDetailModal = ({
   onDeleteClicked,
 }: SiteDetailModalProps) => {
   const t = useTranslations("");
+  const { formatRelative } = useDateFormat();
   const format = useFormatter();
   const router = useRouter();
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [logVisitOpen, setLogVisitOpen] = useState(false);
   const [tariffDialogOpen, setTariffDialogOpen] = useState(false);
   const [scheduleVisitOpen, setScheduleVisitOpen] = useState(false);
@@ -112,18 +99,6 @@ export const SiteDetailModal = ({
 
   const handleCancelNextVisit = async () => {
     await cancelNextVisit();
-  };
-
-  const toggleExpanded = (id: string) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   };
 
   const handleEdit = () => {
@@ -190,142 +165,13 @@ export const SiteDetailModal = ({
               </div>
             </div>
 
-            {/* Charge Points List */}
-            {siteChargePoints.length > 0 && (
-              <div className="space-y-3 border-t pt-4">
-                <h4 className="text-sm font-semibold text-foreground">
-                  {t("appPage.dashboard.chargePoints.sectionTitle")}
-                </h4>
-
-                <div className="space-y-2">
-                  {siteChargePoints.map((chargePoint) => {
-                    const color = connectionStatusColor(chargePoint.connection.status);
-                    const isExpanded = expandedIds.has(chargePoint.id);
-                    const isOnline = ["SYNCED", "CONNECTED"].includes(
-                      chargePoint.connection.status,
-                    );
-                    const lastSeenText = chargePoint.connection.lastSeenAt
-                      ? formatDistanceToNow(new Date(chargePoint.connection.lastSeenAt), {
-                          locale: enGB,
-                        })
-                      : null;
-                    const vendorModel = [chargePoint.meta?.vendor, chargePoint.meta?.model]
-                      .filter(Boolean)
-                      .join(" ");
-
-                    return (
-                      <div key={chargePoint.id} className="rounded-lg border overflow-hidden">
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => toggleExpanded(chargePoint.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              toggleExpanded(chargePoint.id);
-                            }
-                          }}
-                          aria-expanded={isExpanded}
-                          className="flex w-full flex-wrap cursor-pointer items-center justify-between gap-2 p-4 text-left transition-colors hover:bg-muted/40"
-                        >
-                          <div className="min-w-0 flex-1 truncate font-medium">
-                            {chargePoint.name}
-                          </div>
-
-                          <div className="flex shrink-0 items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={classNames(
-                                  "h-2.5 w-2.5 rounded-full",
-                                  colorDotClass[color],
-                                )}
-                              />
-                              <span className="text-sm capitalize">
-                                {chargePoint.connection.status.toLowerCase()}
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onOpenChange(false);
-                                router.push(`/app/charge-points?id=${chargePoint.id}`);
-                              }}
-                              aria-label={t("appPage.dashboard.viewChargePoint")}
-                              className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </button>
-                            <ChevronDown
-                              className={classNames(
-                                "h-4 w-4 text-muted-foreground transition-transform",
-                                isExpanded && "rotate-180",
-                              )}
-                            />
-                          </div>
-                        </div>
-
-                        {isExpanded && (
-                          <div className="space-y-3 border-t bg-muted/20 p-4">
-                            {vendorModel && (
-                              <div className="flex flex-wrap items-center justify-between gap-1 text-sm">
-                                <span className="text-muted-foreground">
-                                  {t("appPage.chargePoints.card.model")}
-                                </span>
-                                <span className="font-medium">{vendorModel}</span>
-                              </div>
-                            )}
-
-                            <div className="flex flex-wrap items-center justify-between gap-1 text-sm">
-                              <span className="text-muted-foreground">
-                                {t("appPage.dashboard.uptime")}
-                              </span>
-                              <span className="font-medium">
-                                {lastSeenText
-                                  ? t(
-                                      isOnline
-                                        ? "appPage.dashboard.uptimeOnline"
-                                        : "appPage.dashboard.uptimeOffline",
-                                      { time: lastSeenText },
-                                    )
-                                  : t("appPage.chargePoints.card.neverSeen")}
-                              </span>
-                            </div>
-
-                            {chargePoint.connectors.length > 0 && (
-                              <div className="divide-y rounded-md border">
-                                {chargePoint.connectors.map((connector) => (
-                                  <div
-                                    key={connector.id}
-                                    className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-sm"
-                                  >
-                                    <span className="text-muted-foreground">
-                                      {t("appPage.chargePoints.detail.connector", {
-                                        connectorId: connector.connectorId,
-                                      })}
-                                    </span>
-                                    <div className="flex items-center gap-1.5 font-medium">
-                                      <ConnectorStatusIcon status={connector.status} />
-                                      {connector.status}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {siteChargePoints.length === 0 && (
-              <div className="border-t pt-4 text-center text-sm text-muted-foreground">
-                {t("appPage.sites.detail.noChargePoints")}
-              </div>
-            )}
+            <SiteChargePointsList
+              chargePoints={siteChargePoints}
+              onViewChargePoint={(chargePointId) => {
+                onOpenChange(false);
+                router.push(`/app/charge-points?id=${chargePointId}`);
+              }}
+            />
 
             {/* Next planned visit */}
             <div className="space-y-3 border-t pt-4">
@@ -357,10 +203,7 @@ export const SiteDetailModal = ({
                       })}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(schedule.nextVisitAt), {
-                        addSuffix: true,
-                        locale: enGB,
-                      })}
+                      {formatRelative(schedule.nextVisitAt)}
                     </span>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
@@ -423,10 +266,7 @@ export const SiteDetailModal = ({
                           })}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(visit.visitedAt), {
-                            addSuffix: true,
-                            locale: enGB,
-                          })}
+                          {formatRelative(visit.visitedAt)}
                         </span>
                       </div>
                       {visit.note && <span className="text-muted-foreground">{visit.note}</span>}

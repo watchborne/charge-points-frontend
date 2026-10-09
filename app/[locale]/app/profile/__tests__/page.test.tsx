@@ -35,6 +35,7 @@ const { isIosDevice, isStandaloneDisplayMode } = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => translate,
   useFormatter: () => formatter,
 }));
@@ -83,9 +84,12 @@ beforeEach(() => {
   setTheme.mockReset();
   getUser.mockReset().mockResolvedValue({ data: { user } });
   createClient.mockReset().mockReturnValue({ auth: { getUser } });
-  getPreferences
-    .mockReset()
-    .mockResolvedValue({ digestEnabled: true, digestHourUtc: 7, locale: "fr" });
+  getPreferences.mockReset().mockResolvedValue({
+    digestEmailEnabled: true,
+    digestPushEnabled: false,
+    digestHourUtc: 7,
+    locale: "fr",
+  });
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   subscribeToPush.mockReset();
   unsubscribeFromPush.mockReset();
@@ -156,7 +160,7 @@ describe("ProfilePage", () => {
     renderPage();
 
     const digestToggle = await screen.findByRole("switch", {
-      name: "appPage.profile.notifications.digestEnabled.title",
+      name: "appPage.profile.notifications.digestEmailEnabled.title",
     });
     expect(digestToggle.getAttribute("aria-checked")).toBe("true");
   });

@@ -11,12 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@watchborne/electrons";
-import { format } from "date-fns";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Fragment, useState, type ReactNode } from "react";
 
 import type { ChargingSessionCost } from "@/lib/api-charge-points";
+import { useDateFormat } from "@/lib/date-format";
 import { formatDurationShort } from "@/lib/status-history";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -114,6 +114,7 @@ export const ChargingSessionsPanel = ({
   renderSessionDetail,
 }: ChargingSessionsPanelProps) => {
   const t = useTranslations("");
+  const { formatDateTime } = useDateFormat();
   const intlFormat = useFormatter();
 
   // Which sessions have their consumption chart expanded — several can be
@@ -220,9 +221,7 @@ export const ChargingSessionsPanel = ({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs">
-                        {format(new Date(session.startedAt), "dd/MM/yyyy HH:mm")}
-                      </TableCell>
+                      <TableCell className="text-xs">{formatDateTime(session.startedAt)}</TableCell>
                       <TableCell className="text-xs">{formatDurationShort(durationMs)}</TableCell>
                       <TableCell className="text-right font-mono text-xs">
                         {energy === null ? "—" : `${energy.toLocaleString()} Wh`}

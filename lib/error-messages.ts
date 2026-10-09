@@ -106,6 +106,16 @@ export function getCertificateInstallErrorMessageKey(httpStatus: number): string
   );
 }
 
+/** `POST /api/charge-points/:id/release` (404: unknown/out-of-scope charge
+ * point, or already released — e.g. from a second tab — charge-points-server
+ * ADR 0028 treats both the same way). */
+export function getReleaseErrorMessageKey(httpStatus: number): string {
+  const releaseSpecificMessages: Record<number, string> = {
+    404: "appPage.chargePoints.release.result.notFound",
+  };
+  return releaseSpecificMessages[httpStatus] || "appPage.chargePoints.release.result.genericError";
+}
+
 /** `DELETE /api/charge-points/:id/certificates` (404: unknown charge point;
  * 409: station offline). */
 export function getCertificateDeleteErrorMessageKey(httpStatus: number): string {

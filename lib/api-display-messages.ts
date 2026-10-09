@@ -5,7 +5,7 @@ import type {
 } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
-import { httpClient } from "./http-client";
+import { fetchWithFreshSession, httpClient } from "./http-client";
 
 // The NotifyDisplayMessages history's response shape. Not part of
 // @watchborne/charge-points-types on purpose, same reasoning as
@@ -95,11 +95,14 @@ export const displayMessageApis = {
     chargePointId: ChargePoint["id"],
   ): Promise<GetDisplayMessagesOutcome> {
     try {
-      const response = await fetch(`/api/charge-points/${chargePointId}/display-message-requests`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
+      const response = await fetchWithFreshSession(
+        `/api/charge-points/${chargePointId}/display-message-requests`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        },
+      );
 
       if (response.ok) {
         const { status, displayMessageRequest } = (await response.json()) as {

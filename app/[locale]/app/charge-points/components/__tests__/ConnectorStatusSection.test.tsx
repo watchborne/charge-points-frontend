@@ -6,6 +6,7 @@ import type { ChargePointWithConnectors } from "@/types/charge-point";
 import { ConnectorStatusSection } from "../ConnectorStatusSection";
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
     if (values && Object.keys(values).length > 0) {
       const paramList = Object.entries(values)
