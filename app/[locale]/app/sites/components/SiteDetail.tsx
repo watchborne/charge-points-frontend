@@ -122,17 +122,6 @@ export const SiteDetail = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
-                <CalendarCheck className="mr-2 h-4 w-4" />
-                {t("appPage.sites.detail.visits.logButton")}
-              </Button>
-              <SiteReportExportButton site={site} />
-              <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
-                <Coins className="mr-2 h-4 w-4" />
-                {tariff
-                  ? t("appPage.sites.detail.tariff.editButton")
-                  : t("appPage.sites.detail.tariff.setButton")}
-              </Button>
               <Button variant="outline" onClick={() => onEditClicked(site)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 {t("common.edit")}
@@ -179,6 +168,10 @@ export const SiteDetail = ({
                     <SiteReliabilityValue siteId={site.id} />
                   </div>
                 )}
+
+                <div className="flex justify-end">
+                  <SiteReportExportButton site={site} />
+                </div>
               </div>
             </section>
 
@@ -192,7 +185,9 @@ export const SiteDetail = ({
                 />
               </section>
             )}
+          </div>
 
+          <div className="flex flex-col gap-6">
             {/* Visit History */}
             <section className={sectionClass}>
               <h2 className="text-sm font-semibold text-foreground">
@@ -234,12 +229,15 @@ export const SiteDetail = ({
                   ))}
                 </div>
               )}
-            </section>
-          </div>
 
-          <div className="flex flex-col gap-6">
-            {/* Next planned visit */}
-            <section className={sectionClass}>
+              {!visitsLoading && !visitsError && (
+                <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
+                  <CalendarCheck className="mr-2 h-4 w-4" />
+                  {t("appPage.sites.detail.visits.logButton")}
+                </Button>
+              )}
+
+              {/* Next planned visit */}
               <h2 className="text-sm font-semibold text-foreground">
                 {t("appPage.sites.detail.nextVisit.title")}
               </h2>
@@ -327,6 +325,15 @@ export const SiteDetail = ({
                     / kWh
                   </span>
                 </div>
+              )}
+
+              {!tariffLoading && !tariffError && (
+                <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
+                  <Coins className="mr-2 h-4 w-4" />
+                  {tariff
+                    ? t("appPage.sites.detail.tariff.editButton")
+                    : t("appPage.sites.detail.tariff.setButton")}
+                </Button>
               )}
             </section>
           </div>
