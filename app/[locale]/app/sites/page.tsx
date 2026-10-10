@@ -4,16 +4,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { Button, Input, Callout } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useState } from "react";
 
-import { useToastNotification } from "@/app/components/ToastNotification";
+import { useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 
-import { SiteDeletionDialog } from "./components/SiteDeletionDialog";
-import { SiteDetailModal } from "./components/SiteDetailModal";
 import { SiteFormDialog, SiteFormValues } from "./components/SiteFormDialog";
 import { SiteGrid } from "./components/SiteGrid";
 import { SiteGridSkeleton } from "./components/SiteGridSkeleton";
@@ -23,31 +20,18 @@ import { useSites } from "../hooks/useSites";
 
 function SitesPageContent() {
   const t = useTranslations("");
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const { sites, loading, error } = useSites();
   const { chargePoints } = useChargePoints();
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
-  const { pushErrorNotification } = useToastNotification();
 
   const createSiteMutation = useMutation({
     mutationFn: api.Sites.createSite,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
   });
-  const updateSiteMutation = useMutation({
-    mutationFn: ({ id, values }: { id: Site["id"]; values: SiteFormValues }) =>
-      api.Sites.updateSite(id, { id, ...values }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
-  });
-  const deleteSiteMutation = useMutation({
-    mutationFn: api.Sites.deleteSite,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() }),
-  });
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Site | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Site | null>(null);
-  const [detailTarget, setDetailTarget] = useState<Site | null>(null);
 
   const [filteredSites, setFilteredSites] = useState<Site[]>([]);
 
@@ -61,37 +45,8 @@ function SitesPageContent() {
     }
   }, [sites, search, error, loading]);
 
-  useEffect(() => {
-    const siteId = searchParams.get("id") || searchParams.get("siteId");
-    if (siteId && sites.length > 0) {
-      const site = sites.find((s) => s.id === siteId);
-      if (site) {
-        setDetailTarget(site);
-      }
-    }
-  }, [searchParams, sites]);
-
   const handleCreate = async (values: SiteFormValues) => {
     await createSiteMutation.mutateAsync(values);
-  };
-
-  const handleEdit = async (values: SiteFormValues) => {
-    if (!editTarget) return;
-
-    try {
-      await updateSiteMutation.mutateAsync({ id: editTarget.id, values });
-      setEditTarget(null);
-    } catch {
-      pushErrorNotification(t("appPage.sites.errors.updateFailed"));
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-
-    await deleteSiteMutation.mutateAsync(deleteTarget.id);
-
-    setDeleteTarget(null);
   };
 
   return (
@@ -137,7 +92,7 @@ function SitesPageContent() {
             <SiteGrid
               sites={filteredSites}
               chargePoints={chargePoints}
-              onSiteClicked={(site) => setDetailTarget(site)}
+              onSiteClicked={(site) => router.push(`/app/sites/${site.id}`)}
             />
           </div>
 
@@ -146,33 +101,6 @@ function SitesPageContent() {
             onOpenChange={setCreateOpen}
             onSubmit={handleCreate}
             mode="create"
-          />
-          <SiteFormDialog
-            open={!!editTarget}
-            onOpenChange={(open) => !open && setEditTarget(null)}
-            initialValues={editTarget ?? undefined}
-            onSubmit={handleEdit}
-            mode="edit"
-          />
-          <SiteDeletionDialog
-            open={!!deleteTarget}
-            onOpenChange={(open) => !open && setDeleteTarget(null)}
-            deleteTarget={deleteTarget}
-            onDeleteClicked={handleDelete}
-          />
-          <SiteDetailModal
-            open={!!detailTarget}
-            onOpenChange={(open) => !open && setDetailTarget(null)}
-            site={detailTarget}
-            chargePoints={chargePoints}
-            onEditClicked={(site) => {
-              setDetailTarget(null);
-              setEditTarget(site);
-            }}
-            onDeleteClicked={(site) => {
-              setDetailTarget(null);
-              setDeleteTarget(site);
-            }}
           />
         </div>
       )}

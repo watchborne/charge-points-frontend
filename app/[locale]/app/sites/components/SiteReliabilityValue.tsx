@@ -27,7 +27,7 @@ const formatPercentage = (uptime: SiteUptime): string | null =>
  * an average of their individual percentages; see
  * charge-points-server's `SiteUptime`), reduced server-side rather than
  * fetched per charge point. Just the value span: the surrounding label row
- * lives in `SiteDetailModal`, matching the other information rows there.
+ * lives in `SiteDetail`, matching the other information rows there.
  *
  * Fetch-once and self-contained on mount — no dedicated WebSocket broadcast
  * exists for this, same as `ChargePointReliabilityTile`.

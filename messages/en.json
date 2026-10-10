@@ -1438,7 +1438,9 @@
               "currency": "Currency"
             }
           }
-        }
+        },
+        "backToSites": "Back to sites",
+        "notFound": "This site doesn't exist or you don't have access to it."
       }
     },
     "configuration": {

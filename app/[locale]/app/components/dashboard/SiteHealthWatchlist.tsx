@@ -58,7 +58,7 @@ export const SiteHealthWatchlist = ({ sitesWithHealth }: { sitesWithHealth: Site
                 <span className="truncate font-medium">{site.name}</span>
                 <button
                   type="button"
-                  onClick={() => router.push(`/app/sites?id=${site.id}`)}
+                  onClick={() => router.push(`/app/sites/${site.id}`)}
                   aria-label={site.name}
                   className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >

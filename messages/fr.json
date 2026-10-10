@@ -1438,7 +1438,9 @@
               "currency": "Devise"
             }
           }
-        }
+        },
+        "backToSites": "Retour aux sites",
+        "notFound": "Ce site n'existe pas ou vous n'y avez pas accès."
       }
     },
     "configuration": {
