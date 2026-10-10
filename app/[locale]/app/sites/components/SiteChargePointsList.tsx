@@ -17,8 +17,7 @@ type SiteChargePointsListProps = {
 /**
  * The charge points of one site as an expandable list (status, model, uptime,
  * connectors), with a jump to each one's detail page. Owns which rows are
- * expanded; navigation is the caller's, since leaving the page also means
- * closing the modal this renders in.
+ * expanded; navigation is the caller's.
  */
 export const SiteChargePointsList = ({
   chargePoints,
@@ -43,10 +42,10 @@ export const SiteChargePointsList = ({
   return (
     <>
       {chargePoints.length > 0 && (
-        <div className="space-y-3 border-t pt-4">
-          <h4 className="text-sm font-semibold text-foreground">
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">
             {t("appPage.dashboard.chargePoints.sectionTitle")}
-          </h4>
+          </h2>
 
           <div className="space-y-2">
             {chargePoints.map((chargePoint) => {

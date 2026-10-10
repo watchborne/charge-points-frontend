@@ -1,17 +1,19 @@
 import { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
-import { CalendarCheck, CalendarClock, Coins, MapPin, Pencil, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarCheck,
+  CalendarClock,
+  Coins,
+  MapPin,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
-import {
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  Dialog,
-} from "@/components/ui/dialog";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useDateFormat } from "@/lib/date-format";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
@@ -25,23 +27,19 @@ import { useSiteTariff } from "../../hooks/useSiteTariff";
 import { useSiteVisitSchedule } from "../../hooks/useSiteVisitSchedule";
 import { useSiteVisits } from "../../hooks/useSiteVisits";
 
-type SiteDetailModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  site: Site | null;
+type SiteDetailProps = {
+  site: Site;
   chargePoints: ChargePointWithConnectors[];
   onEditClicked: (site: Site) => void;
   onDeleteClicked: (site: Site) => void;
 };
 
-export const SiteDetailModal = ({
-  open,
-  onOpenChange,
+export const SiteDetail = ({
   site,
   chargePoints,
   onEditClicked,
   onDeleteClicked,
-}: SiteDetailModalProps) => {
+}: SiteDetailProps) => {
   const t = useTranslations("");
   const { formatRelative } = useDateFormat();
   const format = useFormatter();
@@ -55,14 +53,14 @@ export const SiteDetailModal = ({
     error: visitsError,
     recordVisit,
     isRecording,
-  } = useSiteVisits(site?.id ?? null);
+  } = useSiteVisits(site.id);
   const {
     tariff,
     loading: tariffLoading,
     error: tariffError,
     upsertTariff,
     isSaving: isSavingTariff,
-  } = useSiteTariff(site?.id ?? null);
+  } = useSiteTariff(site.id);
   const {
     schedule,
     loading: scheduleLoading,
@@ -70,9 +68,7 @@ export const SiteDetailModal = ({
     isScheduling,
     cancelNextVisit,
     isCanceling,
-  } = useSiteVisitSchedule(site?.id ?? null);
-
-  if (!site) return null;
+  } = useSiteVisitSchedule(site.id);
 
   const siteChargePoints = chargePoints.filter((cp) => cp.siteId === site.id);
 
@@ -101,36 +97,61 @@ export const SiteDetailModal = ({
     await cancelNextVisit();
   };
 
-  const handleEdit = () => {
-    onEditClicked(site);
-    onOpenChange(false);
-  };
-
-  const handleDelete = () => {
-    onDeleteClicked(site);
-    onOpenChange(false);
-  };
+  const dateOptions = { year: "numeric", month: "2-digit", day: "2-digit" } as const;
+  const sectionClass = "space-y-3 rounded-xl border bg-card p-4 shadow-sm sm:p-6";
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 shrink-0 mt-1 text-primary" />
-              <div className="min-w-0 flex-1">
-                <DialogTitle className="truncate">{site.name}</DialogTitle>
-                <DialogDescription className="truncate mt-1">{site.customer}</DialogDescription>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          <Link
+            href="/app/sites"
+            className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t("appPage.sites.detail.backToSites")}
+          </Link>
+
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start gap-3">
+              <MapPin className="mt-1 h-5 w-5 shrink-0 text-primary" />
+              <div className="min-w-0">
+                <h1 className="truncate text-2xl font-semibold">{site.name}</h1>
+                <p className="mt-1 truncate text-sm text-muted-foreground">{site.customer}</p>
               </div>
             </div>
-          </DialogHeader>
 
-          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                {t("appPage.sites.detail.visits.logButton")}
+              </Button>
+              <SiteReportExportButton site={site} />
+              <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
+                <Coins className="mr-2 h-4 w-4" />
+                {tariff
+                  ? t("appPage.sites.detail.tariff.editButton")
+                  : t("appPage.sites.detail.tariff.setButton")}
+              </Button>
+              <Button variant="outline" onClick={() => onEditClicked(site)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                {t("common.edit")}
+              </Button>
+              <Button variant="destructive" onClick={() => onDeleteClicked(site)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t("common.delete")}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="flex flex-col gap-6 lg:col-span-2">
             {/* Site Details */}
-            <div className="space-y-3 border-t pt-4">
-              <h4 className="text-sm font-semibold text-foreground">
+            <section className={sectionClass}>
+              <h2 className="text-sm font-semibold text-foreground">
                 {t("appPage.sites.detail.information")}
-              </h4>
+              </h2>
 
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
@@ -138,11 +159,7 @@ export const SiteDetailModal = ({
                     {t("appPage.sites.page.table.columns.installDate")}
                   </span>
                   <span className="font-medium">
-                    {format.dateTime(new Date(site.installedAt), {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}
+                    {format.dateTime(new Date(site.installedAt), dateOptions)}
                   </span>
                 </div>
 
@@ -163,21 +180,69 @@ export const SiteDetailModal = ({
                   </div>
                 )}
               </div>
-            </div>
+            </section>
 
-            <SiteChargePointsList
-              chargePoints={siteChargePoints}
-              onViewChargePoint={(chargePointId) => {
-                onOpenChange(false);
-                router.push(`/app/charge-points?id=${chargePointId}`);
-              }}
-            />
+            {siteChargePoints.length > 0 && (
+              <section className={sectionClass}>
+                <SiteChargePointsList
+                  chargePoints={siteChargePoints}
+                  onViewChargePoint={(chargePointId) =>
+                    router.push(`/app/charge-points?id=${chargePointId}`)
+                  }
+                />
+              </section>
+            )}
 
+            {/* Visit History */}
+            <section className={sectionClass}>
+              <h2 className="text-sm font-semibold text-foreground">
+                {t("appPage.sites.detail.visits.title")}
+              </h2>
+
+              {visitsLoading && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.visits.loading")}
+                </span>
+              )}
+
+              {!visitsLoading && visitsError && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.visits.loadError")}
+                </span>
+              )}
+
+              {!visitsLoading && !visitsError && visits.length === 0 && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.sites.detail.visits.empty")}
+                </span>
+              )}
+
+              {!visitsLoading && !visitsError && visits.length > 0 && (
+                <div className="divide-y rounded-md border">
+                  {visits.map((visit) => (
+                    <div key={visit.id} className="flex flex-col gap-1 px-3 py-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {format.dateTime(new Date(visit.visitedAt), dateOptions)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatRelative(visit.visitedAt)}
+                        </span>
+                      </div>
+                      {visit.note && <span className="text-muted-foreground">{visit.note}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+
+          <div className="flex flex-col gap-6">
             {/* Next planned visit */}
-            <div className="space-y-3 border-t pt-4">
-              <h4 className="text-sm font-semibold text-foreground">
+            <section className={sectionClass}>
+              <h2 className="text-sm font-semibold text-foreground">
                 {t("appPage.sites.detail.nextVisit.title")}
-              </h4>
+              </h2>
 
               {scheduleLoading && (
                 <span className="text-sm text-muted-foreground">
@@ -187,7 +252,7 @@ export const SiteDetailModal = ({
 
               {!scheduleLoading && !schedule && (
                 <Button variant="outline" size="sm" onClick={() => setScheduleVisitOpen(true)}>
-                  <CalendarClock className="h-4 w-4 mr-2" />
+                  <CalendarClock className="mr-2 h-4 w-4" />
                   {t("appPage.sites.detail.nextVisit.scheduleButton")}
                 </Button>
               )}
@@ -196,11 +261,7 @@ export const SiteDetailModal = ({
                 <div className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm">
                   <div className="flex flex-col">
                     <span className="font-medium">
-                      {format.dateTime(new Date(schedule.nextVisitAt), {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      })}
+                      {format.dateTime(new Date(schedule.nextVisitAt), dateOptions)}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {formatRelative(schedule.nextVisitAt)}
@@ -227,60 +288,13 @@ export const SiteDetailModal = ({
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Visit History */}
-            <div className="space-y-3 border-t pt-4">
-              <h4 className="text-sm font-semibold text-foreground">
-                {t("appPage.sites.detail.visits.title")}
-              </h4>
-
-              {visitsLoading && (
-                <span className="text-sm text-muted-foreground">
-                  {t("appPage.sites.detail.visits.loading")}
-                </span>
-              )}
-
-              {!visitsLoading && visitsError && (
-                <span className="text-sm text-muted-foreground">
-                  {t("appPage.sites.detail.visits.loadError")}
-                </span>
-              )}
-
-              {!visitsLoading && !visitsError && visits.length === 0 && (
-                <span className="text-sm text-muted-foreground">
-                  {t("appPage.sites.detail.visits.empty")}
-                </span>
-              )}
-
-              {!visitsLoading && !visitsError && visits.length > 0 && (
-                <div className="divide-y rounded-md border">
-                  {visits.map((visit) => (
-                    <div key={visit.id} className="flex flex-col gap-1 px-3 py-2 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">
-                          {format.dateTime(new Date(visit.visitedAt), {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                          })}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatRelative(visit.visitedAt)}
-                        </span>
-                      </div>
-                      {visit.note && <span className="text-muted-foreground">{visit.note}</span>}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            </section>
 
             {/* Tariff */}
-            <div className="space-y-3 border-t pt-4">
-              <h4 className="text-sm font-semibold text-foreground">
+            <section className={sectionClass}>
+              <h2 className="text-sm font-semibold text-foreground">
                 {t("appPage.sites.detail.tariff.title")}
-              </h4>
+              </h2>
 
               {tariffLoading && (
                 <span className="text-sm text-muted-foreground">
@@ -314,32 +328,10 @@ export const SiteDetailModal = ({
                   </span>
                 </div>
               )}
-            </div>
+            </section>
           </div>
-
-          <div className="flex flex-col gap-2 pt-6 border-t">
-            <Button variant="outline" onClick={() => setLogVisitOpen(true)}>
-              <CalendarCheck className="h-4 w-4 mr-2" />
-              {t("appPage.sites.detail.visits.logButton")}
-            </Button>
-            <SiteReportExportButton site={site} />
-            <Button variant="outline" onClick={() => setTariffDialogOpen(true)}>
-              <Coins className="h-4 w-4 mr-2" />
-              {tariff
-                ? t("appPage.sites.detail.tariff.editButton")
-                : t("appPage.sites.detail.tariff.setButton")}
-            </Button>
-            <Button variant="outline" onClick={handleEdit}>
-              <Pencil className="h-4 w-4 mr-2" />
-              {t("common.edit")}
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              {t("common.delete")}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
 
       <LogSiteVisitDialog
         open={logVisitOpen}

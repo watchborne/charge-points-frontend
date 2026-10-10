@@ -102,20 +102,23 @@ app/
                            #   hooks/useChargePointActions.ts centralizes the action
                            #   handlers ChargePointDetailPanel and ChargePointFleetPanel share.
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard, SiteGrid,
-                           #   SiteGridSkeleton, SiteDeletionDialog, SiteDetailModal,
+                           #   SiteGridSkeleton, SiteDeletionDialog, SiteDetail (the
+                           #   site detail view, rendered by the dedicated sites/[id]/page.tsx
+                           #   route — /app/sites/:id, no longer a modal; the list page just
+                           #   navigates there),
                            #   SiteReliabilityValue (7-day uptime %, rendered in
-                           #   SiteDetailModal), SetSiteTariffDialog: configures a site's
+                           #   SiteDetail), SetSiteTariffDialog: configures a site's
                            #   per-kWh tariff (GET/PUT /api/sites/:id/tariff via
                            #   hooks/useSiteTariff.ts + lib/api-site-tariff.ts,
-                           #   charge-points-server ADR 0019) from SiteDetailModal,
+                           #   charge-points-server ADR 0019) from SiteDetail,
                            #   LogSiteVisitDialog: logs a site visit
                            #   (POST /api/sites/:id/visits, charge-points-server ADR 0015)
-                           #   from SiteDetailModal, ScheduleNextVisitDialog: plans/edits/
+                           #   from SiteDetail, ScheduleNextVisitDialog: plans/edits/
                            #   cancels a site's next visit (GET/PUT/DELETE
                            #   /api/sites/:id/next-visit, charge-points-server issue #579/
-                           #   ADR 0016) from SiteDetailModal — the proactive counterpart to
+                           #   ADR 0016) from SiteDetail — the proactive counterpart to
                            #   LogSiteVisitDialog's reactive history, and SiteReportExportButton:
-                           #   downloads the printable PDF site report from SiteDetailModal —
+                           #   downloads the printable PDF site report from SiteDetail —
                            #   generated entirely by charge-points-server (ADR 0023, GET
                            #   /api/sites/:id/report.pdf): it reads its own data, draws its
                            #   charts as vectors and writes the file in the dashboard's
