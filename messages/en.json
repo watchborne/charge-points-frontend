@@ -1385,6 +1385,8 @@
           "noData": "No data yet"
         },
         "report": {
+          "windowLabel": "Report period",
+          "windowOption": "Last {days} days",
           "exportButton": "Export as PDF",
           "exportError": "Couldn't generate the PDF report. Please try again."
         },

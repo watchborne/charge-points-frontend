@@ -24,6 +24,8 @@ import { SiteReportExportButton } from "../SiteReportExportButton";
 
 afterEach(() => cleanup());
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const SITE = { id: "site-1", name: "Site Nord — Été", customer: "Acme" } as unknown as Site;
 
 let clickedLink: { download: string; href: string } | undefined;
@@ -34,7 +36,7 @@ beforeEach(() => {
   clickedLink = undefined;
   downloadReportMock.mockResolvedValue({
     blob: new Blob(["pdf"], { type: "application/pdf" }),
-    filename: "site-nord-ete-report.pdf",
+    filename: "site-nord-ete-report-2026_10_03-2026_10_10.pdf",
   });
   vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
   vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
@@ -55,7 +57,21 @@ describe("SiteReportExportButton", () => {
     fireEvent.click(button());
 
     await waitFor(() => expect(downloadReportMock).toHaveBeenCalledTimes(1));
-    expect(downloadReportMock).toHaveBeenCalledWith("site-1", { locale: "en" });
+    expect(downloadReportMock).toHaveBeenCalledWith("site-1", {
+      locale: "en",
+      from: expect.any(Date),
+      to: expect.any(Date),
+    });
+  });
+
+  it("SHOULD request the last 7 days WHEN no window was picked", async () => {
+    render(<SiteReportExportButton site={SITE} />);
+
+    fireEvent.click(button());
+
+    await waitFor(() => expect(downloadReportMock).toHaveBeenCalledTimes(1));
+    const { from, to } = downloadReportMock.mock.calls[0][1] as { from: Date; to: Date };
+    expect(Math.round((to.getTime() - from.getTime()) / DAY_MS)).toBe(7);
   });
 
   it("SHOULD hand the file to the browser under the server's filename", async () => {
@@ -64,19 +80,22 @@ describe("SiteReportExportButton", () => {
     fireEvent.click(button());
 
     await waitFor(() => expect(clickedLink).toBeDefined());
-    expect(clickedLink?.download).toBe("site-nord-ete-report.pdf");
+    expect(clickedLink?.download).toBe("site-nord-ete-report-2026_10_03-2026_10_10.pdf");
     expect(clickedLink?.href).toBe("blob:mock-url");
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
 
-  it("SHOULD fall back to a name derived from the site WHEN the server sent none", async () => {
+  it("SHOULD fall back to a name derived from the site and the window WHEN the server sent none", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-10T12:00:00.000Z"));
     downloadReportMock.mockResolvedValue({ blob: new Blob(["pdf"]), filename: undefined });
     render(<SiteReportExportButton site={SITE} />);
 
     fireEvent.click(button());
 
     await waitFor(() => expect(clickedLink).toBeDefined());
-    expect(clickedLink?.download).toBe("site-nord-ete-report.pdf");
+    expect(clickedLink?.download).toBe("site-nord-ete-report-2026_10_03-2026_10_10.pdf");
+    vi.useRealTimers();
   });
 
   it("SHOULD disable the button WHILE the report is being generated", async () => {

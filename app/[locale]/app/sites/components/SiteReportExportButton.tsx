@@ -6,12 +6,28 @@ import { FileDown, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { isLocale } from "@/i18n/locale";
 import { api } from "@/lib/api";
 
 type Props = {
   site: Site;
 };
+
+export const REPORT_WINDOW_DAYS = [3, 7, 15, 30] as const;
+export type ReportWindowDays = (typeof REPORT_WINDOW_DAYS)[number];
+const DEFAULT_WINDOW_DAYS: ReportWindowDays = 7;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** `2026-10-03T…` → `2026_10_03` (UTC, same as the backend's own filename). */
+const filenameDate = (date: Date) => date.toISOString().slice(0, 10).replaceAll("-", "_");
 
 const downloadBlob = (blob: Blob, filename: string) => {
   const url = URL.createObjectURL(blob);
@@ -26,7 +42,7 @@ const downloadBlob = (blob: Blob, filename: string) => {
  * Used only if the server sent no `Content-Disposition` filename: the same
  * ASCII slug the backend would have made (`Site Nord — Été` → `site-nord-ete`).
  */
-const fallbackFilename = (site: Site) => {
+const fallbackFilename = (site: Site, from: Date, to: Date) => {
   const slug = site.name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -34,7 +50,7 @@ const fallbackFilename = (site: Site) => {
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
 
-  return `${slug || "site"}-report.pdf`;
+  return `${slug || "site"}-report-${filenameDate(from)}-${filenameDate(to)}.pdf`;
 };
 
 /**
@@ -47,19 +63,24 @@ const fallbackFilename = (site: Site) => {
 export const SiteReportExportButton = ({ site }: Props) => {
   const t = useTranslations("");
   const locale = useLocale();
+  const [windowDays, setWindowDays] = useState<ReportWindowDays>(DEFAULT_WINDOW_DAYS);
   const [exporting, setExporting] = useState(false);
   const [exportFailed, setExportFailed] = useState(false);
 
   const handleExport = async () => {
     setExportFailed(false);
     setExporting(true);
+    const to = new Date();
+    const from = new Date(to.getTime() - windowDays * DAY_MS);
     try {
       const { blob, filename } = await api.Sites.downloadReport(site.id, {
         // The dashboard is only ever served in a supported locale; the guard
         // narrows the type rather than guarding a case that can occur.
         locale: isLocale(locale) ? locale : "fr",
+        from,
+        to,
       });
-      downloadBlob(blob, filename ?? fallbackFilename(site));
+      downloadBlob(blob, filename ?? fallbackFilename(site, from, to));
     } catch {
       // `withErrorLogging` has already reported it; the user needs to know to retry.
       setExportFailed(true);
@@ -70,14 +91,35 @@ export const SiteReportExportButton = ({ site }: Props) => {
 
   return (
     <>
-      <Button variant="outline" onClick={handleExport} disabled={exporting}>
-        {exporting ? (
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-        ) : (
-          <FileDown className="h-4 w-4 mr-2" />
-        )}
-        {t("appPage.sites.detail.report.exportButton")}
-      </Button>
+      <div className="flex gap-2">
+        <Select
+          value={String(windowDays)}
+          onValueChange={(value) => setWindowDays(Number(value) as ReportWindowDays)}
+          disabled={exporting}
+        >
+          <SelectTrigger
+            className="w-auto min-w-[9rem]"
+            aria-label={t("appPage.sites.detail.report.windowLabel")}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {REPORT_WINDOW_DAYS.map((days) => (
+              <SelectItem key={days} value={String(days)}>
+                {t("appPage.sites.detail.report.windowOption", { days })}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button variant="outline" className="flex-1" onClick={handleExport} disabled={exporting}>
+          {exporting ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <FileDown className="h-4 w-4 mr-2" />
+          )}
+          {t("appPage.sites.detail.report.exportButton")}
+        </Button>
+      </div>
 
       {exportFailed && (
         <p className="text-xs text-destructive">{t("appPage.sites.detail.report.exportError")}</p>
