@@ -20,7 +20,7 @@ export const SiteHealthList = ({ sitesWithHealth }: { sitesWithHealth: SiteWithH
   const router = useRouter();
 
   const onRowClicked = (siteId: string): void => {
-    router.push(`/app/sites?id=${siteId}`);
+    router.push(`/app/sites/${siteId}`);
   };
 
   return (
