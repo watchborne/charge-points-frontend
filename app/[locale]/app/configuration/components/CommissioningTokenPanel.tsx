@@ -13,7 +13,7 @@ import {
   type ColorName,
 } from "@watchborne/electrons";
 import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import {
@@ -29,6 +29,7 @@ import {
 import { api } from "@/lib/api";
 import { CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
+import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import { colorDotClass } from "@/lib/status";
 
@@ -60,7 +61,7 @@ const OUTCOME_COLOR: Record<CommissioningOutcome, ColorName> = {
  */
 export const CommissioningTokenPanel = () => {
   const t = useTranslations("");
-  const format = useFormatter();
+  const { formatDateNumeric, formatDateTime } = useDateFormat();
   const queryClient = useQueryClient();
 
   const [revealedToken, setRevealedToken] = useState<string | null>(null);
@@ -154,8 +155,7 @@ export const CommissioningTokenPanel = () => {
   // on — adopts a charge point literally named that, and with a valid token
   // claims it for the caller.
   const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
-  const formatDate = (date: string) =>
-    format.dateTime(new Date(date), { year: "numeric", month: "2-digit", day: "2-digit" });
+  const formatDate = (date: string) => formatDateNumeric(date);
 
   const steps = [
     t("appPage.configuration.commissioningToken.howItWorks.steps.generate"),
@@ -201,7 +201,7 @@ export const CommissioningTokenPanel = () => {
           <Callout
             variant="warning"
             description={t("appPage.configuration.commissioningToken.expiredWarning", {
-              date: formatDate(expiresAt),
+              date: formatDateNumeric(expiresAt),
             })}
           />
         )}
@@ -215,7 +215,7 @@ export const CommissioningTokenPanel = () => {
             {expiresAt && (
               <p className="text-sm text-muted-foreground">
                 {t("appPage.configuration.commissioningToken.expiresAtLabel", {
-                  date: formatDate(expiresAt),
+                  date: formatDateNumeric(expiresAt),
                 })}
               </p>
             )}
@@ -247,11 +247,11 @@ export const CommissioningTokenPanel = () => {
         {!loading && !revealedToken && hasToken && createdAt && (
           <p className="text-sm text-muted-foreground">
             {t("appPage.configuration.commissioningToken.createdAtLabel", {
-              date: formatDate(createdAt),
+              date: formatDateNumeric(createdAt),
             })}
             {expiresAt &&
               ` · ${t("appPage.configuration.commissioningToken.expiresAtLabel", {
-                date: formatDate(expiresAt),
+                date: formatDateNumeric(expiresAt),
               })}`}
           </p>
         )}
@@ -332,13 +332,7 @@ export const CommissioningTokenPanel = () => {
                       return (
                         <TableRow key={attempt.id}>
                           <TableCell className="whitespace-nowrap text-xs">
-                            {format.dateTime(new Date(attempt.attemptedAt), {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {formatDateTime(attempt.attemptedAt)}
                           </TableCell>
                           <TableCell className="text-xs">{station}</TableCell>
                           <TableCell className="text-xs">

@@ -2,7 +2,7 @@
 
 import { Button, Callout } from "@watchborne/electrons";
 import { Ban, UploadCloud } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import {
@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { FirmwareCampaign } from "@/lib/api-firmware-campaigns";
+import { useDateFormat } from "@/lib/date-format";
 
 import { FirmwareCampaignStatusBadge } from "./FirmwareCampaignStatusBadge";
 import { StatsBreakdown } from "../../components/common/StatsBreakdown";
@@ -50,7 +51,7 @@ export const FirmwareCampaignDetailModal = ({
   isCanceling = false,
 }: FirmwareCampaignDetailModalProps) => {
   const t = useTranslations("");
-  const format = useFormatter();
+  const { formatDateTime } = useDateFormat();
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   const { progress, loading } = useFirmwareCampaignProgress(open ? (campaign?.id ?? null) : null);
@@ -110,15 +111,7 @@ export const FirmwareCampaignDetailModal = ({
                 <span className="text-muted-foreground">
                   {t("appPage.firmwareCampaigns.detail.scheduledAt")}
                 </span>
-                <span className="font-medium">
-                  {format.dateTime(new Date(campaign.scheduledAt), {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+                <span className="font-medium">{formatDateTime(campaign.scheduledAt)}</span>
               </div>
 
               {campaign.toVersion && (

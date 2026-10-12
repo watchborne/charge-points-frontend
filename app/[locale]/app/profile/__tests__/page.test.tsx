@@ -4,10 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const translate = (key: string) => key;
 
-const formatter = {
-  dateTime: (date: Date) => `formatted:${date.toISOString().slice(0, 10)}`,
-};
-
 const { useTheme, setTheme } = vi.hoisted(() => ({
   useTheme: vi.fn(),
   setTheme: vi.fn(),
@@ -37,7 +33,6 @@ const { isIosDevice, isStandaloneDisplayMode } = vi.hoisted(() => ({
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
   useTranslations: () => translate,
-  useFormatter: () => formatter,
 }));
 
 // Relative target, not the "@/" alias: this project's Vitest config does not
@@ -70,8 +65,8 @@ const defaultPushSubscriptionState = {
 const user = {
   id: "11111111-1111-4111-8111-111111111111",
   email: "installer@example.com",
-  last_sign_in_at: "2024-03-01T10:30:00.000Z",
-  created_at: "2024-01-01T00:00:00.000Z",
+  last_sign_in_at: "2024-03-01T12:30:00.000Z",
+  created_at: "2024-01-02T12:00:00.000Z",
   user_metadata: { email_verified: true },
 };
 
@@ -118,8 +113,8 @@ describe("ProfilePage", () => {
 
     expect(await screen.findByText(user.id)).toBeTruthy();
     expect(screen.getByText(user.email)).toBeTruthy();
-    expect(screen.getByText("formatted:2024-03-01")).toBeTruthy();
-    expect(screen.getByText("formatted:2024-01-01")).toBeTruthy();
+    expect(screen.getByText(/^01\/03\/2024/)).toBeTruthy();
+    expect(screen.getByText(/^02\/01\/2024/)).toBeTruthy();
     expect(screen.getByText("appPage.profile.session.verified")).toBeTruthy();
   });
 
