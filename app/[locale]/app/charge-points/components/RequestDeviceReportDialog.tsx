@@ -116,7 +116,7 @@ export const RequestDeviceReportDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.deviceVariableReports.request.title")}</DialogTitle>
           <DialogDescription>

@@ -116,7 +116,7 @@ export const InstallCertificateDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.certificates.install.title")}</DialogTitle>
           <DialogDescription>

@@ -154,7 +154,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
             </Button>
           </DialogTrigger>
 
-          <DialogContent>
+          <DialogContent closeLabel={t("common.close")}>
             <DialogHeader>
               <DialogTitle>{t("appPage.chargePoints.displayMessage.set.title")}</DialogTitle>
               <DialogDescription>

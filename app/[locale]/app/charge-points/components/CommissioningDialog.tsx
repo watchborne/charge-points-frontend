@@ -80,7 +80,7 @@ export const CommissioningDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent closeLabel={t("common.close")} className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PlugZap className="h-5 w-5 text-charge-strong" />
