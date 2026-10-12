@@ -118,7 +118,8 @@ app/
                            #   /api/sites/:id/next-visit, charge-points-server issue #579/
                            #   ADR 0016) from SiteDetail — the proactive counterpart to
                            #   LogSiteVisitDialog's reactive history, and SiteReportExportButton:
-                           #   downloads the printable PDF site report from SiteDetail —
+                           #   downloads the printable PDF site report from SiteDetail, over a time window the
+                           #   user picks (3/7/15/30 days, `REPORT_WINDOW_DAYS`) —
                            #   generated entirely by charge-points-server (ADR 0023, GET
                            #   /api/sites/:id/report.pdf): it reads its own data, draws its
                            #   charts as vectors and writes the file in the dashboard's
@@ -328,8 +329,11 @@ here — a request without a session simply reaches the backend with no token.
   registering it), and `app/[locale]/app/hooks/usePushSubscription.ts` registers
   it and subscribes the browser using `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (must be the
   same key as the server's `VAPID_PUBLIC_KEY`; unset disables subscribing
-  rather than throwing). Plumbing only so far — the settings toggle that calls
-  it is a follow-up (#401).
+  rather than throwing). The opt-in toggle lives on `/app/profile` (with iOS
+  install-to-home-screen guidance, backed by `public/manifest.json` + icons for
+  PWA installability), and the digest's push channel
+  (`NotificationPreferencesPanel`, `digestPushEnabled`, charge-points-server
+  ADR 0023) requires a live browser subscription.
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
