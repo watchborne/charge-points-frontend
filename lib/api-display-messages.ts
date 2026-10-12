@@ -5,6 +5,7 @@ import type {
 } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
+import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 
 // The NotifyDisplayMessages history's response shape. Not part of
@@ -67,9 +68,10 @@ export type GetDisplayMessagesStatus = "Accepted" | "Unknown";
  * Same discriminated-result shape as `RequestDeviceReportOutcome`: the
  * caller needs the specific HTTP outcome, not just success/failure.
  */
-export type GetDisplayMessagesOutcome =
-  | { ok: true; status: GetDisplayMessagesStatus; displayMessageRequest: DisplayMessageRequest }
-  | { ok: false; httpStatus: number };
+export type GetDisplayMessagesOutcome = CommandOutcome<{
+  status: GetDisplayMessagesStatus;
+  displayMessageRequest: DisplayMessageRequest;
+}>;
 
 export const displayMessageApis = {
   list: async function (
