@@ -6,6 +6,7 @@ import {
 } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
+import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 
 export { GET_BASE_REPORT_TYPES_V201 };
@@ -86,9 +87,10 @@ export type ReportRequest = {
  * just success/failure, so this reads the raw response rather than going
  * through `httpClient`.
  */
-export type RequestDeviceReportOutcome =
-  | { ok: true; status: GenericDeviceModelStatusV201; reportRequest: ReportRequest | null }
-  | { ok: false; httpStatus: number };
+export type RequestDeviceReportOutcome = CommandOutcome<{
+  status: GenericDeviceModelStatusV201;
+  reportRequest: ReportRequest | null;
+}>;
 
 export const deviceVariableReportApis = {
   list: async function (
