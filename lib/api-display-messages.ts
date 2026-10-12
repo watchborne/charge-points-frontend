@@ -1,37 +1,26 @@
 import type {
   ChargePoint,
-  MessagePriorityV201,
-  MessageStateV201,
+  GetDisplayMessagesStatusV201,
+  MessageContentV201,
+  MessageInfoV201,
 } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
+import type { Wire } from "./wire";
 
-// The NotifyDisplayMessages history's response shape. Not part of
-// @watchborne/charge-points-types on purpose, same reasoning as
-// DeviceVariableReport: the backend keeps DisplayMessageReport server-local
-// (charge-points-server, issue #536) since no client consumes it as a
-// domain entity. Timestamps arrive as ISO strings and are parsed where
-// rendered, never widened to `Date` here.
+// The NotifyDisplayMessages history's response shape. The backend keeps the
+// `DisplayMessageReport` row itself server-local (charge-points-server, issue
+// #536), but each message in it is the shared OCPP 2.0.1 `MessageInfo`
+// (@watchborne/charge-points-types) returned as is, so it is derived from there
+// rather than re-declared: timestamps arrive as ISO strings and are parsed where
+// rendered (see `Wire`).
 
-export type DisplayMessageContent = {
-  format: string;
-  content: string;
-  language?: string;
-};
+export type DisplayMessageContent = Wire<MessageContentV201>;
 
 /** One message a station is (or was) showing, as a NotifyDisplayMessages frame carries it. */
-export type DisplayMessageInfo = {
-  id: number;
-  priority: MessagePriorityV201;
-  state?: MessageStateV201;
-  /** ISO string. */
-  startDateTime?: string;
-  /** ISO string. */
-  endDateTime?: string;
-  message: DisplayMessageContent;
-};
+export type DisplayMessageInfo = Wire<MessageInfoV201>;
 
 /** One NotifyDisplayMessages frame, as `GET /api/charge-points/:id/display-message-reports` returns it. */
 export type DisplayMessageReport = {
@@ -62,7 +51,7 @@ export type DisplayMessageRequest = {
   updatedAt: string;
 };
 
-export type GetDisplayMessagesStatus = "Accepted" | "Unknown";
+export type GetDisplayMessagesStatus = GetDisplayMessagesStatusV201;
 
 /**
  * Same discriminated-result shape as `RequestDeviceReportOutcome`: the

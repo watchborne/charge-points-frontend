@@ -1,8 +1,10 @@
 import {
   GET_BASE_REPORT_TYPES_V201,
+  type AttributeTypeV201,
   type ChargePoint,
   type GenericDeviceModelStatusV201,
   type GetBaseReportBaseV201,
+  type VariableV201,
 } from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
@@ -12,13 +14,15 @@ import { fetchWithFreshSession, httpClient } from "./http-client";
 export { GET_BASE_REPORT_TYPES_V201 };
 export type { GetBaseReportBaseV201 };
 
-// The NotifyReport history's response shape. Not part of
-// @watchborne/charge-points-types on purpose, like DeviceEventReport/
-// SecurityEvent: the backend keeps `DeviceVariableReport` server-local
-// (charge-points-server ADR 0011) since no client consumes it as a domain
-// entity — the dashboard codes against this response contract. Timestamps
-// arrive as ISO strings and are parsed where rendered, never widened to
-// `Date` here.
+// The NotifyReport history's response shape. The backend keeps the
+// `DeviceVariableReport` row server-local (charge-points-server ADR 0011), so the
+// frame itself is declared here; timestamps arrive as ISO strings and are parsed
+// where rendered, never widened to `Date` here.
+//
+// The variable identifier (`VariableV201`) and the attribute type
+// (`AttributeTypeV201`) are the shared package's. The component is not: the API
+// flattens OCPP's nested `evse: { id, connectorId }` into `evseId` /
+// `connectorId`, so it deliberately differs from `ComponentV201` and stays local.
 
 /** OCPP 2.0.1's generic device-model identifiers — vendor-defined, open vocabulary. */
 export type DeviceVariableComponent = {
@@ -28,14 +32,11 @@ export type DeviceVariableComponent = {
   connectorId?: number;
 };
 
-export type DeviceVariableName = {
-  name: string;
-  instance?: string;
-};
+export type DeviceVariableName = VariableV201;
 
 export type DeviceVariableAttribute = {
   /** Defaults to "Actual" per spec when the station omits it. */
-  type?: "Actual" | "Target" | "MinSet" | "MaxSet";
+  type?: AttributeTypeV201;
   value?: string;
   mutability?: "ReadOnly" | "WriteOnly" | "ReadWrite";
   persistent?: boolean;

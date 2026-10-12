@@ -293,9 +293,13 @@ here — a request without a session simply reaches the backend with no token.
   (`api.DisplayMessages`) reads `GET /api/charge-points/:id/display-message-reports`
   (the `NotifyDisplayMessages` history behind `DisplayMessagesPanel`) and issues the
   unfiltered `GetDisplayMessages` request `requestAll` triggers — same
-  acknowledgment-now/data-later shape as the device-report request above. All four
-  follow the same locally-declared-response-type pattern as `Me` above, for the
-  same reason (their backing entities are still server-local).
+  acknowledgment-now/data-later shape as the device-report request above. The report
+  frames themselves are locally-declared response types, like `Me` above (their backing
+  entities are still server-local), built on the shared package where the shapes truly
+  match: `VariableV201`, `AttributeTypeV201`, and each display message, which is the
+  package's `MessageInfoV201` as is. The device-model `Component` is the exception —
+  the API flattens OCPP's nested `evse` into `evseId`/`connectorId`, so it stays local
+  and is not `ComponentV201`.
   `api.ChargePoints.setDisplayMessage`/`clearDisplayMessage` (`lib/api-charge-points.ts`)
   are the write side (OCPP `SetDisplayMessage`/`ClearDisplayMessage`, 2.0.1-only)
   behind `DisplayMessageControl` — a single fixed message id, since this client has
