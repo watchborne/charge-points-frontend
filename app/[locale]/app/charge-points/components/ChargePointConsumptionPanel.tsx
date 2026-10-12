@@ -13,7 +13,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@watchborne/electrons";
-import { format } from "date-fns";
 import { BarChart3, TableIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
