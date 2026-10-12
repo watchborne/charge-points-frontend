@@ -127,10 +127,12 @@ app/
                            #   rasterization any more)
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
-                          #   tied to domain types/state; plus generic display/interaction
-                          #   primitives not yet promoted to @watchborne/electrons:
-                          #   ActionsDropdown, StatusActionDropdown, FormDialog,
-                          #   StatsBreakdown, GenericStatusBadge, SkeletonGrid, Tooltip;
+                          #   tied to domain types/state; GenericStatusBadge — the
+                          #   next-intl lookup around electrons' ColorPill; Tooltip — an
+                          #   anchor + provider wrapper over electrons' Tooltip primitive.
+                          #   The generic ActionsDropdown, StatusActionDropdown, FormDialog,
+                          #   StatsBreakdown and SkeletonGrid now come from
+                          #   @watchborne/electrons;
                           #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile, derived client-side from already-fetched
                           #   charge points (lib/derive-site-health.ts) rather than a
@@ -482,7 +484,8 @@ hook — do not construct `new WebSocket` directly in components. Prefer
 
 Most UI primitives (`Button`, `Badge`, `Input`, `Textarea`, `Label`, `Switch`, `Tabs`,
 `Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`, `Tooltip`,
-`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`, `Calendar`)
+`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`, `Calendar`,
+`ActionsDropdown`, `StatusActionDropdown`, `FormDialog`, `StatsBreakdown`, `SkeletonGrid`)
 come from `@watchborne/electrons`, the shared watchborne component library —
 import them from there rather than redefining or re-copying them locally.
 A `Button` that triggers an async action takes `loading` (spinner, disabled,
@@ -492,9 +495,10 @@ Dates are formatted with `useDateFormat` (`lib/date-format.ts`), never with ad h
 `Intl`/`toLocale*`/`date-fns`/`useFormatter().dateTime` calls: it follows the
 language of the UI (`fr` `08/10/2026 14:05`, `en` `10/08/2026, 02:05 PM`), in the
 browser's local time. Numbers and currency still go through next-intl's `useFormatter`.
-`DialogContent` (and `CommandDialog`) take a `closeLabel` for the close button's
-screen-reader text (default `"Close"`); pass a translated string where the dialog
-is user-facing. Only the app-specific `Datepicker` and `Form` still live in
+`DialogContent`, `CommandDialog` and `FormDialog` take a `closeLabel` for the close
+button's screen-reader text (default `"Close"`); pass a translated string
+(`t("common.close")`) where the dialog is user-facing. `ActionsDropdown`'s default
+icon-only trigger takes its accessible name from `triggerLabel` the same way. Only the app-specific `Datepicker` and `Form` still live in
 `components/ui/*`; shadcn config is in `components.json`, regenerate with the
 shadcn CLI rather than hand-editing generated files. Style with Tailwind and the tokens from
 `@watchborne/electrons/tokens.css` (imported once in `app/globals.css`) and

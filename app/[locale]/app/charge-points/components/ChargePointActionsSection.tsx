@@ -1,5 +1,5 @@
 import { AvailabilityType, ResetType } from "@watchborne/charge-points-types";
-import { Button, Callout } from "@watchborne/electrons";
+import { Button, Callout, ActionsDropdown, StatusActionDropdown } from "@watchborne/electrons";
 import { CheckCircle2, ChevronDown, Power, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -12,8 +12,6 @@ import { ChargePointReleaseControl } from "./ChargePointReleaseControl";
 import { DisplayMessageControl } from "./DisplayMessageControl";
 import { DisplayMessagesPanel } from "./DisplayMessagesPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
-import { ActionsDropdown } from "../../components/common/ActionsDropdown";
-import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 
 export type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };

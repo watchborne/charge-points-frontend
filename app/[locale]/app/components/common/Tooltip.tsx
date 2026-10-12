@@ -23,7 +23,7 @@ type TooltipProps = {
 
 /**
  * A styled anchor wrapping `children` with a hover/focus tooltip bubble,
- * built on shadcn/ui's Radix `Tooltip` primitive (`components/ui/tooltip.tsx`)
+ * built on the Radix `Tooltip` primitive from `@watchborne/electrons`
  * rather than a hand-rolled CSS `group-hover` bubble — Radix positions the
  * bubble in a portal via floating-ui, so it's never clipped by an ancestor's
  * `overflow-hidden`, and it manages open state itself instead of relying on

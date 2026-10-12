@@ -1,7 +1,8 @@
 "use client";
 
-import { Button, Callout } from "@watchborne/electrons";
 import {
+  Button,
+  Callout,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -10,13 +11,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@watchborne/electrons";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  StatsBreakdown,
 } from "@watchborne/electrons";
 import { Ban, UploadCloud } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -26,7 +26,6 @@ import type { FirmwareCampaign } from "@/lib/api-firmware-campaigns";
 import { useDateFormat } from "@/lib/date-format";
 
 import { FirmwareCampaignStatusBadge } from "./FirmwareCampaignStatusBadge";
-import { StatsBreakdown } from "../../components/common/StatsBreakdown";
 import { useFirmwareCampaignProgress } from "../../hooks/useFirmwareCampaignProgress";
 
 type FirmwareCampaignDetailModalProps = {

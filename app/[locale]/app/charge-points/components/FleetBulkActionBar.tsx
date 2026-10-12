@@ -1,7 +1,7 @@
 "use client";
 
 import { AvailabilityType, ChargePoint, ResetType } from "@watchborne/charge-points-types";
-import { Button } from "@watchborne/electrons";
+import { Button, ActionsDropdown, StatusActionDropdown } from "@watchborne/electrons";
 import { CheckCircle2, ChevronDown, Power, RotateCcw, Unlock, X, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -13,8 +13,6 @@ import {
 } from "@/lib/error-messages";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
-import { ActionsDropdown } from "../../components/common/ActionsDropdown";
-import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 import { useBulkChargePointActions } from "../hooks/useBulkChargePointActions";
 
 type FleetBulkActionBarProps = {

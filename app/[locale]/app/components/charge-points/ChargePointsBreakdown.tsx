@@ -1,9 +1,8 @@
+import { StatsBreakdown } from "@watchborne/electrons";
 import { Battery, PlugZap, RefreshCw, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChargePointWithConnectors } from "@/types/charge-point";
-
-import { StatsBreakdown } from "../common/StatsBreakdown";
 
 export const ChargePointsBreakdown = ({
   chargePoints,
