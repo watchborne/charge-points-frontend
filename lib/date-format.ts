@@ -25,6 +25,10 @@ export const useDateFormat = () => {
     /** "08/10/2026 14:05", or "08/10/2026 14:05:09" with `withSeconds`. */
     formatDateTime: (date: DateInput, { withSeconds = false }: { withSeconds?: boolean } = {}) =>
       format(new Date(date), withSeconds ? "dd/MM/yyyy HH:mm:ss" : "dd/MM/yyyy HH:mm"),
+    /** "08/10 14:05" — compact, for tooltips where the year is implied. */
+    formatShortDateTime: (date: DateInput) => format(new Date(date), "dd/MM HH:mm"),
+    /** "08/10" — day and month only, e.g. a chart tick spanning several days. */
+    formatDayMonth: (date: DateInput) => format(new Date(date), "dd/MM"),
     /** "08 octobre 2026". */
     formatDate: (date: DateInput) => format(new Date(date), "dd MMMM yyyy", { locale }),
     /** "14:05". */

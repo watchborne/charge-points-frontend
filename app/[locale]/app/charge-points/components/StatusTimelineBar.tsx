@@ -1,7 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
-
+import { useDateFormat } from "@/lib/date-format";
 import { colorDotClass, type ColorName } from "@/lib/status";
 import { formatDurationShort, type StatusSegment } from "@/lib/status-history";
 
@@ -39,6 +38,7 @@ export const StatusTimelineBar = <S extends string>({
   ariaLabel,
   unknownLabel,
 }: Props<S>) => {
+  const { formatShortDateTime } = useDateFormat();
   const totalMs = windowEnd.getTime() - windowStart.getTime();
 
   // Unique statuses in the order they first appear — a reader scanning the
@@ -62,9 +62,8 @@ export const StatusTimelineBar = <S extends string>({
           const text = segment.status === null ? unknownLabel : label(segment.status);
           // The one place the exact bounds are reachable without a legend
           // entry for every segment individually.
-          const tooltipText = `${text} · ${format(segment.start, "dd/MM HH:mm")} → ${format(
+          const tooltipText = `${text} · ${formatShortDateTime(segment.start)} → ${formatShortDateTime(
             segment.end,
-            "dd/MM HH:mm",
           )} (${formatDurationShort(durationMs)})`;
 
           return (

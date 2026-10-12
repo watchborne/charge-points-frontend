@@ -7,6 +7,8 @@ import type { StatusSegment } from "@/lib/status-history";
 
 import { StatusTimelineBar } from "../StatusTimelineBar";
 
+vi.mock("next-intl", () => ({ useLocale: () => "fr" }));
+
 // Radix's Tooltip (behind the shared Tooltip primitive) needs these in jsdom,
 // same as every other Radix-based component tested in this codebase.
 beforeAll(() => {
