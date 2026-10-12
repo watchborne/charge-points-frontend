@@ -1,10 +1,6 @@
 "use client";
 
 import { Button, Callout } from "@watchborne/electrons";
-import { Loader2, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +11,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@watchborne/electrons";
+import { Loader2, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import { getCertificateDeleteErrorMessageKey } from "@/lib/error-messages";
 import type { CertificateHashData } from "@/types/certificate";

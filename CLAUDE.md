@@ -180,11 +180,11 @@ proxy.ts                # Supabase session refresh, next-intl URL-based locale
                         # next-intl's middleware first, and a redirect from
                         # that (URL normalization) short-circuits immediately
                         # before the auth gate runs.
-components/ui/          # shadcn/ui primitives not yet promoted to
-                        #   @watchborne/electrons (generated; edit via
-                        #   components.json) — Dialog, AlertDialog, Popover,
-                        #   DropdownMenu, Select, Command, Calendar,
-                        #   Datepicker, Form
+components/ui/          # shadcn/ui pieces that stay in the app (edit via
+                        #   components.json): Datepicker (popover + calendar
+                        #   wired to useDateFormat/useCalendarLocale) and Form
+                        #   (react-hook-form). Everything else shadcn-shaped
+                        #   comes from @watchborne/electrons.
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # mostly thin re-exports of @watchborne/charge-points-types;
                         #   charge-point.ts also extends ChargePointWithConnectors/
@@ -480,8 +480,9 @@ hook — do not construct `new WebSocket` directly in components. Prefer
 
 ### UI
 
-Most UI primitives (`Button`, `Badge`, `Input`, `Label`, `Switch`, `Tabs`,
-`Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`)
+Most UI primitives (`Button`, `Badge`, `Input`, `Textarea`, `Label`, `Switch`, `Tabs`,
+`Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`, `Tooltip`,
+`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`, `Calendar`)
 come from `@watchborne/electrons`, the shared watchborne component library —
 import them from there rather than redefining or re-copying them locally.
 A `Button` that triggers an async action takes `loading` (spinner, disabled,
@@ -491,11 +492,11 @@ Dates are formatted with `useDateFormat` (`lib/date-format.ts`), never with ad h
 `Intl`/`toLocale*`/`date-fns`/`useFormatter().dateTime` calls: it follows the
 language of the UI (`fr` `08/10/2026 14:05`, `en` `10/08/2026, 02:05 PM`), in the
 browser's local time. Numbers and currency still go through next-intl's `useFormatter`.
-The remaining, more composite or app-specific shadcn primitives
-(`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`,
-`Calendar`, `Datepicker`, `Form`) still live in `components/ui/*`; shadcn
-config is in `components.json`, regenerate with the shadcn CLI rather than
-hand-editing generated files. Style with Tailwind and the tokens from
+`DialogContent` (and `CommandDialog`) take a `closeLabel` for the close button's
+screen-reader text (default `"Close"`); pass a translated string where the dialog
+is user-facing. Only the app-specific `Datepicker` and `Form` still live in
+`components/ui/*`; shadcn config is in `components.json`, regenerate with the
+shadcn CLI rather than hand-editing generated files. Style with Tailwind and the tokens from
 `@watchborne/electrons/tokens.css` (imported once in `app/globals.css`) and
 `@watchborne/electrons/tailwind-preset` (plugged into `tailwind.config.js`
 via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.

@@ -1,12 +1,11 @@
-import type { CSSProperties, ReactNode } from "react";
-
 import {
   Tooltip as TooltipRoot,
   TooltipContent,
   TooltipPosition,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@watchborne/electrons";
+import type { CSSProperties, ReactNode } from "react";
 
 type TooltipProps = {
   /** The element the tooltip is anchored to. */

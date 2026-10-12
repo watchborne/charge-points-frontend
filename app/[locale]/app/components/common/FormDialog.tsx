@@ -1,6 +1,4 @@
 import { Button } from "@watchborne/electrons";
-import { ReactNode } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -8,7 +6,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { ReactNode } from "react";
 
 export interface FormDialogProps {
   open: boolean;

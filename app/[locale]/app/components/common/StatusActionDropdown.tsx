@@ -1,14 +1,13 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
-import { ReactNode } from "react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@watchborne/electrons";
+import { ReactNode } from "react";
 
 export interface StatusActionOption {
   value: string;

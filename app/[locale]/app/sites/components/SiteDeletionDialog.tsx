@@ -1,6 +1,4 @@
 import { Site } from "@watchborne/charge-points-types";
-import { useTranslations } from "next-intl";
-
 import {
   AlertDialogHeader,
   AlertDialogFooter,
@@ -10,7 +8,8 @@ import {
   AlertDialogDescription,
   AlertDialogCancel,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+} from "@watchborne/electrons";
+import { useTranslations } from "next-intl";
 
 export const SiteDeletionDialog = ({
   deleteTarget,

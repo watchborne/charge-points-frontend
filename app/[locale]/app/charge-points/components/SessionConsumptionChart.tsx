@@ -1,15 +1,15 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+
 import {
   isCumulativeRegister,
   type MeterSample,

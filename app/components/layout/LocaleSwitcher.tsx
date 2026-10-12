@@ -1,14 +1,14 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { useLocale, useTranslations } from "next-intl";
+
 import { isLocale, locales } from "@/i18n/locale";
 import { usePathname, useRouter } from "@/i18n/navigation";
 

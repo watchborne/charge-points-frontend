@@ -3,12 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Site } from "@watchborne/charge-points-types";
 import { Button, Input } from "@watchborne/electrons";
-import { PlugZap } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import z from "zod";
-
 import {
   Dialog,
   DialogContent,
@@ -16,7 +10,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { PlugZap } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import z from "zod";
+
 import {
   Form,
   FormControl,
