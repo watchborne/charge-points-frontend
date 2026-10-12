@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Callout } from "@watchborne/electrons";
 import { Clock, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -9,6 +8,8 @@ import { api } from "@/lib/api";
 import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
+
+import { PanelState } from "../../components/common/PanelState";
 
 type SecurityEventsPanelProps = {
   chargePointId: ChargePoint["id"];
@@ -53,24 +54,15 @@ export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps)
     <div className="flex flex-col gap-3">
       <h4 className="text-sm font-semibold">{t("appPage.chargePoints.securityEvents.title")}</h4>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 animate-pulse" />
-          {t("appPage.chargePoints.securityEvents.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout description={t("appPage.chargePoints.securityEvents.loadError")} variant="error" />
-      )}
-
-      {!loading && !failed && events.length === 0 && (
-        <span className="text-sm text-muted-foreground">
-          {t("appPage.chargePoints.securityEvents.empty")}
-        </span>
-      )}
-
-      {!loading && !failed && events.length > 0 && (
+      <PanelState
+        isLoading={loading}
+        isError={failed}
+        isEmpty={events.length === 0}
+        loadingIcon={<Clock className="h-4 w-4 animate-pulse" />}
+        loadingMessage={t("appPage.chargePoints.securityEvents.loading")}
+        errorMessage={t("appPage.chargePoints.securityEvents.loadError")}
+        emptyMessage={t("appPage.chargePoints.securityEvents.empty")}
+      >
         <div className="divide-y rounded-md border">
           {events.map((event) => (
             <div key={event.id} className="flex flex-col gap-1.5 px-3 py-2">
@@ -91,7 +83,7 @@ export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps)
             </div>
           ))}
         </div>
-      )}
+      </PanelState>
     </div>
   );
 };

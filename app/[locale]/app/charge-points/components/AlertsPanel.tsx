@@ -19,6 +19,7 @@ import { useDateFormat } from "@/lib/date-format";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { AlertStatusBadge } from "../../components/charge-points/AlertStatusBadge";
+import { PanelState } from "../../components/common/PanelState";
 
 /**
  * The fields this panel actually reads off `Alert` — narrow enough that
@@ -125,13 +126,10 @@ export const AlertsPanel = ({
         </label>
       </div>
 
-      {alerts.length === 0 && (
-        <span className="text-sm text-muted-foreground">
-          {t("appPage.chargePoints.alerts.empty")}
-        </span>
-      )}
-
-      {alerts.length > 0 && (
+      <PanelState
+        isEmpty={alerts.length === 0}
+        emptyMessage={t("appPage.chargePoints.alerts.empty")}
+      >
         <div className="divide-y rounded-md border">
           {alerts.map((alert) => {
             const TypeIcon = TYPE_ICON[alert.type];
@@ -231,7 +229,7 @@ export const AlertsPanel = ({
             );
           })}
         </div>
-      )}
+      </PanelState>
     </div>
   );
 };

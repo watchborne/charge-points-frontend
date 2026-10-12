@@ -1,8 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Callout } from "@watchborne/electrons";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
@@ -11,6 +10,7 @@ import type { ChargePoint } from "@/types/charge-point";
 
 import { DeleteCertificateDialog } from "./DeleteCertificateDialog";
 import { InstallCertificateDialog } from "./InstallCertificateDialog";
+import { PanelState } from "../../components/common/PanelState";
 
 type CertificatesPanelProps = {
   chargePointId: ChargePoint["id"];
@@ -60,24 +60,14 @@ export const CertificatesPanel = ({ chargePointId, ocppVersion }: CertificatesPa
         />
       </div>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          {t("appPage.chargePoints.certificates.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout description={t("appPage.chargePoints.certificates.loadError")} variant="error" />
-      )}
-
-      {!loading && !failed && certificates.length === 0 && (
-        <span className="text-sm text-muted-foreground">
-          {t("appPage.chargePoints.certificates.empty")}
-        </span>
-      )}
-
-      {!loading && !failed && certificates.length > 0 && (
+      <PanelState
+        isLoading={loading}
+        isError={failed}
+        isEmpty={certificates.length === 0}
+        loadingMessage={t("appPage.chargePoints.certificates.loading")}
+        errorMessage={t("appPage.chargePoints.certificates.loadError")}
+        emptyMessage={t("appPage.chargePoints.certificates.empty")}
+      >
         <div className="divide-y rounded-md border">
           {certificates.map((certificate, index) => (
             <div
@@ -108,7 +98,7 @@ export const CertificatesPanel = ({ chargePointId, ocppVersion }: CertificatesPa
             </div>
           ))}
         </div>
-      )}
+      </PanelState>
     </div>
   );
 };

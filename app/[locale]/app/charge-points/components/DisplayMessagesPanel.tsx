@@ -12,6 +12,8 @@ import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
+import { PanelState } from "../../components/common/PanelState";
+
 type DisplayMessagesPanelProps = {
   chargePointId: ChargePoint["id"];
 };
@@ -104,27 +106,15 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
         <Callout description={t(errorMessageKey(requestOutcome.httpStatus))} variant="error" />
       )}
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 animate-pulse" />
-          {t("appPage.chargePoints.displayMessages.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout
-          description={t("appPage.chargePoints.displayMessages.loadError")}
-          variant="error"
-        />
-      )}
-
-      {!loading && !failed && entries.length === 0 && (
-        <span className="text-sm text-muted-foreground">
-          {t("appPage.chargePoints.displayMessages.empty")}
-        </span>
-      )}
-
-      {!loading && !failed && entries.length > 0 && (
+      <PanelState
+        isLoading={loading}
+        isError={failed}
+        isEmpty={entries.length === 0}
+        loadingIcon={<Clock className="h-4 w-4 animate-pulse" />}
+        loadingMessage={t("appPage.chargePoints.displayMessages.loading")}
+        errorMessage={t("appPage.chargePoints.displayMessages.loadError")}
+        emptyMessage={t("appPage.chargePoints.displayMessages.empty")}
+      >
         <div className="divide-y rounded-md border">
           {entries.map((entry, index) => (
             <div
@@ -149,7 +139,7 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
             </div>
           ))}
         </div>
-      )}
+      </PanelState>
     </div>
   );
 };

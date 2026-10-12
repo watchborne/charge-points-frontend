@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Callout } from "@watchborne/electrons";
 import { CheckCircle2, Clock, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -11,6 +10,8 @@ import type { DeviceEventEntry, DeviceEventReport } from "@/lib/api-device-event
 import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
+
+import { PanelState } from "../../components/common/PanelState";
 
 type DeviceEventsPanelProps = {
   chargePointId: ChargePoint["id"];
@@ -63,24 +64,15 @@ export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => 
     <div className="flex flex-col gap-3">
       <h4 className="text-sm font-semibold">{t("appPage.chargePoints.deviceEvents.title")}</h4>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 animate-pulse" />
-          {t("appPage.chargePoints.deviceEvents.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout description={t("appPage.chargePoints.deviceEvents.loadError")} variant="error" />
-      )}
-
-      {!loading && !failed && entries.length === 0 && (
-        <span className="text-sm text-muted-foreground">
-          {t("appPage.chargePoints.deviceEvents.empty")}
-        </span>
-      )}
-
-      {!loading && !failed && entries.length > 0 && (
+      <PanelState
+        isLoading={loading}
+        isError={failed}
+        isEmpty={entries.length === 0}
+        loadingIcon={<Clock className="h-4 w-4 animate-pulse" />}
+        loadingMessage={t("appPage.chargePoints.deviceEvents.loading")}
+        errorMessage={t("appPage.chargePoints.deviceEvents.loadError")}
+        emptyMessage={t("appPage.chargePoints.deviceEvents.empty")}
+      >
         <div className="divide-y rounded-md border">
           {entries.map((entry, index) => (
             <div
@@ -109,7 +101,7 @@ export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => 
             </div>
           ))}
         </div>
-      )}
+      </PanelState>
     </div>
   );
 };

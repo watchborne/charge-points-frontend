@@ -12,6 +12,7 @@ import type { ChargePoint } from "@/types/charge-point";
 import type { LogUploadView } from "@/types/log-upload";
 
 import { StartLogUploadDialog } from "./StartLogUploadDialog";
+import { PanelState } from "../../components/common/PanelState";
 
 type LogUploadPanelProps = {
   chargePointId: ChargePoint["id"];
@@ -90,128 +91,124 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
         />
       </div>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          {t("appPage.chargePoints.logUpload.loading")}
-        </div>
-      )}
+      <PanelState
+        isLoading={loading}
+        isError={failed}
+        loadingMessage={t("appPage.chargePoints.logUpload.loading")}
+        errorMessage={t("appPage.chargePoints.logUpload.loadError")}
+      >
+        {logUpload && (
+          <>
+            {logUpload.active && (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">
+                    {t("appPage.chargePoints.logUpload.inProgress")}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    {t(`appPage.chargePoints.logUpload.statuses.${logUpload.active.status}`)}
+                  </span>
+                </div>
+                {logUpload.active.fileName && (
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <FileText className="h-3 w-3 shrink-0" />
+                    {logUpload.active.fileName}
+                  </span>
+                )}
+                {logUpload.active.isStalled && (
+                  <div className="flex items-center gap-1.5 text-xs text-status-warning-foreground">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    {t("appPage.chargePoints.logUpload.stalled")}
+                  </div>
+                )}
+              </div>
+            )}
 
-      {!loading && failed && (
-        <Callout description={t("appPage.chargePoints.logUpload.loadError")} variant="error" />
-      )}
-
-      {!loading && !failed && logUpload && (
-        <>
-          {logUpload.active && (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">
-                  {t("appPage.chargePoints.logUpload.inProgress")}
+            {logUpload.lastCompleted ? (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.chargePoints.logUpload.lastUpload")}
                 </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  {t(`appPage.chargePoints.logUpload.statuses.${logUpload.active.status}`)}
+                <span className="flex flex-col items-end text-sm font-medium">
+                  <span className="flex items-center gap-1.5">
+                    {outcomeIcon(logUpload.lastCompleted)}
+                    {formatRelative(logUpload.lastCompleted.finishedAt!)}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {formatDateTime(logUpload.lastCompleted.finishedAt!)}
+                    {logUpload.lastCompleted.fileName && ` · ${logUpload.lastCompleted.fileName}`}
+                  </span>
                 </span>
               </div>
-              {logUpload.active.fileName && (
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <FileText className="h-3 w-3 shrink-0" />
-                  {logUpload.active.fileName}
+            ) : (
+              !logUpload.active && (
+                <span className="text-sm text-muted-foreground">
+                  {t("appPage.chargePoints.logUpload.neverUploaded")}
                 </span>
-              )}
-              {logUpload.active.isStalled && (
-                <div className="flex items-center gap-1.5 text-xs text-status-warning-foreground">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  {t("appPage.chargePoints.logUpload.stalled")}
-                </div>
-              )}
-            </div>
-          )}
+              )
+            )}
 
-          {logUpload.lastCompleted ? (
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm text-muted-foreground">
-                {t("appPage.chargePoints.logUpload.lastUpload")}
-              </span>
-              <span className="flex flex-col items-end text-sm font-medium">
-                <span className="flex items-center gap-1.5">
-                  {outcomeIcon(logUpload.lastCompleted)}
-                  {formatRelative(logUpload.lastCompleted.finishedAt!)}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {formatDateTime(logUpload.lastCompleted.finishedAt!)}
-                  {logUpload.lastCompleted.fileName && ` · ${logUpload.lastCompleted.fileName}`}
-                </span>
-              </span>
-            </div>
-          ) : (
-            !logUpload.active && (
-              <span className="text-sm text-muted-foreground">
-                {t("appPage.chargePoints.logUpload.neverUploaded")}
-              </span>
-            )
-          )}
-
-          {logUpload.lastCompleted?.outcome === "FAILED" && (
-            <Callout
-              description={t(
-                `appPage.chargePoints.logUpload.statuses.${logUpload.lastCompleted.status}`,
-              )}
-              variant="error"
-            />
-          )}
-
-          <div className="flex flex-col gap-1.5 border-t pt-3">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t("appPage.chargePoints.logUpload.history.title")}
-            </span>
-
-            {historyFailed && (
+            {logUpload.lastCompleted?.outcome === "FAILED" && (
               <Callout
-                description={t("appPage.chargePoints.logUpload.history.loadError")}
+                description={t(
+                  `appPage.chargePoints.logUpload.statuses.${logUpload.lastCompleted.status}`,
+                )}
                 variant="error"
               />
             )}
 
-            {!historyFailed && history.length === 0 && (
-              <span className="text-xs text-muted-foreground">
-                {t("appPage.chargePoints.logUpload.history.empty")}
+            <div className="flex flex-col gap-1.5 border-t pt-3">
+              <span className="text-xs font-medium text-muted-foreground">
+                {t("appPage.chargePoints.logUpload.history.title")}
               </span>
-            )}
 
-            {!historyFailed && history.length > 0 && (
-              <div className="divide-y rounded-md border">
-                {history.map((upload) => (
-                  <div key={upload.id} className="flex flex-col gap-1 px-3 py-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-medium">
-                        {t(`appPage.chargePoints.logUpload.logTypes.${upload.logType}`)}
-                      </span>
-                      {upload.outcome ? (
-                        <span className="flex items-center gap-1 text-xs">
-                          {outcomeIcon(upload)}
-                          {t(`appPage.chargePoints.logUpload.statuses.${upload.status}`)}
+              {historyFailed && (
+                <Callout
+                  description={t("appPage.chargePoints.logUpload.history.loadError")}
+                  variant="error"
+                />
+              )}
+
+              {!historyFailed && history.length === 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {t("appPage.chargePoints.logUpload.history.empty")}
+                </span>
+              )}
+
+              {!historyFailed && history.length > 0 && (
+                <div className="divide-y rounded-md border">
+                  {history.map((upload) => (
+                    <div key={upload.id} className="flex flex-col gap-1 px-3 py-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-medium">
+                          {t(`appPage.chargePoints.logUpload.logTypes.${upload.logType}`)}
                         </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          {t(`appPage.chargePoints.logUpload.statuses.${upload.status}`)}
-                        </span>
-                      )}
+                        {upload.outcome ? (
+                          <span className="flex items-center gap-1 text-xs">
+                            {outcomeIcon(upload)}
+                            {t(`appPage.chargePoints.logUpload.statuses.${upload.status}`)}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            {t(`appPage.chargePoints.logUpload.statuses.${upload.status}`)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        {formatDateTime(upload.startedAt)}
+                        {upload.fileName && ` · ${upload.fileName}`}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                      <Clock className="h-3 w-3 shrink-0" />
-                      {formatDateTime(upload.startedAt)}
-                      {upload.fileName && ` · ${upload.fileName}`}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </PanelState>
     </div>
   );
 };

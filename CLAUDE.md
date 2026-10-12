@@ -129,7 +129,10 @@ app/
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; GenericStatusBadge — the
                           #   next-intl lookup around electrons' ColorPill; Tooltip — an
-                          #   anchor + provider wrapper over electrons' Tooltip primitive.
+                          #   anchor + provider wrapper over electrons' Tooltip primitive;
+                          #   PanelState — the loading / error / empty / content switch the
+                          #   charge point detail panels share (texts are props, translated by
+                          #   the caller; `loadingIcon` keeps each panel's own indicator).
                           #   The generic ActionsDropdown, StatusActionDropdown, FormDialog,
                           #   StatsBreakdown and SkeletonGrid now come from
                           #   @watchborne/electrons;

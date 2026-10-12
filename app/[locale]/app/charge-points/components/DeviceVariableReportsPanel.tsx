@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Callout } from "@watchborne/electrons";
 import { Clock, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -16,6 +15,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
 import { RequestDeviceReportDialog } from "./RequestDeviceReportDialog";
+import { PanelState } from "../../components/common/PanelState";
 
 type DeviceVariableReportsPanelProps = {
   chargePointId: ChargePoint["id"];
@@ -85,27 +85,15 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
         />
       </div>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 animate-pulse" />
-          {t("appPage.chargePoints.deviceVariableReports.loading")}
-        </div>
-      )}
-
-      {!loading && failed && (
-        <Callout
-          description={t("appPage.chargePoints.deviceVariableReports.loadError")}
-          variant="error"
-        />
-      )}
-
-      {!loading && !failed && entries.length === 0 && (
-        <span className="text-sm text-muted-foreground">
-          {t("appPage.chargePoints.deviceVariableReports.empty")}
-        </span>
-      )}
-
-      {!loading && !failed && entries.length > 0 && (
+      <PanelState
+        isLoading={loading}
+        isError={failed}
+        isEmpty={entries.length === 0}
+        loadingIcon={<Clock className="h-4 w-4 animate-pulse" />}
+        loadingMessage={t("appPage.chargePoints.deviceVariableReports.loading")}
+        errorMessage={t("appPage.chargePoints.deviceVariableReports.loadError")}
+        emptyMessage={t("appPage.chargePoints.deviceVariableReports.empty")}
+      >
         <div className="divide-y rounded-md border">
           {entries.map((entry, index) => (
             <div
@@ -129,7 +117,7 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
             </div>
           ))}
         </div>
-      )}
+      </PanelState>
     </div>
   );
 };
