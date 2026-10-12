@@ -152,7 +152,7 @@ export const UpdateFirmwareDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.firmware.update.title")}</DialogTitle>
           <DialogDescription>

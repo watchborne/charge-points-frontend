@@ -146,7 +146,7 @@ export const StartLogUploadDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.logUpload.start.title")}</DialogTitle>
           <DialogDescription>
