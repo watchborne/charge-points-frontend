@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, Loader2, Upload } from "lucide-react";
+import { CheckCircle2, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -265,8 +265,12 @@ export const UpdateFirmwareDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={state.status === "loading"}
+          >
             {t("appPage.chargePoints.firmware.update.submit")}
           </Button>
         </DialogFooter>

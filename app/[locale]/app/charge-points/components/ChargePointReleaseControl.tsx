@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, Callout } from "@watchborne/electrons";
-import { Loader2, Unlink } from "lucide-react";
+import { Unlink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -75,13 +75,9 @@ export const ChargePointReleaseControl = ({
           size="sm"
           className="text-destructive hover:text-destructive"
           onClick={() => setConfirmOpen(true)}
-          disabled={releaseState.status === "loading"}
+          loading={releaseState.status === "loading"}
         >
-          {releaseState.status === "loading" ? (
-            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <Unlink className="mr-1.5 h-4 w-4" />
-          )}
+          {releaseState.status !== "loading" && <Unlink className="mr-1.5 h-4 w-4" />}
           {t("appPage.chargePoints.release.button")}
         </Button>
       </div>

@@ -7,7 +7,6 @@ import {
   Ban,
   CheckCircle2,
   Clock,
-  Loader2,
   Shield,
   ShieldAlert,
   UserCheck,
@@ -171,12 +170,9 @@ export const AlertsPanel = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        disabled={acknowledgingAlertId === alert.id}
+                        loading={acknowledgingAlertId === alert.id}
                         onClick={() => onAcknowledge?.(alert.id)}
                       >
-                        {acknowledgingAlertId === alert.id && (
-                          <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                        )}
                         {t("appPage.chargePoints.alerts.acknowledge")}
                       </Button>
                     )}

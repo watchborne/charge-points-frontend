@@ -5,7 +5,7 @@ import {
   type GetBaseReportBaseV201,
 } from "@watchborne/charge-points-types";
 import { Button, Callout, Label } from "@watchborne/electrons";
-import { CheckCircle2, ClipboardList, Loader2 } from "lucide-react";
+import { CheckCircle2, ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -184,8 +184,7 @@ export const RequestDeviceReportDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={state.status === "loading"}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button size="sm" onClick={handleSubmit} loading={state.status === "loading"}>
             {t("appPage.chargePoints.deviceVariableReports.request.submit")}
           </Button>
         </DialogFooter>

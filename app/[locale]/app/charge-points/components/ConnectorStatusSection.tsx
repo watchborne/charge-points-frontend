@@ -1,6 +1,6 @@
 import { AvailabilityType } from "@watchborne/charge-points-types";
 import { Button, Callout } from "@watchborne/electrons";
-import { Loader2, Power, Unlock, Zap } from "lucide-react";
+import { Power, Unlock, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChangeAvailabilityOutcome, UnlockConnectorOutcome } from "@/lib/api-charge-points";
@@ -141,14 +141,10 @@ export const ConnectorStatusSection = ({
                     <Button
                       variant="secondary"
                       size="sm"
-                      disabled={state.status === "loading"}
+                      loading={state.status === "loading"}
                       aria-label={t("appPage.chargePoints.availability.button")}
                     >
-                      {state.status === "loading" ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Power className="h-3.5 w-3.5" />
-                      )}
+                      {state.status !== "loading" && <Power className="h-3.5 w-3.5" />}
                     </Button>
                   }
                   options={[
@@ -172,15 +168,11 @@ export const ConnectorStatusSection = ({
                 <Button
                   variant="secondary"
                   size="sm"
-                  disabled={unlockState.status === "loading"}
+                  loading={unlockState.status === "loading"}
                   aria-label={t("appPage.chargePoints.unlockConnector.button")}
                   onClick={() => onUnlockConnector(connector.id, connector.connectorId)}
                 >
-                  {unlockState.status === "loading" ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Unlock className="h-3.5 w-3.5" />
-                  )}
+                  {unlockState.status !== "loading" && <Unlock className="h-3.5 w-3.5" />}
                 </Button>
               </div>
             </div>
