@@ -2,6 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@watchborne/electrons";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@watchborne/electrons";
 import { UploadCloud } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
@@ -18,13 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { FirmwareCampaignTargetMode } from "@/lib/api-firmware-campaigns";
 
 import { FormDialog } from "../../components/common/FormDialog";

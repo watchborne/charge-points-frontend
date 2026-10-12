@@ -1,10 +1,6 @@
 "use client";
 
 import { Button, Callout } from "@watchborne/electrons";
-import { Ban, UploadCloud } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,14 +10,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@watchborne/electrons";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { Ban, UploadCloud } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import type { FirmwareCampaign } from "@/lib/api-firmware-campaigns";
 import { useDateFormat } from "@/lib/date-format";
 

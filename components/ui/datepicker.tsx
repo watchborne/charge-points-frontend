@@ -1,11 +1,9 @@
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
-import { Button } from "@watchborne/electrons";
+import { Button, Calendar } from "@watchborne/electrons";
 import classNames from "classnames";
 import { CalendarIcon } from "lucide-react";
 
 import { useCalendarLocale, useDateFormat } from "@/lib/date-format";
-
-import { Calendar } from "./calendar";
 
 export const Datepicker = ({
   value,

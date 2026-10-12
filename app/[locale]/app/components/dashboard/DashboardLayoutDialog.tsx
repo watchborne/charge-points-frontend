@@ -1,7 +1,4 @@
 import { Button, Switch } from "@watchborne/electrons";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { useTranslations } from "next-intl";
-
 import {
   Dialog,
   DialogContent,
@@ -9,7 +6,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { DashboardWidgetId, DashboardWidgetPreference } from "@/lib/dashboard-layout";
 
 type DashboardLayoutDialogProps = {

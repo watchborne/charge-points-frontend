@@ -2,10 +2,6 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, Callout } from "@watchborne/electrons";
-import { Unlink } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +11,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@watchborne/electrons";
+import { Unlink } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import { getReleaseErrorMessageKey } from "@/lib/error-messages";
 import { queryKeys } from "@/lib/queryKeys";

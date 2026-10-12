@@ -1,16 +1,15 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
-import { MoreVertical } from "lucide-react";
-import { ReactNode } from "react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@watchborne/electrons";
+import { MoreVertical } from "lucide-react";
+import { ReactNode } from "react";
 
 export interface ActionItem {
   id: string;

@@ -2,10 +2,6 @@
 
 import { MESSAGE_PRIORITIES_V201, type MessagePriorityV201 } from "@watchborne/charge-points-types";
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, FileText, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -14,14 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { CheckCircle2, FileText, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { ClearDisplayMessageOutcome, SetDisplayMessageOutcome } from "@/lib/api-charge-points";
 import type { ChargePoint } from "@/types/charge-point";

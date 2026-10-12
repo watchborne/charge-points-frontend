@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "@watchborne/electrons";
 import { CalendarCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -14,7 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 
 import { FormDialog } from "../../components/common/FormDialog";
 

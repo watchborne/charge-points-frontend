@@ -5,10 +5,6 @@ import {
   type GetBaseReportBaseV201,
 } from "@watchborne/charge-points-types";
 import { Button, Callout, Label } from "@watchborne/electrons";
-import { CheckCircle2, ClipboardList } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -17,14 +13,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { CheckCircle2, ClipboardList } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { RequestDeviceReportOutcome } from "@/lib/api-device-variable-reports";
 import type { ChargePoint } from "@/types/charge-point";

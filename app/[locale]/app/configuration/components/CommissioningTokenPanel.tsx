@@ -12,10 +12,6 @@ import {
   TableRow,
   type ColorName,
 } from "@watchborne/electrons";
-import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +21,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@watchborne/electrons";
+import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import { CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";

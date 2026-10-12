@@ -1,10 +1,5 @@
 import { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
-import classNames from "classnames";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Command,
   CommandEmpty,
@@ -12,8 +7,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+} from "@watchborne/electrons";
+import { Popover, PopoverContent, PopoverTrigger } from "@watchborne/electrons";
+import classNames from "classnames";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 type SiteComboboxProps = {
   value: string;

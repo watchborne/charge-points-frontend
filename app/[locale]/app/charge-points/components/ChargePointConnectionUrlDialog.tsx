@@ -1,10 +1,6 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
-import { Check, Copy, PlugZap } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -12,7 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { Check, Copy, PlugZap } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { CreatedChargePoint } from "@/types/charge-point";
 
 type ChargePointConnectionUrlDialogProps = {

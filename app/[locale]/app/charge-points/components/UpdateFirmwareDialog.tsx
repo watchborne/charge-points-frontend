@@ -1,10 +1,6 @@
 "use client";
 
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, Upload } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -13,7 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { CheckCircle2, Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { StartFirmwareUpdateOutcome } from "@/lib/api-charge-points";
 import type { ChargePoint } from "@/types/charge-point";

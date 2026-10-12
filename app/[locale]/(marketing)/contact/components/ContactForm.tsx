@@ -1,10 +1,10 @@
 "use client";
 
 import { Button, Callout, Input } from "@watchborne/electrons";
+import { Textarea } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 
 const EMPTY_FORM = { company: "", name: "", email: "", phone: "", chargePoints: "", message: "" };

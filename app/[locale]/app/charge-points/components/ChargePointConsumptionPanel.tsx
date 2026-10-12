@@ -13,17 +13,17 @@ import {
   TabsList,
   TabsTrigger,
 } from "@watchborne/electrons";
-import { BarChart3, TableIcon } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { BarChart3, TableIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+
 import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
 import { useDateFormat } from "@/lib/date-format";
 import { formatUnit } from "@/lib/format-unit";

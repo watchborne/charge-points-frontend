@@ -5,10 +5,6 @@ import {
   type InstallCertificateUseV201,
 } from "@watchborne/charge-points-types";
 import { Button, Callout, Label } from "@watchborne/electrons";
-import { ShieldPlus } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -17,15 +13,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@watchborne/electrons";
+import { Textarea } from "@watchborne/electrons";
+import { ShieldPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { InstallCertificateOutcome } from "@/lib/api-charge-points";
 import { getCertificateInstallErrorMessageKey } from "@/lib/error-messages";
