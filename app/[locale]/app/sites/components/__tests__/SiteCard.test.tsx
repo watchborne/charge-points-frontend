@@ -14,9 +14,7 @@ vi.mock("next-intl", () => ({
     }
     return key;
   },
-  useFormatter: () => ({
-    dateTime: (date: Date) => date.toISOString().slice(0, 10),
-  }),
+  useLocale: () => "fr",
 }));
 
 import { SiteCard } from "../SiteCard";

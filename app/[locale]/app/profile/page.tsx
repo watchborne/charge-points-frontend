@@ -3,11 +3,12 @@
 import type { User } from "@supabase/supabase-js";
 import { Callout, ColorPill, Skeleton, Switch } from "@watchborne/electrons";
 import { Bell, Moon, Palette, Sun, UserRound } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useTheme } from "@/app/components/ThemeProvider";
+import { useDateFormat } from "@/lib/date-format";
 import { isIosDevice, isStandaloneDisplayMode } from "@/lib/pwa-install";
 import { createClient } from "@/lib/supabase/client";
 
@@ -16,7 +17,7 @@ import { usePushSubscription } from "../hooks/usePushSubscription";
 
 export default function ProfilePage() {
   const t = useTranslations("");
-  const format = useFormatter();
+  const { formatDateTime } = useDateFormat();
   const { theme, setTheme } = useTheme();
   const {
     isSupported: isPushSupported,
@@ -52,15 +53,6 @@ export default function ProfilePage() {
       isIosDevice(navigator.userAgent) && !isStandaloneDisplayMode(navigator, window),
     );
   }, []);
-
-  const formatDateTime = (value: string) =>
-    format.dateTime(new Date(value), {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
 
   const emailVerified = Boolean(user?.user_metadata?.email_verified);
 

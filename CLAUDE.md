@@ -483,6 +483,10 @@ import them from there rather than redefining or re-copying them locally.
 A `Button` that triggers an async action takes `loading` (spinner, disabled,
 `aria-busy`) rather than a hand-placed `Loader2`; hide the button's own icon while
 it is loading, since the spinner is added, not swapped.
+Dates are formatted with `useDateFormat` (`lib/date-format.ts`), never with ad hoc
+`Intl`/`toLocale*`/`date-fns`/`useFormatter().dateTime` calls: it follows the
+language of the UI (`fr` `08/10/2026 14:05`, `en` `10/08/2026, 02:05 PM`), in the
+browser's local time. Numbers and currency still go through next-intl's `useFormatter`.
 The remaining, more composite or app-specific shadcn primitives
 (`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`,
 `Calendar`, `Datepicker`, `Form`) still live in `components/ui/*`; shadcn

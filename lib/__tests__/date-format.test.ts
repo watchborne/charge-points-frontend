@@ -9,39 +9,68 @@ vi.mock("next-intl", () => ({ useLocale: () => mockLocale }));
 // Built from local-time components so the assertions hold in any timezone.
 const at = new Date(2026, 9, 8, 14, 5, 9);
 
+const format = (locale: string) => {
+  mockLocale = locale;
+  return renderHook(() => useDateFormat()).result.current;
+};
+
 describe("useDateFormat", () => {
-  it("SHOULD format a compact day/month + time WHEN formatShortDateTime is called", () => {
-    const { result } = renderHook(() => useDateFormat());
+  describe("WHEN the locale is fr", () => {
+    it("SHOULD format a numeric date and time", () => {
+      expect(format("fr").formatDateTime(at)).toBe("08/10/2026 14:05");
+    });
 
-    expect(result.current.formatShortDateTime(at)).toBe("08/10 14:05");
+    it("SHOULD add the seconds WHEN withSeconds is set", () => {
+      expect(format("fr").formatDateTime(at, { withSeconds: true })).toBe("08/10/2026 14:05:09");
+    });
+
+    it("SHOULD format a numeric date only", () => {
+      expect(format("fr").formatDateNumeric(at)).toBe("08/10/2026");
+    });
+
+    it("SHOULD spell the month out WHEN formatDate is called", () => {
+      expect(format("fr").formatDate(at)).toBe("08 octobre 2026");
+    });
+
+    it("SHOULD format the compact variants", () => {
+      const fr = format("fr");
+
+      expect(fr.formatTime(at)).toBe("14:05");
+      expect(fr.formatShortDateTime(at)).toBe("08/10 14:05");
+      expect(fr.formatDayMonth(at)).toBe("08/10");
+    });
   });
 
-  it("SHOULD format day and month only WHEN formatDayMonth is called", () => {
-    const { result } = renderHook(() => useDateFormat());
+  describe("WHEN the locale is en", () => {
+    it("SHOULD follow the English conventions: month first, 12-hour clock", () => {
+      const en = format("en");
 
-    expect(result.current.formatDayMonth(at)).toBe("08/10");
+      expect(en.formatDateTime(at)).toMatch(/^10\/08\/2026, 0?2:05 PM$/);
+      expect(en.formatDateNumeric(at)).toBe("10/08/2026");
+      expect(en.formatDayMonth(at)).toBe("10/08");
+      expect(en.formatTime(at)).toMatch(/^0?2:05 PM$/);
+    });
+
+    it("SHOULD spell the month out in English WHEN formatDate is called", () => {
+      expect(format("en").formatDate(at)).toMatch(/October 0?8, 2026/);
+    });
   });
 
-  it("SHOULD format the time of day WHEN formatTime is called", () => {
-    const { result } = renderHook(() => useDateFormat());
+  it("SHOULD accept ISO strings and timestamps", () => {
+    const fr = format("fr");
 
-    expect(result.current.formatTime(at)).toBe("14:05");
+    expect(fr.formatDateTime(at.toISOString())).toBe("08/10/2026 14:05");
+    expect(fr.formatDateTime(at.getTime())).toBe("08/10/2026 14:05");
   });
 
-  it("SHOULD accept ISO strings and timestamps WHEN formatDateTime is called", () => {
-    const { result } = renderHook(() => useDateFormat());
-
-    expect(result.current.formatDateTime(at.toISOString())).toBe("08/10/2026 14:05");
-    expect(result.current.formatDateTime(at.getTime(), { withSeconds: true })).toBe(
-      "08/10/2026 14:05:09",
-    );
+  it("SHOULD fall back to French WHEN the locale is unknown", () => {
+    expect(format("de").formatDateNumeric(at)).toBe("08/10/2026");
   });
 
-  it("SHOULD render the month name in the active locale WHEN formatDate is called", () => {
-    mockLocale = "fr";
-    expect(renderHook(() => useDateFormat()).result.current.formatDate(at)).toBe("08 octobre 2026");
+  it("SHOULD describe the distance to now WHEN formatRelative is called", () => {
+    const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
 
-    mockLocale = "en";
-    expect(renderHook(() => useDateFormat()).result.current.formatDate(at)).toBe("08 October 2026");
+    expect(format("fr").formatRelative(threeHoursAgo)).toBe("il y a environ 3 heures");
+    expect(format("en").formatRelative(threeHoursAgo)).toBe("about 3 hours ago");
   });
 });
