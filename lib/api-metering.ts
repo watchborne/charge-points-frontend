@@ -1,61 +1,32 @@
-import type { ChargePoint } from "@watchborne/charge-points-types";
+import type {
+  ChargePoint,
+  ChargePointConsumption as SharedChargePointConsumption,
+  MeterSample as SharedMeterSample,
+  MeterSampleSummary as SharedMeterSampleSummary,
+} from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
+import type { Wire } from "./wire";
 
-// The metering reads' response shapes. Not part of
-// @watchborne/charge-points-types on purpose: the backend keeps `MeterSample`
-// server-local (ADR 0004) since no client consumes it as a domain entity —
-// the dashboard codes against these response contracts, same as `Me` in
-// api-me.ts. Timestamps arrive as ISO strings and are parsed where rendered,
-// never widened to `Date` here.
+// The metering reads' response shapes: the shared `MeterSample`,
+// `MeterSampleSummary` and `ChargePointConsumption` (@watchborne/charge-points-types),
+// as they look once serialized to JSON — timestamps arrive as ISO strings and are
+// parsed where rendered (see `Wire`). charge-points-server ADR 0004.
+//
+// `min`/`max`/`avg` of a summary are reported without interpretation, deliberately:
+// on a cumulative register `max - min` is the energy delivered over the window,
+// while on an instantaneous measurand `avg`/`max` are the useful figures. Deciding
+// which applies is the caller's job — see `isCumulativeRegister`.
 
 /** One stored measurement, as `GET /api/charge-points/:id/meter-samples` returns it. */
-export type MeterSample = {
-  id: string;
-  chargePointId: string;
-  /** The OCPP connector ordinal, as on `Connector.connectorId` — not a UUID. */
-  connectorId: number;
-  /** ISO string: the station's own reading time, not when the supervisor stored it. */
-  measuredAt: string;
-  measurand: string;
-  phase?: string;
-  unit?: string;
-  context?: string;
-  /** The measurement in `unit`. No conversion is applied server-side. */
-  value: number;
-  createdAt: string;
-};
+export type MeterSample = Wire<SharedMeterSample>;
 
-/**
- * One `(connector, measurand, unit)` series reduced over the window.
- *
- * `min`/`max`/`avg` are reported without interpretation, deliberately: on a
- * cumulative register (`Energy.Active.Import.Register`) `max - min` is the
- * energy delivered over the window, while on an instantaneous measurand
- * (`Power.Active.Import`) `avg`/`max` are the useful figures and the
- * difference means nothing. Deciding which applies is the caller's job —
- * see `isCumulativeRegister`.
- */
-export type MeterSampleSummary = {
-  connectorId: number;
-  measurand: string;
-  unit?: string;
-  min: number;
-  max: number;
-  avg: number;
-  sampleCount: number;
-  firstMeasuredAt: string;
-  lastMeasuredAt: string;
-};
+/** One `(connector, measurand, unit)` series reduced over the window. */
+export type MeterSampleSummary = Wire<SharedMeterSampleSummary>;
 
-export type ChargePointConsumption = {
-  chargePointId: string;
-  /** The window the backend actually reduced — echoed back, so a caller that passed no bounds knows. */
-  from: string;
-  to: string;
-  series: MeterSampleSummary[];
-};
+/** The window the backend actually reduced (echoed back), with its series. */
+export type ChargePointConsumption = Wire<SharedChargePointConsumption>;
 
 export type MeterSamplesQuery = {
   connectorId?: number;
@@ -66,13 +37,7 @@ export type MeterSamplesQuery = {
   limit?: number;
 };
 
-/**
- * OCPP's `measurand` is an open vocabulary, so this is a suffix test rather
- * than a list: anything ending in `.Register` is a meter register that only
- * counts up, which is what makes `max - min` its energy over the window.
- * Every other measurand is a spot reading.
- */
-export const isCumulativeRegister = (measurand: string): boolean => measurand.endsWith(".Register");
+export { isCumulativeRegister } from "@watchborne/charge-points-types";
 
 const buildQuery = ({ connectorId, from, to, measurands, limit }: MeterSamplesQuery): string => {
   const params = new URLSearchParams();
