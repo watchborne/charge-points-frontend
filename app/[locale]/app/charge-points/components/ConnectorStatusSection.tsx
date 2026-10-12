@@ -1,5 +1,5 @@
 import { AvailabilityType } from "@watchborne/charge-points-types";
-import { Button, Callout } from "@watchborne/electrons";
+import { Button, Callout, StatusActionDropdown } from "@watchborne/electrons";
 import { Power, Unlock, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -9,7 +9,6 @@ import { formatUnit } from "@/lib/format-unit";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { ConnectorStatusIcon } from "../../components/common/ConnectorStatusIcon";
-import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 import { Tooltip } from "../../components/common/Tooltip";
 
 type AvailabilityState =

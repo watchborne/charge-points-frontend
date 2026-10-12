@@ -1,7 +1,5 @@
-import { Skeleton } from "@watchborne/electrons";
+import { Skeleton, SkeletonGrid } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
-
-import { SkeletonGrid } from "../../components/common/SkeletonGrid";
 
 const SITE_CARD_SKELETON = () => (
   <div className="rounded-lg border p-3 bg-background overflow-hidden">

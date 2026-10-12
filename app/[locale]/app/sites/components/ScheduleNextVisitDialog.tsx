@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormDialog } from "@watchborne/electrons";
 import { CalendarClock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -14,8 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import { FormDialog } from "../../components/common/FormDialog";
 
 const scheduleNextVisitSchema = z.object({
   nextVisitAt: z.date(),
@@ -78,6 +77,7 @@ export const ScheduleNextVisitDialog = ({
       title={t("appPage.sites.detail.nextVisit.dialog.title")}
       description={t("appPage.sites.detail.nextVisit.dialog.description")}
       cancelLabel={t("common.actions.cancel")}
+      closeLabel={t("common.close")}
       submitLabel={t("appPage.sites.detail.nextVisit.dialog.submit")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       isLoading={isSubmitting}

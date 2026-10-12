@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@watchborne/electrons";
+import { Input, FormDialog } from "@watchborne/electrons";
 import { Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -15,8 +15,6 @@ import {
   FormMessage,
   Form,
 } from "@/components/ui/form";
-
-import { FormDialog } from "../../components/common/FormDialog";
 
 const siteFormSchema = z.object({
   name: z.string(),
@@ -81,6 +79,7 @@ export const SiteFormDialog = ({
           : t("appPage.sites.form.editDescription")
       }
       cancelLabel={t("common.actions.cancel")}
+      closeLabel={t("common.close")}
       submitLabel={
         mode === "create" ? t("appPage.sites.form.buttons.create") : t("common.actions.save")
       }
