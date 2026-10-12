@@ -2,16 +2,7 @@
 
 import { AvailabilityType, ChargePoint, ResetType } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
-import {
-  CheckCircle2,
-  ChevronDown,
-  Loader2,
-  Power,
-  RotateCcw,
-  Unlock,
-  X,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, ChevronDown, Power, RotateCcw, Unlock, X, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -190,12 +181,13 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
             align="end"
             disabled={isBusy}
             trigger={
-              <Button variant="outline" size="sm" disabled={isBusy}>
-                {resetState.status === "loading" ? (
-                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-4 w-4 mr-1.5" />
-                )}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isBusy}
+                loading={resetState.status === "loading"}
+              >
+                {resetState.status !== "loading" && <RotateCcw className="h-4 w-4 mr-1.5" />}
                 {t("appPage.chargePoints.reset.button")}
                 <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
               </Button>
@@ -212,12 +204,13 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
             currentStatus=""
             disabled={isBusy}
             trigger={
-              <Button variant="outline" size="sm" disabled={isBusy}>
-                {availabilityState.status === "loading" ? (
-                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                ) : (
-                  <Power className="h-4 w-4 mr-1.5" />
-                )}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isBusy}
+                loading={availabilityState.status === "loading"}
+              >
+                {availabilityState.status !== "loading" && <Power className="h-4 w-4 mr-1.5" />}
                 {t("appPage.chargePoints.availability.wholeChargePoint")}
                 <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
               </Button>
@@ -239,13 +232,10 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
             variant="outline"
             size="sm"
             disabled={isBusy}
+            loading={unlockState.status === "loading"}
             onClick={() => void handleUnlockConnector()}
           >
-            {unlockState.status === "loading" ? (
-              <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-            ) : (
-              <Unlock className="h-4 w-4 mr-1.5" />
-            )}
+            {unlockState.status !== "loading" && <Unlock className="h-4 w-4 mr-1.5" />}
             {t("appPage.chargePoints.unlockConnector.button")}
           </Button>
         </div>

@@ -2,7 +2,7 @@
 
 import { GET_LOG_TYPES_V201, type GetLogTypeV201 } from "@watchborne/charge-points-types";
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, FileDown, Loader2 } from "lucide-react";
+import { CheckCircle2, FileDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -240,8 +240,12 @@ export const StartLogUploadDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={state.status === "loading"}
+          >
             {t("appPage.chargePoints.logUpload.start.submit")}
           </Button>
         </DialogFooter>

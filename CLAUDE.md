@@ -477,6 +477,9 @@ Most UI primitives (`Button`, `Badge`, `Input`, `Label`, `Switch`, `Tabs`,
 `Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`)
 come from `@watchborne/electrons`, the shared watchborne component library —
 import them from there rather than redefining or re-copying them locally.
+A `Button` that triggers an async action takes `loading` (spinner, disabled,
+`aria-busy`) rather than a hand-placed `Loader2`; hide the button's own icon while
+it is loading, since the spinner is added, not swapped.
 The remaining, more composite or app-specific shadcn primitives
 (`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`,
 `Calendar`, `Datepicker`, `Form`) still live in `components/ui/*`; shadcn

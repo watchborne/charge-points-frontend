@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Callout } from "@watchborne/electrons";
-import { Clock, Loader2, MessageSquare, RefreshCw } from "lucide-react";
+import { Clock, MessageSquare, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
@@ -94,12 +94,8 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold">{t("appPage.chargePoints.displayMessages.title")}</h4>
-        <Button variant="outline" size="sm" onClick={() => requestRefresh()} disabled={refreshing}>
-          {refreshing ? (
-            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="mr-1.5 h-4 w-4" />
-          )}
+        <Button variant="outline" size="sm" onClick={() => requestRefresh()} loading={refreshing}>
+          {!refreshing && <RefreshCw className="mr-1.5 h-4 w-4" />}
           {t("appPage.chargePoints.displayMessages.refresh")}
         </Button>
       </div>

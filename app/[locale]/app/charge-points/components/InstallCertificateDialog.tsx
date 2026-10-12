@@ -5,7 +5,7 @@ import {
   type InstallCertificateUseV201,
 } from "@watchborne/charge-points-types";
 import { Button, Callout, Label } from "@watchborne/electrons";
-import { Loader2, ShieldPlus } from "lucide-react";
+import { ShieldPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -191,8 +191,12 @@ export const InstallCertificateDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={state.status === "loading"}
+          >
             {t("appPage.chargePoints.certificates.install.submit")}
           </Button>
         </DialogFooter>
