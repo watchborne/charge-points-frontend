@@ -374,6 +374,10 @@ here — a request without a session simply reaches the backend with no token.
   and friends are declared locally in `types/certificate.ts`, same server-local
   response-type pattern as `SecurityEvent` above (the backend has no persisted
   certificate entity to re-export a shared type for).
+- `lib/command-outcome.ts` — `CommandOutcome<TOk>`, the discriminated
+  `{ ok: true } & TOk | { ok: false; httpStatus }` result the request/response
+  OCPP command methods (and other calls needing the precise HTTP outcome)
+  return instead of throwing; every `XOutcome` type is an alias of it.
 - `lib/api-error-wrapper.ts` — the standardized error-handling wrapper the
   `lib/api-*.ts` methods above are built on, so a failed request surfaces a
   consistent shape regardless of which method threw.
