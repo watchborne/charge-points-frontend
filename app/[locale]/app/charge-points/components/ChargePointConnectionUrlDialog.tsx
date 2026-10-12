@@ -54,7 +54,7 @@ export const ChargePointConnectionUrlDialog = ({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent closeLabel={t("common.close")} className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PlugZap className="h-5 w-5 text-charge-strong" />

@@ -123,7 +123,7 @@ export const ChargePointConfigurationDialog = ({
           {t("appPage.chargePoints.configuration.button")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent closeLabel={t("common.close")} className="sm:max-w-[560px]">
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.configuration.title")}</DialogTitle>
           <DialogDescription>

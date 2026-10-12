@@ -68,7 +68,7 @@ export const FirmwareCampaignDetailModal = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg">
+        <DialogContent closeLabel={t("common.close")} className="max-w-lg">
           <DialogHeader>
             <div className="flex items-start gap-3">
               <UploadCloud className="mt-1 h-5 w-5 shrink-0 text-primary" />
