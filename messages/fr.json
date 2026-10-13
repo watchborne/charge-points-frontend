@@ -1462,7 +1462,19 @@
           }
         },
         "backToSites": "Retour aux sites",
-        "notFound": "Ce site n'existe pas ou vous n'y avez pas accès."
+        "notFound": "Ce site n'existe pas ou vous n'y avez pas accès.",
+        "alertThresholds": {
+          "title": "Seuils d'alerte",
+          "intro": "Appliqués à toutes les bornes de ce site, sauf si une borne a son propre réglage.",
+          "loading": "Chargement des seuils...",
+          "loadError": "Impossible de charger les seuils d'alerte de ce site.",
+          "editButton": "Modifier les seuils",
+          "resetButton": "Revenir aux valeurs par défaut",
+          "dialog": {
+            "title": "Configurer les seuils d'alerte",
+            "description": "Ajustez le moment où les bornes de ce site déclenchent des alertes. Utile pour un site à la connexion réseau fragile. Les champs vides utilisent la valeur par défaut."
+          }
+        }
       }
     },
     "configuration": {
@@ -1703,6 +1715,39 @@
         "notFound": "Campagne introuvable.",
         "alreadyDispatching": "Cette campagne a déjà commencé à se déployer et ne peut plus être annulée.",
         "genericError": "Une erreur est survenue."
+      }
+    },
+    "alertThresholds": {
+      "fields": {
+        "offlineAfterMs": {
+          "label": "Délai avant alerte hors ligne",
+          "help": "Durée pendant laquelle une borne doit rester hors ligne avant qu'une alerte s'ouvre."
+        },
+        "connectorStuckUnavailableAfterMs": {
+          "label": "Délai avant alerte connecteur indisponible",
+          "help": "Durée pendant laquelle un connecteur doit rester indisponible avant qu'une alerte s'ouvre."
+        },
+        "firmwareStaleAfterMs": {
+          "label": "Délai de blocage d'une mise à jour firmware",
+          "help": "Durée de silence au-delà de laquelle une mise à jour firmware est considérée comme bloquée."
+        }
+      },
+      "source": {
+        "chargePoint": "Borne",
+        "site": "Site",
+        "default": "Par défaut"
+      },
+      "duration": {
+        "minutes": "{minutes} min",
+        "hours": "{hours} h",
+        "hoursMinutes": "{hours} h {minutes} min",
+        "days": "{days} j"
+      },
+      "dialog": {
+        "inheritPlaceholder": "Hérité",
+        "currentlyApplied": "Actuellement appliqué : {value}.",
+        "unitHint": "En minutes, entre {min} et {max}. Laissez un champ vide pour hériter.",
+        "rangeError": "Saisissez un nombre entier de minutes entre {min} et {max}, ou laissez vide."
       }
     }
   },
