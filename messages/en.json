@@ -1442,7 +1442,19 @@
           }
         },
         "backToSites": "Back to sites",
-        "notFound": "This site doesn't exist or you don't have access to it."
+        "notFound": "This site doesn't exist or you don't have access to it.",
+        "alertThresholds": {
+          "title": "Alert thresholds",
+          "intro": "Applied to every charge point of this site, unless a charge point has its own override.",
+          "loading": "Loading thresholds...",
+          "loadError": "Could not load this site's alert thresholds.",
+          "editButton": "Edit thresholds",
+          "resetButton": "Reset to defaults",
+          "dialog": {
+            "title": "Configure the alert thresholds",
+            "description": "Tune when this site's charge points raise alerts. Useful for a site with a weak network connection. Empty fields use the default."
+          }
+        }
       }
     },
     "configuration": {
@@ -1674,6 +1686,39 @@
         "notFound": "Campaign not found.",
         "alreadyDispatching": "This campaign has already started dispatching and can no longer be cancelled.",
         "genericError": "Something went wrong."
+      }
+    },
+    "alertThresholds": {
+      "fields": {
+        "offlineAfterMs": {
+          "label": "Offline grace period",
+          "help": "How long a charge point must stay offline before an alert opens."
+        },
+        "connectorStuckUnavailableAfterMs": {
+          "label": "Connector unavailable grace period",
+          "help": "How long a connector must stay unavailable before an alert opens."
+        },
+        "firmwareStaleAfterMs": {
+          "label": "Firmware update stall timeout",
+          "help": "How long a firmware update may stay silent before it counts as stalled."
+        }
+      },
+      "source": {
+        "chargePoint": "Charge point",
+        "site": "Site",
+        "default": "Default"
+      },
+      "duration": {
+        "minutes": "{minutes} min",
+        "hours": "{hours} h",
+        "hoursMinutes": "{hours} h {minutes} min",
+        "days": "{days} d"
+      },
+      "dialog": {
+        "inheritPlaceholder": "Inherited",
+        "currentlyApplied": "Currently applied: {value}.",
+        "unitHint": "In minutes, between {min} and {max}. Leave a field empty to inherit.",
+        "rangeError": "Enter a whole number of minutes between {min} and {max}, or leave empty."
       }
     }
   },
