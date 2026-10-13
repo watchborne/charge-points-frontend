@@ -79,6 +79,23 @@ describe("useSiteAlertThresholds", () => {
     await waitFor(() => expect(api.SiteAlertThresholds.get).toHaveBeenCalledTimes(2));
   });
 
+  it("SHOULD refetch the charge points' thresholds too WHEN the site is updated", async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    const { result } = renderHook(() => useSiteAlertThresholds("site-1"), {
+      wrapper: ({ children }: { children: ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children),
+    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(() => result.current.updateThresholds({ offlineAfterMs: 7_200_000 }));
+
+    // A station without its own override inherits what the site just changed.
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ["chargePointAlertThresholds"] }),
+    );
+  });
+
   it("SHOULD DELETE the site's overrides and refetch WHEN reset", async () => {
     const { result } = renderHook(() => useSiteAlertThresholds("site-1"), {
       wrapper: wrapper(),

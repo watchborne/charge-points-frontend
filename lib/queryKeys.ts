@@ -56,6 +56,11 @@ export const queryKeys = {
     all: () => ["siteAlertThresholds"] as const,
     site: (siteId: string) => [...queryKeys.siteAlertThresholds.all(), siteId] as const,
   },
+  chargePointAlertThresholds: {
+    all: () => ["chargePointAlertThresholds"] as const,
+    chargePoint: (chargePointId: string) =>
+      [...queryKeys.chargePointAlertThresholds.all(), chargePointId] as const,
+  },
   siteVisitSchedule: {
     all: () => ["siteVisitSchedule"] as const,
     site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
