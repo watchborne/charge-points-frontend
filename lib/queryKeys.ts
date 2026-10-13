@@ -52,6 +52,10 @@ export const queryKeys = {
     all: () => ["siteTariff"] as const,
     site: (siteId: string) => [...queryKeys.siteTariff.all(), siteId] as const,
   },
+  siteAlertThresholds: {
+    all: () => ["siteAlertThresholds"] as const,
+    site: (siteId: string) => [...queryKeys.siteAlertThresholds.all(), siteId] as const,
+  },
   siteVisitSchedule: {
     all: () => ["siteVisitSchedule"] as const,
     site: (siteId: string) => [...queryKeys.siteVisitSchedule.all(), siteId] as const,
