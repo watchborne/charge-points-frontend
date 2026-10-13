@@ -6,6 +6,7 @@
     "confirm": "Confirm",
     "delete": "Delete",
     "edit": "Edit",
+    "exportCsv": "Export CSV",
     "close": "Close",
     "deleteConfirmTitle": "Delete « {name} » ?",
     "chargePointWithCount": "{count, plural, =0 {0 charge point} =1 {1 charge point} other {# charge points}}",
@@ -1286,7 +1287,9 @@
         "table": {
           "measuredAt": "Timestamp",
           "connector": "Connector",
-          "value": "Value"
+          "value": "Value",
+          "measurand": "Measurand",
+          "unit": "Unit"
         },
         "chartLabel": "{measurand} readings in {unit} over time"
       },

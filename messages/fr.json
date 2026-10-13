@@ -6,6 +6,7 @@
     "confirm": "Confirmer",
     "delete": "Supprimer",
     "edit": "Modifier",
+    "exportCsv": "Exporter en CSV",
     "close": "Fermer",
     "deleteConfirmTitle": "Supprimer « {name} » ?",
     "chargePointWithCount": "{count, plural, =0 {0 borne de recharge} =1 {1 borne de recharge} other {# bornes de recharge}}",
@@ -1286,7 +1287,9 @@
         "table": {
           "measuredAt": "Horodatage",
           "connector": "Connecteur",
-          "value": "Valeur"
+          "value": "Valeur",
+          "measurand": "Mesure",
+          "unit": "Unité"
         },
         "chartLabel": "Relevés de {measurand} en {unit} au fil du temps"
       },
