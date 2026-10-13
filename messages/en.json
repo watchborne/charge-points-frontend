@@ -1306,6 +1306,9 @@
           "7d": "7d",
           "30d": "30d"
         },
+        "export": {
+          "stream": "Stream"
+        },
         "table": {
           "timestamp": "Timestamp",
           "status": "Status",

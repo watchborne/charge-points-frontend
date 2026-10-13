@@ -1306,6 +1306,9 @@
           "7d": "7 j",
           "30d": "30 j"
         },
+        "export": {
+          "stream": "Flux"
+        },
         "table": {
           "timestamp": "Horodatage",
           "status": "Statut",
