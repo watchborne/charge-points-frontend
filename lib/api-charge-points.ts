@@ -36,6 +36,7 @@ import type { ChargePointFirmware, FirmwareUpdateView } from "@/types/firmware";
 import type { ChargePointLogUpload, LogUploadView } from "@/types/log-upload";
 
 import { withErrorLogging, withErrorLoggingAsync } from "./api-error-wrapper";
+import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
@@ -61,24 +62,21 @@ type PatchChargePointBody = Partial<CreateChargePointBody>;
  * discriminated result rather than throwing. `httpStatus` is 0 for a network
  * failure that never reached the proxy.
  */
-export type ResetChargePointOutcome =
-  { ok: true; status: ResetStatus } | { ok: false; httpStatus: number };
+export type ResetChargePointOutcome = CommandOutcome<{ status: ResetStatus }>;
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
  * reason: ChangeAvailability is a request/response OCPP command whose caller
  * needs the specific outcome (accepted/scheduled vs. offline/rejected/timeout).
  */
-export type ChangeAvailabilityOutcome =
-  { ok: true; status: ChangeAvailabilityStatus } | { ok: false; httpStatus: number };
+export type ChangeAvailabilityOutcome = CommandOutcome<{ status: ChangeAvailabilityStatus }>;
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
  * reason: UnlockConnector is a request/response OCPP command whose caller
  * needs the specific outcome (unlocked vs. offline/unlock-failed/not-supported/timeout).
  */
-export type UnlockConnectorOutcome =
-  { ok: true; status: UnlockConnectorStatus } | { ok: false; httpStatus: number };
+export type UnlockConnectorOutcome = CommandOutcome<{ status: UnlockConnectorStatus }>;
 
 /**
  * Reading a station's settings is a request/response OCPP read: on success it
@@ -86,9 +84,10 @@ export type UnlockConnectorOutcome =
  * raw-status discriminated shape as the other commands for precise
  * offline/timeout feedback.
  */
-export type GetSettingsOutcome =
-  | { ok: true; configurationKey?: ConfigurationKey[]; unknownKey?: string[] }
-  | { ok: false; httpStatus: number };
+export type GetSettingsOutcome = CommandOutcome<{
+  configurationKey?: ConfigurationKey[];
+  unknownKey?: string[];
+}>;
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -98,16 +97,14 @@ export type GetSettingsOutcome =
  * the station speaks — the backend normalizes 2.0.1's per-target statuses onto
  * it (see its `ocpp-supported-actions.md` §15).
  */
-export type SetSettingOutcome =
-  { ok: true; status: ChangeConfigurationStatus } | { ok: false; httpStatus: number };
+export type SetSettingOutcome = CommandOutcome<{ status: ChangeConfigurationStatus }>;
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
  * reason: TriggerMessage is a request/response OCPP command whose caller needs
  * the specific outcome (accepted vs. offline/rejected/not-implemented/timeout).
  */
-export type TriggerMessageOutcome =
-  { ok: true; status: TriggerMessageStatus } | { ok: false; httpStatus: number };
+export type TriggerMessageOutcome = CommandOutcome<{ status: TriggerMessageStatus }>;
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, plus one wrinkle
@@ -118,9 +115,10 @@ export type TriggerMessageOutcome =
  * rather than `200` for exactly that reason. A `null` status therefore means
  * "requested, outcome unknown until the station reports", not "failed".
  */
-export type StartFirmwareUpdateOutcome =
-  | { ok: true; status: UpdateFirmwareStatusV201 | null; update: FirmwareUpdateView }
-  | { ok: false; httpStatus: number };
+export type StartFirmwareUpdateOutcome = CommandOutcome<{
+  status: UpdateFirmwareStatusV201 | null;
+  update: FirmwareUpdateView;
+}>;
 
 /** What an installer fills in to start an update, before dialect translation. */
 export type StartFirmwareUpdateBody = {
@@ -143,9 +141,10 @@ export type StartFirmwareUpdateBody = {
  * status therefore means "requested, outcome unknown until the station
  * reports", not "failed".
  */
-export type StartLogUploadOutcome =
-  | { ok: true; status: GetLogStatusV201 | null; upload: LogUploadView }
-  | { ok: false; httpStatus: number };
+export type StartLogUploadOutcome = CommandOutcome<{
+  status: GetLogStatusV201 | null;
+  upload: LogUploadView;
+}>;
 
 /** What an installer fills in to start a log upload, before dialect translation. */
 export type StartLogUploadBody = {
@@ -161,8 +160,7 @@ export type StartLogUploadBody = {
  * needs the specific outcome (accepted vs. one of the station-side rejection
  * reasons, or offline/not-2.0.1/timeout).
  */
-export type SetDisplayMessageOutcome =
-  { ok: true; status: SetDisplayMessageStatusV201 } | { ok: false; httpStatus: number };
+export type SetDisplayMessageOutcome = CommandOutcome<{ status: SetDisplayMessageStatusV201 }>;
 
 /**
  * What an installer fills in to push a display message. `id` is the
@@ -184,8 +182,7 @@ export type SetDisplayMessageBody = {
  * needs the specific outcome (cleared vs. unknown id, or offline/not-2.0.1/
  * timeout).
  */
-export type ClearDisplayMessageOutcome =
-  { ok: true; status: ClearDisplayMessageStatusV201 } | { ok: false; httpStatus: number };
+export type ClearDisplayMessageOutcome = CommandOutcome<{ status: ClearDisplayMessageStatusV201 }>;
 
 /** What an installer fills in to install a trust-anchor certificate. */
 export type InstallCertificateBody = {
@@ -202,9 +199,10 @@ export type InstallCertificateBody = {
  * commands, `ok: true` covers all three station verdicts — the station
  * always answers with a status, never an empty acknowledgment.
  */
-export type InstallCertificateOutcome =
-  | { ok: true; status: InstallCertificateStatus; statusInfo?: string }
-  | { ok: false; httpStatus: number };
+export type InstallCertificateOutcome = CommandOutcome<{
+  status: InstallCertificateStatus;
+  statusInfo?: string;
+}>;
 
 /**
  * Same discriminated-result shape as `InstallCertificateOutcome`, for the
@@ -212,9 +210,10 @@ export type InstallCertificateOutcome =
  * caller needs the specific outcome (accepted/failed/not-found vs. offline/
  * timeout).
  */
-export type DeleteCertificateOutcome =
-  | { ok: true; status: DeleteCertificateStatus; statusInfo?: string }
-  | { ok: false; httpStatus: number };
+export type DeleteCertificateOutcome = CommandOutcome<{
+  status: DeleteCertificateStatus;
+  statusInfo?: string;
+}>;
 
 /**
  * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
@@ -225,7 +224,7 @@ export type DeleteCertificateOutcome =
  * the backend answers 204, and the charge point simply drops out of this
  * caller's `getChargePoints()` list from then on.
  */
-export type ReleaseChargePointOutcome = { ok: true } | { ok: false; httpStatus: number };
+export type ReleaseChargePointOutcome = CommandOutcome;
 
 /**
  * An *estimated* cost for one charging session (charge-points-server issue

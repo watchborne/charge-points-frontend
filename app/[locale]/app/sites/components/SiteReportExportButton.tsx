@@ -2,17 +2,17 @@
 
 import type { Site } from "@watchborne/charge-points-types";
 import { Button } from "@watchborne/electrons";
-import { FileDown, Loader2 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { FileDown } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { isLocale } from "@/i18n/locale";
 import { api } from "@/lib/api";
 
@@ -111,12 +111,8 @@ export const SiteReportExportButton = ({ site }: Props) => {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" className="flex-1" onClick={handleExport} disabled={exporting}>
-          {exporting ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <FileDown className="h-4 w-4 mr-2" />
-          )}
+        <Button variant="outline" className="flex-1" onClick={handleExport} loading={exporting}>
+          {!exporting && <FileDown className="h-4 w-4 mr-2" />}
           {t("appPage.sites.detail.report.exportButton")}
         </Button>
       </div>

@@ -13,24 +13,25 @@ import {
   TabsList,
   TabsTrigger,
 } from "@watchborne/electrons";
-import { format } from "date-fns";
-import { BarChart3, TableIcon } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { BarChart3, TableIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+
 import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
+import { csvFilenameDate } from "@/lib/csv";
 import { useDateFormat } from "@/lib/date-format";
 import { formatUnit } from "@/lib/format-unit";
 
 import { CHARTABLE_CONNECTORS, ConsumptionChart } from "./ConsumptionChart";
 import { consumptionHeadline, ConsumptionTile } from "./ConsumptionTile";
+import { CsvExportButton } from "../../components/common/CsvExportButton";
 import {
   CONSUMPTION_RANGES,
   MAX_CHART_SAMPLES,
@@ -100,6 +101,26 @@ export const ChargePointConsumptionPanel = ({
   const omittedConnectors = selectedSeries.length - chartedSeries.length;
   const unit = chartedSeries[0]?.unit;
 
+  // Raw readings for the selected measurand (all connectors, not just the
+  // charted ones), ISO timestamps and unformatted values so the file is
+  // machine-readable rather than a copy of the display.
+  const exportRows = () => [
+    [
+      t("appPage.chargePoints.consumption.table.measuredAt"),
+      t("appPage.chargePoints.consumption.table.connector"),
+      t("appPage.chargePoints.consumption.table.measurand"),
+      t("appPage.chargePoints.consumption.table.value"),
+      t("appPage.chargePoints.consumption.table.unit"),
+    ],
+    ...samples.map((sample) => [
+      sample.measuredAt,
+      sample.connectorId,
+      sample.measurand,
+      sample.value,
+      sample.unit,
+    ]),
+  ];
+
   const withUnit = (value: number, seriesUnit?: string) =>
     seriesUnit ? `${formatNumber(value)} ${formatUnit(seriesUnit)}` : formatNumber(value);
 
@@ -161,6 +182,12 @@ export const ChargePointConsumptionPanel = ({
               <BarChart3 className="h-3.5 w-3.5" />
             )}
           </Button>
+
+          <CsvExportButton
+            getRows={exportRows}
+            filename={`consumption-${measurand ?? "all"}-${csvFilenameDate()}.csv`}
+            disabled={samples.length === 0}
+          />
         </div>
       </div>
 

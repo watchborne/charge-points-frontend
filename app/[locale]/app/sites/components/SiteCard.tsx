@@ -1,8 +1,9 @@
 import { Site } from "@watchborne/charge-points-types";
 import classNames from "classnames";
 import { Battery, Calendar, MapPin } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
+import { useDateFormat } from "@/lib/date-format";
 import { isSiteVisitOverdue } from "@/lib/derive-site-visit-overdue";
 import { colorBadgeClass } from "@/lib/status";
 import { ChargePointWithConnectors } from "@/types/charge-point";
@@ -15,7 +16,7 @@ type SiteCardProps = {
 
 export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) => {
   const t = useTranslations("");
-  const format = useFormatter();
+  const { formatDateNumeric } = useDateFormat();
 
   const onlineCount = chargePoints.filter(({ connection }) =>
     ["SYNCED", "CONNECTED"].includes(connection.status),
@@ -86,24 +87,14 @@ export const SiteCard = ({ site, chargePoints, onSiteClicked }: SiteCardProps) =
           <Calendar className="h-4 w-4 shrink-0" />
           <span>
             {t("appPage.sites.page.table.columns.installDate")}:{" "}
-            {format.dateTime(new Date(site.installedAt), {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            })}
+            {formatDateNumeric(site.installedAt)}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 shrink-0" />
           <span>
             {t("appPage.sites.page.table.columns.lastVisit")}:{" "}
-            {site.lastVisitedAt
-              ? format.dateTime(new Date(site.lastVisitedAt), {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                })
-              : "—"}
+            {site.lastVisitedAt ? formatDateNumeric(site.lastVisitedAt) : "—"}
           </span>
         </div>
       </div>

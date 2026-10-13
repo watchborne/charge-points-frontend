@@ -1,7 +1,6 @@
 "use client";
 
 import { Callout, Button, Input, Label } from "@watchborne/electrons";
-import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -92,8 +91,7 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
         />
       )}
 
-      <Button type="submit" className="w-full" disabled={isLoading} size="lg">
-        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      <Button type="submit" className="w-full" loading={isLoading} size="lg">
         {t("loginPage.form.submit")}
       </Button>
     </form>

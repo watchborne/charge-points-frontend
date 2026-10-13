@@ -1,10 +1,6 @@
 "use client";
 
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, Loader2, Upload } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -13,7 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { CheckCircle2, Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { StartFirmwareUpdateOutcome } from "@/lib/api-charge-points";
 import type { ChargePoint } from "@/types/charge-point";
@@ -152,7 +152,7 @@ export const UpdateFirmwareDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.firmware.update.title")}</DialogTitle>
           <DialogDescription>
@@ -265,8 +265,12 @@ export const UpdateFirmwareDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={state.status === "loading"}
+          >
             {t("appPage.chargePoints.firmware.update.submit")}
           </Button>
         </DialogFooter>

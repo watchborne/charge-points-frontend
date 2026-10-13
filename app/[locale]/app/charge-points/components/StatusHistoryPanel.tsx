@@ -1,22 +1,24 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@watchborne/electrons";
-import { useTranslations } from "next-intl";
-import { useMemo } from "react";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { useTranslations } from "next-intl";
+import { useMemo } from "react";
+
 import type { ConnectionStateEvent, ConnectorStatusEvent } from "@/lib/api-status-history";
+import { csvFilenameDate } from "@/lib/csv";
 import { connectionStatusColor, connectorStatusColor } from "@/lib/status";
 import { computeSegments } from "@/lib/status-history";
 
 import { StatusHistoryTable } from "./StatusHistoryTable";
 import { StatusTimelineBar } from "./StatusTimelineBar";
+import { CsvExportButton } from "../../components/common/CsvExportButton";
 import type { StatusHistoryRange } from "../../hooks/useStatusHistory";
 
 type Props = {
@@ -79,6 +81,30 @@ export const StatusHistoryPanel = ({
     [connectorEvents, windowStart, windowEnd],
   );
 
+  // The raw transitions of both streams (connectivity and the selected
+  // connector), not the derived segments: that is what an audit needs.
+  const exportRows = () => [
+    [
+      t("appPage.chargePoints.statusHistory.export.stream"),
+      t("appPage.chargePoints.statusHistory.table.timestamp"),
+      t("appPage.chargePoints.statusHistory.table.status"),
+    ],
+    ...[...connectionEvents]
+      .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))
+      .map((event) => [
+        t("appPage.chargePoints.statusHistory.connectivity"),
+        event.occurredAt,
+        event.status,
+      ]),
+    ...[...connectorEvents]
+      .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))
+      .map((event) => [
+        t("appPage.chargePoints.statusHistory.connectorStatus", { connectorId }),
+        event.occurredAt,
+        event.status,
+      ]),
+  ];
+
   const unknownLabel = t("appPage.chargePoints.statusHistory.noData");
 
   return (
@@ -123,6 +149,12 @@ export const StatusHistoryPanel = ({
               </SelectContent>
             </Select>
           )}
+
+          <CsvExportButton
+            getRows={exportRows}
+            filename={`status-history-${range}-${csvFilenameDate()}.csv`}
+            disabled={connectionEvents.length === 0 && connectorEvents.length === 0}
+          />
         </div>
       </div>
 

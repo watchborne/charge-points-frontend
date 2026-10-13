@@ -1,44 +1,23 @@
-import type { ChargePoint } from "@watchborne/charge-points-types";
-
-import type { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
+import type {
+  ChargePoint,
+  ConnectionStateEvent as SharedConnectionStateEvent,
+  ConnectorStatusEvent as SharedConnectorStatusEvent,
+} from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
+import type { Wire } from "./wire";
 
-// The status-history reads' response shapes. Not part of
-// @watchborne/charge-points-types on purpose, like `MeterSample` in
-// api-metering.ts: the backend keeps `ConnectionStateEvent`/`ConnectorStatusEvent`
-// server-local (ADR 0008) since no client consumes them as domain entities —
-// the dashboard codes against these response contracts. Timestamps arrive as
-// ISO strings and are parsed where rendered, never widened to `Date` here.
+// The status-history reads' response shapes: the shared `ConnectionStateEvent` /
+// `ConnectorStatusEvent` entities (@watchborne/charge-points-types), as they look
+// once serialized to JSON — timestamps arrive as ISO strings and are parsed where
+// rendered (see `Wire`). charge-points-server ADR 0008.
 
 /** One connection-status transition, as `GET /api/charge-points/:id/connection-events` returns it. */
-export type ConnectionStateEvent = {
-  id: string;
-  chargePointId: string;
-  status: ChargePointConnectionStatus;
-  /** `null` for a charge point's first-ever recorded connection status. */
-  previousStatus: ChargePointConnectionStatus | null;
-  statusMessage?: string;
-  /** ISO string: when the transition happened — always the server's clock (no device timestamp for this stream). */
-  occurredAt: string;
-  createdAt: string;
-};
+export type ConnectionStateEvent = Wire<SharedConnectionStateEvent>;
 
 /** One connector-status transition, as `GET /api/charge-points/:id/connector-status-events` returns it. */
-export type ConnectorStatusEvent = {
-  id: string;
-  chargePointId: string;
-  /** The OCPP connector ordinal, as on `Connector.connectorId` — not a UUID. `0` is the whole-charge-point entry. */
-  connectorId: number;
-  status: ConnectorStatus;
-  /** `null` for a connector's first-ever recorded status. */
-  previousStatus: ConnectorStatus | null;
-  errorCode?: string;
-  /** ISO string: the station's own reported instant when it carried one, the server's receipt time otherwise. */
-  occurredAt: string;
-  createdAt: string;
-};
+export type ConnectorStatusEvent = Wire<SharedConnectorStatusEvent>;
 
 export type StatusHistoryQuery = {
   since?: Date;

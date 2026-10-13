@@ -41,8 +41,8 @@ export const SiteDetail = ({
   onDeleteClicked,
 }: SiteDetailProps) => {
   const t = useTranslations("");
-  const { formatRelative } = useDateFormat();
   const format = useFormatter();
+  const { formatDateNumeric, formatRelative } = useDateFormat();
   const router = useRouter();
   const [logVisitOpen, setLogVisitOpen] = useState(false);
   const [tariffDialogOpen, setTariffDialogOpen] = useState(false);
@@ -97,7 +97,6 @@ export const SiteDetail = ({
     await cancelNextVisit();
   };
 
-  const dateOptions = { year: "numeric", month: "2-digit", day: "2-digit" } as const;
   const sectionClass = "space-y-3 rounded-xl border bg-card p-4 shadow-sm sm:p-6";
 
   return (
@@ -147,9 +146,7 @@ export const SiteDetail = ({
                   <span className="text-muted-foreground">
                     {t("appPage.sites.page.table.columns.installDate")}
                   </span>
-                  <span className="font-medium">
-                    {format.dateTime(new Date(site.installedAt), dateOptions)}
-                  </span>
+                  <span className="font-medium">{formatDateNumeric(site.installedAt)}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -217,9 +214,7 @@ export const SiteDetail = ({
                   {visits.map((visit) => (
                     <div key={visit.id} className="flex flex-col gap-1 px-3 py-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium">
-                          {format.dateTime(new Date(visit.visitedAt), dateOptions)}
-                        </span>
+                        <span className="font-medium">{formatDateNumeric(visit.visitedAt)}</span>
                         <span className="text-xs text-muted-foreground">
                           {formatRelative(visit.visitedAt)}
                         </span>
@@ -258,9 +253,7 @@ export const SiteDetail = ({
               {!scheduleLoading && schedule && (
                 <div className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm">
                   <div className="flex flex-col">
-                    <span className="font-medium">
-                      {format.dateTime(new Date(schedule.nextVisitAt), dateOptions)}
-                    </span>
+                    <span className="font-medium">{formatDateNumeric(schedule.nextVisitAt)}</span>
                     <span className="text-xs text-muted-foreground">
                       {formatRelative(schedule.nextVisitAt)}
                     </span>

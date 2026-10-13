@@ -1,6 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import {
@@ -80,7 +79,7 @@ type Props = {
  */
 export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spansDays }: Props) => {
   const t = useTranslations("");
-  const { formatDateTime } = useDateFormat();
+  const { formatDateTime, formatDayMonth, formatTime } = useDateFormat();
   const locale = useLocale();
 
   const rows = useMemo(() => toChartRows(samples, connectorIds), [samples, connectorIds]);
@@ -90,7 +89,7 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
     return (value: number) => formatter.format(value);
   }, [locale]);
 
-  const formatTick = (at: number) => format(new Date(at), spansDays ? "dd/MM" : "HH:mm");
+  const formatTick = (at: number) => (spansDays ? formatDayMonth(at) : formatTime(at));
 
   if (rows.length === 0) {
     return (

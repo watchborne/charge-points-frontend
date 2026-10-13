@@ -2,10 +2,6 @@
 
 import { MESSAGE_PRIORITIES_V201, type MessagePriorityV201 } from "@watchborne/charge-points-types";
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, FileText, Loader2, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -14,14 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { CheckCircle2, FileText, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { ClearDisplayMessageOutcome, SetDisplayMessageOutcome } from "@/lib/api-charge-points";
 import type { ChargePoint } from "@/types/charge-point";
@@ -154,7 +154,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
             </Button>
           </DialogTrigger>
 
-          <DialogContent>
+          <DialogContent closeLabel={t("common.close")}>
             <DialogHeader>
               <DialogTitle>{t("appPage.chargePoints.displayMessage.set.title")}</DialogTitle>
               <DialogDescription>
@@ -213,11 +213,9 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
               <Button
                 size="sm"
                 onClick={handleSend}
-                disabled={content.trim().length === 0 || setState.status === "loading"}
+                disabled={content.trim().length === 0}
+                loading={setState.status === "loading"}
               >
-                {setState.status === "loading" && (
-                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                )}
                 {t("appPage.chargePoints.displayMessage.set.submit")}
               </Button>
             </DialogFooter>
@@ -228,13 +226,9 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
           variant="outline"
           size="sm"
           onClick={handleClear}
-          disabled={clearState.status === "loading"}
+          loading={clearState.status === "loading"}
         >
-          {clearState.status === "loading" ? (
-            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="mr-1.5 h-4 w-4" />
-          )}
+          {clearState.status !== "loading" && <Trash2 className="mr-1.5 h-4 w-4" />}
           {t("appPage.chargePoints.displayMessage.clear.button")}
         </Button>
       </div>

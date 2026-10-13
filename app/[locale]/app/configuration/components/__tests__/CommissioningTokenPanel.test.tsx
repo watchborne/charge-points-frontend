@@ -33,16 +33,9 @@ const translate = (key: string, params?: Record<string, unknown>) => {
   return key;
 };
 
-// A fixed, locale-agnostic stand-in for the real Intl-backed formatter — what
-// matters here is that the component calls it, not the exact
-// rendered string, which is next-intl's own concern.
-const formatter = {
-  dateTime: (date: Date) => `formatted:${date.toISOString().slice(0, 10)}`,
-};
-
 vi.mock("next-intl", () => ({
   useTranslations: () => translate,
-  useFormatter: () => formatter,
+  useLocale: () => "fr",
 }));
 
 // A relative path is required here (not the usual "@/lib/api" alias): test
@@ -98,7 +91,7 @@ describe("CommissioningTokenPanel", () => {
     issueToken.mockResolvedValue({
       token: "abc123",
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
 
     renderPanel();
@@ -122,7 +115,7 @@ describe("CommissioningTokenPanel", () => {
     issueToken.mockResolvedValue({
       token: "abc123",
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
 
     renderPanel();
@@ -140,34 +133,34 @@ describe("CommissioningTokenPanel", () => {
     expect(screen.queryByText(/CP-001/)).toBeNull();
   });
 
-  it("SHOULD format the creation date through useFormatter, not a hardcoded locale", async () => {
+  it("SHOULD format the creation date for the active locale", async () => {
     getStatus.mockResolvedValue({
       hasToken: true,
-      createdAt: "2024-03-15T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
 
     renderPanel();
 
     expect(
       await screen.findByText(
-        /appPage.configuration.commissioningToken.createdAtLabel.*formatted:2024-03-15/,
+        /appPage.configuration.commissioningToken.createdAtLabel.*15\/03\/2024/,
       ),
     ).toBeTruthy();
   });
 
-  it("SHOULD show the expiry date through useFormatter WHEN a token is active", async () => {
+  it("SHOULD show the expiry date for the active locale WHEN a token is active", async () => {
     getStatus.mockResolvedValue({
       hasToken: true,
-      createdAt: "2024-03-15T00:00:00.000Z",
-      expiresAt: "2024-06-13T00:00:00.000Z",
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2024-06-13T12:00:00.000Z",
     });
 
     renderPanel();
 
     expect(
       await screen.findByText(
-        /appPage.configuration.commissioningToken.expiresAtLabel.*formatted:2024-06-13/,
+        /appPage.configuration.commissioningToken.expiresAtLabel.*13\/06\/2024/,
       ),
     ).toBeTruthy();
   });
@@ -175,8 +168,8 @@ describe("CommissioningTokenPanel", () => {
   it("SHOULD show how many charge points were commissioned WHEN the token is unlimited", async () => {
     getStatus.mockResolvedValue({
       hasToken: true,
-      createdAt: "2024-03-15T00:00:00.000Z",
-      expiresAt: "2024-06-13T00:00:00.000Z",
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2024-06-13T12:00:00.000Z",
       useCount: 3,
       maxUses: null,
       lastUsedAt: null,
@@ -192,8 +185,8 @@ describe("CommissioningTokenPanel", () => {
   it("SHOULD show the count against the ceiling WHEN the token has a maximum number of uses", async () => {
     getStatus.mockResolvedValue({
       hasToken: true,
-      createdAt: "2024-03-15T00:00:00.000Z",
-      expiresAt: "2024-06-13T00:00:00.000Z",
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2024-06-13T12:00:00.000Z",
       useCount: 2,
       maxUses: 5,
       lastUsedAt: null,
@@ -228,14 +221,14 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: false,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-03-31T00:00:00.000Z",
+      expiresAt: "2024-03-31T12:00:00.000Z",
     });
 
     renderPanel();
 
     expect(
       await screen.findByText(
-        /appPage.configuration.commissioningToken.expiredWarning.*formatted:2024-03-31/,
+        /appPage.configuration.commissioningToken.expiredWarning.*31\/03\/2024/,
       ),
     ).toBeTruthy();
     expect(
@@ -259,12 +252,12 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
     issueToken.mockResolvedValue({
       token: "new-token",
       createdAt: "2024-06-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
 
     renderPanel();
@@ -303,7 +296,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
     revoke.mockResolvedValue(undefined);
 
@@ -338,7 +331,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
     revoke.mockRejectedValue(new Error("boom"));
 
@@ -374,7 +367,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
     getMe.mockResolvedValue({
       userId: "user-1",
@@ -404,7 +397,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
     getMe.mockResolvedValue({
       userId: "user-1",
@@ -434,7 +427,7 @@ describe("CommissioningTokenPanel", () => {
     getStatus.mockResolvedValue({
       hasToken: true,
       createdAt: "2024-01-01T00:00:00.000Z",
-      expiresAt: "2024-12-31T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
     });
     const attempts = Array.from({ length: 6 }, (_, i) => ({
       id: `attempt-${i}`,

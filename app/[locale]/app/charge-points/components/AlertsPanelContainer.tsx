@@ -6,6 +6,7 @@ import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { api } from "@/lib/api";
+import { csvFilenameDate, downloadCsv } from "@/lib/csv";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePoint } from "@/types/charge-point";
 
@@ -15,6 +16,14 @@ import { AlertsPanel } from "./AlertsPanel";
  * recent activity, not a full audit log (`api.ChargePoints.getAlerts`
  * supports a much longer history if a fuller browser is ever built). */
 const VISIBLE_ALERT_COUNT = 5;
+
+/** How far back the CSV export reaches — the panel only shows the latest few. */
+const EXPORT_ALERT_COUNT = 100;
+
+// `getAlerts` is typed with the package's `Date`s but hands over parsed JSON,
+// i.e. ISO strings; normalizing covers both.
+const toIso = (date: Date | string | null): string | null =>
+  date ? new Date(date).toISOString() : null;
 
 type AlertsPanelContainerProps = {
   chargePointId: ChargePoint["id"];
@@ -68,6 +77,41 @@ export const AlertsPanelContainer = ({
       queryClient.invalidateQueries({ queryKey: queryKeys.alerts.chargePoint(chargePointId) }),
   });
 
+  const {
+    mutate: exportCsv,
+    isPending: exporting,
+    isError: exportFailed,
+  } = useMutation({
+    // Fetched on click rather than from the list above: that one is capped at
+    // `VISIBLE_ALERT_COUNT`, which would make for a pointless export.
+    mutationFn: () => api.ChargePoints.getAlerts(chargePointId, EXPORT_ALERT_COUNT),
+    onSuccess: (history) =>
+      downloadCsv(`alerts-${chargePointName}-${csvFilenameDate()}.csv`, [
+        [
+          t("appPage.chargePoints.alerts.export.type"),
+          t("appPage.chargePoints.alerts.export.connector"),
+          t("appPage.chargePoints.alerts.export.status"),
+          t("appPage.chargePoints.alerts.export.openedAt"),
+          t("appPage.chargePoints.alerts.export.resolvedAt"),
+          t("appPage.chargePoints.alerts.export.notifiedTo"),
+          t("appPage.chargePoints.alerts.export.lastNotifiedAt"),
+          t("appPage.chargePoints.alerts.export.acknowledgedBy"),
+          t("appPage.chargePoints.alerts.export.acknowledgedAt"),
+        ],
+        ...history.map((alert) => [
+          alert.type,
+          alert.connectorId,
+          alert.status,
+          toIso(alert.openedAt),
+          toIso(alert.resolvedAt),
+          alert.notifiedRecipients.map((recipient) => recipient.email).join("; "),
+          toIso(alert.lastNotifiedAt),
+          alert.acknowledgedBy?.email,
+          toIso(alert.acknowledgedAt),
+        ]),
+      ]),
+  });
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -87,6 +131,10 @@ export const AlertsPanelContainer = ({
         <Callout description={t("appPage.chargePoints.alerts.acknowledgeError")} variant="error" />
       )}
 
+      {exportFailed && (
+        <Callout description={t("appPage.chargePoints.alerts.export.error")} variant="error" />
+      )}
+
       <AlertsPanel
         chargePointName={chargePointName}
         realtimeAlertsEnabled={realtimeAlertsEnabled}
@@ -94,6 +142,8 @@ export const AlertsPanelContainer = ({
         alerts={alerts}
         onAcknowledge={acknowledge}
         acknowledgingAlertId={acknowledging ? (acknowledgingAlertId ?? null) : null}
+        onExportCsv={() => exportCsv()}
+        exporting={exporting}
       />
     </div>
   );

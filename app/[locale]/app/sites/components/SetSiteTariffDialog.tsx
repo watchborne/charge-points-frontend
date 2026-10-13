@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@watchborne/electrons";
+import { Input, FormDialog } from "@watchborne/electrons";
 import { Coins } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -14,8 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import { FormDialog } from "../../components/common/FormDialog";
 
 const siteTariffFormSchema = z.object({
   currency: z
@@ -86,6 +84,7 @@ export const SetSiteTariffDialog = ({
       title={t("appPage.sites.detail.tariff.dialog.title")}
       description={t("appPage.sites.detail.tariff.dialog.description")}
       cancelLabel={t("common.actions.cancel")}
+      closeLabel={t("common.close")}
       submitLabel={t("common.actions.save")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       isLoading={isSubmitting}

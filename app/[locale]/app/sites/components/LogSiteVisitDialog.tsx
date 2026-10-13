@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea, FormDialog } from "@watchborne/electrons";
 import { CalendarCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -14,9 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-
-import { FormDialog } from "../../components/common/FormDialog";
 
 const logSiteVisitSchema = z.object({
   visitedAt: z.date(),
@@ -66,6 +64,7 @@ export const LogSiteVisitDialog = ({
       title={t("appPage.sites.detail.visits.logDialog.title")}
       description={t("appPage.sites.detail.visits.logDialog.description")}
       cancelLabel={t("common.actions.cancel")}
+      closeLabel={t("common.close")}
       submitLabel={t("appPage.sites.detail.visits.logDialog.submit")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       isLoading={isSubmitting}

@@ -1,8 +1,7 @@
 import { SiteHealth } from "@watchborne/charge-points-types";
+import { StatsBreakdown } from "@watchborne/electrons";
 import { MapPin, ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { StatsBreakdown } from "../common/StatsBreakdown";
 
 /** Global roll-up above the per-site watchlist/list: how many sites are in
  * each health bucket, and how many charge points are affected fleet-wide

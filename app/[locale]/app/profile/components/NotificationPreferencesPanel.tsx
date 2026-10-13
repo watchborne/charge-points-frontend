@@ -2,16 +2,16 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Callout, Skeleton, Switch } from "@watchborne/electrons";
-import { Bell } from "lucide-react";
-import { useTranslations } from "next-intl";
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { Bell } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { api } from "@/lib/api";
 import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
 import { useDateFormat } from "@/lib/date-format";

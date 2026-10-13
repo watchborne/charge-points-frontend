@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
@@ -35,6 +35,16 @@ describe("ChargePointConnectionUrlDialog", () => {
 
     expect(screen.getByText(chargePoint.connectionUrl)).toBeTruthy();
     expect(screen.getByText("appPage.chargePoints.connectionUrl.description")).toBeTruthy();
+  });
+
+  it("SHOULD name the close button with the translated label WHEN the dialog is open", () => {
+    render(
+      <ChargePointConnectionUrlDialog open onOpenChange={vi.fn()} chargePoint={chargePoint} />,
+    );
+
+    const dialog = screen.getByRole("dialog");
+
+    expect(within(dialog).getByText("common.close", { selector: ".sr-only" })).toBeTruthy();
   });
 
   it("SHOULD copy the connection URL to the clipboard WHEN the copy button is clicked", async () => {

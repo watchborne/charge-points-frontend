@@ -8,6 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Input,
+  FormDialog,
 } from "@watchborne/electrons";
 import classNames from "classnames";
 import { Zap, ChevronDown, Server } from "lucide-react";
@@ -26,7 +27,6 @@ import {
 } from "@/components/ui/form";
 
 import { SiteCombobox } from "./SiteCombobox";
-import { FormDialog } from "../../components/common/FormDialog";
 
 type ChargePointFormDialogProps = {
   open: boolean;
@@ -156,6 +156,7 @@ export const ChargePointFormDialog = ({
           : t("appPage.chargePoints.form.editDescription")
       }
       cancelLabel={t("common.actions.cancel")}
+      closeLabel={t("common.close")}
       submitLabel={mode === "create" ? t("common.actions.create") : t("common.actions.save")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       form={

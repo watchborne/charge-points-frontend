@@ -1,26 +1,23 @@
-import type { Site } from "@watchborne/charge-points-types";
+import type {
+  Site,
+  SiteVisit as SharedSiteVisit,
+  SiteVisitSchedule as SharedSiteVisitSchedule,
+} from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
+import type { Wire } from "./wire";
 
-// The site-visit history's response shape. Not part of
-// @watchborne/charge-points-types on purpose, like SecurityEvent/
-// ConnectionStateEvent above: the backend keeps `SiteVisit` server-local
-// (charge-points-server ADR 0015) since no client consumes it as a domain
-// entity — the dashboard codes against this response contract. Timestamps
-// arrive as ISO strings and are parsed where rendered, never widened to
-// `Date` here.
+// The site-visit and next-visit responses: the shared `SiteVisit` /
+// `SiteVisitSchedule` entities (@watchborne/charge-points-types), as they look
+// once serialized to JSON — timestamps arrive as ISO strings and are parsed where
+// rendered (see `Wire`). charge-points-server ADR 0015 / ADR 0016.
 
 /** One on-site maintenance visit, as `GET /api/sites/:id/visits` returns it. */
-export type SiteVisit = {
-  id: string;
-  siteId: string;
-  /** ISO string: when the site was actually visited. */
-  visitedAt: string;
-  note: string | null;
-  recordedBy: { userId: string; email: string };
-  createdAt: string;
-};
+export type SiteVisit = Wire<SharedSiteVisit>;
+
+/** A site's planned next visit (`GET`/`PUT /api/sites/:id/next-visit`). `GET` answers `null` when none is scheduled. */
+export type SiteVisitSchedule = Wire<SharedSiteVisitSchedule>;
 
 export type SiteVisitQuery = {
   since?: Date;
@@ -38,17 +35,6 @@ export type RecordSiteVisitBody = {
 // return it. Not part of @watchborne/charge-points-types either, same reasoning
 // as SiteVisit above (charge-points-server issue #579, ADR 0016) — it's a
 // server-local singleton-per-site plan, not appended to the shared Site shape.
-
-/** A site's planned next visit, or `null` when none is scheduled. */
-export type SiteVisitSchedule = {
-  siteId: string;
-  /** ISO string: strictly in the future (enforced server-side). */
-  nextVisitAt: string;
-  /** ISO string, or `null` before the daily digest has sent a reminder for
-   * this scheduled date. */
-  reminderSentAt: string | null;
-  updatedAt: string;
-};
 
 const buildQuery = ({ since, until, limit }: SiteVisitQuery = {}): string => {
   const params = new URLSearchParams();

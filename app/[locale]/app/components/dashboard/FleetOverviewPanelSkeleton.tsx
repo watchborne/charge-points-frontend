@@ -1,6 +1,4 @@
-import { Skeleton } from "@watchborne/electrons";
-
-import { SkeletonGrid } from "../common/SkeletonGrid";
+import { Skeleton, SkeletonGrid } from "@watchborne/electrons";
 
 export const FleetOverviewPanelSkeleton = () => {
   return (

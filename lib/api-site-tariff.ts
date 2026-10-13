@@ -1,29 +1,23 @@
-import type { Site } from "@watchborne/charge-points-types";
+import type {
+  GetSiteTariffResult as SharedGetSiteTariffResult,
+  Site,
+  SiteTariff as SharedSiteTariff,
+} from "@watchborne/charge-points-types";
 
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
+import type { Wire } from "./wire";
 
-// A site's currently configured flat tariff — not part of
-// @watchborne/charge-points-types, like SiteVisit/SecurityEvent above: the
-// backend keeps `SiteTariff` server-local (charge-points-server issue #580)
-// since no client consumes it as a domain entity. Not historized: this is
-// always the rate in effect right now, never the one that applied to a
-// specific past session.
+// A site's currently configured flat tariff: the shared `SiteTariff` entity
+// (@watchborne/charge-points-types), as it looks once serialized to JSON —
+// timestamps arrive as ISO strings (see `Wire`). Not historized: this is always
+// the rate in effect right now, never the one that applied to a specific past
+// session (charge-points-server issue #580).
 
-export type SiteTariff = {
-  siteId: string;
-  currency: string;
-  /** Integer cents per kWh — see the backend's own note on why not a float. */
-  pricePerKwhCents: number;
-  createdAt: string;
-  updatedAt: string;
-};
+export type SiteTariff = Wire<SharedSiteTariff>;
 
 /** `GET /api/sites/:id/tariff`'s envelope: `tariff` is null when none is configured yet. */
-export type GetSiteTariffResult = {
-  siteId: string;
-  tariff: SiteTariff | null;
-};
+export type GetSiteTariffResult = Wire<SharedGetSiteTariffResult>;
 
 export type UpsertSiteTariffBody = {
   currency: string;

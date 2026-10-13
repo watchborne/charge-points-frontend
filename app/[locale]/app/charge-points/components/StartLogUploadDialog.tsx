@@ -2,10 +2,6 @@
 
 import { GET_LOG_TYPES_V201, type GetLogTypeV201 } from "@watchborne/charge-points-types";
 import { Button, Callout, Input, Label } from "@watchborne/electrons";
-import { CheckCircle2, FileDown, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -14,14 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { CheckCircle2, FileDown } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { StartLogUploadOutcome } from "@/lib/api-charge-points";
 import type { ChargePoint } from "@/types/charge-point";
@@ -146,7 +146,7 @@ export const StartLogUploadDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.logUpload.start.title")}</DialogTitle>
           <DialogDescription>
@@ -240,8 +240,12 @@ export const StartLogUploadDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={state.status === "loading"}
+          >
             {t("appPage.chargePoints.logUpload.start.submit")}
           </Button>
         </DialogFooter>

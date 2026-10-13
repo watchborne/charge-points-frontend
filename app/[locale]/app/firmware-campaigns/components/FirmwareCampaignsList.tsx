@@ -6,9 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from "@watchborne/electrons";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import type { FirmwareCampaign } from "@/lib/api-firmware-campaigns";
+import { useDateFormat } from "@/lib/date-format";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { FirmwareCampaignStatusBadge } from "./FirmwareCampaignStatusBadge";
@@ -50,7 +51,7 @@ export const FirmwareCampaignsList = ({
   onCampaignClicked,
 }: FirmwareCampaignsListProps) => {
   const t = useTranslations("");
-  const format = useFormatter();
+  const { formatDateTime } = useDateFormat();
 
   if (campaigns.length === 0) {
     return (
@@ -91,15 +92,7 @@ export const FirmwareCampaignsList = ({
                 )}
               </TableCell>
               <TableCell className="text-right">{targetCount(campaign, chargePoints)}</TableCell>
-              <TableCell>
-                {format.dateTime(new Date(campaign.scheduledAt), {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </TableCell>
+              <TableCell>{formatDateTime(campaign.scheduledAt)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

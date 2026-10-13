@@ -5,10 +5,6 @@ import {
   type GetBaseReportBaseV201,
 } from "@watchborne/charge-points-types";
 import { Button, Callout, Label } from "@watchborne/electrons";
-import { CheckCircle2, ClipboardList, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -17,14 +13,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@watchborne/electrons";
+import { CheckCircle2, ClipboardList } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import type { RequestDeviceReportOutcome } from "@/lib/api-device-variable-reports";
 import type { ChargePoint } from "@/types/charge-point";
@@ -116,7 +116,7 @@ export const RequestDeviceReportDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent closeLabel={t("common.close")}>
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.deviceVariableReports.request.title")}</DialogTitle>
           <DialogDescription>
@@ -184,8 +184,7 @@ export const RequestDeviceReportDialog = ({
           <Button variant="outline" size="sm" onClick={() => handleOpenChange(false)}>
             {t("common.close")}
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={state.status === "loading"}>
-            {state.status === "loading" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+          <Button size="sm" onClick={handleSubmit} loading={state.status === "loading"}>
             {t("appPage.chargePoints.deviceVariableReports.request.submit")}
           </Button>
         </DialogFooter>

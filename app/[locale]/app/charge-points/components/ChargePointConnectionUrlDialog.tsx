@@ -1,10 +1,6 @@
 "use client";
 
 import { Button } from "@watchborne/electrons";
-import { Check, Copy, PlugZap } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -12,7 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { Check, Copy, PlugZap } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { CreatedChargePoint } from "@/types/charge-point";
 
 type ChargePointConnectionUrlDialogProps = {
@@ -54,7 +54,7 @@ export const ChargePointConnectionUrlDialog = ({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent closeLabel={t("common.close")} className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PlugZap className="h-5 w-5 text-charge-strong" />

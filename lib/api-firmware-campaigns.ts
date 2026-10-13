@@ -1,53 +1,26 @@
+import type {
+  FirmwareCampaign as SharedFirmwareCampaign,
+  FirmwareCampaignProgress as SharedFirmwareCampaignProgress,
+  FirmwareCampaignStatus,
+  FirmwareCampaignTargetMode,
+} from "@watchborne/charge-points-types";
+
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
+import type { Wire } from "./wire";
 
-// `FirmwareCampaign`'s response shape, as `POST`/`GET /api/firmware-campaigns`
-// and `GET /api/firmware-campaigns/:id` return it. Not part of
-// @watchborne/charge-points-types on purpose, exactly like `SiteVisitSchedule`
-// in api-site-visits.ts: the backend keeps a fleet-wide firmware campaign
-// server-local, since no client consumes it as a shared domain entity — the
-// dashboard codes against this response contract instead. Timestamps arrive
-// as ISO strings and are parsed where rendered, never widened to `Date` here.
+// `FirmwareCampaign`'s response shape: the shared entity and its progress view
+// (@watchborne/charge-points-types), as they look once serialized to JSON —
+// timestamps arrive as ISO strings and are parsed where rendered (see `Wire`).
+// charge-points-server ADR 0017.
 
-export type FirmwareCampaignTargetMode = "SITE" | "LIST" | "FLEET";
+export type { FirmwareCampaignStatus, FirmwareCampaignTargetMode };
 
-export type FirmwareCampaignStatus = "SCHEDULED" | "DISPATCHING" | "DISPATCHED" | "CANCELLED";
-
-/** A scheduled fleet-wide firmware campaign, as the backend returns it. */
-export type FirmwareCampaign = {
-  id: string;
-  name: string;
-  /** The URL the firmware binary lives at (OCPP `UpdateFirmware.location`). */
-  targetLocation: string;
-  toVersion: string | null;
-  /** ISO string: when the station should fetch the firmware. */
-  retrieveDateTime: string;
-  targetMode: FirmwareCampaignTargetMode;
-  targetSiteId: string | null;
-  targetChargePointIds: string[];
-  /** Advisory only (see api.FirmwareCampaigns.create's JSDoc) — never blocks
-   * submission or dispatch. */
-  heterogeneousTargetIds: string[];
-  /** ISO string: when the campaign starts dispatching. */
-  scheduledAt: string;
-  /** Delay between each targeted station's dispatch, in milliseconds. */
-  staggerMs: number;
-  status: FirmwareCampaignStatus;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-};
+/** A scheduled fleet-wide firmware campaign, as `POST`/`GET /api/firmware-campaigns` return it. */
+export type FirmwareCampaign = Wire<SharedFirmwareCampaign>;
 
 /** `GET /api/firmware-campaigns/:id`'s detail + progress view, in one call. */
-export type FirmwareCampaignProgress = {
-  campaign: FirmwareCampaign;
-  targetCount: number;
-  attemptedCount: number;
-  notAttemptedCount: number;
-  succeededCount: number;
-  failedCount: number;
-  inProgressCount: number;
-};
+export type FirmwareCampaignProgress = Wire<SharedFirmwareCampaignProgress>;
 
 /**
  * `targetSiteId` is required (and only meaningful) when

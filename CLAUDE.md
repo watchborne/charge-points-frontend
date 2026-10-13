@@ -8,7 +8,7 @@ Guidance for AI coding agents working in this repository.
 charge-point platform. It renders a marketing site and an authenticated app that
 shows charge points and sites in real time, backed by `charge-points-server`.
 
-Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
+Stack: **Next.js 16 (App Router)**, React 19, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `@tanstack/react-query` for server-state, `next-intl` for i18n, `sonner` for
 toast notifications, `recharts` for charts, `@sentry/nextjs` for error
@@ -49,9 +49,8 @@ app/
                            #   FirmwareCampaignStatusBadge + skeleton): fleet-wide firmware
                            #   campaign management (dispatch UpdateFirmware to many charge
                            #   points, track per-station outcome). lib/api-firmware-campaigns.ts
-                           #   (api.FirmwareCampaigns) is the client — FirmwareCampaign is a
-                           #   server-local type, not in @watchborne/charge-points-types, same
-                           #   pattern as SiteVisitSchedule
+                           #   (api.FirmwareCampaigns) is the client — FirmwareCampaign comes
+                           #   from @watchborne/charge-points-types via Wire<> (see lib/wire.ts)
       charge-points/       # page + its own components/ (commissioning dialog/queue/
                            #   checklist, fleet panel — FleetBulkActionBar +
                            #   hooks/useBulkChargePointActions.ts add multi-select
@@ -118,7 +117,8 @@ app/
                            #   /api/sites/:id/next-visit, charge-points-server issue #579/
                            #   ADR 0016) from SiteDetail — the proactive counterpart to
                            #   LogSiteVisitDialog's reactive history, and SiteReportExportButton:
-                           #   downloads the printable PDF site report from SiteDetail —
+                           #   downloads the printable PDF site report from SiteDetail, over a time window the
+                           #   user picks (3/7/15/30 days, `REPORT_WINDOW_DAYS`) —
                            #   generated entirely by charge-points-server (ADR 0023, GET
                            #   /api/sites/:id/report.pdf): it reads its own data, draws its
                            #   charts as vectors and writes the file in the dashboard's
@@ -127,10 +127,12 @@ app/
                            #   rasterization any more)
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
-                          #   tied to domain types/state; plus generic display/interaction
-                          #   primitives not yet promoted to @watchborne/electrons:
-                          #   ActionsDropdown, StatusActionDropdown, FormDialog,
-                          #   StatsBreakdown, GenericStatusBadge, SkeletonGrid, Tooltip;
+                          #   tied to domain types/state; GenericStatusBadge — the
+                          #   next-intl lookup around electrons' ColorPill; Tooltip — an
+                          #   anchor + provider wrapper over electrons' Tooltip primitive.
+                          #   The generic ActionsDropdown, StatusActionDropdown, FormDialog,
+                          #   StatsBreakdown and SkeletonGrid now come from
+                          #   @watchborne/electrons;
                           #   dashboard/: FleetOverviewPanel + SiteHealth* — the fleet-wide
                           #   site health tile, derived client-side from already-fetched
                           #   charge points (lib/derive-site-health.ts) rather than a
@@ -180,11 +182,11 @@ proxy.ts                # Supabase session refresh, next-intl URL-based locale
                         # next-intl's middleware first, and a redirect from
                         # that (URL normalization) short-circuits immediately
                         # before the auth gate runs.
-components/ui/          # shadcn/ui primitives not yet promoted to
-                        #   @watchborne/electrons (generated; edit via
-                        #   components.json) — Dialog, AlertDialog, Popover,
-                        #   DropdownMenu, Select, Command, Calendar,
-                        #   Datepicker, Form
+components/ui/          # shadcn/ui pieces that stay in the app (edit via
+                        #   components.json): Datepicker (popover + calendar
+                        #   wired to useDateFormat/useCalendarLocale) and Form
+                        #   (react-hook-form). Everything else shadcn-shaped
+                        #   comes from @watchborne/electrons.
 lib/                    # http-client, api, api-*, proxy-request, constants
 types/                  # mostly thin re-exports of @watchborne/charge-points-types;
                         #   charge-point.ts also extends ChargePointWithConnectors/
@@ -267,16 +269,15 @@ here — a request without a session simply reaches the backend with no token.
   this client never guesses a fallback.
   `lib/api-metering.ts` (`api.Metering`) reads the metering history —
   `getMeterSamples` (the raw time series), `getConsumption` (the window reduced
-  per connector/measurand/unit). Its response types are declared locally, like
-  `Me`: the backend keeps `MeterSample` server-local (its ADR 0004), so these
-  response contracts are the shared surface. `lib/api-status-history.ts`
+  per connector/measurand/unit). Its response types are the package's
+  `MeterSample`/`MeterSampleSummary`/`ChargePointConsumption` seen through
+  `Wire<>` (below), and `isCumulativeRegister` is re-exported from the package. `lib/api-status-history.ts`
   (`api.StatusHistory`) reads the connection/connector status timeline behind
   `StatusHistoryPanel`; `lib/status.ts` / `lib/status-history.ts` hold the
   client-side status-display/derivation helpers it and `ConnectorStatusIcon`
   share. `api.ChargePoints.listChargingSessions` (`lib/api-charge-points.ts`)
   reads `GET /api/charge-points/:id/charging-sessions` for
-  `ChargingSessionsPanel` — unlike `MeterSample`/`SecurityEvent` above,
-  `ChargingSession` is a **shared-package type**
+  `ChargingSessionsPanel` — a **shared-package type**
   (`@watchborne/charge-points-types`, added in ADR 0012 §8 once this route
   existed to consume it), so there is no locally-declared response surface
   for it. `lib/api-uptime.ts` (`api.Uptime`) reads
@@ -294,9 +295,13 @@ here — a request without a session simply reaches the backend with no token.
   (`api.DisplayMessages`) reads `GET /api/charge-points/:id/display-message-reports`
   (the `NotifyDisplayMessages` history behind `DisplayMessagesPanel`) and issues the
   unfiltered `GetDisplayMessages` request `requestAll` triggers — same
-  acknowledgment-now/data-later shape as the device-report request above. All four
-  follow the same locally-declared-response-type pattern as `Me`/`SecurityEvent`
-  above, for the same reason (their backing entities are server-local).
+  acknowledgment-now/data-later shape as the device-report request above. The report
+  frames themselves are locally-declared response types, like `Me` above (their backing
+  entities are still server-local), built on the shared package where the shapes truly
+  match: `VariableV201`, `AttributeTypeV201`, and each display message, which is the
+  package's `MessageInfoV201` as is. The device-model `Component` is the exception —
+  the API flattens OCPP's nested `evse` into `evseId`/`connectorId`, so it stays local
+  and is not `ComponentV201`.
   `api.ChargePoints.setDisplayMessage`/`clearDisplayMessage` (`lib/api-charge-points.ts`)
   are the write side (OCPP `SetDisplayMessage`/`ClearDisplayMessage`, 2.0.1-only)
   behind `DisplayMessageControl` — a single fixed message id, since this client has
@@ -314,22 +319,25 @@ here — a request without a session simply reaches the backend with no token.
   The same module's `getSchedule`/`scheduleNextVisit`/`cancelNextVisit` read/write
   `/api/sites/:id/next-visit` — a site's planned next visit, one row per site,
   behind `useSiteVisitSchedule`/`ScheduleNextVisitDialog` (charge-points-server
-  issue #579, ADR 0016). Like `SiteVisit`, `SiteVisitSchedule` is declared locally
-  rather than in `@watchborne/charge-points-types` — it's kept server-local too.
+  issue #579, ADR 0016). `SiteVisit` and `SiteVisitSchedule` are the shared
+  package's entities, seen through `Wire<>` (below).
 - `lib/api-site-tariff.ts` (`api.SiteTariff`, `get`/`set`) reads/writes
   `GET`/`PUT /api/sites/:id/tariff` behind `useSiteTariff`/`SetSiteTariffDialog` —
   a site's configurable per-kWh tariff (charge-points-server ADR 0019), consumed
   by `ChargingSessionsPanel`'s cost column via `ChargingSessionCost`
-  (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is declared locally, same
-  server-local pattern as `SiteVisitSchedule` above.
+  (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is the shared package's
+  entity, seen through `Wire<>` (below).
 - Web Push (Desktop/Android; charge-points-server issues #587-590):
   `public/sw.js` is the plain, unbundled service worker (it can't import or read
   `process.env`; the page `postMessage`s it the VAPID public key after
   registering it), and `app/[locale]/app/hooks/usePushSubscription.ts` registers
   it and subscribes the browser using `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (must be the
   same key as the server's `VAPID_PUBLIC_KEY`; unset disables subscribing
-  rather than throwing). Plumbing only so far — the settings toggle that calls
-  it is a follow-up (#401).
+  rather than throwing). The opt-in toggle lives on `/app/profile` (with iOS
+  install-to-home-screen guidance, backed by `public/manifest.json` + icons for
+  PWA installability), and the digest's push channel
+  (`NotificationPreferencesPanel`, `digestPushEnabled`, charge-points-server
+  ADR 0023) requires a live browser subscription.
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
@@ -340,8 +348,7 @@ here — a request without a session simply reaches the backend with no token.
   `/api/firmware-campaigns` behind the `firmware-campaigns/` page — fleet-wide
   firmware campaign management (dispatch `UpdateFirmware` to many charge points,
   track per-station outcome), charge-points-server ADR 0017.
-  `FirmwareCampaign` is declared locally, same server-local pattern as
-  `SiteVisitSchedule` above.
+  `FirmwareCampaign` is the shared package's entity, seen through `Wire<>` (below).
 - `lib/api-contact.ts` (`api.Contact.send`) posts the marketing contact form
   (`ContactForm`) to `app/api/contact/route.ts`, which — unlike the proxies above —
   is handled by this app itself: it validates with `lib/contact-message.ts` (zod)
@@ -358,9 +365,8 @@ here — a request without a session simply reaches the backend with no token.
   reads ask for two series). Keep it that way.
 - `lib/api-security-events.ts` (`api.SecurityEvents.list`) reads
   `GET /api/charge-points/:id/security-events` for `SecurityEventsPanel` — the
-  station's OCPP `SecurityEventNotification` history. Its response type is
-  declared locally too, same reasoning as `Me`/`ConnectionStateEvent` above:
-  the backend keeps `SecurityEvent` server-local (its ADR 0009).
+  station's OCPP `SecurityEventNotification` history. Its response type is the
+  shared package's `SecurityEvent` (ADR 0009), seen through `Wire<>` (below).
 - `api.ChargePoints.listCertificates`/`installCertificate`/`deleteCertificate`
   (`lib/api-charge-points.ts`) back `CertificatesPanel`/`InstallCertificateDialog`/
   `DeleteCertificateDialog` — OCPP `GetInstalledCertificateIds`/
@@ -370,6 +376,17 @@ here — a request without a session simply reaches the backend with no token.
   and friends are declared locally in `types/certificate.ts`, same server-local
   response-type pattern as `SecurityEvent` above (the backend has no persisted
   certificate entity to re-export a shared type for).
+- `lib/wire.ts` — `Wire<T>`: a shared-package type as it looks after crossing the
+  wire as JSON, i.e. every `Date` is an ISO string. `@watchborne/charge-points-types`
+  schemas coerce timestamps to `Date`, but the `lib/api-*.ts` clients hand the parsed
+  JSON to the UI as is (timestamps are converted where rendered, see `useDateFormat`),
+  so entity types are written `Wire<SharedX>`: derived from the package, so they can't
+  drift from the backend's response schema, yet honest about what is actually in memory.
+  `NotificationPreferences` has no timestamps and is used as is.
+- `lib/command-outcome.ts` — `CommandOutcome<TOk>`, the discriminated
+  `{ ok: true } & TOk | { ok: false; httpStatus }` result the request/response
+  OCPP command methods (and other calls needing the precise HTTP outcome)
+  return instead of throwing; every `XOutcome` type is an alias of it.
 - `lib/api-error-wrapper.ts` — the standardized error-handling wrapper the
   `lib/api-*.ts` methods above are built on, so a failed request surfaces a
   consistent shape regardless of which method threw.
@@ -465,15 +482,25 @@ hook — do not construct `new WebSocket` directly in components. Prefer
 
 ### UI
 
-Most UI primitives (`Button`, `Badge`, `Input`, `Label`, `Switch`, `Tabs`,
-`Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`)
+Most UI primitives (`Button`, `Badge`, `Input`, `Textarea`, `Label`, `Switch`, `Tabs`,
+`Table`, `Collapsible`, `Callout`, `Tag`, `Loader`, `Skeleton`, `StatCard`, `Tooltip`,
+`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`, `Calendar`,
+`ActionsDropdown`, `StatusActionDropdown`, `FormDialog`, `StatsBreakdown`, `SkeletonGrid`)
 come from `@watchborne/electrons`, the shared watchborne component library —
 import them from there rather than redefining or re-copying them locally.
-The remaining, more composite or app-specific shadcn primitives
-(`Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Select`, `Command`,
-`Calendar`, `Datepicker`, `Form`) still live in `components/ui/*`; shadcn
-config is in `components.json`, regenerate with the shadcn CLI rather than
-hand-editing generated files. Style with Tailwind and the tokens from
+A `Button` that triggers an async action takes `loading` (spinner, disabled,
+`aria-busy`) rather than a hand-placed `Loader2`; hide the button's own icon while
+it is loading, since the spinner is added, not swapped.
+Dates are formatted with `useDateFormat` (`lib/date-format.ts`), never with ad hoc
+`Intl`/`toLocale*`/`date-fns`/`useFormatter().dateTime` calls: it follows the
+language of the UI (`fr` `08/10/2026 14:05`, `en` `10/08/2026, 02:05 PM`), in the
+browser's local time. Numbers and currency still go through next-intl's `useFormatter`.
+`DialogContent`, `CommandDialog` and `FormDialog` take a `closeLabel` for the close
+button's screen-reader text (default `"Close"`); pass a translated string
+(`t("common.close")`) where the dialog is user-facing. `ActionsDropdown`'s default
+icon-only trigger takes its accessible name from `triggerLabel` the same way. Only the app-specific `Datepicker` and `Form` still live in
+`components/ui/*`; shadcn config is in `components.json`, regenerate with the
+shadcn CLI rather than hand-editing generated files. Style with Tailwind and the tokens from
 `@watchborne/electrons/tokens.css` (imported once in `app/globals.css`) and
 `@watchborne/electrons/tailwind-preset` (plugged into `tailwind.config.js`
 via `presets`). Use `lib` helpers (`cn`, etc.) alongside them.

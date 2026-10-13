@@ -1,6 +1,6 @@
 import { AvailabilityType, ResetType } from "@watchborne/charge-points-types";
-import { Button, Callout } from "@watchborne/electrons";
-import { CheckCircle2, ChevronDown, Loader2, Power, RotateCcw } from "lucide-react";
+import { Button, Callout, ActionsDropdown, StatusActionDropdown } from "@watchborne/electrons";
+import { CheckCircle2, ChevronDown, Power, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChangeAvailabilityOutcome, ResetChargePointOutcome } from "@/lib/api-charge-points";
@@ -12,8 +12,6 @@ import { ChargePointReleaseControl } from "./ChargePointReleaseControl";
 import { DisplayMessageControl } from "./DisplayMessageControl";
 import { DisplayMessagesPanel } from "./DisplayMessagesPanel";
 import { TriggerMessageControl } from "./TriggerMessageControl";
-import { ActionsDropdown } from "../../components/common/ActionsDropdown";
-import { StatusActionDropdown } from "../../components/common/StatusActionDropdown";
 
 export type ResetState =
   { status: "idle" } | { status: "loading" } | { status: "done"; outcome: ResetChargePointOutcome };
@@ -85,12 +83,8 @@ export const ChargePointActionsSection = ({
             align="start"
             disabled={resetState.status === "loading"}
             trigger={
-              <Button variant="outline" size="sm" disabled={resetState.status === "loading"}>
-                {resetState.status === "loading" ? (
-                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-4 w-4 mr-1.5" />
-                )}
+              <Button variant="outline" size="sm" loading={resetState.status === "loading"}>
+                {resetState.status !== "loading" && <RotateCcw className="h-4 w-4 mr-1.5" />}
                 {t("appPage.chargePoints.reset.button")}
                 <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
               </Button>
@@ -115,11 +109,9 @@ export const ChargePointActionsSection = ({
               <Button
                 variant="outline"
                 size="sm"
-                disabled={wholeChargePointAvailability.status === "loading"}
+                loading={wholeChargePointAvailability.status === "loading"}
               >
-                {wholeChargePointAvailability.status === "loading" ? (
-                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                ) : (
+                {wholeChargePointAvailability.status !== "loading" && (
                   <Power className="h-4 w-4 mr-1.5" />
                 )}
                 {t("appPage.chargePoints.availability.wholeChargePoint")}

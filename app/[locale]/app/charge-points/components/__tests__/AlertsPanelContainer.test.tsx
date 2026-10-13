@@ -38,6 +38,7 @@ vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getAlerts, acknowledgeAlert } },
 }));
 
+import * as csv from "../../../../../../lib/csv";
 import { AlertsPanelContainer } from "../AlertsPanelContainer";
 
 afterEach(() => cleanup());
@@ -291,5 +292,28 @@ describe("AlertsPanelContainer", () => {
     fireEvent.click(await acknowledgeButton());
 
     expect(await screen.findByText("appPage.chargePoints.alerts.acknowledgeError")).toBeTruthy();
+  });
+});
+
+describe("AlertsPanelContainer CSV export", () => {
+  it("SHOULD fetch the longer history and download it WHEN the export button is clicked", async () => {
+    const downloadCsv = vi.spyOn(csv, "downloadCsv").mockImplementation(() => {});
+    getAlerts.mockResolvedValue([buildAlert()]);
+    renderPanel();
+
+    fireEvent.click(await screen.findByRole("button", { name: "common.exportCsv" }));
+
+    await waitFor(() => expect(downloadCsv).toHaveBeenCalledOnce());
+    expect(getAlerts).toHaveBeenLastCalledWith(CP_ID, 100);
+    const [filename, rows] = downloadCsv.mock.calls[0];
+    expect(filename).toMatch(/^alerts-.*-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(rows[1].slice(0, 6)).toEqual([
+      "OFFLINE",
+      null,
+      "OPEN",
+      "2026-08-09T12:00:00.000Z",
+      null,
+      "alice@example.com",
+    ]);
   });
 });

@@ -2,10 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, Input, Callout } from "@watchborne/electrons";
-import { CheckCircle2, Loader2, SlidersHorizontal } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -13,7 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@watchborne/electrons";
+import { CheckCircle2, Loader2, SlidersHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
 import { api } from "@/lib/api";
 import { SetSettingOutcome } from "@/lib/api-charge-points";
 import { queryKeys } from "@/lib/queryKeys";
@@ -123,7 +123,7 @@ export const ChargePointConfigurationDialog = ({
           {t("appPage.chargePoints.configuration.button")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent closeLabel={t("common.close")} className="sm:max-w-[560px]">
         <DialogHeader>
           <DialogTitle>{t("appPage.chargePoints.configuration.title")}</DialogTitle>
           <DialogDescription>

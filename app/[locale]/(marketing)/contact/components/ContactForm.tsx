@@ -1,11 +1,10 @@
 "use client";
 
 import { Button, Callout, Input } from "@watchborne/electrons";
-import { Loader2 } from "lucide-react";
+import { Textarea } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 
 const EMPTY_FORM = { company: "", name: "", email: "", phone: "", chargePoints: "", message: "" };
@@ -82,8 +81,7 @@ export const ContactForm = () => {
       )}
       {status === "error" && <Callout variant="error" description={t("contactPage.form.error")} />}
 
-      <Button type="submit" className="w-full" disabled={status === "sending"}>
-        {status === "sending" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      <Button type="submit" className="w-full" loading={status === "sending"}>
         {t("contactPage.form.submit")}
       </Button>
     </form>

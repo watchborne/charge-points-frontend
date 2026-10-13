@@ -1,5 +1,3 @@
-import { useTranslations } from "next-intl";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +7,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@watchborne/electrons";
+import { useTranslations } from "next-intl";
+
 import { ChargePoint } from "@/types/charge-point";
 
 export const ChargePointDeletionDialog = ({

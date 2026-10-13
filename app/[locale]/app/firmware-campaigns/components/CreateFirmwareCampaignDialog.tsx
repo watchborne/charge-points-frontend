@@ -1,7 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@watchborne/electrons";
+import {
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  FormDialog,
+} from "@watchborne/electrons";
 import { UploadCloud } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
@@ -18,16 +26,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { FirmwareCampaignTargetMode } from "@/lib/api-firmware-campaigns";
 
-import { FormDialog } from "../../components/common/FormDialog";
 import { useChargePoints } from "../../hooks/useChargePoints";
 import { useSites } from "../../hooks/useSites";
 
@@ -160,6 +160,7 @@ export const CreateFirmwareCampaignDialog = ({
       title={t("appPage.firmwareCampaigns.create.title")}
       description={t("appPage.firmwareCampaigns.create.description")}
       cancelLabel={t("common.actions.cancel")}
+      closeLabel={t("common.close")}
       submitLabel={t("appPage.firmwareCampaigns.create.submit")}
       onSubmit={() => form.handleSubmit(handleSubmit)()}
       isLoading={isSubmitting}

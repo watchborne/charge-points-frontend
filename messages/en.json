@@ -6,6 +6,7 @@
     "confirm": "Confirm",
     "delete": "Delete",
     "edit": "Edit",
+    "exportCsv": "Export CSV",
     "close": "Close",
     "deleteConfirmTitle": "Delete « {name} » ?",
     "chargePointWithCount": "{count, plural, =0 {0 charge point} =1 {1 charge point} other {# charge points}}",
@@ -1017,6 +1018,18 @@
       "alerts": {
         "title": "Alerts",
         "realtimeToggle": "Real-time alerts",
+        "export": {
+          "type": "Type",
+          "connector": "Connector",
+          "status": "Status",
+          "openedAt": "Opened at",
+          "resolvedAt": "Resolved at",
+          "notifiedTo": "Notified",
+          "lastNotifiedAt": "Last notified at",
+          "acknowledgedBy": "Acknowledged by",
+          "acknowledgedAt": "Acknowledged at",
+          "error": "Could not export the alert history."
+        },
         "loading": "Loading alerts…",
         "loadError": "Could not load this charge point's alert history.",
         "empty": "No recent alerts.",
@@ -1286,7 +1299,9 @@
         "table": {
           "measuredAt": "Timestamp",
           "connector": "Connector",
-          "value": "Value"
+          "value": "Value",
+          "measurand": "Measurand",
+          "unit": "Unit"
         },
         "chartLabel": "{measurand} readings in {unit} over time"
       },
@@ -1302,6 +1317,9 @@
           "day": "Today",
           "7d": "7d",
           "30d": "30d"
+        },
+        "export": {
+          "stream": "Stream"
         },
         "table": {
           "timestamp": "Timestamp",
