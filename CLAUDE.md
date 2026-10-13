@@ -361,6 +361,15 @@ here — a request without a session simply reaches the backend with no token.
   in the subscribe body, which the backend stores to tell the device type, OS and
   browser version apart (it is in the body, not a header, because the proxy hop
   would otherwise hand the backend the Next server's own User-Agent).
+- `lib/api-site-alert-thresholds.ts` (`api.SiteAlertThresholds`, `get`/`update`/`reset`)
+  reads/writes `GET`/`PATCH`/`DELETE /api/sites/:id/alert-thresholds` behind
+  `useSiteAlertThresholds` — a site's overrides of the time-based alert thresholds
+  (offline grace period, connector stuck-unavailable, firmware stall;
+  charge-points-server issue #577, ADR 0031). A `null` threshold means "inherit the
+  global default"; `update` is a partial body (omitted = untouched, `null` = clear);
+  the `effective` thresholds in the `get` envelope are resolved by the backend, never
+  guessed here. `SiteAlertThresholds` is the shared package's entity, seen through
+  `Wire<>` (below).
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
