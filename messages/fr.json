@@ -713,7 +713,19 @@
           "alerts": "Alertes",
           "security": "Sécurité & historique"
         },
-        "toggleError": "Échec de la mise à jour de cette borne. Veuillez réessayer."
+        "toggleError": "Échec de la mise à jour de cette borne. Veuillez réessayer.",
+        "alertThresholds": {
+          "title": "Seuils d'alerte",
+          "intro": "Les réglages propres à cette borne priment sur ceux de son site, qui priment sur les valeurs par défaut.",
+          "loading": "Chargement des seuils...",
+          "loadError": "Impossible de charger les seuils d'alerte de cette borne.",
+          "editButton": "Modifier les seuils",
+          "resetButton": "Revenir aux réglages du site",
+          "dialog": {
+            "title": "Configurer les seuils d'alerte",
+            "description": "Remplacez le moment où cette borne déclenche des alertes. Les champs vides utilisent le réglage de son site, ou la valeur par défaut."
+          }
+        }
       },
       "commissioning": {
         "title": "À mettre en service",

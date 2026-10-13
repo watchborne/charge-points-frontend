@@ -83,6 +83,14 @@ vi.mock("../ChargingSessionsPanelContainer", () => ({
   ChargingSessionsPanelContainer: () => <div data-testid="charging-sessions-panel" />,
 }));
 
+// Stubbed out for the same reason: it fetches its own thresholds. Its own
+// behaviour is covered by ChargePointAlertThresholdsSection.test.tsx.
+vi.mock("../ChargePointAlertThresholdsSection", () => ({
+  ChargePointAlertThresholdsSection: ({ chargePointId }: { chargePointId: string }) => (
+    <div data-testid="alert-thresholds-section">{chargePointId}</div>
+  ),
+}));
+
 import { ChargePointDetailPanel } from "../ChargePointDetailPanel";
 
 beforeAll(() => {
@@ -214,6 +222,25 @@ describe("ChargePointDetailPanel", () => {
     await waitFor(() =>
       expect(updateChargePoint).toHaveBeenCalledWith("cp-1", { realtimeAlertsEnabled: true }),
     );
+  });
+
+  it("SHOULD show the alert thresholds of the charge point on the alerts tab only", async () => {
+    renderWithQueryClient(
+      <ChargePointDetailPanel
+        chargePoint={CHARGE_POINT}
+        site={undefined}
+        onEditClicked={vi.fn()}
+        onDeleteClicked={vi.fn()}
+      />,
+    );
+    expect(screen.queryByTestId("alert-thresholds-section")).toBeNull();
+
+    const alertsTab = screen.getByRole("tab", { name: "appPage.chargePoints.detail.tabs.alerts" });
+    fireEvent.mouseDown(alertsTab);
+    alertsTab.focus();
+    fireEvent.click(alertsTab);
+
+    expect((await screen.findByTestId("alert-thresholds-section")).textContent).toBe("cp-1");
   });
 
   it("SHOULD show an error WHEN toggling the active state fails", async () => {
