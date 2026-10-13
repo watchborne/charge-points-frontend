@@ -1,5 +1,6 @@
 import { accessRequestApis } from "./api-access-requests";
 import { chargePointApis } from "./api-charge-points";
+import { chargePointAlertThresholdsApis } from "./api-charge-points-alert-thresholds";
 import { commissioningTokenApis } from "./api-commissioning-token";
 import { contactApis } from "./api-contact";
 import { deviceEventApis } from "./api-device-events";
@@ -37,6 +38,7 @@ export const api = {
   Sites: siteApis,
   SiteTariff: siteTariffApis,
   SiteAlertThresholds: siteAlertThresholdsApis,
+  ChargePointAlertThresholds: chargePointAlertThresholdsApis,
   SiteVisits: siteVisitApis,
   StatusHistory: statusHistoryApis,
   Uptime: uptimeApis,
