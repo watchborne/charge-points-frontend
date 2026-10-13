@@ -8,7 +8,7 @@ Guidance for AI coding agents working in this repository.
 charge-point platform. It renders a marketing site and an authenticated app that
 shows charge points and sites in real time, backed by `charge-points-server`.
 
-Stack: **Next.js 16 (App Router)**, React 18, TypeScript (strict),
+Stack: **Next.js 16 (App Router)**, React 19, TypeScript (strict),
 **Tailwind + shadcn/ui** (Radix primitives), `react-hook-form` + `zod`,
 `@tanstack/react-query` for server-state, `next-intl` for i18n, `sonner` for
 toast notifications, `recharts` for charts, `@sentry/nextjs` for error
