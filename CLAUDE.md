@@ -76,6 +76,11 @@ app/
                            #   requests (GetBaseReport/GetReport) — both rendered in the
                            #   "security" tab for OCPP 2.0.1 stations,
                            #   ChargePointReliabilityTile: 7-day uptime % (main tab),
+                           #   ChargePointAlertThresholdsSection: the station's alert
+                           #   thresholds (effective values, the level each comes from, edit,
+                           #   reset to its site's) on the "alerts" tab, via
+                           #   hooks/useChargePointAlertThresholds.ts (charge-points-server
+                           #   issue #577; reuses the generic components/alert-thresholds/),
                            #   ChargePointActionsSection: the dedicated "Actions" tab
                            #   (includes, 2.0.1-only, DisplayMessageControl:
                            #   SetDisplayMessage/ClearDisplayMessage alongside
