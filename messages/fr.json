@@ -1018,6 +1018,18 @@
       "alerts": {
         "title": "Alertes",
         "realtimeToggle": "Alertes temps réel",
+        "export": {
+          "type": "Type",
+          "connector": "Connecteur",
+          "status": "Statut",
+          "openedAt": "Ouverte le",
+          "resolvedAt": "Résolue le",
+          "notifiedTo": "Notifiés",
+          "lastNotifiedAt": "Dernière notification le",
+          "acknowledgedBy": "Prise en charge par",
+          "acknowledgedAt": "Prise en charge le",
+          "error": "Impossible d'exporter l'historique des alertes."
+        },
         "loading": "Chargement des alertes…",
         "loadError": "Impossible de charger l'historique des alertes de cette borne.",
         "empty": "Aucune alerte récente.",

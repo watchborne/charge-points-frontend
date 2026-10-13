@@ -7,6 +7,7 @@ import {
   Ban,
   CheckCircle2,
   Clock,
+  Download,
   Shield,
   ShieldAlert,
   UserCheck,
@@ -59,6 +60,13 @@ type AlertsPanelProps = {
   onAcknowledge?: (alertId: AlertListEntry["id"]) => void;
   /** The alert whose acknowledgment is currently in flight, if any. */
   acknowledgingAlertId?: AlertListEntry["id"] | null;
+  /**
+   * Exports the alert history as CSV. Optional for the same reason as
+   * `onAcknowledge`: the marketing preview renders a static list with no
+   * backend to export from, so it gets no button.
+   */
+  onExportCsv?: () => void;
+  exporting?: boolean;
 };
 
 const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
@@ -107,6 +115,8 @@ export const AlertsPanel = ({
   alerts,
   onAcknowledge,
   acknowledgingAlertId = null,
+  onExportCsv,
+  exporting = false,
 }: AlertsPanelProps) => {
   const t = useTranslations("");
   const { formatRelative, formatDateTime } = useDateFormat();
@@ -115,14 +125,28 @@ export const AlertsPanel = ({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="text-sm font-semibold">{t("appPage.chargePoints.alerts.title")}</h4>
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-          {t("appPage.chargePoints.alerts.realtimeToggle")}
-          <Switch
-            checked={realtimeAlertsEnabled}
-            onCheckedChange={onToggleRealtimeAlerts}
-            aria-label={`Toggle real-time alerts for ${chargePointName}`}
-          />
-        </label>
+        <div className="flex items-center gap-3">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+            {t("appPage.chargePoints.alerts.realtimeToggle")}
+            <Switch
+              checked={realtimeAlertsEnabled}
+              onCheckedChange={onToggleRealtimeAlerts}
+              aria-label={`Toggle real-time alerts for ${chargePointName}`}
+            />
+          </label>
+          {onExportCsv && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={exporting}
+              onClick={onExportCsv}
+              aria-label={t("common.exportCsv")}
+              title={t("common.exportCsv")}
+            >
+              {!exporting && <Download className="h-3.5 w-3.5" />}
+            </Button>
+          )}
+        </div>
       </div>
 
       {alerts.length === 0 && (

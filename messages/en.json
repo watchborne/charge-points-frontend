@@ -1018,6 +1018,18 @@
       "alerts": {
         "title": "Alerts",
         "realtimeToggle": "Real-time alerts",
+        "export": {
+          "type": "Type",
+          "connector": "Connector",
+          "status": "Status",
+          "openedAt": "Opened at",
+          "resolvedAt": "Resolved at",
+          "notifiedTo": "Notified",
+          "lastNotifiedAt": "Last notified at",
+          "acknowledgedBy": "Acknowledged by",
+          "acknowledgedAt": "Acknowledged at",
+          "error": "Could not export the alert history."
+        },
         "loading": "Loading alerts…",
         "loadError": "Could not load this charge point's alert history.",
         "empty": "No recent alerts.",
