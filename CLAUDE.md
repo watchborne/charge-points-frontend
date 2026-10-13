@@ -124,7 +124,14 @@ app/
                            #   charts as vectors and writes the file in the dashboard's
                            #   language, so this only calls api.Sites.downloadReport and
                            #   hands the blob to the browser (no client-side PDF/chart
-                           #   rasterization any more)
+                           #   rasterization any more), and SiteAlertThresholdsSection:
+                           #   a site's alert thresholds (offline / connector-unavailable
+                           #   grace periods, firmware-stall timeout) on SiteDetail —
+                           #   effective values with the level each comes from, edit and
+                           #   reset, via hooks/useSiteAlertThresholds.ts (charge-points-
+                           #   server issue #577, ADR 0031). Its dialog and summary are the
+                           #   generic components/alert-thresholds/ (AlertThresholdsDialog,
+                           #   AlertThresholdsSummary), written to be reused for a charge point
       components/         # shared feature + common + layout components
                           #   (common/: ConnectorStatusIcon, WsStatusBadge — app-specific,
                           #   tied to domain types/state; GenericStatusBadge — the
