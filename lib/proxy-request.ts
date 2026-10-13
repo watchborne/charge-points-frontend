@@ -69,12 +69,22 @@ async function callBackend(request: NextRequest, backendPath: string): Promise<B
   }
 }
 
+// Statuses a `Response` may not carry a body with: the constructor throws on
+// `new Response("", { status: 204 })`, even for an empty string.
+const NULL_BODY_STATUSES = new Set([204, 205, 304]);
+
 export async function proxyToBackend(
   request: NextRequest,
   backendPath: string,
 ): Promise<NextResponse> {
   const call = await callBackend(request, backendPath);
   if ("failure" in call) return call.failure;
+
+  // A 204 (what a backend DELETE answers) has no body by definition: pass it
+  // through bodiless rather than rebuilding it from an empty string, which throws.
+  if (NULL_BODY_STATUSES.has(call.response.status)) {
+    return new NextResponse(null, { status: call.response.status });
+  }
 
   const body = await call.response.text();
 

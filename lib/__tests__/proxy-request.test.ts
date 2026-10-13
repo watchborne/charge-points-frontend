@@ -167,6 +167,19 @@ describe("proxyToBackend", () => {
     expect(await res.text()).toBe('{"error":"boom"}');
   });
 
+  it("SHOULD pass a 204 through with no body WHEN the backend answers No Content", async () => {
+    mockFetch.mockReturnValue(Promise.resolve(new Response(null, { status: 204 })));
+    const proxyToBackend = await importProxy();
+
+    const res = await proxyToBackend(
+      requestOf("/api/sites/site-1", { method: "DELETE" }),
+      "/api/sites/site-1",
+    );
+
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe("");
+  });
+
   it("SHOULD set Content-Type application/json on the proxied response", async () => {
     const proxyToBackend = await importProxy();
 
