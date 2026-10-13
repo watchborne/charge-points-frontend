@@ -338,6 +338,15 @@ here — a request without a session simply reaches the backend with no token.
   PWA installability), and the digest's push channel
   (`NotificationPreferencesPanel`, `digestPushEnabled`, charge-points-server
   ADR 0023) requires a live browser subscription.
+- `lib/api-site-alert-thresholds.ts` (`api.SiteAlertThresholds`, `get`/`update`/`reset`)
+  reads/writes `GET`/`PATCH`/`DELETE /api/sites/:id/alert-thresholds` behind
+  `useSiteAlertThresholds` — a site's overrides of the time-based alert thresholds
+  (offline grace period, connector stuck-unavailable, firmware stall;
+  charge-points-server issue #577, ADR 0031). A `null` threshold means "inherit the
+  global default"; `update` is a partial body (omitted = untouched, `null` = clear);
+  the `effective` thresholds in the `get` envelope are resolved by the backend, never
+  guessed here. `SiteAlertThresholds` is the shared package's entity, seen through
+  `Wire<>` (below).
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
