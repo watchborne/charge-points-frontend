@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: github.ref == 'refs/heads/main'
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -32,7 +32,7 @@ jobs:
 
   generate-release:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
     steps:
