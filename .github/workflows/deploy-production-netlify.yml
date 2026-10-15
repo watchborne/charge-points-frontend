@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     # Guards against dispatching this workflow file from a branch other than
     # main (the ref a workflow_dispatch/workflow_call run is launched from,
