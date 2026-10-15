@@ -40,7 +40,7 @@ concurrency:
 # build-and-test.
 jobs:
   static-checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -50,7 +50,7 @@ jobs:
           npm-token: ${{ secrets.NPM_TOKEN }}
 
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
