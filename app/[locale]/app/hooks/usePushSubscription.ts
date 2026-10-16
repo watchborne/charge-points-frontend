@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 import { VAPID_PUBLIC_KEY } from "@/lib/constants";
+import { reportError } from "@/lib/report-error";
 
 // Same-origin static asset (public/sw.js) — Next.js serves public/ untouched,
 // so this is a plain root-relative path, not an import.
@@ -119,8 +120,9 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
         // required-but-possibly-unset public env var read in the browser
         // (see SUPABASE_URL there): log clearly and stop, rather than let
         // pushManager.subscribe throw on an empty applicationServerKey.
-        console.error(
-          "[usePushSubscription] NEXT_PUBLIC_VAPID_PUBLIC_KEY is not set — cannot subscribe.",
+        reportError(
+          new Error("NEXT_PUBLIC_VAPID_PUBLIC_KEY is not set — cannot subscribe."),
+          "usePushSubscription.subscribe",
         );
         return null;
       }

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 
+import { useReportQueryError } from "@/app/[locale]/app/hooks/useReportQueryError";
 import { api } from "@/lib/api";
 import type { CreateFirmwareCampaignBody } from "@/lib/api-firmware-campaigns";
 import { queryKeys } from "@/lib/queryKeys";
@@ -20,9 +20,7 @@ export function useFirmwareCampaigns() {
     queryFn: api.FirmwareCampaigns.list,
   });
 
-  useEffect(() => {
-    if (error) console.error(error);
-  }, [error]);
+  useReportQueryError(error, "useFirmwareCampaigns.load");
 
   const createMutation = useMutation({
     mutationFn: (body: CreateFirmwareCampaignBody) => api.FirmwareCampaigns.create(body),

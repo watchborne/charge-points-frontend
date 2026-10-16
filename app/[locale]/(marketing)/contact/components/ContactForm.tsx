@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
+import { reportError } from "@/lib/report-error";
 
 const EMPTY_FORM = { company: "", name: "", email: "", phone: "", chargePoints: "", message: "" };
 
@@ -32,7 +33,7 @@ export const ContactForm = () => {
       setForm(EMPTY_FORM);
       setStatus("sent");
     } catch (error) {
-      console.error("contact message failed:", error);
+      reportError(error, "ContactForm.submit");
       setStatus("error");
     }
   };
