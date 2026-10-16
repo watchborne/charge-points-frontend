@@ -37,9 +37,10 @@ export type ChargingSessionListEntry = Pick<
   startedAt: Date | string;
   endedAt: Date | string | null;
   /**
-   * The session's estimated cost, fetched by `ChargingSessionsPanelContainer`
-   * alongside the list itself. `undefined` while that per-session fetch is
-   * still in flight or failed — distinct from a resolved envelope whose own
+   * The session's estimated cost, for callers that already hold it (the
+   * marketing site's product preview). The dashboard instead supplies
+   * `renderCost`, which fetches each row's cost lazily. `undefined` means
+   * "no estimate to show" — distinct from a resolved envelope whose own
    * `amountCents` is null (charge-points-server issue #580).
    */
   cost?: ChargingSessionCost;
@@ -56,6 +57,13 @@ type ChargingSessionsPanelProps = {
    * fetching against a charge point that doesn't exist.
    */
   renderSessionDetail?: (session: ChargingSessionListEntry) => ReactNode;
+  /**
+   * Overrides the cost cell's content. The dashboard supplies a cell that
+   * fetches that one session's cost on its own (`ChargingSessionCostCell`),
+   * so loading and failure are per row; unset, the cell renders
+   * `session.cost` as is.
+   */
+  renderCost?: (session: ChargingSessionListEntry) => ReactNode;
 };
 
 /** Wh when the wire actually carried both bounds — 1.6-only (ADR 0012 in
@@ -71,7 +79,7 @@ const energyDelivered = (session: ChargingSessionListEntry): number | null =>
  * installer can act on (go set a tariff); `SESSION_STILL_ACTIVE` and
  * `NO_ENERGY_DATA` read the same as "nothing to show yet" as a bare dash.
  */
-const CostCell = ({
+export const CostCell = ({
   cost,
   intlFormat,
   t,
@@ -112,6 +120,7 @@ export const ChargingSessionsPanel = ({
   chargePointId,
   sessions,
   renderSessionDetail,
+  renderCost,
 }: ChargingSessionsPanelProps) => {
   const t = useTranslations("");
   const { formatDateTime } = useDateFormat();
@@ -227,7 +236,11 @@ export const ChargingSessionsPanel = ({
                         {energy === null ? "—" : `${energy.toLocaleString()} Wh`}
                       </TableCell>
                       <TableCell className="text-right font-mono text-xs">
-                        <CostCell cost={session.cost} intlFormat={intlFormat} t={t} />
+                        {renderCost ? (
+                          renderCost(session)
+                        ) : (
+                          <CostCell cost={session.cost} intlFormat={intlFormat} t={t} />
+                        )}
                       </TableCell>
                     </TableRow>
                     {expanded && (
