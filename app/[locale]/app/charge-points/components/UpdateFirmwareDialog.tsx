@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
-import type { StartFirmwareUpdateOutcome } from "@/lib/api-charge-points";
+import type { StartFirmwareUpdateOutcome } from "@/lib/api-firmware-updates";
 import type { ChargePoint } from "@/types/charge-point";
 
 type SubmitState =

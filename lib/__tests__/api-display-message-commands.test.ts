@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { chargePointApis } from "../api-charge-points";
+import { displayMessageCommandApis } from "../api-display-message-commands";
 
 const fetchMock = vi.fn();
 
@@ -18,11 +18,11 @@ const respondWith = (body: unknown, ok = true, status = 200) =>
 
 const lastCall = () => fetchMock.mock.calls.at(-1) as [string, RequestInit];
 
-describe("chargePointApis.setDisplayMessage", () => {
+describe("displayMessageCommandApis.setDisplayMessage", () => {
   it("SHOULD POST the wire-shaped MessageInfo to the display-messages endpoint", async () => {
     respondWith({ status: "Accepted" });
 
-    await chargePointApis.setDisplayMessage("cp-1", {
+    await displayMessageCommandApis.setDisplayMessage("cp-1", {
       id: 1,
       priority: "AlwaysFront",
       content: "Reserved for fleet vehicle",
@@ -46,7 +46,7 @@ describe("chargePointApis.setDisplayMessage", () => {
       respondWith({ status });
 
       expect(
-        await chargePointApis.setDisplayMessage("cp-1", {
+        await displayMessageCommandApis.setDisplayMessage("cp-1", {
           id: 1,
           priority: "NormalCycle",
           content: "Hello",
@@ -59,7 +59,7 @@ describe("chargePointApis.setDisplayMessage", () => {
     respondWith({ message: "not connected" }, false, 409);
 
     expect(
-      await chargePointApis.setDisplayMessage("cp-1", {
+      await displayMessageCommandApis.setDisplayMessage("cp-1", {
         id: 1,
         priority: "NormalCycle",
         content: "Hello",
@@ -72,7 +72,7 @@ describe("chargePointApis.setDisplayMessage", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
 
     expect(
-      await chargePointApis.setDisplayMessage("cp-1", {
+      await displayMessageCommandApis.setDisplayMessage("cp-1", {
         id: 1,
         priority: "NormalCycle",
         content: "Hello",
@@ -81,11 +81,11 @@ describe("chargePointApis.setDisplayMessage", () => {
   });
 });
 
-describe("chargePointApis.clearDisplayMessage", () => {
+describe("displayMessageCommandApis.clearDisplayMessage", () => {
   it("SHOULD DELETE the message id in the URL, with no body", async () => {
     respondWith({ status: "Accepted" });
 
-    await chargePointApis.clearDisplayMessage("cp-1", 1);
+    await displayMessageCommandApis.clearDisplayMessage("cp-1", 1);
 
     const [url, init] = lastCall();
     expect(url).toBe("/api/charge-points/cp-1/display-messages/1");
@@ -98,14 +98,17 @@ describe("chargePointApis.clearDisplayMessage", () => {
     async (status) => {
       respondWith({ status });
 
-      expect(await chargePointApis.clearDisplayMessage("cp-1", 1)).toEqual({ ok: true, status });
+      expect(await displayMessageCommandApis.clearDisplayMessage("cp-1", 1)).toEqual({
+        ok: true,
+        status,
+      });
     },
   );
 
   it("SHOULD surface the raw HTTP status WHEN the request fails", async () => {
     respondWith({ message: "not connected" }, false, 409);
 
-    expect(await chargePointApis.clearDisplayMessage("cp-1", 1)).toEqual({
+    expect(await displayMessageCommandApis.clearDisplayMessage("cp-1", 1)).toEqual({
       ok: false,
       httpStatus: 409,
     });
@@ -115,7 +118,7 @@ describe("chargePointApis.clearDisplayMessage", () => {
     fetchMock.mockRejectedValue(new Error("network down"));
     vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(await chargePointApis.clearDisplayMessage("cp-1", 1)).toEqual({
+    expect(await displayMessageCommandApis.clearDisplayMessage("cp-1", 1)).toEqual({
       ok: false,
       httpStatus: 0,
     });

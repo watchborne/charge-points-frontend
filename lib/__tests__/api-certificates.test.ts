@@ -5,7 +5,7 @@ vi.mock("../http-client", () => ({
   fetchWithFreshSession: (url: string, init?: RequestInit) => fetch(url, init),
 }));
 
-import { chargePointApis } from "../api-charge-points";
+import { certificateApis } from "../api-certificates";
 import { httpClient } from "../http-client";
 
 const fetchMock = vi.fn();
@@ -32,15 +32,15 @@ const CERTIFICATE_HASH_DATA = {
   serialNumber: "1234",
 };
 
-describe("chargePointApis.listCertificates", () => {
+describe("certificateApis.listCertificates", () => {
   it("SHOULD POST to the certificates query endpoint with no body WHEN no filter is given", async () => {
-    await chargePointApis.listCertificates("cp-1");
+    await certificateApis.listCertificates("cp-1");
 
     expect(httpClient.post).toHaveBeenCalledWith("/api/charge-points/cp-1/certificates/query", {});
   });
 
   it("SHOULD forward the certificateType filter WHEN given", async () => {
-    await chargePointApis.listCertificates("cp-1", ["CSMSRootCertificate"]);
+    await certificateApis.listCertificates("cp-1", ["CSMSRootCertificate"]);
 
     expect(httpClient.post).toHaveBeenCalledWith("/api/charge-points/cp-1/certificates/query", {
       certificateType: ["CSMSRootCertificate"],
@@ -48,11 +48,11 @@ describe("chargePointApis.listCertificates", () => {
   });
 });
 
-describe("chargePointApis.installCertificate", () => {
+describe("certificateApis.installCertificate", () => {
   it("SHOULD POST the certificate type and PEM body to the certificates endpoint", async () => {
     respondWith({ status: "Accepted" });
 
-    await chargePointApis.installCertificate("cp-1", {
+    await certificateApis.installCertificate("cp-1", {
       certificateType: "CSMSRootCertificate",
       certificate: "-----BEGIN CERTIFICATE-----\nabc\n-----END CERTIFICATE-----",
     });
@@ -71,7 +71,7 @@ describe("chargePointApis.installCertificate", () => {
     async (status) => {
       respondWith({ status, statusInfo: status === "Accepted" ? undefined : "reason" });
 
-      const outcome = await chargePointApis.installCertificate("cp-1", {
+      const outcome = await certificateApis.installCertificate("cp-1", {
         certificateType: "CSMSRootCertificate",
         certificate: "cert",
       });
@@ -88,7 +88,7 @@ describe("chargePointApis.installCertificate", () => {
     respondWith({ message: "not connected" }, false, 409);
 
     expect(
-      await chargePointApis.installCertificate("cp-1", {
+      await certificateApis.installCertificate("cp-1", {
         certificateType: "CSMSRootCertificate",
         certificate: "cert",
       }),
@@ -100,7 +100,7 @@ describe("chargePointApis.installCertificate", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
 
     expect(
-      await chargePointApis.installCertificate("cp-1", {
+      await certificateApis.installCertificate("cp-1", {
         certificateType: "CSMSRootCertificate",
         certificate: "cert",
       }),
@@ -108,11 +108,11 @@ describe("chargePointApis.installCertificate", () => {
   });
 });
 
-describe("chargePointApis.deleteCertificate", () => {
+describe("certificateApis.deleteCertificate", () => {
   it("SHOULD DELETE with the certificateHashData in the body", async () => {
     respondWith({ status: "Accepted" });
 
-    await chargePointApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA);
+    await certificateApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA);
 
     const [url, init] = lastCall();
     expect(url).toBe("/api/charge-points/cp-1/certificates");
@@ -127,7 +127,7 @@ describe("chargePointApis.deleteCertificate", () => {
     async (status) => {
       respondWith({ status });
 
-      expect(await chargePointApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA)).toEqual({
+      expect(await certificateApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA)).toEqual({
         ok: true,
         status,
         statusInfo: undefined,
@@ -138,7 +138,7 @@ describe("chargePointApis.deleteCertificate", () => {
   it("SHOULD surface the raw HTTP status WHEN the request fails", async () => {
     respondWith({ message: "not connected" }, false, 409);
 
-    expect(await chargePointApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA)).toEqual({
+    expect(await certificateApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA)).toEqual({
       ok: false,
       httpStatus: 409,
     });
@@ -148,7 +148,7 @@ describe("chargePointApis.deleteCertificate", () => {
     fetchMock.mockRejectedValue(new Error("network down"));
     vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(await chargePointApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA)).toEqual({
+    expect(await certificateApis.deleteCertificate("cp-1", CERTIFICATE_HASH_DATA)).toEqual({
       ok: false,
       httpStatus: 0,
     });
