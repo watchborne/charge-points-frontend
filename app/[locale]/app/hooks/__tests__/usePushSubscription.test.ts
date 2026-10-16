@@ -219,7 +219,10 @@ describe("subscribe", () => {
       outcome = await result.current.subscribe();
     });
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("NEXT_PUBLIC_VAPID_PUBLIC_KEY"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[usePushSubscription.subscribe]",
+      expect.objectContaining({ message: expect.stringContaining("NEXT_PUBLIC_VAPID_PUBLIC_KEY") }),
+    );
     expect(mockRegister).not.toHaveBeenCalled();
     expect(subscribeApi).not.toHaveBeenCalled();
     expect(outcome).toBeNull();

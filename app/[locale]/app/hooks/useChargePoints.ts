@@ -2,9 +2,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useCallback, useRef } from "react";
 
+import { useReportQueryError } from "@/app/[locale]/app/hooks/useReportQueryError";
 import { useToastNotification } from "@/app/components/ToastNotification";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
+import { reportError } from "@/lib/report-error";
 import { ChargePointWithConnectors, isExpectedConnectorTransition } from "@/types/charge-point";
 
 import { useWebSocketContext } from "./useWebSocketContext";
@@ -43,9 +45,7 @@ export function useChargePoints(): UseChargePointsReturn {
     retry: false,
   });
 
-  useEffect(() => {
-    if (error) console.error(error);
-  }, [error]);
+  useReportQueryError(error, "useChargePoints.load");
 
   // Same shape as loadChargePoints below, but doesn't touch the query's
   // loading/error state: used when resyncing after a WebSocket reconnection,
@@ -59,7 +59,7 @@ export function useChargePoints(): UseChargePointsReturn {
         freshData,
       );
     } catch (err) {
-      console.error("Failed to refetch charge points:", err);
+      reportError(err, "useChargePoints.refetchSilently");
     }
   }, [queryClient]);
 

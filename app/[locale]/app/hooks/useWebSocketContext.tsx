@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, createContext, useContext } from "react";
 
 import { WS_URL } from "@/lib/constants";
+import { reportError } from "@/lib/report-error";
 
 import { useWebSocket } from "./useWebSocket";
 import { WebSocketStatus } from "../ws/ws-manager";
@@ -60,7 +61,7 @@ export function useWebSocketData(options: UseWebSocketDataOptions = {}): WebSock
         setMessages((prev) => [...prev.slice(-49), wsMessage]);
         setLastMessage(wsMessage);
       } catch (err) {
-        console.error("Failed to parse WebSocket message:", err);
+        reportError(err, "useWebSocketContext.parseMessage");
       }
     }
   }, [rawMessage, enabled]);

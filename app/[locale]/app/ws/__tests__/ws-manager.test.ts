@@ -62,6 +62,9 @@ function lastSocket() {
   return MockWebSocket.instances[MockWebSocket.instances.length - 1];
 }
 
+const { reportError } = vi.hoisted(() => ({ reportError: vi.fn() }));
+vi.mock("../../../../../lib/report-error", () => ({ reportError }));
+
 async function importManager() {
   const { getWebSocketManager } = await import("../ws-manager");
   return getWebSocketManager;
@@ -160,6 +163,19 @@ describe("WebSocketManager token failure and backoff", () => {
 
     expect(manager.getState().status).toBe("ERROR");
     expect(MockWebSocket.instances).toHaveLength(0);
+  });
+
+  it("SHOULD report the failure WHEN the token endpoint answers with an error status", async () => {
+    mockFetch.mockResolvedValue({ ok: false, status: 503, json: async () => ({}) });
+    const getWebSocketManager = await importManager();
+
+    getWebSocketManager("ws://test/ws").subscribe(() => {});
+    await settle();
+
+    expect(reportError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining("503") }),
+      "ws.fetchToken",
+    );
   });
 
   it("SHOULD retry with jittered exponential backoff (750ms then 1500ms) WHEN the token keeps failing", async () => {

@@ -6,6 +6,7 @@ import {
   WS_RECONNECT_MAX_RETRIES,
   WS_RECONNECT_BACKOFF_MULTIPLIER,
 } from "@/lib/constants";
+import { reportError } from "@/lib/report-error";
 
 export type WebSocketStatus = "CONNECTING" | "CONNECTED" | "DISCONNECTED" | "ERROR";
 
@@ -81,11 +82,17 @@ class WebSocketManager {
   private async fetchToken(): Promise<string | null> {
     try {
       const res = await fetch(WS_TOKEN_URL, { method: "GET" });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        reportError(
+          new Error(`WebSocket token request failed: HTTP ${res.status}`),
+          "ws.fetchToken",
+        );
+        return null;
+      }
       const data = (await res.json()) as { token?: unknown };
       return typeof data.token === "string" ? data.token : null;
     } catch (e) {
-      console.error("Failed to fetch WebSocket token:", e);
+      reportError(e, "ws.fetchToken");
       return null;
     }
   }
@@ -151,13 +158,13 @@ class WebSocketManager {
       };
 
       ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
+        reportError(new Error(`WebSocket error: ${err.type}`), "ws.onerror");
         this.status = "ERROR";
         this.emit();
         // onclose fires after onerror — reconnect is handled there
       };
     } catch (e) {
-      console.error("Failed to create WebSocket connection:", e);
+      reportError(e, "ws.connect");
       this.connecting = false;
       this.status = "ERROR";
       this.socket = null;

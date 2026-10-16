@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Site } from "@watchborne/charge-points-types";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 
+import { useReportQueryError } from "@/app/[locale]/app/hooks/useReportQueryError";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -22,9 +22,7 @@ export function useSites(): UseSitesReturn {
     retry: false,
   });
 
-  useEffect(() => {
-    if (error) console.error(error);
-  }, [error]);
+  useReportQueryError(error, "useSites.load");
 
   return {
     sites: data ?? [],
