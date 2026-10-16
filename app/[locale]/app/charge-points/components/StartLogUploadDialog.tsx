@@ -23,7 +23,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
-import type { StartLogUploadOutcome } from "@/lib/api-charge-points";
+import type { StartLogUploadOutcome } from "@/lib/api-log-uploads";
 import type { ChargePoint } from "@/types/charge-point";
 
 type SubmitState =
