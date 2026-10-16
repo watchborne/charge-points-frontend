@@ -26,6 +26,7 @@ import { Ban, Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useCopyToClipboard } from "@/app/[locale]/app/hooks/useCopyToClipboard";
 import { api } from "@/lib/api";
 import { CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
@@ -65,7 +66,7 @@ export const CommissioningTokenPanel = () => {
   const queryClient = useQueryClient();
 
   const [revealedToken, setRevealedToken] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy, reset: resetCopied } = useCopyToClipboard();
   const [confirmRegenerateOpen, setConfirmRegenerateOpen] = useState(false);
   const [confirmRevokeOpen, setConfirmRevokeOpen] = useState(false);
 
@@ -100,7 +101,7 @@ export const CommissioningTokenPanel = () => {
     mutationFn: () => api.CommissioningToken.issueToken(),
     onSuccess: (issued) => {
       setRevealedToken(issued.token);
-      setCopied(false);
+      resetCopied();
       queryClient.setQueryData(queryKeys.commissioningToken.status(), {
         hasToken: true,
         createdAt: issued.createdAt,
@@ -145,9 +146,7 @@ export const CommissioningTokenPanel = () => {
 
   const copyToken = async () => {
     if (!revealedToken) return;
-    await navigator.clipboard.writeText(revealedToken);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    await copy(revealedToken);
   };
 
   // A placeholder, not a real station id: showing something concrete-looking
