@@ -27,7 +27,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
-import type { InstallCertificateOutcome } from "@/lib/api-charge-points";
+import type { InstallCertificateOutcome } from "@/lib/api-certificates";
 import { getCertificateInstallErrorMessageKey } from "@/lib/error-messages";
 import type { ChargePoint } from "@/types/charge-point";
 

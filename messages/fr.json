@@ -1,6 +1,7 @@
 {
   "appName": "Watchborne",
   "common": {
+    "copyFailed": "Impossible de copier dans le presse-papiers. Sélectionnez le texte et copiez-le manuellement.",
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
     "confirm": "Confirmer",

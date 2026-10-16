@@ -23,7 +23,10 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
-import type { ClearDisplayMessageOutcome, SetDisplayMessageOutcome } from "@/lib/api-charge-points";
+import type {
+  ClearDisplayMessageOutcome,
+  SetDisplayMessageOutcome,
+} from "@/lib/api-display-message-commands";
 import type { ChargePoint } from "@/types/charge-point";
 
 /**

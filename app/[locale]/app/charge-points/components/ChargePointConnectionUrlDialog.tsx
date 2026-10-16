@@ -11,8 +11,8 @@ import {
 } from "@watchborne/electrons";
 import { Check, Copy, PlugZap } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 
+import { useCopyToClipboard } from "@/app/[locale]/app/hooks/useCopyToClipboard";
 import { CreatedChargePoint } from "@/types/charge-point";
 
 type ChargePointConnectionUrlDialogProps = {
@@ -37,20 +37,18 @@ export const ChargePointConnectionUrlDialog = ({
   chargePoint,
 }: ChargePointConnectionUrlDialogProps) => {
   const t = useTranslations("");
-  const [copied, setCopied] = useState(false);
+  const { copied, copy, reset } = useCopyToClipboard();
 
   const copyUrl = async () => {
     if (!chargePoint) return;
-    await navigator.clipboard.writeText(chargePoint.connectionUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    await copy(chargePoint.connectionUrl);
   };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        if (!next) setCopied(false);
+        if (!next) reset();
         onOpenChange(next);
       }}
     >

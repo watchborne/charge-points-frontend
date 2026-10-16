@@ -15,7 +15,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Fragment, useState, type ReactNode } from "react";
 
-import type { ChargingSessionCost } from "@/lib/api-charge-points";
+import type { ChargingSessionCost } from "@/lib/api-charging-sessions";
 import { useDateFormat } from "@/lib/date-format";
 import { formatDurationShort } from "@/lib/status-history";
 import type { ChargePoint } from "@/types/charge-point";
