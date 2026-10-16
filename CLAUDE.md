@@ -64,7 +64,8 @@ app/
                            #   StartTransaction/StopTransaction or TransactionEvent lifecycle,
                            #   charge-points-server's ADR 0012) with a per-session
                            #   SessionConsumptionChart and a per-session estimated cost column
-                           #   (ChargingSessionCost, from lib/api-charge-points.ts, with a
+                           #   (ChargingSessionCost, from lib/api-charging-sessions.ts, fetched per
+                           #   row and cached by ChargingSessionCostCell, with a
                            #   NO_TARIFF_CONFIGURED reason state when the site has no tariff —
                            #   charge-points-server ADR 0019/0020), on its own "Sessions" tab,
                            #   AlertsPanelContainer wraps AlertsPanel to own the acknowledge
@@ -193,7 +194,7 @@ types/                  # mostly thin re-exports of @watchborne/charge-points-ty
                         #   ChargePointWithSite with server-local `commissionedAt`
                         #   (Membership queue/audit state, not in the shared package);
                         #   log-upload.ts is the local response-type surface for the
-                        #   remote log/diagnostics feature (api-charge-points.ts)
+                        #   remote log/diagnostics feature (api-log-uploads.ts)
 i18n/locale.ts          # Locale type, defaultLocale, isLocale, localizedPath (edge-safe)
 i18n/routing.ts         # next-intl defineRouting: locales, defaultLocale,
                         #   localePrefix: "as-needed" (fr unprefixed, /en/... prefixed),
@@ -242,7 +243,14 @@ here — a request without a session simply reaches the backend with no token.
 - `lib/http-client.ts` — thin `fetch` wrapper (`get/getFile/post/patch/delete`),
   throws on non-2xx.
 - `lib/api-charge-points.ts`, `lib/api-sites.ts` — typed API methods, aggregated
-  in `lib/api.ts` as `api.ChargePoints` / `api.Sites`. `lib/api-me.ts`
+  in `lib/api.ts` as `api.ChargePoints` / `api.Sites`. `api.ChargePoints` is itself
+  composed in `lib/api.ts` from one client per feature, each owning its own
+  request/outcome types: `api-charge-points.ts` (CRUD, release, reset, availability,
+  unlock, settings, trigger message), `api-charge-point-alerts.ts`,
+  `api-certificates.ts`, `api-charging-sessions.ts`, `api-log-uploads.ts`,
+  `api-firmware-updates.ts` and `api-display-message-commands.ts`. Add a new
+  charge-point feature as its own module and spread it into `chargePointsApi`, not
+  into `api-charge-points.ts`. `lib/api-me.ts`
   (`api.Me.getMe()`) fetches the caller's own scoped charge points via
   `GET /api/me`; `lib/api-access-requests.ts` (`api.AccessRequests.requestAccess`)
   posts an alpha access request from `/signup` (see Authentication below).
@@ -275,7 +283,7 @@ here — a request without a session simply reaches the backend with no token.
   (`api.StatusHistory`) reads the connection/connector status timeline behind
   `StatusHistoryPanel`; `lib/status.ts` / `lib/status-history.ts` hold the
   client-side status-display/derivation helpers it and `ConnectorStatusIcon`
-  share. `api.ChargePoints.listChargingSessions` (`lib/api-charge-points.ts`)
+  share. `api.ChargePoints.listChargingSessions` (`lib/api-charging-sessions.ts`)
   reads `GET /api/charge-points/:id/charging-sessions` for
   `ChargingSessionsPanel` — a **shared-package type**
   (`@watchborne/charge-points-types`, added in ADR 0012 §8 once this route
@@ -302,7 +310,7 @@ here — a request without a session simply reaches the backend with no token.
   package's `MessageInfoV201` as is. The device-model `Component` is the exception —
   the API flattens OCPP's nested `evse` into `evseId`/`connectorId`, so it stays local
   and is not `ComponentV201`.
-  `api.ChargePoints.setDisplayMessage`/`clearDisplayMessage` (`lib/api-charge-points.ts`)
+  `api.ChargePoints.setDisplayMessage`/`clearDisplayMessage` (`lib/api-display-message-commands.ts`)
   are the write side (OCPP `SetDisplayMessage`/`ClearDisplayMessage`, 2.0.1-only)
   behind `DisplayMessageControl` — a single fixed message id, since this client has
   no way to discover a station's own ids without `GetDisplayMessages`.
@@ -325,7 +333,10 @@ here — a request without a session simply reaches the backend with no token.
   `GET`/`PUT /api/sites/:id/tariff` behind `useSiteTariff`/`SetSiteTariffDialog` —
   a site's configurable per-kWh tariff (charge-points-server ADR 0019), consumed
   by `ChargingSessionsPanel`'s cost column via `ChargingSessionCost`
-  (`lib/api-charge-points.ts`, ADR 0020). `SiteTariff` is the shared package's
+  (`lib/api-charging-sessions.ts`, ADR 0020), looked up one row at a time by
+  `ChargingSessionCostCell` (own `useQuery`, 5 min `staleTime`, never for an `ACTIVE`
+  session, a failed lookup reads "Unavailable" rather than a dash) so the list is not
+  an N+1 on mount. `SiteTariff` is the shared package's
   entity, seen through `Wire<>` (below).
 - Web Push (Desktop/Android; charge-points-server issues #587-590):
   `public/sw.js` is the plain, unbundled service worker (it can't import or read
@@ -368,7 +379,7 @@ here — a request without a session simply reaches the backend with no token.
   station's OCPP `SecurityEventNotification` history. Its response type is the
   shared package's `SecurityEvent` (ADR 0009), seen through `Wire<>` (below).
 - `api.ChargePoints.listCertificates`/`installCertificate`/`deleteCertificate`
-  (`lib/api-charge-points.ts`) back `CertificatesPanel`/`InstallCertificateDialog`/
+  (`lib/api-certificates.ts`) back `CertificatesPanel`/`InstallCertificateDialog`/
   `DeleteCertificateDialog` — OCPP `GetInstalledCertificateIds`/
   `InstallCertificate`/`DeleteCertificate` (charge-points-types issue #535)
   proxied through `POST /api/charge-points/:id/certificates/query` and
@@ -376,6 +387,12 @@ here — a request without a session simply reaches the backend with no token.
   and friends are declared locally in `types/certificate.ts`, same server-local
   response-type pattern as `SecurityEvent` above (the backend has no persisted
   certificate entity to re-export a shared type for).
+- Copy-to-clipboard goes through `useCopyToClipboard()`
+  (`app/[locale]/app/hooks/`): it catches a rejected `navigator.clipboard.writeText`
+  with an error toast (`common.copyFailed`) and clears its "copied" timer on re-copy,
+  reset and unmount. Used by `ChargePointConnectionUrlDialog` and
+  `CommissioningTokenPanel` (the token is shown only once, so a silent failure is
+  costly).
 - `lib/wire.ts` — `Wire<T>`: a shared-package type as it looks after crossing the
   wire as JSON, i.e. every `Date` is an ISO string. `@watchborne/charge-points-types`
   schemas coerce timestamps to `Date`, but the `lib/api-*.ts` clients hand the parsed
@@ -668,7 +685,11 @@ Sentry error reporting and Web Vitals via `instrumentation.ts` /
 Sentry rather than erroring (the local dev default). `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE`
 (parsed by `lib/sentry-sample-rate.ts`, falls back to 1 on a blank/invalid value)
 tunes the tracing sample rate. `app/global-error.tsx` reports React rendering
-errors that escape every other boundary to Sentry. `SENTRY_ORG` /
+errors that escape every other boundary to Sentry. Errors the app catches and
+handles (a failed load, the WebSocket, push subscription, the contact form) go
+through `reportError(error, context)` (`lib/report-error.ts`: `Sentry.captureException`
+with a `context` tag, plus a console log outside production) — never a bare
+`console.error`; query hooks use `useReportQueryError` for a query's `error`. `SENTRY_ORG` /
 `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` are only used at build time to upload
 source maps so stack traces resolve to original TypeScript. See `.env.example`.
 
