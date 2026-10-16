@@ -1,6 +1,7 @@
 {
   "appName": "Watchborne",
   "common": {
+    "copyFailed": "Could not copy to the clipboard. Select the text and copy it manually.",
     "loading": "Loading...",
     "error": "An error occurred",
     "confirm": "Confirm",
