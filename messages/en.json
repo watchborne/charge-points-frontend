@@ -976,6 +976,7 @@
         "duration": "Duration",
         "energy": "Energy",
         "cost": "Cost",
+        "costLoadError": "Unavailable",
         "costReasons": {
           "NO_TARIFF_CONFIGURED": "No tariff set"
         },

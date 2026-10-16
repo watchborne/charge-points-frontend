@@ -110,6 +110,8 @@ export const queryKeys = {
     all: () => ["chargingSessions"] as const,
     chargePoint: (chargePointId: string) =>
       [...queryKeys.chargingSessions.all(), chargePointId] as const,
+    cost: (chargePointId: string, sessionId: string) =>
+      [...queryKeys.chargingSessions.chargePoint(chargePointId), "cost", sessionId] as const,
   },
   uptime: {
     all: () => ["uptime"] as const,

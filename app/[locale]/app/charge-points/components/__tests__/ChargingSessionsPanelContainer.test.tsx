@@ -87,10 +87,9 @@ let queryClient: QueryClient;
 beforeEach(() => {
   vi.clearAllMocks();
   listChargingSessions.mockResolvedValue([]);
-  // A rejection by default (rather than a resolved envelope) exercises the
-  // container's own "leave that row's cost undefined" fallback for every
-  // test that isn't specifically about the cost column below.
-  getChargingSessionCost.mockRejectedValue(new Error("no cost configured"));
+  // A rejection by default: tests that don't care about the cost column are not
+  // affected by it, and the failure path is covered explicitly below.
+  getChargingSessionCost.mockRejectedValue(new Error("cost lookup failed"));
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
 
@@ -146,9 +145,34 @@ describe("ChargingSessionsPanelContainer", () => {
     expect(
       await screen.findByText("appPage.chargePoints.chargingSessions.statuses.ACTIVE"),
     ).toBeTruthy();
-    // Both the energy cell (no meterStart/meterStop) and the cost cell (the
-    // mocked lookup rejects by default, see beforeEach) fall back to a dash.
+    // Both the energy cell (no meterStart/meterStop) and the cost cell (an
+    // active session is never looked up) fall back to a dash.
     expect(await screen.findAllByText("—")).toHaveLength(2);
+    expect(getChargingSessionCost).not.toHaveBeenCalled();
+  });
+
+  it("SHOULD say the cost is unavailable rather than a dash WHEN its lookup fails", async () => {
+    listChargingSessions.mockResolvedValue([buildSession()]);
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("appPage.chargePoints.chargingSessions.costLoadError"),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD NOT ask for the costs again WHEN the tab is remounted within the cache window", async () => {
+    listChargingSessions.mockResolvedValue([buildSession()]);
+    getChargingSessionCost.mockResolvedValue(buildCost());
+
+    const first = renderPanel();
+    await screen.findByText("formatted:1");
+    first.unmount();
+
+    renderPanel();
+    await screen.findByText("formatted:1");
+
+    expect(getChargingSessionCost).toHaveBeenCalledTimes(1);
   });
 
   it("SHOULD render an estimated cost through the formatter WHEN one is available", async () => {

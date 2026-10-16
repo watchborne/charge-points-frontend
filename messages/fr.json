@@ -976,6 +976,7 @@
         "duration": "Durée",
         "energy": "Énergie",
         "cost": "Coût",
+        "costLoadError": "Indisponible",
         "costReasons": {
           "NO_TARIFF_CONFIGURED": "Tarif non défini"
         },
