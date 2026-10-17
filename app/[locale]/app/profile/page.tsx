@@ -2,7 +2,7 @@
 
 import type { User } from "@supabase/supabase-js";
 import { Callout, ColorPill, Skeleton, Switch } from "@watchborne/electrons";
-import { Bell, Moon, Palette, Sun, UserRound } from "lucide-react";
+import { Moon, Palette, Sun, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -102,13 +102,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <NotificationPreferencesPanel isPushSubscribed={isPushSubscribed} />
-
-      <section className="rounded-lg border">
-        <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">
-          <Bell className="h-4 w-4 text-muted-foreground shrink-0" />
-          <span className="text-sm font-medium">{t("appPage.profile.push.title")}</span>
-        </div>
+      <NotificationPreferencesPanel isPushSubscribed={isPushSubscribed}>
         {isIosNotStandalone ? (
           // iOS Safari never delivers Web Push to a plain browser tab, only
           // to the app once added to the home screen — and there is no API
@@ -117,11 +111,9 @@ export default function ProfilePage() {
           // disabled: nothing in-app can act on a tap here, so surfacing the
           // one thing that actually unlocks it is more useful than a dead
           // control.
-          <div className="p-4">
-            <Callout description={t("appPage.profile.push.iosInstallRequired")} variant="info" />
-          </div>
+          <Callout description={t("appPage.profile.push.iosInstallRequired")} variant="info" />
         ) : isPushSupported ? (
-          <div className="flex items-center justify-between gap-4 p-4">
+          <div className="flex items-center justify-between gap-4">
             <span className="text-sm text-muted-foreground">
               {t("appPage.profile.push.description")}
             </span>
@@ -133,11 +125,9 @@ export default function ProfilePage() {
             />
           </div>
         ) : (
-          <div className="p-4">
-            <Callout description={t("appPage.profile.push.unsupported")} variant="warning" />
-          </div>
+          <Callout description={t("appPage.profile.push.unsupported")} variant="warning" />
         )}
-      </section>
+      </NotificationPreferencesPanel>
 
       <section className="rounded-lg border">
         <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30">

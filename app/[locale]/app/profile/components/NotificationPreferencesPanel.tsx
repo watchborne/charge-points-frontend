@@ -11,6 +11,7 @@ import {
 } from "@watchborne/electrons";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { api } from "@/lib/api";
 import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
@@ -42,16 +43,20 @@ const toLocalHourDate = (hour: number) => {
  * default — this panel never invents a client-side fallback for a user who
  * has not set anything yet.
  *
- * `isPushSubscribed` comes from the separate browser-level push card further
- * down this page (`usePushSubscription`, owned by `ProfilePage`): turning on
- * the digest's push channel is meaningless without a live subscription to
- * send it to, so that toggle stays disabled until one exists, rather than
- * silently accepting a preference this browser can never receive.
+ * `isPushSubscribed` comes from the browser-level push subscription
+ * (`usePushSubscription`, owned by `ProfilePage`): turning on the digest's
+ * push channel is meaningless without a live subscription to send it to, so
+ * that toggle stays disabled until one exists, rather than silently accepting
+ * a preference this browser can never receive. The browser-level control
+ * itself is passed as `children` and rendered first, in this same card, so
+ * the page has a single "Notifications" section.
  */
 export const NotificationPreferencesPanel = ({
   isPushSubscribed,
+  children,
 }: {
   isPushSubscribed: boolean;
+  children?: ReactNode;
 }) => {
   const t = useTranslations("");
   const { formatTime } = useDateFormat();
@@ -84,6 +89,8 @@ export const NotificationPreferencesPanel = ({
         <span className="text-sm font-medium">{t("appPage.profile.notifications.title")}</span>
       </div>
       <div className="flex flex-col gap-4 p-4">
+        {children && <div className="border-b pb-4">{children}</div>}
+
         {error && <Callout variant="error" description={error} />}
 
         {loading ? (
