@@ -6,7 +6,8 @@ import { httpClient } from "./http-client";
 // @watchborne/charge-points-types (same reasoning as lib/api-me.ts's `Me`).
 export type CommissioningTokenStatus = {
   // true only while the token is usable: an expired one reports false, with
-  // its past expiresAt (null only when the caller never issued one).
+  // its past expiresAt, and so does a spent one (useCount reached maxUses),
+  // with a future expiresAt (null only when the caller never issued one).
   hasToken: boolean;
   createdAt: string | null;
   expiresAt: string | null;
@@ -15,8 +16,12 @@ export type CommissioningTokenStatus = {
   // token; absent from backends predating charge-points-server ADR 0029.
   useCount?: number | null;
   maxUses?: number | null;
+  // Last time a station presented the token, refusals included (hourly
+  // precision); null when it never was.
   lastUsedAt?: string | null;
 };
+
+export const MAX_USES_LIMIT = 1000;
 
 export type IssuedCommissioningToken = {
   token: string;
@@ -32,9 +37,16 @@ export const commissioningTokenApis = {
     );
   },
 
-  issueToken: async function (): Promise<IssuedCommissioningToken> {
+  // `maxUses` caps how many charge points the new token may commission
+  // (1 to 1000); omitted, the token is unlimited. An empty body keeps working
+  // against backends predating charge-points-server ADR 0029.
+  issueToken: async function (maxUses?: number | null): Promise<IssuedCommissioningToken> {
     return withErrorLogging(
-      () => httpClient.post<IssuedCommissioningToken>("/api/me/commissioning-token", {}),
+      () =>
+        httpClient.post<IssuedCommissioningToken>(
+          "/api/me/commissioning-token",
+          maxUses == null ? {} : { maxUses },
+        ),
       "CommissioningToken.issueToken",
     );
   },

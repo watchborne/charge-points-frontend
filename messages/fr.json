@@ -1495,6 +1495,15 @@
         "usesLabel": "{count, plural, =0 {Aucune borne commissionnée avec ce jeton pour l'instant} one {# borne commissionnée avec ce jeton} other {# bornes commissionnées avec ce jeton}}",
         "usesLabelWithMax": "{count, plural, one {# borne sur {max} commissionnée avec ce jeton} other {# bornes sur {max} commissionnées avec ce jeton}}",
         "expiredWarning": "Votre jeton a expiré le {date} et ne fonctionne plus : les bornes qui se connectent avec ne sont plus mises en service. Générez un nouveau jeton et mettez à jour l'adresse des bornes qu'il reste à mettre en service.",
+        "spentWarning": "Votre jeton a mis en service les {max} bornes autorisées et ne fonctionne plus : toute nouvelle borne qui se connecte avec est refusée. Générez un nouveau jeton pour en mettre d'autres en service ; les bornes déjà mises en service ne sont pas affectées.",
+        "lastUsedAtLabel": "Dernière utilisation par une borne le {date}",
+        "neverUsedLabel": "Aucune borne n'a encore utilisé ce jeton",
+        "maxUses": {
+          "label": "Nombre maximum de bornes (facultatif)",
+          "placeholder": "Illimité",
+          "hint": "S'applique au prochain jeton que vous générez. Laissez vide pour ne pas limiter.",
+          "invalid": "Saisissez un nombre entier entre 1 et {max}, ou laissez vide."
+        },
         "howItWorks": {
           "title": "Comment ça marche",
           "steps": {

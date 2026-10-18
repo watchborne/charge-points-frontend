@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
   Callout,
+  Input,
+  Label,
   Table,
   TableBody,
   TableCell,
@@ -28,6 +30,7 @@ import { useState } from "react";
 
 import { useCopyToClipboard } from "@/app/[locale]/app/hooks/useCopyToClipboard";
 import { api } from "@/lib/api";
+import { MAX_USES_LIMIT } from "@/lib/api-commissioning-token";
 import { CommissioningOutcome } from "@/lib/api-me";
 import { OCPP_SERVER_URL } from "@/lib/constants";
 import { useDateFormat } from "@/lib/date-format";
@@ -69,6 +72,7 @@ export const CommissioningTokenPanel = () => {
   const { copied, copy, reset: resetCopied } = useCopyToClipboard();
   const [confirmRegenerateOpen, setConfirmRegenerateOpen] = useState(false);
   const [confirmRevokeOpen, setConfirmRevokeOpen] = useState(false);
+  const [maxUsesInput, setMaxUsesInput] = useState("");
 
   const {
     data: status,
@@ -81,11 +85,21 @@ export const CommissioningTokenPanel = () => {
   const hasToken = status?.hasToken ?? false;
   const createdAt = status?.createdAt ?? null;
   const expiresAt = status?.expiresAt ?? null;
-  // The server reports an expired token as hasToken: false while keeping its
-  // past expiresAt, which is what tells "expired" apart from "never issued".
   const useCount = status?.useCount ?? null;
   const maxUses = status?.maxUses ?? null;
-  const expired = !hasToken && expiresAt !== null;
+  const lastUsedAt = status?.lastUsedAt ?? null;
+  // The server reports an expired or a spent token as hasToken: false while
+  // keeping its figures. A token that ran out of uses is told apart from an
+  // expired one by its counter; both differ from "never issued" (no expiresAt).
+  const spent = !hasToken && maxUses !== null && useCount !== null && useCount >= maxUses;
+  const expired = !hasToken && !spent && expiresAt !== null;
+
+  // Empty means unlimited; otherwise a whole number the server accepts.
+  const trimmedMaxUses = maxUsesInput.trim();
+  const parsedMaxUses = trimmedMaxUses === "" ? null : Number(trimmedMaxUses);
+  const maxUsesInvalid =
+    parsedMaxUses !== null &&
+    (!Number.isInteger(parsedMaxUses) || parsedMaxUses < 1 || parsedMaxUses > MAX_USES_LIMIT);
 
   // Recent commissioning activity (issue #420 / #278): best-effort — a
   // failure here must never block the token panel itself, so its error is
@@ -98,7 +112,7 @@ export const CommissioningTokenPanel = () => {
   const chargePointNames = new Map(me?.chargePoints.map((cp) => [cp.id, cp.name]) ?? []);
 
   const issueMutation = useMutation({
-    mutationFn: () => api.CommissioningToken.issueToken(),
+    mutationFn: () => api.CommissioningToken.issueToken(parsedMaxUses),
     onSuccess: (issued) => {
       setRevealedToken(issued.token);
       resetCopied();
@@ -108,7 +122,7 @@ export const CommissioningTokenPanel = () => {
         expiresAt: issued.expiresAt,
         // Re-issuing starts over: nothing is commissioned with the new token yet.
         useCount: 0,
-        maxUses: null,
+        maxUses: parsedMaxUses,
         lastUsedAt: null,
       });
     },
@@ -154,7 +168,6 @@ export const CommissioningTokenPanel = () => {
   // on — adopts a charge point literally named that, and with a valid token
   // claims it for the caller.
   const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
-  const formatDate = (date: string) => formatDateNumeric(date);
 
   const steps = [
     t("appPage.configuration.commissioningToken.howItWorks.steps.generate"),
@@ -201,6 +214,15 @@ export const CommissioningTokenPanel = () => {
             variant="warning"
             description={t("appPage.configuration.commissioningToken.expiredWarning", {
               date: formatDateNumeric(expiresAt),
+            })}
+          />
+        )}
+
+        {!loading && spent && (
+          <Callout
+            variant="warning"
+            description={t("appPage.configuration.commissioningToken.spentWarning", {
+              max: maxUses,
             })}
           />
         )}
@@ -266,12 +288,47 @@ export const CommissioningTokenPanel = () => {
           </p>
         )}
 
+        {!loading && (hasToken || spent) && (
+          <p className="text-sm text-muted-foreground">
+            {lastUsedAt
+              ? t("appPage.configuration.commissioningToken.lastUsedAtLabel", {
+                  date: formatDateTime(lastUsedAt),
+                })
+              : t("appPage.configuration.commissioningToken.neverUsedLabel")}
+          </p>
+        )}
+
+        <div className="flex flex-col gap-1.5 sm:max-w-xs">
+          <Label htmlFor="commissioning-token-max-uses">
+            {t("appPage.configuration.commissioningToken.maxUses.label")}
+          </Label>
+          <Input
+            id="commissioning-token-max-uses"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_USES_LIMIT}
+            step={1}
+            value={maxUsesInput}
+            placeholder={t("appPage.configuration.commissioningToken.maxUses.placeholder")}
+            aria-invalid={maxUsesInvalid}
+            onChange={(event) => setMaxUsesInput(event.target.value)}
+          />
+          <p className={`text-xs ${maxUsesInvalid ? "text-destructive" : "text-muted-foreground"}`}>
+            {maxUsesInvalid
+              ? t("appPage.configuration.commissioningToken.maxUses.invalid", {
+                  max: MAX_USES_LIMIT,
+                })
+              : t("appPage.configuration.commissioningToken.maxUses.hint")}
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant={hasToken && !revealedToken ? "outline" : "default"}
             className="w-full sm:w-fit"
-            disabled={loading || issuing || revoking}
+            disabled={loading || issuing || revoking || maxUsesInvalid}
             onClick={handleGenerateClicked}
           >
             {hasToken ? <RefreshCw className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
@@ -367,7 +424,10 @@ export const CommissioningTokenPanel = () => {
             <AlertDialogCancel onClick={() => setConfirmRegenerateOpen(false)}>
               {t("common.actions.cancel")}
             </AlertDialogCancel>
-            <AlertDialogAction disabled={issuing} onClick={() => issueMutation.mutate()}>
+            <AlertDialogAction
+              disabled={issuing || maxUsesInvalid}
+              onClick={() => issueMutation.mutate()}
+            >
               {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>

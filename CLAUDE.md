@@ -264,8 +264,13 @@ here — a request without a session simply reaches the backend with no token.
   `hasToken: false` with its past `expiresAt` (the panel shows an expiry
   warning and re-offers "Generate"). The panel also explains the process
   (`howItWorks` steps), and shows how many charge points were commissioned with
-  the current token (`useCount`, plus the optional `maxUses` ceiling) from the
-  status response (charge-points-server ADR 0029).
+  the current token (`useCount`, plus the optional `maxUses` ceiling) and when
+  a station last presented it (`lastUsedAt`) from the status response
+  (charge-points-server ADR 0029). A token that reached its ceiling reports
+  `hasToken: false` with a future `expiresAt`: the panel tells it apart from an
+  expired one by its counter and shows a "spent" warning. The optional
+  "maximum number of charge points" field (1 to 1000, empty = unlimited) is sent
+  as `maxUses` by `issueToken` and applies to the next token generated.
   `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
   `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
   opt-in/out and preferred digest send hour (a Europe/Paris wall-clock hour), behind
