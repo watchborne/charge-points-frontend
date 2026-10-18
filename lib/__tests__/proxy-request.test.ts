@@ -157,6 +157,16 @@ describe("proxyToBackend", () => {
     expect(await res.text()).toBe('{"id":"cp-1"}');
   });
 
+  it("SHOULD proxy a 204 without a body WHEN the backend answers No Content", async () => {
+    mockFetch.mockReturnValue(Promise.resolve(new Response(null, { status: 204 })));
+    const proxyToBackend = await importProxy();
+
+    const res = await proxyToBackend(requestOf("/api/x", { method: "DELETE" }), "/api/x");
+
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe("");
+  });
+
   it("SHOULD propagate a non-2xx backend status", async () => {
     mockFetch.mockReturnValue(backendResponse('{"error":"boom"}', 500));
     const proxyToBackend = await importProxy();
