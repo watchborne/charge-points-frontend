@@ -1574,7 +1574,7 @@
         },
         "digestHour": {
           "title": "Send time",
-          "description": "Time (your local time) at which the daily digest is sent to you."
+          "description": "Time (Paris time) at which the daily digest is sent to you."
         },
         "locale": {
           "title": "Email language",
