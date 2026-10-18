@@ -147,11 +147,11 @@ export const NotificationPreferencesPanel = ({
                   </span>
                 </div>
                 <Select
-                  value={String(preferences.digestHourUtc)}
+                  value={String(preferences.digestHour)}
                   disabled={
                     (!preferences.digestEmailEnabled && !preferences.digestPushEnabled) || saving
                   }
-                  onValueChange={(value) => updateMutation.mutate({ digestHourUtc: Number(value) })}
+                  onValueChange={(value) => updateMutation.mutate({ digestHour: Number(value) })}
                 >
                   <SelectTrigger
                     className="w-[140px]"

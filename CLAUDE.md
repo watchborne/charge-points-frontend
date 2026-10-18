@@ -270,7 +270,7 @@ here — a request without a session simply reaches the backend with no token.
   `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
   opt-in/out and preferred digest send hour (a Europe/Paris wall-clock hour), behind
   `NotificationPreferencesPanel` on `/app/profile`
-  (charge-points-server ADR 0018). `digestHourUtc` in the response is always a
+  (charge-points-server ADR 0018). `digestHour` in the response is always a
   resolved 0-23 value, and `locale` (the language of the emails the backend
   sends the caller, ADR 0022) is always a resolved `"fr" | "en"`; the backend
   substitutes its own global default when the caller has never set either, so
