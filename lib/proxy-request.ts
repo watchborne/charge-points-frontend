@@ -77,10 +77,11 @@ export async function proxyToBackend(
   if ("failure" in call) return call.failure;
 
   const body = await call.response.text();
+  const requestContentType = request.headers.get("Content-Type") ?? "application/json";
 
   return new NextResponse(body, {
     status: call.response.status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": requestContentType },
   });
 }
 
