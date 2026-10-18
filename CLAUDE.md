@@ -237,6 +237,9 @@ here — a request without a session simply reaches the backend with no token.
   it as text would corrupt binary) and passes `Content-Type` /
   `Content-Disposition` from the backend, which owns the file's type and name;
   the client side is `httpClient.getFile`, which returns `{ blob, filename }`.
+- `proxyToBackend` builds a null-body status (204 from every DELETE, 205, 304)
+  with no body at all: `new Response("", { status: 204 })` throws a `TypeError`,
+  which would turn a successful delete into a 500 from the proxy.
 
 ### Data access layers
 
@@ -353,7 +356,11 @@ here — a request without a session simply reaches the backend with no token.
   install-to-home-screen guidance, backed by `public/manifest.json` + icons for
   PWA installability), and the digest's push channel
   (`NotificationPreferencesPanel`, `digestPushEnabled`, charge-points-server
-  ADR 0023) requires a live browser subscription.
+  ADR 0023) requires a live browser subscription. `lib/api-push-subscriptions.ts`
+  (`api.PushSubscriptions`, `subscribe`/`unsubscribe`) sends `navigator.userAgent`
+  in the subscribe body, which the backend stores to tell the device type, OS and
+  browser version apart (it is in the body, not a header, because the proxy hop
+  would otherwise hand the backend the Next server's own User-Agent).
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from
