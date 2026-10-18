@@ -59,7 +59,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -74,7 +74,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: false,
       digestPushEnabled: false,
-      digestHourUtc: 14,
+      digestHour: 14,
       locale: "fr",
     });
 
@@ -88,13 +88,13 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
     updatePreferences.mockResolvedValue({
       digestEmailEnabled: false,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -112,13 +112,13 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
     updatePreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: true,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -136,7 +136,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -153,7 +153,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -170,7 +170,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: false,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -187,7 +187,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: false,
       digestPushEnabled: true,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -204,7 +204,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "en",
     });
 
@@ -221,7 +221,7 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: false,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
 
@@ -238,13 +238,13 @@ describe("NotificationPreferencesPanel", () => {
     getPreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "fr",
     });
     updatePreferences.mockResolvedValue({
       digestEmailEnabled: true,
       digestPushEnabled: false,
-      digestHourUtc: 7,
+      digestHour: 7,
       locale: "en",
     });
 

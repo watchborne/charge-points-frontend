@@ -82,7 +82,7 @@ beforeEach(() => {
   getPreferences.mockReset().mockResolvedValue({
     digestEmailEnabled: true,
     digestPushEnabled: false,
-    digestHourUtc: 7,
+    digestHour: 7,
     locale: "fr",
   });
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
