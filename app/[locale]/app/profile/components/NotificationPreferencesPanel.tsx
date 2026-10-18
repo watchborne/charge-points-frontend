@@ -15,10 +15,14 @@ import type { ReactNode } from "react";
 
 import { api } from "@/lib/api";
 import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
-import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 
-const DIGEST_HOURS_UTC = Array.from({ length: 24 }, (_, hour) => hour);
+// The digest hour is a Europe/Paris wall-clock hour (charge-points-server
+// DIGEST_TIME_ZONE), stored and shown as is: no conversion to the browser's
+// time zone, so what the user picks is when it arrives, whatever their device
+// reports and across the summer/winter time change.
+const DIGEST_HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+const formatDigestHour = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
 
 // Each language is named in itself, whatever the dashboard's own locale: that
 // is how a user who landed on the wrong one can still find theirs.
@@ -27,17 +31,10 @@ const EMAIL_LOCALES: { value: EmailLocale; label: string }[] = [
   { value: "en", label: "English" },
 ];
 
-// The stored value stays a UTC hour (what the backend schedules on); only the
-// label is shown in the browser's local time.
-const toLocalHourDate = (hour: number) => {
-  const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour));
-};
-
 /**
  * Lets a user opt in/out of the daily alert digest, per channel (email
  * and/or push — charge-points-server ADR 0023), pick their own send hour
- * (shown in local time, stored as UTC), overriding charge-points-server's global default hour (ADR 0018
+ * (a Europe/Paris hour), overriding charge-points-server's global default hour (ADR 0018
  * there), and choose the language of every email the backend sends them
  * (ADR 0022 there). Every field defaults to the backend's own resolved
  * default — this panel never invents a client-side fallback for a user who
@@ -59,7 +56,6 @@ export const NotificationPreferencesPanel = ({
   children?: ReactNode;
 }) => {
   const t = useTranslations("");
-  const { formatTime } = useDateFormat();
   const queryClient = useQueryClient();
 
   const {
@@ -164,9 +160,9 @@ export const NotificationPreferencesPanel = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {DIGEST_HOURS_UTC.map((hour) => (
+                    {DIGEST_HOURS.map((hour) => (
                       <SelectItem key={hour} value={String(hour)}>
-                        {formatTime(toLocalHourDate(hour))}
+                        {formatDigestHour(hour)}
                       </SelectItem>
                     ))}
                   </SelectContent>

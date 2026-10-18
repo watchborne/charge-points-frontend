@@ -39,7 +39,7 @@ app/
       profile/             # user profile page: theme toggle (existing ThemeProvider/
                            #   useTheme, also used by the marketing Navbar); components/
                            #   NotificationPreferencesPanel: digest opt-in/out + digest
-                           #   send hour (UTC) + email language (fr/en), GET/PATCH
+                           #   send hour (Europe/Paris hour, not converted) + email language (fr/en), GET/PATCH
                            #   /api/me/notification-preferences (charge-points-server
                            #   ADR 0018, 0022)
       configuration/       # page + its own components/ (CommissioningTokenPanel:
@@ -268,7 +268,7 @@ here — a request without a session simply reaches the backend with no token.
   status response (charge-points-server ADR 0029).
   `lib/api-notification-preferences.ts` (`api.NotificationPreferences`) reads/writes
   `GET`/`PATCH /api/me/notification-preferences` — the caller's own digest
-  opt-in/out and preferred digest send hour (UTC), behind
+  opt-in/out and preferred digest send hour (a Europe/Paris wall-clock hour), behind
   `NotificationPreferencesPanel` on `/app/profile`
   (charge-points-server ADR 0018). `digestHourUtc` in the response is always a
   resolved 0-23 value, and `locale` (the language of the emails the backend

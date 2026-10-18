@@ -1,18 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { format } from "date-fns";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const translate = (key: string) => key;
 
-// The select shows UTC hours converted to the browser's local time.
-const localHour = (hour: number) => {
-  const now = new Date();
-  return format(
-    new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour)),
-    "HH:mm",
-  );
-};
+// The select shows the stored Europe/Paris hour as is, with no time zone conversion.
+const digestHour = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
 
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
@@ -72,7 +65,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel();
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     expect(emailSwitch().getAttribute("aria-checked")).toBe("true");
     expect(pushSwitch().getAttribute("aria-checked")).toBe("false");
   });
@@ -87,7 +80,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel();
 
-    await screen.findByText(localHour(14));
+    await screen.findByText(digestHour(14));
     expect(emailSwitch().getAttribute("aria-checked")).toBe("false");
   });
 
@@ -106,7 +99,7 @@ describe("NotificationPreferencesPanel", () => {
     });
 
     renderPanel();
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     fireEvent.click(emailSwitch());
 
     await waitFor(() =>
@@ -130,7 +123,7 @@ describe("NotificationPreferencesPanel", () => {
     });
 
     renderPanel(true);
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     fireEvent.click(pushSwitch());
 
     await waitFor(() =>
@@ -149,7 +142,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel(false);
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     expect((pushSwitch() as HTMLButtonElement).disabled).toBe(true);
     expect(
       screen.getByText("appPage.profile.notifications.digestPushEnabled.requiresSubscription"),
@@ -166,7 +159,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel(true);
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     expect((pushSwitch() as HTMLButtonElement).disabled).toBe(false);
     expect(
       screen.getByText("appPage.profile.notifications.digestPushEnabled.description"),
@@ -183,7 +176,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel();
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.digestHour.title",
     });
@@ -200,7 +193,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel(true);
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.digestHour.title",
     });
@@ -217,7 +210,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel();
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.locale.title",
     });
@@ -234,7 +227,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel();
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     const trigger = screen.getByRole("combobox", {
       name: "appPage.profile.notifications.locale.title",
     });
@@ -257,7 +250,7 @@ describe("NotificationPreferencesPanel", () => {
 
     renderPanel();
 
-    await screen.findByText(localHour(7));
+    await screen.findByText(digestHour(7));
     fireEvent.keyDown(
       screen.getByRole("combobox", { name: "appPage.profile.notifications.locale.title" }),
       { key: "ArrowDown" },
