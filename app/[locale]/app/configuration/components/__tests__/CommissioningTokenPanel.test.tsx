@@ -201,6 +201,131 @@ describe("CommissioningTokenPanel", () => {
     ).toBeTruthy();
   });
 
+  it("SHOULD show when the token was last used WHEN a station presented it", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2024-06-13T12:00:00.000Z",
+      useCount: 1,
+      maxUses: null,
+      lastUsedAt: "2024-04-02T09:30:00.000Z",
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText(/commissioningToken\.lastUsedAtLabel\(date=.*02\/04\/2024/),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD say no station used the token yet WHEN lastUsedAt is null", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: true,
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2024-06-13T12:00:00.000Z",
+      useCount: 0,
+      maxUses: null,
+      lastUsedAt: null,
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("appPage.configuration.commissioningToken.neverUsedLabel"),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD warn that the token is spent, not expired, WHEN it reached its maximum uses", async () => {
+    getStatus.mockResolvedValue({
+      hasToken: false,
+      createdAt: "2024-03-15T12:00:00.000Z",
+      expiresAt: "2999-06-13T12:00:00.000Z",
+      useCount: 3,
+      maxUses: 3,
+      lastUsedAt: "2024-04-02T09:30:00.000Z",
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("appPage.configuration.commissioningToken.spentWarning(max=3)"),
+    ).toBeTruthy();
+    expect(screen.queryByText(/commissioningToken\.expiredWarning/)).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" }),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD send the chosen maximum WHEN generating a token", async () => {
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
+    issueToken.mockResolvedValue({
+      token: "abc123",
+      createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
+    });
+
+    renderPanel();
+
+    const input = await screen.findByLabelText(
+      "appPage.configuration.commissioningToken.maxUses.label",
+    );
+    fireEvent.change(input, { target: { value: "5" } });
+    const generateButton = screen.getByRole("button", {
+      name: "appPage.configuration.commissioningToken.generateCta",
+    });
+    await waitFor(() => expect(generateButton.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(issueToken).toHaveBeenCalledWith(5));
+    expect(
+      await screen.findByText(
+        "appPage.configuration.commissioningToken.usesLabelWithMax(count=0, max=5)",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("SHOULD generate an unlimited token WHEN the maximum is left empty", async () => {
+    getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
+    issueToken.mockResolvedValue({
+      token: "abc123",
+      createdAt: "2024-01-01T00:00:00.000Z",
+      expiresAt: "2024-12-31T12:00:00.000Z",
+    });
+
+    renderPanel();
+
+    const generateButton = await screen.findByRole("button", {
+      name: "appPage.configuration.commissioningToken.generateCta",
+    });
+    await waitFor(() => expect(generateButton.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(issueToken).toHaveBeenCalledWith(null));
+  });
+
+  it.each(["0", "-1", "1.5", "1001"])(
+    "SHOULD block generation WHEN the maximum is %s",
+    async (value) => {
+      getStatus.mockResolvedValue({ hasToken: false, createdAt: null, expiresAt: null });
+
+      renderPanel();
+
+      const input = await screen.findByLabelText(
+        "appPage.configuration.commissioningToken.maxUses.label",
+      );
+      fireEvent.change(input, { target: { value } });
+
+      expect(
+        screen.getByText("appPage.configuration.commissioningToken.maxUses.invalid(max=1000)"),
+      ).toBeTruthy();
+      expect(
+        screen
+          .getByRole("button", { name: "appPage.configuration.commissioningToken.generateCta" })
+          .hasAttribute("disabled"),
+      ).toBe(true);
+    },
+  );
+
   it("SHOULD NOT show a count WHEN the caller has no token", async () => {
     getStatus.mockResolvedValue({
       hasToken: false,
