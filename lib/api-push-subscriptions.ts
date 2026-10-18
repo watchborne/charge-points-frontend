@@ -21,7 +21,8 @@ export const pushSubscriptionApis = {
   /**
    * Upserts this browser's Web Push subscription. Idempotent on `endpoint`
    * server-side, so calling it again with the same subscription (e.g. after
-   * a `pushsubscriptionchange`) is safe.
+   * a `pushsubscriptionchange`) is safe. Also sends the browser's user agent,
+   * which a re-subscribe refreshes.
    */
   subscribe: async function (
     endpoint: string,
@@ -32,6 +33,10 @@ export const pushSubscriptionApis = {
         httpClient.post<SubscribedPushSubscription>("/api/me/push-subscriptions", {
           endpoint,
           keys,
+          // The proxy hop would otherwise hand the backend the Next server's
+          // own User-Agent, so the browser's is sent in the body — the backend
+          // stores it to tell device type, OS and browser version apart.
+          userAgent: typeof navigator === "undefined" ? undefined : navigator.userAgent,
         }),
       "PushSubscriptions.subscribe",
     );

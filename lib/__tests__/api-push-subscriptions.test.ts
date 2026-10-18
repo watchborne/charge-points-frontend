@@ -7,7 +7,10 @@ vi.mock("../http-client", () => ({
   httpClient: { post: vi.fn(), delete: vi.fn() },
 }));
 
-afterEach(() => vi.clearAllMocks());
+afterEach(() => {
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
+});
 
 describe("pushSubscriptionApis.subscribe", () => {
   it("SHOULD POST endpoint and keys to the local proxy path", async () => {
@@ -24,7 +27,26 @@ describe("pushSubscriptionApis.subscribe", () => {
     expect(httpClient.post).toHaveBeenCalledWith("/api/me/push-subscriptions", {
       endpoint: "https://push.example/abc",
       keys: { p256dh: "p256dh-value", auth: "auth-value" },
+      userAgent: navigator.userAgent,
     });
+  });
+
+  it("SHOULD send the browser's user agent WHEN subscribing", async () => {
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (test) Chrome/128.0");
+    vi.mocked(httpClient.post).mockResolvedValue({
+      endpoint: "https://push.example/abc",
+      createdAt: "2026-09-01T00:00:00.000Z",
+    });
+
+    await pushSubscriptionApis.subscribe("https://push.example/abc", {
+      p256dh: "p256dh-value",
+      auth: "auth-value",
+    });
+
+    expect(httpClient.post).toHaveBeenCalledWith(
+      "/api/me/push-subscriptions",
+      expect.objectContaining({ userAgent: "Mozilla/5.0 (test) Chrome/128.0" }),
+    );
   });
 
   it("SHOULD return the backend's response", async () => {
