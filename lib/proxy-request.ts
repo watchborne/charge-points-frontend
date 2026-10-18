@@ -5,6 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 
 import { API_URL } from "./constants";
 
+// Statuses the Fetch spec forbids a body on, even an empty string.
+const NULL_BODY_STATUSES = new Set([101, 204, 205, 304]);
+
 type BackendCall = { response: Response } | { failure: NextResponse };
 
 /**
@@ -76,8 +79,13 @@ export async function proxyToBackend(
   const call = await callBackend(request, backendPath);
   if ("failure" in call) return call.failure;
 
-  const body = await call.response.text();
   const requestContentType = request.headers.get("Content-Type") ?? "application/json";
+
+  // A null-body status (204 from every DELETE this proxies) must be built with
+  // no body at all: `new Response("", { status: 204 })` throws a TypeError, so
+  // forwarding the backend's empty text would turn a successful delete into a
+  // 500 from the proxy.
+  const body = NULL_BODY_STATUSES.has(call.response.status) ? null : await call.response.text();
 
   return new NextResponse(body, {
     status: call.response.status,
