@@ -173,8 +173,19 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
       const subscription = await registration?.pushManager.getSubscription();
       if (!subscription) return;
 
-      await api.PushSubscriptions.unsubscribe(subscription.endpoint);
+      // Browser first: it is local, so it can't fail on the network or on an
+      // expired session (common in a long-lived PWA), and it is what the
+      // toggle reflects. The backend call is best-effort afterwards — if it
+      // fails, the push service answers 404/410 for the dead endpoint and the
+      // backend prunes it on the next send.
+      const { endpoint } = subscription;
       await subscription.unsubscribe();
+
+      try {
+        await api.PushSubscriptions.unsubscribe(endpoint);
+      } catch (error) {
+        reportError(error, "usePushSubscription.unsubscribe");
+      }
     },
     // unsubscribe() always ends in "not subscribed" from the caller's point
     // of view — whether there was nothing to unsubscribe from, or the
