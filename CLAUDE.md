@@ -448,7 +448,7 @@ hook — do not construct `new WebSocket` directly in components. Prefer
 
 - Sign-in is passwordless: `/login` calls `supabase.auth.signInWithOtp` to
   email a 6-digit code; there is no password flow and no magic link.
-  `LoginForm` sends the code; once that succeeds, `app/login/page.tsx` renders
+  `LoginForm` sends the code; once that succeeds, `app/[locale]/login/page.tsx` renders
   `VerifyOtpForm`, which verifies it client-side
   (`supabase.auth.verifyOtp({ email, token, type: "email" })`) and
   hard-redirects to `/app/dashboard` on success — a full-page navigation, not
@@ -486,7 +486,7 @@ hook — do not construct `new WebSocket` directly in components. Prefer
 - `app/auth/dev-login/route.ts` is a **local-dev-only** shortcut that mints an
   OTP code through the Supabase admin API (`generateLink`'s
   `properties.email_otp`) and returns it as JSON, skipping the email
-  round-trip; `app/login/components/DevLoginShortcut.tsx` fetches it and
+  round-trip; `app/[locale]/login/components/DevLoginShortcut.tsx` fetches it and
   passes it to `VerifyOtpForm` as `initialCode`, which auto-submits on mount.
   Local dev still signs in in one click, but by running the exact same
   client-side `verifyOtp` call a real user's browser would, not a
@@ -500,7 +500,7 @@ hook — do not construct `new WebSocket` directly in components. Prefer
   a local `.env`. The extra flag exists so a preview/staging environment
   that accidentally has the service-role key set still can't be used to
   fetch a code for an arbitrary email.
-- `app/signup/` is a public alpha-access-request page alongside `/login`; like
+- `app/[locale]/signup/` is a public alpha-access-request page alongside `/login`; like
   `/login`, an already-authenticated visitor is redirected to `/app/dashboard`.
   It does **not** create a Supabase user directly — it POSTs the visitor's
   email via `api.AccessRequests.requestAccess` to the public, unauthenticated
