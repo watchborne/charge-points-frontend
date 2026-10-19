@@ -40,6 +40,7 @@ NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp
 API_SECRET_KEY=<shared secret, must match the backend's APP_API_KEY>
 NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon key>
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=<optional, Web Push public key — must match the server's VAPID_PUBLIC_KEY; unset disables push subscribing>
 ENABLE_DEV_LOGIN=<optional, local dev only — see below>
 SUPABASE_SERVICE_ROLE_KEY=<optional, local dev only — see below>
 NEXT_PUBLIC_SENTRY_DSN=<optional, unset disables Sentry entirely>
@@ -48,6 +49,11 @@ NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=<optional, 0-1, defaults to 1 (trace every
 SENTRY_ORG=<optional, CI/build only — source map upload>
 SENTRY_PROJECT=<optional, CI/build only — source map upload>
 SENTRY_AUTH_TOKEN=<optional, CI/build only, secret — source map upload>
+RESEND_API_KEY=<optional, server-side only — sends the marketing contact form>
+CONTACT_EMAIL_FROM=<optional, sender of the contact form email>
+CONTACT_EMAIL_TO=<optional, recipient of the contact form email>
+CONTACT_RATE_LIMIT_MAX=<optional, contact form submissions per client address per window, defaults to 5>
+CONTACT_RATE_LIMIT_WINDOW_MS=<optional, contact form rate-limit window in ms, defaults to 60000>
 ```
 
 `NEXT_PUBLIC_OCPP_SERVER_URL` is the public-facing OCPP endpoint charge points
