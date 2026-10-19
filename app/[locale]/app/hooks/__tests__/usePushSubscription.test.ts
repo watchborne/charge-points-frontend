@@ -258,6 +258,28 @@ describe("unsubscribe", () => {
     expect(result.current.isSubscribed).toBe(false);
   });
 
+  it("SHOULD still unsubscribe browser-side and clear isSubscribed WHEN the API call fails", async () => {
+    const unsubscribeBrowserSide = vi.fn().mockResolvedValue(true);
+    const registration = fakeRegistration();
+    registration.pushManager.getSubscription.mockResolvedValue({
+      endpoint: "https://push.example/abc",
+      unsubscribe: unsubscribeBrowserSide,
+    });
+    mockGetRegistration.mockResolvedValue(registration);
+    unsubscribeApi.mockRejectedValue(new Error("HTTP error! status: 401"));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { result } = renderUsePushSubscription();
+    await waitFor(() => expect(result.current.isSubscribed).toBe(true));
+
+    await act(async () => {
+      await result.current.unsubscribe();
+    });
+
+    expect(unsubscribeBrowserSide).toHaveBeenCalled();
+    expect(result.current.isSubscribed).toBe(false);
+  });
+
   it("SHOULD do nothing WHEN there is no existing subscription", async () => {
     const registration = fakeRegistration();
     registration.pushManager.getSubscription.mockResolvedValue(null);
