@@ -18,6 +18,7 @@ import { meteringApis } from "./api-metering";
 import { notificationPreferencesApis } from "./api-notification-preferences";
 import { pushSubscriptionApis } from "./api-push-subscriptions";
 import { securityEventApis } from "./api-security-events";
+import { siteAlertThresholdsApis } from "./api-site-alert-thresholds";
 import { siteTariffApis } from "./api-site-tariff";
 import { siteVisitApis } from "./api-site-visits";
 import { siteApis } from "./api-sites";
@@ -54,6 +55,7 @@ export const api = {
   SecurityEvents: securityEventApis,
   Sites: siteApis,
   SiteTariff: siteTariffApis,
+  SiteAlertThresholds: siteAlertThresholdsApis,
   SiteVisits: siteVisitApis,
   StatusHistory: statusHistoryApis,
   Uptime: uptimeApis,
