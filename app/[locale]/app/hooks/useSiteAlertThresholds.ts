@@ -23,6 +23,8 @@ export function useSiteAlertThresholds(siteId: Site["id"] | null) {
     void queryClient.invalidateQueries({
       queryKey: queryKeys.siteAlertThresholds.site(siteId ?? ""),
     });
+    // A station without its own override inherits what the site just changed.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.chargePointAlertThresholds.all() });
   };
 
   const updateMutation = useMutation({

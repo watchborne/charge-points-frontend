@@ -377,6 +377,13 @@ here — a request without a session simply reaches the backend with no token.
   the `effective` thresholds in the `get` envelope are resolved by the backend, never
   guessed here. `SiteAlertThresholds` is the shared package's entity, seen through
   `Wire<>` (below).
+- `lib/api-charge-points-alert-thresholds.ts` (`api.ChargePointAlertThresholds`,
+  `get`/`update`/`reset`) is the charge point level of the same feature, against
+  `GET`/`PATCH`/`DELETE /api/charge-points/:id/alert-thresholds`, behind
+  `useChargePointAlertThresholds`. Its `effective` envelope is what the alert sweep
+  really applies to the station — own override, else its site's, else the default —
+  with the `source` of each value. Saving a site's thresholds invalidates these reads
+  (a station without its own override inherits the change).
 - `lib/api-fleet-reliability.ts` (`api.FleetReliability`) reads
   `GET /api/charge-points/reliability` — the fleet-wide 7-day uptime % behind
   `FleetReliabilityPanel`/`FleetReliabilityBadge`, distinct from

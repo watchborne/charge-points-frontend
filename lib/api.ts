@@ -2,6 +2,7 @@ import { accessRequestApis } from "./api-access-requests";
 import { certificateApis } from "./api-certificates";
 import { chargePointAlertApis } from "./api-charge-point-alerts";
 import { chargePointApis } from "./api-charge-points";
+import { chargePointAlertThresholdsApis } from "./api-charge-points-alert-thresholds";
 import { chargingSessionApis } from "./api-charging-sessions";
 import { commissioningTokenApis } from "./api-commissioning-token";
 import { contactApis } from "./api-contact";
@@ -56,6 +57,7 @@ export const api = {
   Sites: siteApis,
   SiteTariff: siteTariffApis,
   SiteAlertThresholds: siteAlertThresholdsApis,
+  ChargePointAlertThresholds: chargePointAlertThresholdsApis,
   SiteVisits: siteVisitApis,
   StatusHistory: statusHistoryApis,
   Uptime: uptimeApis,
