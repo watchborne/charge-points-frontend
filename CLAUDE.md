@@ -365,7 +365,7 @@ here — a request without a session simply reaches the backend with no token.
   reads/writes `GET`/`PATCH`/`DELETE /api/sites/:id/alert-thresholds` behind
   `useSiteAlertThresholds` — a site's overrides of the time-based alert thresholds
   (offline grace period, connector stuck-unavailable, firmware stall;
-  charge-points-server issue #577, ADR 0031). A `null` threshold means "inherit the
+  charge-points-server issue #577, ADR 0025). A `null` threshold means "inherit the
   global default"; `update` is a partial body (omitted = untouched, `null` = clear);
   the `effective` thresholds in the `get` envelope are resolved by the backend, never
   guessed here. `SiteAlertThresholds` is the shared package's entity, seen through
