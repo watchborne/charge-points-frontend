@@ -16,6 +16,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { AlertsPanelContainer } from "./AlertsPanelContainer";
 import { CertificatesPanel } from "./CertificatesPanel";
 import { ChargePointActionsSection } from "./ChargePointActionsSection";
+import { ChargePointAlertThresholdsSection } from "./ChargePointAlertThresholdsSection";
 import { ChargePointConsumptionPanelContainer } from "./ChargePointConsumptionPanelContainer";
 import { ChargePointHeaderSection } from "./ChargePointHeaderSection";
 import { ChargePointMetadataSection } from "./ChargePointMetadataSection";
@@ -277,12 +278,16 @@ export const ChargePointDetailPanel = ({
       {tab === "sessions" && <ChargingSessionsPanelContainer chargePointId={chargePoint.id} />}
 
       {tab === "alerts" && (
-        <AlertsPanelContainer
-          chargePointId={chargePoint.id}
-          chargePointName={chargePoint.name}
-          realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
-          onToggleRealtimeAlerts={() => actions.toggleRealtimeAlerts()}
-        />
+        <>
+          <ChargePointAlertThresholdsSection chargePointId={chargePoint.id} />
+
+          <AlertsPanelContainer
+            chargePointId={chargePoint.id}
+            chargePointName={chargePoint.name}
+            realtimeAlertsEnabled={chargePoint.realtimeAlertsEnabled}
+            onToggleRealtimeAlerts={() => actions.toggleRealtimeAlerts()}
+          />
+        </>
       )}
 
       {tab === "security" && (

@@ -715,7 +715,19 @@
           "alerts": "Alerts",
           "security": "Security & history"
         },
-        "toggleError": "Failed to update this charge point. Please try again."
+        "toggleError": "Failed to update this charge point. Please try again.",
+        "alertThresholds": {
+          "title": "Alert thresholds",
+          "intro": "This charge point's own settings win over its site's, which win over the defaults.",
+          "loading": "Loading thresholds...",
+          "loadError": "Could not load this charge point's alert thresholds.",
+          "editButton": "Edit thresholds",
+          "resetButton": "Reset to site settings",
+          "dialog": {
+            "title": "Configure the alert thresholds",
+            "description": "Override when this charge point raises alerts. Empty fields use its site's setting, or the default."
+          }
+        }
       },
       "commissioning": {
         "title": "Awaiting commissioning",
