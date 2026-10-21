@@ -75,6 +75,7 @@ async function callBackend(request: NextRequest, backendPath: string): Promise<B
 export async function proxyToBackend(
   request: NextRequest,
   backendPath: string,
+  options?: { raw?: boolean },
 ): Promise<NextResponse> {
   const call = await callBackend(request, backendPath);
   if ("failure" in call) return call.failure;
@@ -89,11 +90,11 @@ export async function proxyToBackend(
 
   if (options?.raw) {
     const headers: Record<string, string> = {};
-    const contentType = backendResponse.headers.get("content-type");
+    const contentType = call.response.headers.get("content-type");
     if (contentType) headers["Content-Type"] = contentType;
-    const contentDisposition = backendResponse.headers.get("content-disposition");
+    const contentDisposition = call.response.headers.get("content-disposition");
     if (contentDisposition) headers["Content-Disposition"] = contentDisposition;
-    return new NextResponse(body, { status: backendResponse.status, headers });
+    return new NextResponse(body, { status: call.response.status, headers });
   }
 
   return new NextResponse(body, {
