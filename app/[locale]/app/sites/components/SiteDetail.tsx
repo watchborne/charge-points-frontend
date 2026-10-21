@@ -20,6 +20,7 @@ import { ChargePointWithConnectors } from "@/types/charge-point";
 import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
 import { ScheduleNextVisitDialog, ScheduleNextVisitValues } from "./ScheduleNextVisitDialog";
 import { SetSiteTariffDialog, SiteTariffFormValues } from "./SetSiteTariffDialog";
+import { SiteAlertThresholdsSection } from "./SiteAlertThresholdsSection";
 import { SiteChargePointsList } from "./SiteChargePointsList";
 import { SiteReliabilityValue } from "./SiteReliabilityValue";
 import { SiteReportExportButton } from "./SiteReportExportButton";
@@ -329,6 +330,9 @@ export const SiteDetail = ({
                 </Button>
               )}
             </section>
+
+            {/* Alert thresholds */}
+            <SiteAlertThresholdsSection siteId={site.id} className={sectionClass} />
           </div>
         </div>
       </div>
