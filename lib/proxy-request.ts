@@ -75,6 +75,7 @@ async function callBackend(request: NextRequest, backendPath: string): Promise<B
 export async function proxyToBackend(
   request: NextRequest,
   backendPath: string,
+  options?: { raw?: boolean },
 ): Promise<NextResponse> {
   const call = await callBackend(request, backendPath);
   if ("failure" in call) return call.failure;
@@ -86,6 +87,15 @@ export async function proxyToBackend(
   // forwarding the backend's empty text would turn a successful delete into a
   // 500 from the proxy.
   const body = NULL_BODY_STATUSES.has(call.response.status) ? null : await call.response.text();
+
+  if (options?.raw) {
+    const headers: Record<string, string> = {};
+    const contentType = call.response.headers.get("content-type");
+    if (contentType) headers["Content-Type"] = contentType;
+    const contentDisposition = call.response.headers.get("content-disposition");
+    if (contentDisposition) headers["Content-Disposition"] = contentDisposition;
+    return new NextResponse(body, { status: call.response.status, headers });
+  }
 
   return new NextResponse(body, {
     status: call.response.status,
