@@ -45,6 +45,7 @@ export const ChargePointMetadataSection = ({ chargePoint }: ChargePointMetadataS
         chargePointId={chargePoint.id}
         firmwareVersion={chargePoint.meta?.firmwareVersion}
         ocppVersion={chargePoint.ocppVersion}
+        disabled={!chargePoint.isActive}
       />
     </div>
   );

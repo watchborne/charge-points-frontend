@@ -74,6 +74,8 @@ type StartLogUploadDialogProps = {
   ocppVersion: ChargePoint["ocppVersion"];
   /** Refuses upfront when the station already has an upload running. */
   uploadInProgress: boolean;
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
   onStarted: () => void;
 };
 
@@ -92,6 +94,7 @@ export const StartLogUploadDialog = ({
   chargePointId,
   ocppVersion,
   uploadInProgress,
+  disabled = false,
   onStarted,
 }: StartLogUploadDialogProps) => {
   const t = useTranslations("");
@@ -140,7 +143,7 @@ export const StartLogUploadDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" disabled={uploadInProgress}>
+        <Button variant="outline" size="sm" disabled={uploadInProgress || disabled}>
           <FileDown className="mr-1.5 h-4 w-4" />
           {t("appPage.chargePoints.logUpload.start.button")}
         </Button>

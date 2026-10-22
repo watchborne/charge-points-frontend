@@ -22,6 +22,8 @@ type FirmwarePanelProps = {
   firmwareVersion: ChargePointMeta["firmwareVersion"];
   /** Gates the signed-firmware fields in the trigger dialog. */
   ocppVersion: ChargePoint["ocppVersion"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -37,6 +39,7 @@ export const FirmwarePanel = ({
   chargePointId,
   firmwareVersion,
   ocppVersion,
+  disabled = false,
 }: FirmwarePanelProps) => {
   const t = useTranslations("");
   const { formatRelative, formatDateTime } = useDateFormat();
@@ -136,6 +139,7 @@ export const FirmwarePanel = ({
                 </div>
 
                 <UpdateFirmwareDialog
+                  disabled={disabled}
                   chargePointId={chargePointId}
                   ocppVersion={ocppVersion}
                   // The backend refuses a second concurrent update (at most one

@@ -56,6 +56,8 @@ const errorMessageKey = (httpStatus: number): string => {
 type RequestDeviceReportDialogProps = {
   chargePointId: ChargePoint["id"];
   onRequested: () => void;
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -76,6 +78,7 @@ type RequestDeviceReportDialogProps = {
 export const RequestDeviceReportDialog = ({
   chargePointId,
   onRequested,
+  disabled = false,
 }: RequestDeviceReportDialogProps) => {
   const t = useTranslations("");
 
@@ -110,7 +113,7 @@ export const RequestDeviceReportDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled={disabled}>
           <ClipboardList className="mr-1.5 h-4 w-4" />
           {t("appPage.chargePoints.deviceVariableReports.request.button")}
         </Button>

@@ -16,6 +16,8 @@ type CertificatesPanelProps = {
   chargePointId: ChargePoint["id"];
   /** Gates the 2.0.1-only certificate types in the install dialog. */
   ocppVersion: ChargePoint["ocppVersion"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -30,7 +32,11 @@ type CertificatesPanelProps = {
  * dedicated WebSocket broadcast for this yet, so this does not subscribe to
  * the dashboard socket — `reload()` is a plain refetch after a write.
  */
-export const CertificatesPanel = ({ chargePointId, ocppVersion }: CertificatesPanelProps) => {
+export const CertificatesPanel = ({
+  chargePointId,
+  ocppVersion,
+  disabled = false,
+}: CertificatesPanelProps) => {
   const t = useTranslations("");
 
   const {
@@ -54,6 +60,7 @@ export const CertificatesPanel = ({ chargePointId, ocppVersion }: CertificatesPa
           {t("appPage.chargePoints.certificates.title")}
         </span>
         <InstallCertificateDialog
+          disabled={disabled}
           chargePointId={chargePointId}
           ocppVersion={ocppVersion}
           onInstalled={reload}
@@ -101,6 +108,7 @@ export const CertificatesPanel = ({ chargePointId, ocppVersion }: CertificatesPa
               </div>
 
               <DeleteCertificateDialog
+                disabled={disabled}
                 chargePointId={chargePointId}
                 certificateHashData={certificate.certificateHashData}
                 onDeleted={reload}

@@ -30,6 +30,8 @@ type DeleteCertificateDialogProps = {
   chargePointId: ChargePoint["id"];
   certificateHashData: CertificateHashData;
   onDeleted: () => void;
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -43,6 +45,7 @@ export const DeleteCertificateDialog = ({
   chargePointId,
   certificateHashData,
   onDeleted,
+  disabled = false,
 }: DeleteCertificateDialogProps) => {
   const t = useTranslations("");
 
@@ -64,7 +67,7 @@ export const DeleteCertificateDialog = ({
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled={disabled}>
           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
           {t("appPage.chargePoints.certificates.row.delete")}
         </Button>

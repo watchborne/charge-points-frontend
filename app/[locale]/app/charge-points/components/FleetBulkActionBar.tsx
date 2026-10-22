@@ -65,14 +65,20 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
     setUnlockState(IDLE);
   }, [selectionKey]);
 
+  // A deactivated charge point accepts no command (the backend answers 409),
+  // so it is left out of the batch rather than reported as a failure.
+  const actionableChargePoints = chargePoints.filter((chargePoint) => chargePoint.isActive);
+  const skippedCount = chargePoints.length - actionableChargePoints.length;
+
   const isBusy =
     resetState.status === "loading" ||
     availabilityState.status === "loading" ||
     unlockState.status === "loading";
+  const isActionDisabled = isBusy || actionableChargePoints.length === 0;
 
   const handleReset = async (type: ResetType) => {
     setResetState({ status: "loading" });
-    const results = await bulkReset(chargePoints, type);
+    const results = await bulkReset(actionableChargePoints, type);
     setResetState({
       status: "done",
       results: results.map((result): BulkResultItem => ({
@@ -88,7 +94,7 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
 
   const handleChangeAvailability = async (type: AvailabilityType) => {
     setAvailabilityState({ status: "loading" });
-    const results = await bulkChangeAvailability(chargePoints, type);
+    const results = await bulkChangeAvailability(actionableChargePoints, type);
     setAvailabilityState({
       status: "done",
       results: results.map((result): BulkResultItem => ({
@@ -104,7 +110,7 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
 
   const handleUnlockConnector = async () => {
     setUnlockState({ status: "loading" });
-    const results = await bulkUnlockConnector(chargePoints);
+    const results = await bulkUnlockConnector(actionableChargePoints);
     setUnlockState({
       status: "done",
       results: results.map((result): BulkResultItem => {
@@ -177,12 +183,12 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
         <div className="ml-auto flex flex-wrap items-stretch gap-2">
           <ActionsDropdown
             align="end"
-            disabled={isBusy}
+            disabled={isActionDisabled}
             trigger={
               <Button
                 variant="outline"
                 size="sm"
-                disabled={isBusy}
+                disabled={isActionDisabled}
                 loading={resetState.status === "loading"}
               >
                 {resetState.status !== "loading" && <RotateCcw className="h-4 w-4 mr-1.5" />}
@@ -200,12 +206,12 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
           <StatusActionDropdown
             align="end"
             currentStatus=""
-            disabled={isBusy}
+            disabled={isActionDisabled}
             trigger={
               <Button
                 variant="outline"
                 size="sm"
-                disabled={isBusy}
+                disabled={isActionDisabled}
                 loading={availabilityState.status === "loading"}
               >
                 {availabilityState.status !== "loading" && <Power className="h-4 w-4 mr-1.5" />}
@@ -229,7 +235,7 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
           <Button
             variant="outline"
             size="sm"
-            disabled={isBusy}
+            disabled={isActionDisabled}
             loading={unlockState.status === "loading"}
             onClick={() => void handleUnlockConnector()}
           >
@@ -238,6 +244,12 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
           </Button>
         </div>
       </div>
+
+      {skippedCount > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {t("appPage.chargePoints.bulkActions.inactiveSkipped", { count: skippedCount })}
+        </p>
+      )}
 
       {renderResults(resetState)}
       {renderResults(availabilityState)}

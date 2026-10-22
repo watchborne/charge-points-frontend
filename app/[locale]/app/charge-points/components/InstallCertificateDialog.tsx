@@ -57,6 +57,8 @@ type InstallCertificateDialogProps = {
   chargePointId: ChargePoint["id"];
   ocppVersion: ChargePoint["ocppVersion"];
   onInstalled: () => void;
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -71,6 +73,7 @@ export const InstallCertificateDialog = ({
   chargePointId,
   ocppVersion,
   onInstalled,
+  disabled = false,
 }: InstallCertificateDialogProps) => {
   const t = useTranslations("");
 
@@ -110,7 +113,7 @@ export const InstallCertificateDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled={disabled}>
           <ShieldPlus className="mr-1.5 h-4 w-4" />
           {t("appPage.chargePoints.certificates.install.button")}
         </Button>

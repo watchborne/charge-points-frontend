@@ -807,6 +807,7 @@
         }
       },
       "bulkActions": {
+        "inactiveSkipped": "{count, plural, one {# borne désactivée est ignorée.} other {# bornes désactivées sont ignorées.}}",
         "selectItem": "Sélectionner {name}",
         "selectedCount": "{count, plural, =0 {0 sélectionnée} =1 {1 borne sélectionnée} other {# bornes sélectionnées}}",
         "clearSelection": "Effacer la sélection",
@@ -1123,6 +1124,7 @@
         }
       },
       "actionsTab": {
+        "inactiveNotice": "Cette borne est désactivée : aucune commande ne peut lui être envoyée. Réactivez-la pour utiliser ces contrôles.",
         "groups": {
           "controls": "Contrôles de la borne",
           "messaging": "Tests de notification",

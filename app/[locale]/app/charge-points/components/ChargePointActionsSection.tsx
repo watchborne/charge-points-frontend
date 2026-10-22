@@ -29,6 +29,8 @@ const availabilitySuccessMessageKey = (status: ChangeAvailabilityOutcome & { ok:
 type ChargePointActionsSectionProps = {
   chargePointId: ChargePoint["id"];
   chargePointName: string;
+  /** A deactivated charge point accepts no command: every control is disabled. */
+  isActive: boolean;
   ocppVersion: ChargePoint["ocppVersion"];
   resetState: ResetState;
   onReset: (type: ResetType) => Promise<void>;
@@ -62,6 +64,7 @@ type ChargePointActionsSectionProps = {
 export const ChargePointActionsSection = ({
   chargePointId,
   chargePointName,
+  isActive,
   ocppVersion,
   resetState,
   onReset,
@@ -73,6 +76,13 @@ export const ChargePointActionsSection = ({
 
   return (
     <div className="flex flex-col gap-4">
+      {!isActive && (
+        <Callout
+          description={t("appPage.chargePoints.actionsTab.inactiveNotice")}
+          variant="warning"
+        />
+      )}
+
       <section className="flex flex-col gap-3 rounded-lg border p-4">
         <h4 className="text-sm font-semibold text-muted-foreground">
           {t("appPage.chargePoints.actionsTab.groups.controls")}
@@ -81,9 +91,14 @@ export const ChargePointActionsSection = ({
         <div className="flex flex-wrap items-stretch gap-2">
           <ActionsDropdown
             align="start"
-            disabled={resetState.status === "loading"}
+            disabled={resetState.status === "loading" || !isActive}
             trigger={
-              <Button variant="outline" size="sm" loading={resetState.status === "loading"}>
+              <Button
+                variant="outline"
+                size="sm"
+                loading={resetState.status === "loading"}
+                disabled={!isActive}
+              >
                 {resetState.status !== "loading" && <RotateCcw className="h-4 w-4 mr-1.5" />}
                 {t("appPage.chargePoints.reset.button")}
                 <ChevronDown className="h-3.5 w-3.5 ml-1.5" />
@@ -99,17 +114,19 @@ export const ChargePointActionsSection = ({
           <ChargePointConfigurationDialog
             chargePointId={chargePointId}
             chargePointName={chargePointName}
+            disabled={!isActive}
           />
 
           <StatusActionDropdown
             align="start"
             currentStatus=""
-            disabled={wholeChargePointAvailability.status === "loading"}
+            disabled={wholeChargePointAvailability.status === "loading" || !isActive}
             trigger={
               <Button
                 variant="outline"
                 size="sm"
                 loading={wholeChargePointAvailability.status === "loading"}
+                disabled={!isActive}
               >
                 {wholeChargePointAvailability.status !== "loading" && (
                   <Power className="h-4 w-4 mr-1.5" />
@@ -167,7 +184,7 @@ export const ChargePointActionsSection = ({
         <h4 className="text-sm font-semibold text-muted-foreground">
           {t("appPage.chargePoints.actionsTab.groups.messaging")}
         </h4>
-        <TriggerMessageControl chargePointId={chargePointId} />
+        <TriggerMessageControl chargePointId={chargePointId} disabled={!isActive} />
       </section>
 
       {ocppVersion === "2.0.1" && (
@@ -176,8 +193,8 @@ export const ChargePointActionsSection = ({
             {t("appPage.chargePoints.actionsTab.groups.displayMessages")}
           </h4>
 
-          <DisplayMessageControl chargePointId={chargePointId} />
-          <DisplayMessagesPanel chargePointId={chargePointId} />
+          <DisplayMessageControl chargePointId={chargePointId} disabled={!isActive} />
+          <DisplayMessagesPanel chargePointId={chargePointId} disabled={!isActive} />
         </section>
       )}
 

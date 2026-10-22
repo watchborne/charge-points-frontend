@@ -265,6 +265,7 @@ export const ChargePointDetailPanel = ({
         <ChargePointActionsSection
           chargePointId={chargePoint.id}
           chargePointName={chargePoint.name}
+          isActive={chargePoint.isActive}
           ocppVersion={chargePoint.ocppVersion}
           resetState={resetState}
           onReset={handleReset}
@@ -300,7 +301,10 @@ export const ChargePointDetailPanel = ({
           {chargePoint.ocppVersion === "2.0.1" && (
             <>
               <DeviceEventsPanel chargePointId={chargePoint.id} />
-              <DeviceVariableReportsPanel chargePointId={chargePoint.id} />
+              <DeviceVariableReportsPanel
+                chargePointId={chargePoint.id}
+                disabled={!chargePoint.isActive}
+              />
             </>
           )}
 
@@ -309,9 +313,17 @@ export const ChargePointDetailPanel = ({
             connectorIds={chargePoint.connectors.map((connector) => connector.connectorId)}
           />
 
-          <LogUploadPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
+          <LogUploadPanel
+            chargePointId={chargePoint.id}
+            ocppVersion={chargePoint.ocppVersion}
+            disabled={!chargePoint.isActive}
+          />
 
-          <CertificatesPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
+          <CertificatesPanel
+            chargePointId={chargePoint.id}
+            ocppVersion={chargePoint.ocppVersion}
+            disabled={!chargePoint.isActive}
+          />
         </>
       )}
 
