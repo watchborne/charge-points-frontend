@@ -106,6 +106,14 @@ app/
                            #   connector filters off the search params.
                            #   hooks/useChargePointActions.ts centralizes the action
                            #   handlers ChargePointDetailPanel and ChargePointFleetPanel share.
+                           #   A deactivated charge point (`isActive: false`) accepts no
+                           #   command (charge-points-server answers 409): the Actions tab,
+                           #   per-connector controls and the log/certificate/device-report/
+                           #   firmware/display-message dialogs take an optional `disabled`
+                           #   prop fed from `!chargePoint.isActive`, the Actions tab shows
+                           #   an `actionsTab.inactiveNotice` callout, and FleetBulkActionBar
+                           #   skips inactive stations (`bulkActions.inactiveSkipped`). A new
+                           #   control that sends a station command must honour it too.
       sites/components/    # page-scoped components: SiteFormDialog, SiteCard, SiteGrid,
                            #   SiteGridSkeleton, SiteDeletionDialog, SiteDetail (the
                            #   site detail view, rendered by the dedicated sites/[id]/page.tsx
