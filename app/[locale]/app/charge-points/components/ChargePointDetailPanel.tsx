@@ -13,6 +13,7 @@ import { useDateFormat } from "@/lib/date-format";
 import { safeLocalStorage } from "@/lib/safe-local-storage";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
+import { ActivityPanel } from "./ActivityPanel";
 import { AlertsPanelContainer } from "./AlertsPanelContainer";
 import { CertificatesPanel } from "./CertificatesPanel";
 import { ChargePointActionsSection } from "./ChargePointActionsSection";
@@ -44,7 +45,8 @@ type UnlockConnectorState =
 /** Key in the per-target availability state map for the "whole charge point" control (connectorId 0). */
 const WHOLE_CHARGE_POINT_KEY = "chargePoint";
 
-export type DetailTab = "main" | "actions" | "consumption" | "sessions" | "alerts" | "security";
+export type DetailTab =
+  "main" | "actions" | "consumption" | "sessions" | "alerts" | "security" | "activity";
 export const DETAIL_TABS: readonly DetailTab[] = [
   "main",
   "actions",
@@ -52,6 +54,7 @@ export const DETAIL_TABS: readonly DetailTab[] = [
   "sessions",
   "alerts",
   "security",
+  "activity",
 ];
 
 export const isDetailTab = (value: string): value is DetailTab =>
@@ -311,6 +314,8 @@ export const ChargePointDetailPanel = ({
           <CertificatesPanel chargePointId={chargePoint.id} ocppVersion={chargePoint.ocppVersion} />
         </>
       )}
+
+      {tab === "activity" && <ActivityPanel chargePointId={chargePoint.id} />}
     </div>
   );
 };

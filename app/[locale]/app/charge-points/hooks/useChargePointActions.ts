@@ -53,20 +53,32 @@ export function useChargePointActions({
   });
   const { mutate: update, reset: resetUpdate } = updateMutation;
 
+  // Prefix match: invalidating queryKeys.audit.all() covers both this
+  // station's Activity tab and the platform-wide /app/activity page.
+  const invalidateAudit = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
+  }, [queryClient]);
+
+  const toggleActive = useCallback(() => {
+    if (!currentChargePoint) return;
+    update({ isActive: !currentChargePoint.isActive });
+
+    queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+    invalidateAudit();
+  }, [currentChargePoint, update, queryClient, invalidateAudit]);
+
   // A failure belongs to the station it happened on, not the next one opened.
   useEffect(() => {
     resetUpdate();
   }, [chargePointId, resetUpdate]);
 
-  const toggleActive = useCallback(() => {
-    if (!currentChargePoint) return;
-    update({ isActive: !currentChargePoint.isActive });
-  }, [currentChargePoint, update]);
-
   const toggleRealtimeAlerts = useCallback(() => {
     if (!currentChargePoint) return;
     update({ realtimeAlertsEnabled: !currentChargePoint.realtimeAlertsEnabled });
-  }, [currentChargePoint, update]);
+
+    queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+    invalidateAudit();
+  }, [currentChargePoint, update, queryClient, invalidateAudit]);
 
   // reset/changeAvailability/unlockConnector are OCPP request/response
   // commands: `api.ChargePoints` already catches every failure (including a
@@ -77,27 +89,30 @@ export function useChargePointActions({
     async (type: ResetType) => {
       const outcome = await api.ChargePoints.resetChargePoint(chargePointId, type);
       queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+      invalidateAudit();
       return outcome;
     },
-    [chargePointId, queryClient],
+    [chargePointId, queryClient, invalidateAudit],
   );
 
   const changeAvailability = useCallback(
     async (connectorId: number, type: AvailabilityType) => {
       const outcome = await api.ChargePoints.changeAvailability(chargePointId, connectorId, type);
       queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+      invalidateAudit();
       return outcome;
     },
-    [chargePointId, queryClient],
+    [chargePointId, queryClient, invalidateAudit],
   );
 
   const unlockConnector = useCallback(
     async (connectorId: number) => {
       const outcome = await api.ChargePoints.unlockConnector(chargePointId, connectorId);
       queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
+      invalidateAudit();
       return outcome;
     },
-    [chargePointId, queryClient],
+    [chargePointId, queryClient, invalidateAudit],
   );
 
   return {
