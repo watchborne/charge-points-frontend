@@ -59,14 +59,13 @@ export function useChargePointActions({
     queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
   }, [queryClient]);
 
-  const toggleActive = useCallback(async () => {
+  const toggleActive = useCallback(() => {
     if (!currentChargePoint) return;
-    await api.ChargePoints.updateChargePoint(chargePointId, {
-      isActive: !currentChargePoint.isActive,
-    });
+    update({ isActive: !currentChargePoint.isActive });
+
     queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
     invalidateAudit();
-  }, [chargePointId, currentChargePoint, queryClient, invalidateAudit]);
+  }, [currentChargePoint, update, queryClient, invalidateAudit]);
 
   // A failure belongs to the station it happened on, not the next one opened.
   useEffect(() => {
