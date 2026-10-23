@@ -15,6 +15,7 @@ import { useState } from "react";
 
 import { Link, useRouter } from "@/i18n/navigation";
 import { useDateFormat } from "@/lib/date-format";
+import { centsToPrice, priceToCents, TARIFF_PRICE_DECIMALS } from "@/lib/tariff-price";
 import { ChargePointWithConnectors } from "@/types/charge-point";
 
 import { LogSiteVisitDialog, LogSiteVisitValues } from "./LogSiteVisitDialog";
@@ -84,7 +85,7 @@ export const SiteDetail = ({
   const handleSetTariff = async (values: SiteTariffFormValues) => {
     await upsertTariff({
       currency: values.currency,
-      pricePerKwhCents: Math.round(values.pricePerKwh * 100),
+      pricePerKwhCents: priceToCents(values.pricePerKwh),
     });
     setTariffDialogOpen(false);
   };
@@ -312,9 +313,11 @@ export const SiteDetail = ({
                     {t("appPage.sites.detail.tariff.currentLabel")}
                   </span>
                   <span className="font-medium">
-                    {format.number(tariff.pricePerKwhCents / 100, {
+                    {format.number(centsToPrice(tariff.pricePerKwhCents), {
                       style: "currency",
                       currency: tariff.currency,
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: TARIFF_PRICE_DECIMALS,
                     })}{" "}
                     / kWh
                   </span>
@@ -349,7 +352,7 @@ export const SiteDetail = ({
         onOpenChange={setTariffDialogOpen}
         initialValues={
           tariff
-            ? { currency: tariff.currency, pricePerKwh: tariff.pricePerKwhCents / 100 }
+            ? { currency: tariff.currency, pricePerKwh: centsToPrice(tariff.pricePerKwhCents) }
             : undefined
         }
         onSubmit={handleSetTariff}
