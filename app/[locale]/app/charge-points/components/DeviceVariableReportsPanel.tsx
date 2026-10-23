@@ -19,6 +19,8 @@ import { RequestDeviceReportDialog } from "./RequestDeviceReportDialog";
 
 type DeviceVariableReportsPanelProps = {
   chargePointId: ChargePoint["id"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /** How many recent frames the panel fetches — a glance at the latest
@@ -57,7 +59,10 @@ const attributesLabel = (entry: DeviceVariableReportEntry): string =>
  * may still report unsolicited (ADR 0014). Fetch-once and self-contained,
  * the same shape as `DeviceEventsPanel`.
  */
-export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableReportsPanelProps) => {
+export const DeviceVariableReportsPanel = ({
+  chargePointId,
+  disabled = false,
+}: DeviceVariableReportsPanelProps) => {
   const t = useTranslations("");
   const { formatRelative, formatDateTime } = useDateFormat();
 
@@ -80,6 +85,7 @@ export const DeviceVariableReportsPanel = ({ chargePointId }: DeviceVariableRepo
           {t("appPage.chargePoints.deviceVariableReports.title")}
         </h4>
         <RequestDeviceReportDialog
+          disabled={disabled}
           chargePointId={chargePointId}
           onRequested={() => void refetch()}
         />

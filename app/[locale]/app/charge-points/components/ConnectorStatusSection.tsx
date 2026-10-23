@@ -135,7 +135,7 @@ export const ConnectorStatusSection = ({
                 </div>
                 <StatusActionDropdown
                   currentStatus=""
-                  disabled={state.status === "loading"}
+                  disabled={state.status === "loading" || !chargePoint.isActive}
                   trigger={
                     <Button
                       variant="secondary"
@@ -168,6 +168,7 @@ export const ConnectorStatusSection = ({
                   variant="secondary"
                   size="sm"
                   loading={unlockState.status === "loading"}
+                  disabled={!chargePoint.isActive}
                   aria-label={t("appPage.chargePoints.unlockConnector.button")}
                   onClick={() => onUnlockConnector(connector.id, connector.connectorId)}
                 >

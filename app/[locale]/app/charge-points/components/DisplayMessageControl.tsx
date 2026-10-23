@@ -95,6 +95,8 @@ const clearErrorMessageKey = (httpStatus: number): string => {
 
 type DisplayMessageControlProps = {
   chargePointId: ChargePoint["id"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -108,7 +110,10 @@ type DisplayMessageControlProps = {
  * succeeded, the station declined the content — so success here means the
  * station's own `status` was `Accepted`, not merely a 2xx response.
  */
-export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlProps) => {
+export const DisplayMessageControl = ({
+  chargePointId,
+  disabled = false,
+}: DisplayMessageControlProps) => {
   const t = useTranslations("");
 
   const [open, setOpen] = useState(false);
@@ -151,7 +156,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
       <div className="flex items-center gap-2 flex-wrap">
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled={disabled}>
               <FileText className="mr-1.5 h-4 w-4" />
               {t("appPage.chargePoints.displayMessage.set.button")}
             </Button>
@@ -229,6 +234,7 @@ export const DisplayMessageControl = ({ chargePointId }: DisplayMessageControlPr
           variant="outline"
           size="sm"
           onClick={handleClear}
+          disabled={disabled}
           loading={clearState.status === "loading"}
         >
           {clearState.status !== "loading" && <Trash2 className="mr-1.5 h-4 w-4" />}
