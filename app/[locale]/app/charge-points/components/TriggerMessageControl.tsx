@@ -30,6 +30,8 @@ const errorMessageKey = (httpStatus: number): string => {
 
 type TriggerMessageControlProps = {
   chargePointId: ChargePoint["id"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -37,7 +39,10 @@ type TriggerMessageControlProps = {
  * "poke" to force a StatusNotification/BootNotification and re-sync live state
  * without waiting. Self-contained: dispatches via `api` directly.
  */
-export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlProps) => {
+export const TriggerMessageControl = ({
+  chargePointId,
+  disabled = false,
+}: TriggerMessageControlProps) => {
   const t = useTranslations("");
   const [state, setState] = useState<TriggerState>({ status: "idle" });
 
@@ -60,9 +65,9 @@ export const TriggerMessageControl = ({ chargePointId }: TriggerMessageControlPr
       <div className="flex flex-col gap-2">
         <ActionsDropdown
           align="start"
-          disabled={state.status === "loading"}
+          disabled={state.status === "loading" || disabled}
           trigger={
-            <Button variant="outline" size="sm" disabled={state.status === "loading"}>
+            <Button variant="outline" size="sm" disabled={state.status === "loading" || disabled}>
               {t("appPage.chargePoints.trigger.button")}
               <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
             </Button>

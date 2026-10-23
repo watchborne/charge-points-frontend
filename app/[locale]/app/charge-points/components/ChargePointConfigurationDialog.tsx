@@ -57,6 +57,8 @@ const setSuccessMessageKey = (status: string): string =>
 type ChargePointConfigurationDialogProps = {
   chargePointId: ChargePoint["id"];
   chargePointName: string;
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /**
@@ -74,6 +76,7 @@ type ChargePointConfigurationDialogProps = {
 export const ChargePointConfigurationDialog = ({
   chargePointId,
   chargePointName,
+  disabled = false,
 }: ChargePointConfigurationDialogProps) => {
   const t = useTranslations("");
   const queryClient = useQueryClient();
@@ -122,7 +125,7 @@ export const ChargePointConfigurationDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled={disabled}>
           <SlidersHorizontal className="mr-1.5 h-4 w-4" />
           {t("appPage.chargePoints.configuration.button")}
         </Button>

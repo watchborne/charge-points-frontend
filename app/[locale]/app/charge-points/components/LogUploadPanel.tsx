@@ -17,6 +17,8 @@ type LogUploadPanelProps = {
   chargePointId: ChargePoint["id"];
   /** Gates the "Security log" option in the trigger dialog. */
   ocppVersion: ChargePoint["ocppVersion"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /** How many recent uploads the history list shows — a glance at recent
@@ -38,7 +40,11 @@ const VISIBLE_HISTORY_COUNT = 5;
  * `SecurityEventsPanel` — this is self-contained and fetch-once rather than
  * subscribing to the dashboard socket.
  */
-export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelProps) => {
+export const LogUploadPanel = ({
+  chargePointId,
+  ocppVersion,
+  disabled = false,
+}: LogUploadPanelProps) => {
   const t = useTranslations("");
   const { formatRelative, formatDateTime } = useDateFormat();
 
@@ -80,6 +86,7 @@ export const LogUploadPanel = ({ chargePointId, ocppVersion }: LogUploadPanelPro
           {t("appPage.chargePoints.logUpload.title")}
         </span>
         <StartLogUploadDialog
+          disabled={disabled}
           chargePointId={chargePointId}
           ocppVersion={ocppVersion}
           // The backend refuses a second concurrent upload (at most one

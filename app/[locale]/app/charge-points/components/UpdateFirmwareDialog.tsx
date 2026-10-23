@@ -69,6 +69,8 @@ type UpdateFirmwareDialogProps = {
   ocppVersion: ChargePoint["ocppVersion"];
   /** Refuses upfront when the station already has an update running. */
   updateInProgress: boolean;
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
   onStarted: () => void;
 };
 
@@ -84,6 +86,7 @@ export const UpdateFirmwareDialog = ({
   chargePointId,
   ocppVersion,
   updateInProgress,
+  disabled = false,
   onStarted,
 }: UpdateFirmwareDialogProps) => {
   const t = useTranslations("");
@@ -145,7 +148,7 @@ export const UpdateFirmwareDialog = ({
         <Button
           variant="outline"
           size="sm"
-          disabled={updateInProgress}
+          disabled={updateInProgress || disabled}
           aria-label={t("appPage.chargePoints.firmware.update.button")}
         >
           <Upload className="h-4 w-4" />

@@ -14,6 +14,8 @@ import type { ChargePoint } from "@/types/charge-point";
 
 type DisplayMessagesPanelProps = {
   chargePointId: ChargePoint["id"];
+  /** The charge point is deactivated: no command may be sent to it. */
+  disabled?: boolean;
 };
 
 /** How many recent frames the panel fetches — a glance at the latest
@@ -63,7 +65,10 @@ const errorMessageKey = (httpStatus: number): string => {
  * frames, picked up on the panel's next fetch. 2.0.1 only: this panel only
  * ever renders inside a 2.0.1-gated section.
  */
-export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProps) => {
+export const DisplayMessagesPanel = ({
+  chargePointId,
+  disabled = false,
+}: DisplayMessagesPanelProps) => {
   const t = useTranslations("");
   const { formatRelative, formatDateTime } = useDateFormat();
 
@@ -94,7 +99,13 @@ export const DisplayMessagesPanel = ({ chargePointId }: DisplayMessagesPanelProp
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold">{t("appPage.chargePoints.displayMessages.title")}</h4>
-        <Button variant="outline" size="sm" onClick={() => requestRefresh()} loading={refreshing}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => requestRefresh()}
+          loading={refreshing}
+          disabled={disabled}
+        >
           {!refreshing && <RefreshCw className="mr-1.5 h-4 w-4" />}
           {t("appPage.chargePoints.displayMessages.refresh")}
         </Button>
