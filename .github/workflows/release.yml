@@ -4,8 +4,9 @@ name: Release
 # deploy that commit to production. Mirrors watchborne/charge-points-server's
 # release.yml: the release version is the short commit SHA (no semver input,
 # no separate git tag push — `gh release create --target <sha>` cuts the tag
-# itself), and release notes come from GitHub's own --generate-notes (merged
-# PRs since the last release) instead of conventional-changelog.
+# itself), and release notes come from GitHub's own generate-notes API (merged
+# PRs since the last release, PR URLs rewritten to `[#N](url)` links) instead
+# of conventional-changelog.
 on:
   workflow_dispatch: {}
 
@@ -43,8 +44,17 @@ jobs:
       - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.setup.outputs.version }}
+          SHA: ${{ github.sha }}
+        # `gh release create --generate-notes` leaves each PR as a bare URL, which
+        # GitHub does not always shorten to `#123` when rendering the release page.
+        # Generate the notes ourselves and turn every PR URL into an explicit
+        # `[#123](url)` link so the page reads the same everywhere.
         run: |
-          gh release create ${{ needs.setup.outputs.version }} --target ${{ github.sha }} --latest --title ${{ needs.setup.outputs.version }} --generate-notes
+          NOTES=$(gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+            -f tag_name="$VERSION" -f target_commitish="$SHA" --jq .body)
+          NOTES=$(printf '%s\n' "$NOTES" | sed -E "s|https://github\.com/${GITHUB_REPOSITORY}/pull/([0-9]+)|[#\1](&)|g")
+          gh release create "$VERSION" --target "$SHA" --latest --title "$VERSION" --notes "$NOTES"
 
   deploy:
     needs:
