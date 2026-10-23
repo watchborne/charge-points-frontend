@@ -44,7 +44,7 @@ type SetSiteTariffDialogProps = {
  * (charge-points-server issue #580) — not historized, so this always
  * replaces the rate used for cost estimates from now on. `pricePerKwh` is
  * entered in the tariff's own currency unit (e.g. euros), converted to
- * integer cents by the caller before hitting the API.
+ * cents (to 1/100 of a cent, 4 decimals of the unit) by the caller before hitting the API.
  */
 export const SetSiteTariffDialog = ({
   open,
@@ -102,7 +102,7 @@ export const SetSiteTariffDialog = ({
                   <FormControl>
                     <Input
                       type="number"
-                      step="0.01"
+                      step="0.0001"
                       min="0"
                       {...field}
                       value={field.value as number}
