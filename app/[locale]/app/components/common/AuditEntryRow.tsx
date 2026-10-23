@@ -2,8 +2,8 @@
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@watchborne/electrons";
 import classNames from "classnames";
-import { format } from "date-fns";
-import { enGB } from "date-fns/locale";
+import { format } from "date-fns/format";
+import { enGB } from "date-fns/locale/en-GB";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
