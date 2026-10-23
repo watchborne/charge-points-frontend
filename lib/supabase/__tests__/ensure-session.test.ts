@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock the external @supabase/ssr (a bare specifier — reliably intercepted,
-// unlike an aliased path to one of our own modules). The real
-// lib/supabase/client and ensure-session run against it, so the deduplication
-// and the failure handling are exercised for real; `getSession` is controlled
-// per test.
+// @supabase/ssr is mocked; the real client and ensure-session run against it.
 const { createBrowserClient, getSession } = vi.hoisted(() => {
   const getSession = vi.fn();
   return {
@@ -45,7 +41,7 @@ describe("ensureFreshSession", () => {
     await all;
 
     // The whole point: three parallel API calls must not become three
-    // concurrent refreshes of the same rotating refresh token (issue #349).
+    // concurrent refreshes of the same rotating refresh token.
     expect(getSession).toHaveBeenCalledTimes(1);
   });
 
@@ -75,9 +71,8 @@ describe("ensureFreshSession", () => {
     });
     const { ensureFreshSession } = await import("../ensure-session");
 
-    // createBrowserClient() throws synchronously when the Supabase env vars
-    // are unset; the client is constructed inside the promise chain so that
-    // surfaces as a swallowed refresh failure, not a rejected API call.
+    // createBrowserClient() throws when the env vars are unset; that must be
+    // a swallowed refresh failure.
     await expect(ensureFreshSession()).resolves.toBeUndefined();
   });
 

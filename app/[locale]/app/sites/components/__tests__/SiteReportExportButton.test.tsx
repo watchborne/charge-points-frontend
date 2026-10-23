@@ -9,13 +9,8 @@ vi.mock("next-intl", () => ({
   useLocale: () => localeMock.current,
 }));
 
-// `vi.hoisted` because vi.mock factories are hoisted above these
-// declarations — the repo's existing pattern (see SiteReliabilityValue.test.tsx).
 const { downloadReportMock } = vi.hoisted(() => ({ downloadReportMock: vi.fn() }));
 
-// Mocked via the relative module path, not the "@/lib/api" alias — this
-// project's Vitest config does not alias "@/" for the mock resolver (see
-// useFleetReliability.test.ts's identical note).
 vi.mock("../../../../../../lib/api", () => ({
   api: { Sites: { downloadReport: downloadReportMock } },
 }));

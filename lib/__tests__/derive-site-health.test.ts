@@ -21,9 +21,7 @@ const chargePoint = (
 
 const connector = (id: string, status: string) => ({ connectorId: id, status }) as never;
 
-// Ported from charge-points-server's compute-site-health.test.ts — this file
-// is a direct port of that logic (see derive-site-health.ts), so it should
-// pass the same cases.
+// The same cases as the backend's compute-site-health.test.ts.
 describe("deriveSiteHealth", () => {
   it("SHOULD return HEALTHY with every count at 0 WHEN the site has no charge points", () => {
     const health = deriveSiteHealth(SITE, []);

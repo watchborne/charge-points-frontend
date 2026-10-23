@@ -10,9 +10,7 @@ import {
   type WebSocketMessage,
 } from "../useWebSocketContext";
 
-// The underlying connection (useWebSocket / ws-manager) is covered by its own test
-// files, so it is mocked here to isolate useWebSocketData's own logic: gating on
-// `enabled`, parsing incoming messages, capping history, and clearMessages.
+// The connection has its own tests: mocked to isolate useWebSocketData.
 const { useWebSocket } = vi.hoisted(() => ({ useWebSocket: vi.fn() }));
 
 vi.mock("../useWebSocket", () => ({ useWebSocket }));

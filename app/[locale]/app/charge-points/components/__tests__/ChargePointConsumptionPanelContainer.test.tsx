@@ -7,9 +7,8 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// Recharts renders into a ResponsiveContainer that measures 0x0 under jsdom, so
-// the SVG never appears. Stubbed to a marker carrying the props this panel is
-// responsible for choosing — which connectors are charted, and in which unit.
+// Recharts measures 0x0 under jsdom: stubbed to a marker carrying the props
+// this panel chooses (charted connectors, unit).
 vi.mock("../ConsumptionChart", () => ({
   CHARTABLE_CONNECTORS: 3,
   ConsumptionChart: ({

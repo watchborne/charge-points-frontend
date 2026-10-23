@@ -11,10 +11,6 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// Relative path, not the "@/" alias: this project's Vitest config does not
-// alias "@/" for the mock resolver, so an aliased vi.mock target silently
-// fails to intercept (see dashboard/__tests__/page.test.tsx for the same
-// convention) — and this test actually asserts on the navigation call.
 vi.mock("../../../../../../i18n/navigation", () => ({
   useRouter: () => ({ push }),
 }));

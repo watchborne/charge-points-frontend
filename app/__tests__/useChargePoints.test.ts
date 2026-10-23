@@ -8,7 +8,6 @@ import { api } from "../../lib/api";
 import { useChargePoints } from "../[locale]/app/hooks/useChargePoints";
 import { useWebSocketContext } from "../[locale]/app/hooks/useWebSocketContext";
 
-// Mock the api module
 vi.mock("../../lib/api", () => ({
   api: {
     ChargePoints: {
@@ -20,7 +19,6 @@ vi.mock("../../lib/api", () => ({
   },
 }));
 
-// Mock useWebSocketContext
 vi.mock("../[locale]/app/hooks/useWebSocketContext", () => ({
   useWebSocketContext: vi.fn(() => ({
     lastMessage: null,
@@ -112,10 +110,8 @@ describe("useChargePoints", () => {
 
     const { result } = renderUseChargePoints();
 
-    // Initially loading
     expect(result.current.loading).toBe(true);
 
-    // Resolve the promise
     await act(async () => {
       resolvePromise(mockChargePoints);
       await pendingPromise;

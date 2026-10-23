@@ -3,29 +3,18 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// This hook is genuinely fiddly to test in jsdom: none of
-// serviceWorker/PushManager/Notification/PushSubscription exist there by
-// default, so every browser API this hook touches is hand-stubbed below —
-// real PushManager/service-worker behavior (actual subscribe network
-// round-trips, pushsubscriptionchange delivery, browser-side permission UI)
-// is out of reach here and isn't covered by this suite.
+// None of serviceWorker/PushManager/Notification exist in jsdom: every browser
+// API is stubbed, so real subscription round trips aren't covered here.
 const { subscribeApi, unsubscribeApi } = vi.hoisted(() => ({
   subscribeApi: vi.fn(),
   unsubscribeApi: vi.fn(),
 }));
 
-// Relative paths, not the "@/..." alias, matching app/__tests__/useSites.test.ts's
-// own vi.mock("../../lib/api", ...) — mocking these two by path alone (an
-// alternative, equally-valid repo convention is the alias form used by e.g.
-// app/auth/components/__tests__/LogoutButton.test.tsx's
-// vi.mock("@/i18n/navigation", ...)).
 vi.mock("../../../../../lib/api", () => ({
   api: { PushSubscriptions: { subscribe: subscribeApi, unsubscribe: unsubscribeApi } },
 }));
 
-// A fixed, valid-looking base64url string — its actual bytes never matter,
-// only that urlBase64ToUint8Array() (given real base64url input) doesn't
-// throw and that the resulting Uint8Array reaches pushManager.subscribe.
+// Any valid base64url string: only that the conversion succeeds matters.
 vi.mock("../../../../../lib/constants", () => ({
   VAPID_PUBLIC_KEY: "dGVzdC12YXBpZC1rZXk",
 }));
@@ -43,10 +32,7 @@ function renderUsePushSubscription() {
 const mockGetRegistration = vi.fn();
 const mockRegister = vi.fn();
 const mockRequestPermission = vi.fn();
-// `.ready` is what getOrRegisterServiceWorker actually awaits to get an
-// active worker — register()'s own resolved value is never used directly
-// (see usePushSubscription.ts's comment on why), so tests assert against
-// what `ready` resolves to, not what `register` resolves to.
+// The hook awaits `.ready` for the active worker, not `register()`'s value.
 const mockReady = vi.fn();
 
 function stubSupportedBrowser() {
@@ -200,9 +186,7 @@ describe("subscribe", () => {
   });
 
   it("SHOULD log an error, resolve to null, and do nothing browser-side WHEN the VAPID key is not set", async () => {
-    // Isolated per-test module graph: lib/constants is mocked with an empty
-    // key here only, so it can't leak into the "granted"-path tests above via
-    // a shared static vi.mock factory.
+    // Isolated module graph: the empty-key constants mock must not leak.
     vi.resetModules();
     vi.doMock("../../../../../lib/constants", () => ({ VAPID_PUBLIC_KEY: "" }));
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
@@ -245,8 +229,7 @@ describe("unsubscribe", () => {
 
     const { result } = renderUsePushSubscription();
 
-    // Let the on-mount isSubscribed check settle first, so it can't race
-    // with (and overwrite) the state unsubscribe() sets below.
+    // Let the mount-time isSubscribed check settle first.
     await waitFor(() => expect(result.current.isSubscribed).toBe(true));
 
     await act(async () => {
@@ -344,12 +327,8 @@ describe("isSubscribed (on-mount check)", () => {
   });
 });
 
-// A promise this test controls the settling of, so a mutation can be held
-// genuinely in flight for an assertion rather than racing its own mocked
-// dependencies — every mock in this file resolves on the next microtask, so
-// an entire mutationFn (several awaits deep) can complete before a
-// macrotask-polling waitFor() ever gets to observe the pending state in
-// between, and did (that's the failure this replaced).
+// A promise settled by the test, to hold a mutation in flight: the mocks
+// resolve on the next microtask, faster than waitFor polls.
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((res) => {
@@ -367,8 +346,7 @@ describe("isPending", () => {
     registration.pushManager.subscribe.mockResolvedValue({
       toJSON: () => ({ endpoint: "https://push.example/abc", keys: { p256dh: "a", auth: "b" } }),
     });
-    // Held open deliberately: this is the mutation's last awaited step, so
-    // isPending stays true for as long as this promise is unresolved.
+    // Held open on the mutation's last await, so isPending stays true.
     const { promise: apiCall, resolve: resolveApiCall } = deferred<{
       endpoint: string;
       createdAt: string;
@@ -405,8 +383,7 @@ describe("isPending", () => {
     const { result } = renderUsePushSubscription();
     await waitFor(() => expect(mockGetRegistration).toHaveBeenCalled());
 
-    // Same reasoning as the subscribe case above: held open on the
-    // mutation's last awaited step.
+    // Held open, as above.
     const { promise: apiCall, resolve: resolveApiCall } = deferred<void>();
     unsubscribeApi.mockReturnValue(apiCall);
 

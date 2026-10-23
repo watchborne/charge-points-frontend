@@ -4,9 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WebSocketStatus } from "../../ws/ws-manager";
 import { useWebSocket } from "../useWebSocket";
 
-// The manager singleton itself is covered by app/app/ws/__tests__/ws-manager.test.ts,
-// so here getWebSocketManager is mocked to isolate the hook's own wiring: memoizing
-// the manager per url, subscribing/unsubscribing, and delegating sendMessage/reconnect.
+// The manager has its own tests: mocked to isolate the hook's wiring.
 type Listener = (state: {
   status: WebSocketStatus;
   lastMessage: MessageEvent | null;

@@ -77,10 +77,8 @@ describe("SiteHealthSection", () => {
       />,
     );
 
-    // Paris (id "1") has a matching health entry and renders — in both the
-    // watchlist and the full list, since it's CRITICAL. Lyon (id "2") has no
-    // health entry and is dropped; the health entry for the unknown site "3"
-    // is dropped too.
+    // Paris (matched, CRITICAL) shows in the watchlist and the list; Lyon (no
+    // health) and the unknown site "3" are dropped.
     expect(screen.getAllByText("Paris").length).toBeGreaterThan(0);
     expect(screen.queryByText("Lyon")).toBeNull();
   });

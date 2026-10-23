@@ -35,20 +35,12 @@ vi.mock("next-intl", () => ({
   useTranslations: () => translate,
 }));
 
-// Relative target, not the "@/" alias: this project's Vitest config does not
-// alias "@/" for the mock resolver, so an aliased vi.mock target silently
-// fails to intercept (see CommissioningTokenPanel.test.tsx for the same
-// convention).
 vi.mock("../../../../components/ThemeProvider", () => ({ useTheme }));
 vi.mock("../../../../../lib/supabase/client", () => ({ createClient }));
 vi.mock("../../../../../lib/pwa-install", () => ({ isIosDevice, isStandaloneDisplayMode }));
 vi.mock("../../hooks/usePushSubscription", () => ({ usePushSubscription }));
 vi.mock("sonner", () => ({ toast: { warning: toastWarning, error: toastError } }));
 
-// A relative path is required here (not the usual "@/lib/api" alias): test
-// files are excluded from tsconfig.json, and vite-tsconfig-paths only
-// resolves "@/*" aliases for files it considers part of the project (see
-// CommissioningTokenPanel.test.tsx for the same convention).
 import { api } from "../../../../../lib/api";
 import ProfilePage from "../page";
 

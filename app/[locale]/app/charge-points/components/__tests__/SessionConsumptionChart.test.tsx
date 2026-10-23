@@ -6,10 +6,8 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// Recharts renders into a ResponsiveContainer that measures 0x0 under jsdom, so
-// the SVG never appears — stubbed to a marker carrying the props this
-// component is responsible for choosing, same pattern as
-// ChargePointConsumptionPanelContainer.test.tsx.
+// Recharts measures 0x0 under jsdom: stubbed to a marker carrying the props
+// this component chooses.
 vi.mock("../ConsumptionChart", () => ({
   ConsumptionChart: ({
     connectorIds,

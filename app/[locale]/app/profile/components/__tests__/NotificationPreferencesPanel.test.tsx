@@ -12,10 +12,6 @@ vi.mock("next-intl", () => ({
   useTranslations: () => translate,
 }));
 
-// A relative path is required here (not the usual "@/lib/api" alias): test
-// files are excluded from tsconfig.json, and vite-tsconfig-paths only
-// resolves "@/*" aliases for files it considers part of the project (see
-// CommissioningTokenPanel.test.tsx for the same convention).
 import { api } from "../../../../../../lib/api";
 import { NotificationPreferencesPanel } from "../NotificationPreferencesPanel";
 

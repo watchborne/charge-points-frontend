@@ -2,10 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// public/manifest.json + its icons (#403) are static assets with no build-time
-// check tying them together — a typo'd icon filename would only ever surface
-// as a silently-missing home-screen icon on a real device. This pins the one
-// thing that can drift: every icon the manifest lists actually exists.
+// Nothing checks the manifest's icons at build time: every listed icon must
+// exist.
 describe("public/manifest.json", () => {
   const manifestPath = join(process.cwd(), "public", "manifest.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));

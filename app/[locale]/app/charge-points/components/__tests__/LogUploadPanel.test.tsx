@@ -7,17 +7,11 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// `vi.hoisted` because vi.mock factories are hoisted above these declarations —
-// the repo's existing pattern (see FirmwarePanel.test.tsx).
 const { getLogUpload, listLogUploads } = vi.hoisted(() => ({
   getLogUpload: vi.fn(),
   listLogUploads: vi.fn(),
 }));
 
-// Mocked via the relative module path, not the "@/lib/api" alias: this project's
-// Vitest config does not alias "@/" for the mock resolver, so an aliased target
-// silently fails to intercept and the real fetch runs. Repo convention — see
-// FirmwarePanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getLogUpload, listLogUploads } },
 }));
@@ -183,9 +177,7 @@ describe("LogUploadPanel", () => {
     const trigger = (
       await screen.findByText("appPage.chargePoints.logUpload.start.button")
     ).closest("button");
-    // The trigger starts enabled (no upload known yet) and only picks up
-    // `uploadInProgress` once the query resolves — wait for that update
-    // rather than asserting on the pre-fetch default.
+    // Disabled only once the query resolves: wait for it.
     await waitFor(() => expect(trigger?.hasAttribute("disabled")).toBe(true));
   });
 

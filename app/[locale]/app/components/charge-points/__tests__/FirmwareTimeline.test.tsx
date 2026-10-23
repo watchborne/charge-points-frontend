@@ -66,9 +66,7 @@ describe("derivePhaseStates", () => {
   });
 
   it("SHOULD NOT walk backwards WHEN the terminal Installed follows InstallRebooting", () => {
-    // The crux: `firmwareStatusPhase` is not monotonic — Installed reports on
-    // INSTALL yet arrives after an InstallRebooting. Reading the latest step
-    // alone would show REBOOT regressing to pending.
+    // Not monotonic: Installed reports INSTALL after InstallRebooting.
     const states = derivePhaseStates(
       buildUpdate({
         steps: stepsFor("Downloading", "Installing", "InstallRebooting", "Installed"),
@@ -99,9 +97,7 @@ describe("derivePhaseStates", () => {
   });
 
   it("SHOULD mark unreported phases skipped rather than pending WHEN the update is finished", () => {
-    // An unsigned image never goes through SIGNATURE, and a 1.6 station never
-    // reports a reboot — showing those as "still to come" on a finished update
-    // would be wrong.
+    // Unsigned images skip SIGNATURE; 1.6 never reports a reboot.
     const states = derivePhaseStates(
       buildUpdate({
         steps: stepsFor("Downloading", "Downloaded", "Installing", "Installed"),

@@ -1,9 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-// `vi.hoisted` + the *relative* module path (not the "@/lib/api" alias): this
-// project's Vitest config does not alias "@/" for the mock resolver, so an
-// aliased target silently fails to intercept and the real fetch runs.
 const { startLogUpload } = vi.hoisted(() => ({ startLogUpload: vi.fn() }));
 
 vi.mock("../../../../../../lib/api", () => ({
@@ -121,7 +118,7 @@ describe("StartLogUploadDialog", () => {
     openDialog();
     openLogTypeSelect();
 
-    // 1.6 has no logType concept at all, so offering it would be a lie.
+    // 1.6 has no log type.
     expect(screen.queryByText("appPage.chargePoints.logUpload.logTypes.SecurityLog")).toBeNull();
     expect(
       screen.getByText("appPage.chargePoints.logUpload.start.unsupportedSecurityLog"),
@@ -169,9 +166,7 @@ describe("StartLogUploadDialog", () => {
   });
 
   it("SHOULD say 'requested' rather than 'accepted' WHEN the station reported no status", async () => {
-    // A 1.6 station acknowledges the frame and nothing more (its GetDiagnostics.conf
-    // carries no accept/reject vocabulary), so claiming it accepted would assert
-    // something it never said.
+    // A 1.6 station only acknowledges: not "accepted".
     startLogUpload.mockResolvedValue({ ok: true, status: null, upload: {} });
 
     renderDialog({ ocppVersion: "1.6" });

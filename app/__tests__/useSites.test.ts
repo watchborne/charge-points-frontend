@@ -64,11 +64,9 @@ describe("useSites", () => {
 
     const { result } = renderUseSites();
 
-    // Initially loading
     expect(result.current.loading).toBe(true);
     expect(result.current.sites).toEqual([]);
 
-    // Resolve the promise
     await act(async () => {
       resolvePromise(mockSites);
       await pendingPromise;

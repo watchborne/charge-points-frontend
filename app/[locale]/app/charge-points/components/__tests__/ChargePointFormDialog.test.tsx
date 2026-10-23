@@ -22,9 +22,7 @@ describe("ChargePointFormDialog", () => {
       />,
     );
 
-    // ADR 0010 (charge-points-server): renaming used to be locked outside
-    // create mode because `name` doubled as the OCPP reconnection key. It no
-    // longer does, so the field must stay editable here.
+    // `name` is not the OCPP reconnection key, so it stays editable.
     expect(screen.getByLabelText("appPage.chargePoints.form.fields.name")).toHaveProperty(
       "disabled",
       false,

@@ -123,9 +123,7 @@ describe("StatusHistoryPanelContainer", () => {
       ).toBeDefined(),
     );
 
-    // Radix Tabs' default "automatic" activation switches on focus, not
-    // click — jsdom doesn't move focus as a side effect of a synthetic
-    // click the way a real browser does, so it's driven explicitly here.
+    // Radix tabs activate on focus, which jsdom doesn't move on click.
     const tab30d = screen.getByRole("tab", {
       name: "appPage.chargePoints.statusHistory.ranges.30d",
     }) as HTMLElement;
