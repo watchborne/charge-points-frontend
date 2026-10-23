@@ -34,6 +34,11 @@ export default defineConfig({
             ],
           ]
         : ["tree"],
+    // One jsdom + one module cache per worker instead of per file: environment and
+    // import setup were ~75% of the unit run. Workers are recycled past the memory
+    // limit so the shared VM contexts cannot grow without bound as tests are added.
+    pool: "vmThreads",
+    vmMemoryLimit: "512MB",
     setupFiles: ["./vitest.setup.ts"],
     exclude: ["**/node_modules/**", "**/dist/**"],
     projects: [
