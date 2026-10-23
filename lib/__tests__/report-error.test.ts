@@ -39,4 +39,26 @@ describe("reportError", () => {
     expect(spy).not.toHaveBeenCalled();
     expect(captureException).toHaveBeenCalled();
   });
+
+  // An API failure is reported by withErrorLogging, then again by the query
+  // hook that receives the same rethrown error.
+  it("SHOULD send an error object once WHEN it is reported twice", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const error = new Error("boom");
+
+    reportError(error, "Sites.getSites");
+    reportError(error, "useSites.load");
+
+    expect(captureException).toHaveBeenCalledTimes(1);
+    expect(captureException).toHaveBeenCalledWith(error, { tags: { context: "Sites.getSites" } });
+  });
+
+  it("SHOULD send each report WHEN the error is not an object", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    reportError("oops", "ctx");
+    reportError("oops", "ctx");
+
+    expect(captureException).toHaveBeenCalledTimes(2);
+  });
 });
