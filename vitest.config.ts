@@ -34,6 +34,7 @@ export default defineConfig({
             ],
           ]
         : ["tree"],
+    setupFiles: ["./vitest.setup.ts"],
     exclude: ["**/node_modules/**", "**/dist/**"],
     projects: [
       {
