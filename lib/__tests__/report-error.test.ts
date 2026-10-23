@@ -4,7 +4,8 @@ const { captureException } = vi.hoisted(() => ({ captureException: vi.fn() }));
 
 vi.mock("@sentry/nextjs", () => ({ captureException }));
 
-import { reportError } from "../report-error";
+import { HttpError } from "../http-error";
+import { isReportableError, reportError } from "../report-error";
 
 describe("reportError", () => {
   afterEach(() => {
@@ -60,5 +61,19 @@ describe("reportError", () => {
     reportError("oops", "ctx");
 
     expect(captureException).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("isReportableError", () => {
+  it("SHOULD be true WHEN the error is a network error", () => {
+    expect(isReportableError(new TypeError("Failed to fetch"))).toBe(true);
+  });
+
+  it("SHOULD be true WHEN the server answered 5xx", () => {
+    expect(isReportableError(new HttpError(503, null))).toBe(true);
+  });
+
+  it("SHOULD be false WHEN the server answered 4xx", () => {
+    expect(isReportableError(new HttpError(429, { code: "RATE_LIMITED" }))).toBe(false);
   });
 });

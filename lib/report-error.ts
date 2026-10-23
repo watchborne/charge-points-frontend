@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 
+import { HttpError } from "./http-error";
+
 // An error rethrown by `withErrorLogging` reaches a query hook's
 // `useReportQueryError` as the same object: it is sent to Sentry once.
 const reported = new WeakSet<object>();
@@ -20,3 +22,11 @@ export const reportError = (error: unknown, context: string): void => {
     console.error(`[${context}]`, error);
   }
 };
+
+/**
+ * Whether a caught API failure is worth reporting: a server error (5xx) or a
+ * network error is; a 4xx is an answer the caller handles (validation,
+ * conflict, inactive charge point, rate limit, expired session).
+ */
+export const isReportableError = (error: unknown): boolean =>
+  !(error instanceof HttpError && error.status < 500);

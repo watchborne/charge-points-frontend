@@ -1,11 +1,4 @@
-import { HttpError } from "./http-error";
-import { reportError } from "./report-error";
-
-// A 4xx is an answer the caller handles (validation, conflict, inactive charge
-// point, expired session), not a failure to monitor: only 5xx and network
-// errors are reported.
-const isReportable = (error: unknown): boolean =>
-  !(error instanceof HttpError && error.status < 500);
+import { isReportableError, reportError } from "./report-error";
 
 /** Runs an async API call, reporting a server or network failure before rethrowing it. */
 export async function withErrorLogging<T>(
@@ -15,7 +8,7 @@ export async function withErrorLogging<T>(
   try {
     return await operation();
   } catch (error) {
-    if (isReportable(error)) reportError(error, context);
+    if (isReportableError(error)) reportError(error, context);
     throw error;
   }
 }

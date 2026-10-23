@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const { reportError } = vi.hoisted(() => ({ reportError: vi.fn() }));
 
-vi.mock("../report-error", () => ({ reportError }));
+vi.mock("../report-error", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../report-error")>()),
+  reportError,
+}));
 
 import { withErrorLogging, withErrorLoggingAsync } from "../api-error-wrapper";
 import { HttpError } from "../http-error";
