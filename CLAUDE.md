@@ -697,9 +697,18 @@ run tests the merge ref, and no deploy chains off main (production is
 `workflow_dispatch`, previews are comment-triggered), so it depends on branch
 protection's "Require branches to be up to date before merging" staying ON.
 
-`.github/workflows/update-types-dependency.yml` listens for a `types-released`
-`repository_dispatch` event from `charge-points-types` and opens an automated PR
-bumping the `@watchborne/charge-points-types` version in `package.json`.
+`@watchborne/charge-points-types` and `@watchborne/electrons` are bumped by
+**Dependabot**: `.github/dependabot.yml` groups both under `internal-types`, so a
+release of either reaches `package.json` through that group's weekly PR. Neither
+package's release workflow notifies this repository.
+`.github/workflows/update-types-dependency.yml` and
+`update-electrons-dependency.yml` open the same bump PR for a given version on a
+manual run (**Actions → Run workflow**), when a release is needed here before
+Dependabot's next run; their `repository_dispatch` triggers receive no event.
+
+Dependabot's groups take minor and patch bumps only, so a major opens its own
+PR, and TypeScript, Vitest and Tailwind majors are ignored: they are planned
+migrations, bumped by hand.
 
 ## Environment
 
