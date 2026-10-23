@@ -8,15 +8,10 @@ import { SiteHealthWatchlist } from "./SiteHealthWatchlist";
 export type SiteWithHealth = { site: Site; health: SiteHealth };
 
 /**
- * The dashboard's site-health section: a global breakdown, a "watch these
- * first" shortlist, and the full per-site list — replaces the single
- * fleet-wide tile this used to be.
- *
- * Joins `sitesHealth` (derived client-side from `chargePoints` — see
- * `lib/derive-site-health.ts`) against `sites` (already fetched for the
- * dashboard) by `siteId` — `SiteHealth` carries no site name of its own on
- * purpose (see `charge-points-types`). An entry with no match on either side
- * is dropped rather than shown half-filled.
+ * The dashboard's site health: a global breakdown, a "watch these first"
+ * shortlist and the per-site list. Joins `sitesHealth` (derived from
+ * `chargePoints`) to `sites` by `siteId`, since `SiteHealth` carries no name;
+ * an entry with no match on either side is dropped.
  */
 export const SiteHealthSection = ({
   sites,

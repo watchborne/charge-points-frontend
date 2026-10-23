@@ -1,12 +1,9 @@
 import { useCallback, useLayoutEffect, useRef } from "react";
 
 /**
- * FLIP-style reorder animation: registered items whose on-screen position
- * changed since the previous render glide from their old position to the new
- * one via the Web Animations API. Positions are keyed by a stable id, so the
- * animation survives items being remounted under a different parent (e.g.
- * moving between groups). No-ops when the browser doesn't support WAAPI or
- * the user prefers reduced motion.
+ * FLIP reorder animation: items whose position changed glide to the new one
+ * (Web Animations API). Keyed by a stable id, so it survives remounting under
+ * another parent. No-op without WAAPI or with reduced motion.
  */
 export const useFlipReorder = () => {
   const itemsRef = useRef(new Map<string, HTMLElement>());

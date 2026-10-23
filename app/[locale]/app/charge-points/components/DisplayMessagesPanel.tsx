@@ -18,15 +18,12 @@ type DisplayMessagesPanelProps = {
   disabled?: boolean;
 };
 
-/** How many recent frames the panel fetches — a glance at the latest
- * messages, not a full audit log, the same cap `DeviceVariableReportsPanel`/
- * `SecurityEventsPanel` use. */
+/** Recent frames only. */
 const VISIBLE_REPORT_COUNT = 5;
 
 type FlatEntry = DisplayMessageInfo & { reportId: string; createdAt: string };
 
-/** Flattens each report's `messageInfo[]` into one row per message, since a
- * frame can bundle several messages together. */
+/** One row per message: a frame can bundle several. */
 const flattenReports = (reports: DisplayMessageReport[]): FlatEntry[] =>
   reports.flatMap((report) =>
     report.messageInfo.map((info) => ({
@@ -54,16 +51,10 @@ const errorMessageKey = (httpStatus: number): string => {
 };
 
 /**
- * A charge point's `NotifyDisplayMessages` history (charge-points-server
- * issue #536, same ADR 0014 shape as `DeviceVariableReportsPanel`) — every
- * display message the station has reported. The single "Refresh" action
- * always asks for the full set (OCPP `GetDisplayMessages`, unfiltered): this
- * panel exists to answer "what is this station showing right now," not to
- * slice through messages by id/priority/state, so there is no filter UI —
- * every request is unfiltered, on purpose. Acknowledgment-only round trip —
- * the actual messages arrive later as one or more `NotifyDisplayMessages`
- * frames, picked up on the panel's next fetch. 2.0.1 only: this panel only
- * ever renders inside a 2.0.1-gated section.
+ * A charge point's `NotifyDisplayMessages` history (2.0.1). "Refresh" sends an
+ * unfiltered `GetDisplayMessages`: the station only acknowledges, and the
+ * messages arrive as `NotifyDisplayMessages` frames picked up on the next
+ * fetch.
  */
 export const DisplayMessagesPanel = ({
   chargePointId,

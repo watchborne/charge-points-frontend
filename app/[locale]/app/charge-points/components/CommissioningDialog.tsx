@@ -32,8 +32,7 @@ import { SiteCombobox } from "./SiteCombobox";
 
 const commissioningSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  // Optional: an installer may rename now and assign a site later. Empty maps to
-  // null (still unassigned) at the API boundary.
+  // Optional: a site can be assigned later. Empty maps to null.
   siteId: z.string(),
 });
 
@@ -48,10 +47,9 @@ type CommissioningDialogProps = {
 };
 
 /**
- * Guided commissioning of a discovered charge point: rename it (its name is the
- * raw OCPP station id until an installer sets a human one) and attach it to a
- * site. Distinct from the edit dialog, which locks the name — renaming is the
- * point here.
+ * Commissions a discovered charge point: rename it (its name is the raw OCPP
+ * id until then) and attach it to a site. Unlike the edit dialog, the name is
+ * editable here.
  */
 export const CommissioningDialog = ({
   open,

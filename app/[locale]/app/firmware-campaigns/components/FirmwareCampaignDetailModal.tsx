@@ -37,10 +37,8 @@ type FirmwareCampaignDetailModalProps = {
 };
 
 /**
- * Opened from a row in `FirmwareCampaignsList`: the campaign's detail plus
- * live dispatch progress (`GET /api/firmware-campaigns/:id`, fetched by
- * `useFirmwareCampaignProgress` only while this is open) and, for a still
- * `SCHEDULED` campaign, the ability to cancel it.
+ * A campaign's detail and live dispatch progress (fetched only while open),
+ * with a cancel action while it is `SCHEDULED`.
  */
 export const FirmwareCampaignDetailModal = ({
   open,

@@ -25,16 +25,13 @@ export type ScheduleNextVisitValues = z.infer<typeof scheduleNextVisitSchema>;
 type ScheduleNextVisitDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** The currently scheduled date, if any — prefilled when editing an
-   * existing plan rather than creating a fresh one. */
+  /** The scheduled date, prefilled when editing an existing plan. */
   initialNextVisitAt?: Date | null;
   onSubmit: (values: ScheduleNextVisitValues) => void;
   isSubmitting?: boolean;
 };
 
-// A day is still "today or later" up to its own midnight — comparing against
-// the start of today (not `new Date()`) so picking today itself isn't
-// rejected as being in the past by the time the click is processed.
+// Compared with the start of today, so today itself is not rejected.
 const startOfToday = (): Date => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -42,10 +39,8 @@ const startOfToday = (): Date => {
 };
 
 /**
- * Plans a site's next visit against `PUT /api/sites/:id/next-visit`
- * (charge-points-server issue #579, ADR 0016) — the proactive counterpart to
- * `LogSiteVisitDialog`'s reactive visit history. Unlike a recorded visit,
- * `nextVisitAt` must be in the future (enforced server-side too).
+ * Plans a site's next visit (`PUT /api/sites/:id/next-visit`). `nextVisitAt`
+ * must be in the future, also enforced server-side.
  */
 export const ScheduleNextVisitDialog = ({
   open,

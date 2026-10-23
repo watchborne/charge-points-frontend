@@ -3,15 +3,9 @@ import type { ChargePoint, VariableV201 } from "@watchborne/charge-points-types"
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
-// The NotifyEvent history's response shape. The backend keeps the
-// `DeviceEventReport` row server-local (charge-points-server ADR 0011), so the
-// frame itself is declared here; timestamps arrive as ISO strings and are parsed
-// where rendered, never widened to `Date` here.
-//
-// What *is* shared is the variable identifier (`VariableV201`). The component is
-// not: the API flattens OCPP's nested `evse: { id, connectorId }` into
-// `evseId` / `connectorId`, so it deliberately differs from the package's
-// `ComponentV201` and stays declared locally.
+// The NotifyEvent history, declared locally (server-local entity);
+// timestamps are ISO strings. `VariableV201` is shared, but the component
+// flattens `evse` into `evseId`/`connectorId`, so it isn't `ComponentV201`.
 
 /** OCPP 2.0.1's generic device-model identifiers — vendor-defined, open vocabulary. */
 export type DeviceEventComponent = {

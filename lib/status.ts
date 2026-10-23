@@ -7,15 +7,9 @@ import type { ReliabilityBucket } from "@/lib/fleet-reliability";
 import { ChargePointConnectionStatus, ConnectorStatus } from "@/types/charge-point";
 
 /**
- * Charge-point status design tokens.
- *
- * Both the network connection status and the OCPP connector status collapse
- * onto a shared, finite set of visual colors — `ColorName`, owned by
- * `@watchborne/electrons` rather than redeclared here. Each color is backed by
- * the `--<color>*` CSS variables (see `@watchborne/electrons`'s `tokens.css`)
- * and exposed through Tailwind's `<color>-*` colour family. Components must
- * colour statuses through the class maps below (or `ColorPill` directly) rather
- * than hardcoding raw colours, so the marketing site and the app stay in sync.
+ * Status colours. Connection and connector statuses map onto electrons'
+ * `ColorName`, backed by its `tokens.css` variables. Colour statuses through
+ * the class maps below (or `ColorPill`), never raw colours.
  */
 export type { ColorName };
 
@@ -174,7 +168,7 @@ export const colorTextClass: Record<ColorName, string> = {
   purple: "text-purple-foreground",
 };
 
-// Backward compatibility aliases for gradual migration
+// Aliases of the colour mappers above.
 export const connectionStatusTone = connectionStatusColor;
 export const connectorStatusTone = connectorStatusColor;
 export const siteHealthStatusTone = siteHealthStatusColor;

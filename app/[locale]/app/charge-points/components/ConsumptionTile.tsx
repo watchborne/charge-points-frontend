@@ -5,18 +5,13 @@ import type { ReactNode } from "react";
 import { isCumulativeRegister, type MeterSampleSummary } from "@/lib/api-metering";
 import { formatUnit } from "@/lib/format-unit";
 
-/** next-intl's own translator type, not a hand-rolled shape — its `values`
- * parameter is narrower than `Record<string, unknown>` (only
- * `string | number | Date`), so a looser signature here fails to accept the
- * real `t` under strict function-parameter checking. */
+/** next-intl's translator type: its `values` parameter is narrower than
+ * `Record<string, unknown>`, so a looser signature rejects the real `t`. */
 type Translate = ReturnType<typeof useTranslations>;
 
 /**
- * A headline metering figure. Local rather than `StatCard` from
- * `@watchborne/electrons`: that primitive types `value` as a `number` and
- * prints it raw, but every figure here needs a locale-formatted number
- * *with its unit* ("1 620 Wh", not "1620") — same visual language, one slot
- * the shared component lacks.
+ * A headline metering figure. Not electrons' `StatCard`, which prints a raw
+ * number: these need a locale-formatted number with its unit.
  */
 export const ConsumptionTile = ({
   title,
@@ -47,17 +42,10 @@ export type ConsumptionHeadline = {
 };
 
 /**
- * The one figure that leads for a series. A cumulative register only counts
- * up, so `max - min` is what it delivered over the window — the number an
- * installer actually wants. Every other measurand is a spot reading, where a
- * difference between instants means nothing and the average is the honest
- * headline. The tile names which one it's showing, rather than labelling
- * both "consumption".
- *
- * Shared between `ChargePointConsumptionPanel` (one tile per charted
- * connector, for the selected measurand) and `SessionConsumptionChart` (one
- * tile per measurand the session's connector reported) — both need the exact
- * same delivered-vs-average distinction, just sliced along a different axis.
+ * The leading figure for a series: what a cumulative register delivered over
+ * the window (`max - min`), else the average of a spot reading. The tile names
+ * which. Used per connector by `ChargePointConsumptionPanel` and per measurand
+ * by `SessionConsumptionChart`.
  */
 export const consumptionHeadline = (
   series: MeterSampleSummary,

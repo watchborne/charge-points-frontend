@@ -3,9 +3,7 @@ import { StatsBreakdown } from "@watchborne/electrons";
 import { MapPin, ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-/** Global roll-up above the per-site watchlist/list: how many sites are in
- * each health bucket, and how many charge points are affected fleet-wide
- * (offline or warning, summed across every site). */
+/** Sites per health bucket, and charge points offline or warning fleet-wide. */
 export const SiteHealthBreakdown = ({ sitesHealth }: { sitesHealth: SiteHealth[] }) => {
   const t = useTranslations("");
 

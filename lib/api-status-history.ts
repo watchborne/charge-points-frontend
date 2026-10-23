@@ -8,11 +8,6 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// The status-history reads' response shapes: the shared `ConnectionStateEvent` /
-// `ConnectorStatusEvent` entities (@watchborne/charge-points-types), as they look
-// once serialized to JSON — timestamps arrive as ISO strings and are parsed where
-// rendered (see `Wire`). charge-points-server ADR 0008.
-
 /** One connection-status transition, as `GET /api/charge-points/:id/connection-events` returns it. */
 export type ConnectionStateEvent = Wire<SharedConnectionStateEvent>;
 

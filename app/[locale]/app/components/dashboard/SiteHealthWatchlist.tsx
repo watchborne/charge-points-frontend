@@ -8,8 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { SiteHealthBadge } from "./SiteHealthBadge";
 import { SiteWithHealth } from "./SiteHealthSection";
 
-/** Worse first: CRITICAL before DEGRADED. HEALTHY never appears — see the
- * filter below — so it has no rank here. */
+/** Worst first. HEALTHY is filtered out, so it has no rank. */
 const SEVERITY_RANK: Record<SiteHealth["status"], number> = {
   CRITICAL: 0,
   DEGRADED: 1,
@@ -19,10 +18,8 @@ const SEVERITY_RANK: Record<SiteHealth["status"], number> = {
 const affectedCount = (health: SiteHealth) =>
   health.chargePointsOffline + health.chargePointsWarning;
 
-/** The top 3 sites to look at first: every non-HEALTHY site, worst status
- * first, ties broken by how many charge points are affected. Never padded
- * with HEALTHY sites just to reach 3 — fewer than 3 (or none) is the point,
- * not a gap to fill. */
+/** Up to 3 non-HEALTHY sites, worst first, ties by affected charge points.
+ * Never padded with healthy sites. */
 export const SiteHealthWatchlist = ({ sitesWithHealth }: { sitesWithHealth: SiteWithHealth[] }) => {
   const t = useTranslations("");
   const router = useRouter();

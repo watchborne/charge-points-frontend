@@ -39,10 +39,7 @@ function pushNotification(
   return notificationByType[type]();
 }
 
-// Defined at module scope (not inline in the hook's returned object) so each
-// stays referentially stable across renders — components relying on them
-// inside a `useEffect` dependency array (e.g. `useChargePoints`) must not
-// re-run just because the component re-rendered.
+// Module-scoped so they stay referentially stable in effect dependency arrays.
 function pushSuccessNotification(
   content: ToastNotificationContent,
   options: ToastNotificationOptions = {},

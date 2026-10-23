@@ -27,13 +27,9 @@ type FirmwarePanelProps = {
 };
 
 /**
- * The firmware section of a charge point's detail panel: which version it
- * runs, what an update in flight is doing, and when it was last updated.
- *
- * Self-contained — fetches its own data rather than threading through the
- * detail panel's props, keeping that already-large component from growing a
- * fourth concern. Refreshes on `CHARGE_POINT_FIRMWARE_UPDATE`, the dedicated
- * broadcast the backend emits only from the FirmwareStatusNotification handler.
+ * A charge point's firmware: the running version, the update in flight and
+ * the last completed one. Fetches its own data and refreshes on
+ * `CHARGE_POINT_FIRMWARE_UPDATE`.
  */
 export const FirmwarePanel = ({
   chargePointId,
@@ -59,13 +55,11 @@ export const FirmwarePanel = ({
     if (lastMessage?.type !== "CHARGE_POINT_FIRMWARE_UPDATE") return;
 
     const update = lastMessage.payload?.firmwareUpdate as FirmwareUpdateView | undefined;
-    // The broadcast is already scoped to charge points the caller can see,
-    // but a dashboard shows one station at a time — ignore the others'.
+    // The broadcast covers every visible charge point; keep this one's.
     if (!update || update.chargePointId !== chargePointId) return;
 
-    // Refetch rather than patching `active` from the payload: a terminal
-    // status moves the update to `lastCompleted`, and the broadcast alone
-    // doesn't say which side it landed on.
+    // Refetch: the broadcast doesn't say whether the update moved to
+    // `lastCompleted`.
     void refetch();
   }, [lastMessage, chargePointId, refetch]);
 
@@ -142,9 +136,8 @@ export const FirmwarePanel = ({
                   disabled={disabled}
                   chargePointId={chargePointId}
                   ocppVersion={ocppVersion}
-                  // The backend refuses a second concurrent update (at most one
-                  // unfinished per charge point); disabling the trigger says so
-                  // before the installer fills a form that would be rejected.
+                  // The backend refuses a second unfinished update, so the
+                  // trigger is disabled upfront.
                   updateInProgress={firmware.active !== null}
                   onStarted={() => void refetch()}
                 />

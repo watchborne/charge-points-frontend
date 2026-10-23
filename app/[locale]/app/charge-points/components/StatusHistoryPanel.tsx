@@ -24,10 +24,8 @@ import type { StatusHistoryRange } from "../../hooks/useStatusHistory";
 type Props = {
   range: StatusHistoryRange;
   /**
-   * Windows offered by the range picker. A single-element array (e.g.
-   * `["day"]`) locks the panel to that window and hides the picker — used by
-   * the charge point detail view's main tab, which only wants "today" at a
-   * glance.
+   * Windows offered by the range picker; a single one (e.g. `["day"]`) locks
+   * the panel to it and hides the picker.
    */
   ranges: readonly StatusHistoryRange[];
   onRangeChange: (range: StatusHistoryRange) => void;
@@ -43,19 +41,13 @@ type Props = {
 };
 
 /**
- * A charge point's connection-state and connector-status history (ADR 0008
- * in `charge-points-server`): a day/7-day timeline bar for "what does this
- * period look like", and a 30-day breakdown table for "how much time in
- * each status, and when". Both streams render stacked, always together —
- * connectivity and connector activity are two different questions
- * (`docs/ai/domain-model.md`'s Critical Domain Rule), never one chart.
+ * A charge point's connection-state and connector-status history: a timeline
+ * bar for the day/7 days and a breakdown table for 30 days. Both streams are
+ * always shown, stacked: connectivity and connector activity are different
+ * questions.
  *
- * Purely presentational — `StatusHistoryPanelContainer` owns the range/connector
- * selection and the fetch behind it, and renders its own loading/error state
- * in place of this component, so the marketing site's product preview can
- * render this directly with static events instead of duplicating the markup.
- * `computeSegments` stays here since it is a pure derivation from props, not
- * a side effect.
+ * Presentational: `StatusHistoryPanelContainer` owns the selection, the fetch
+ * and the loading/error states.
  */
 export const StatusHistoryPanel = ({
   range,

@@ -1,7 +1,7 @@
 import { ColorPill, type ColorPillProps } from "@watchborne/electrons";
 import { useTranslations } from "next-intl";
 
-/** Generic status badge component that maps domain status to UI color and i18n labels. */
+/** Maps a status to a UI colour and an i18n label. */
 export const GenericStatusBadge = <T extends string | number>({
   status,
   getTone,

@@ -11,9 +11,7 @@ import type { ChargePoint } from "@/types/charge-point";
 
 import { SessionConsumptionChart } from "./SessionConsumptionChart";
 
-/** Row cap for one session's raw series read — a session rarely spans more
- * than a few hours, so this is far above what a real session ever reports;
- * it only guards against a pathologically long-running one. */
+/** Row cap for one session's read; only a pathological session reaches it. */
 const MAX_SESSION_CHART_SAMPLES = 3_000;
 
 type Props = {
@@ -24,14 +22,9 @@ type Props = {
 };
 
 /**
- * Fetches one charging session's meter readings and hands them to
- * `SessionConsumptionChart` — the data-owning half of that
- * container/presentational split, same shape as
- * `ChargePointConsumptionPanelContainer`/`ChargePointConsumptionPanel`. Also
- * owns the loading/error templates, so `SessionConsumptionChart` only ever
- * renders the loaded result — an empty result (the station reported nothing
- * in the window) is not an error, so that state stays in the presentational
- * component alongside every other empty-state check in this file's siblings.
+ * Fetches one session's readings for `SessionConsumptionChart` and owns the
+ * loading/error states. An empty result is not an error and is handled by the
+ * chart.
  */
 export const SessionConsumptionChartContainer = ({
   chargePointId,

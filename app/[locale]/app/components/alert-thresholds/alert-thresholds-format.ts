@@ -17,9 +17,8 @@ export const minutesToMs = (minutes: number): number => minutes * MS_PER_MINUTE;
 export type AlertThresholdFormValues = Record<AlertThresholdField, string>;
 
 /**
- * Whether a typed value is acceptable: empty (inherit) or a whole number of
- * minutes inside the backend's bounds. The backend stays the authority; this
- * only spares a round trip for an obvious mistake.
+ * Empty (inherit) or whole minutes within the backend's bounds; spares a round
+ * trip, the backend stays the authority.
  */
 export const isValidMinutes = (value: string): boolean => {
   const trimmed = value.trim();

@@ -1,19 +1,14 @@
 import type { FleetReliabilityEntry } from "./api-fleet-reliability";
 
 /**
- * Derived display buckets for a charge point's current-window uptime ratio —
- * not a backend enum, this dashboard's own reading of the ranking so rows can
- * be colored consistently with the rest of the platform's status vocabulary
- * (see `lib/status.ts`).
+ * This dashboard's display buckets for an uptime ratio (not a backend enum),
+ * coloured like `lib/status.ts`.
  */
 export type ReliabilityBucket = "healthy" | "degraded" | "critical";
 
 /**
- * `onlineMs`/`totalMs` reduced to a ratio. Mirrors the backend's own
- * `rankFleetReliability` (charge-points-server's
- * `src/application/shared/rank-fleet-reliability.ts`): an empty window
- * (`totalMs === 0`) is treated as fully online, not a problem — there is no
- * evidence either way, so it isn't flagged as the worst case.
+ * `onlineMs`/`totalMs` as a ratio. As in the backend's ranking, an empty
+ * window counts as fully online: there is no evidence either way.
  */
 export const uptimeRatio = ({
   onlineMs,

@@ -20,9 +20,7 @@ type FleetBulkActionBarProps = {
   onClear: () => void;
 };
 
-/** One station's outcome, reduced to what the result list needs to render —
- * shared by all three commands so `renderResults` below stays a single,
- * non-generic function instead of one specialized per outcome type. */
+/** One station's outcome, shared by the three commands. */
 type BulkResultItem = {
   chargePointId: ChargePoint["id"];
   chargePointName: string;
@@ -36,12 +34,9 @@ type BulkActionUiState =
 const IDLE: BulkActionUiState = { status: "idle" };
 
 /**
- * Fans a chosen command (Reset / Change Availability / Unlock Connector) out
- * to every charge point currently selected in `ChargePointFleetPanel`'s list
- * — see `useBulkChargePointActions` for why each station's outcome is
- * reported separately rather than as one pass/fail. Rendered only while at
- * least one charge point is selected; the selection itself lives in the
- * parent panel, since it also drives the list's checkboxes.
+ * Sends Reset, Change Availability or Unlock Connector to every selected
+ * charge point, reporting each outcome separately. Rendered only while
+ * something is selected; the selection lives in the parent panel.
  */
 export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBarProps) => {
   const t = useTranslations("");
@@ -56,17 +51,14 @@ export const FleetBulkActionBar = ({ chargePoints, onClear }: FleetBulkActionBar
     .sort()
     .join(",");
 
-  // Drop any previous batch's result banner once the selection itself
-  // changes, so a stale outcome list is never shown attributed to a
-  // different set of charge points.
+  // Clear the previous batch's results when the selection changes.
   useEffect(() => {
     setResetState(IDLE);
     setAvailabilityState(IDLE);
     setUnlockState(IDLE);
   }, [selectionKey]);
 
-  // A deactivated charge point accepts no command (the backend answers 409),
-  // so it is left out of the batch rather than reported as a failure.
+  // Inactive charge points accept no command (409): left out, not failed.
   const actionableChargePoints = chargePoints.filter((chargePoint) => chargePoint.isActive);
   const skippedCount = chargePoints.length - actionableChargePoints.length;
 

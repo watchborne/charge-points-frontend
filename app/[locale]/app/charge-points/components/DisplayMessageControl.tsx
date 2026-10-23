@@ -30,13 +30,9 @@ import type {
 import type { ChargePoint } from "@/types/charge-point";
 
 /**
- * The one message slot this control manages. `GetDisplayMessages` (reading
- * back what a station is actually showing) is a separate backend fast-follow
- * this UI does not consume yet, so there is no way to discover a station's
- * own message ids here — this control always targets a single, fixed one
- * instead: sending overwrites whatever occupies it, clearing removes it. A
- * message set through another channel (a different CSMS, the station's own
- * default) uses a different id and is unaffected either way.
+ * The one message slot this control manages: sending overwrites it, clearing
+ * removes it. Messages set through another channel use other ids and are
+ * unaffected.
  */
 const DISPLAY_MESSAGE_ID = 1;
 
@@ -100,15 +96,9 @@ type DisplayMessageControlProps = {
 };
 
 /**
- * Lets an installer push a free-text message to a station's physical display
- * (OCPP `SetDisplayMessage`) or remove it (`ClearDisplayMessage`) — 2.0.1
- * only: this component only ever renders inside `ChargePointActionsSection`,
- * itself gated on `ocppVersion === "2.0.1"`.
- *
- * The station's own rejection (`Rejected`/`NotSupported*`/`UnknownTransaction`
- * for Set, `Unknown` for Clear) still answers HTTP 200 — the request itself
- * succeeded, the station declined the content — so success here means the
- * station's own `status` was `Accepted`, not merely a 2xx response.
+ * Sends a free-text message to a station's display (`SetDisplayMessage`) or
+ * removes it (`ClearDisplayMessage`); 2.0.1 only. A station's rejection still
+ * answers HTTP 200, so success means the station's `status` was `Accepted`.
  */
 export const DisplayMessageControl = ({
   chargePointId,
@@ -250,8 +240,8 @@ export const DisplayMessageControl = ({
               {t("appPage.chargePoints.displayMessage.clear.result.accepted")}
             </div>
           ) : (
-            // `Unknown` means no message with this id exists on the station — a
-            // normal, expected outcome (e.g. it already expired), not an error.
+            // `Unknown`: no message with this id on the station (e.g. it
+            // expired). Expected, not an error.
             <Callout
               description={t("appPage.chargePoints.displayMessage.clear.result.unknown")}
               variant="info"

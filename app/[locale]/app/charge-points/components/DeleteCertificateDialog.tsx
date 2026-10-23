@@ -35,11 +35,8 @@ type DeleteCertificateDialogProps = {
 };
 
 /**
- * Confirms and issues an OCPP `DeleteCertificate` for one installed
- * certificate, identified by its hash data. Same lightweight confirm-then-act
- * shape as `SiteDeletionDialog`, adapted to also surface the station's own
- * outcome inline (accepted/failed/not-found) before closing, since a
- * DeleteCertificate call can fail at the OCPP layer as well as the HTTP one.
+ * Confirms and issues `DeleteCertificate` for one certificate, showing the
+ * station's outcome (accepted/failed/not found) inline before closing.
  */
 export const DeleteCertificateDialog = ({
   chargePointId,

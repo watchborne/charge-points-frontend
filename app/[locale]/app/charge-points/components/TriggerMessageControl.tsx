@@ -35,9 +35,8 @@ type TriggerMessageControlProps = {
 };
 
 /**
- * Asks a charge point to (re)send a message (TriggerMessage) — a whole-station
- * "poke" to force a StatusNotification/BootNotification and re-sync live state
- * without waiting. Self-contained: dispatches via `api` directly.
+ * Asks a charge point to resend a message (TriggerMessage), e.g. a
+ * StatusNotification to re-sync live state.
  */
 export const TriggerMessageControl = ({
   chargePointId,

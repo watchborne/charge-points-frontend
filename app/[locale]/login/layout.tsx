@@ -15,7 +15,7 @@ import { Footer } from "../(marketing)/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// See app/(marketing)/layout.tsx for why there's no `runtime = "edge"` here.
+// No `runtime = "edge"`: Next.js rejects it with generateStaticParams.
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

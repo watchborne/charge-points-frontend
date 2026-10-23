@@ -14,27 +14,19 @@ type SecurityEventsPanelProps = {
   chargePointId: ChargePoint["id"];
 };
 
-/** How many recent reports the panel shows — a glance at recent activity,
- * not a full audit log (the endpoint supports a much longer history if a
- * fuller browser is ever built), the same cap `AlertsPanel` uses. */
+/** Recent reports only. */
 const VISIBLE_EVENT_COUNT = 5;
 
 /**
- * The station's own event-type string (OCPP Security Whitepaper / 2.0.1
- * §3.4) is an open vocabulary — "TamperDetectionActivated" — so it can't be
- * translated through i18n keys the way `Alert.type` is. This only spaces out
- * the PascalCase for readability; it does not attempt to interpret the value.
+ * The event type is an open vocabulary ("TamperDetectionActivated"), so it
+ * can't go through i18n: this only spaces out the PascalCase.
  */
 const humanizeEventType = (type: string): string =>
   type.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
 
 /**
- * A charge point's `SecurityEventNotification` history (charge-points-server
- * ADR 0009): tamper attempts, unexpected reboots, firmware changes, failed
- * authentication — reported verbatim, not interpreted. Fetch-once and
- * self-contained, the same shape as `AlertsPanel`: there is no dedicated
- * WebSocket broadcast for these yet, so this does not subscribe to the
- * dashboard socket.
+ * A charge point's `SecurityEventNotification` history, reported verbatim.
+ * Fetch-once.
  */
 export const SecurityEventsPanel = ({ chargePointId }: SecurityEventsPanelProps) => {
   const t = useTranslations("");

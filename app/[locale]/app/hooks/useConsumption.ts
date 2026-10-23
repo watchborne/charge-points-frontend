@@ -6,23 +6,16 @@ import { api } from "@/lib/api";
 import type { ChargePointConsumption, MeterSample } from "@/lib/api-metering";
 import { queryKeys } from "@/lib/queryKeys";
 
-/**
- * The windows the panel offers. Kept short and absolute rather than a free
- * date picker: an installer asks "is it behaving today" or "how did last
- * week look", and every extra control is one more thing between them and the answer.
- */
+/** The windows the panel offers: fixed, not a free date picker. */
 export const CONSUMPTION_RANGES = ["24h", "7d", "30d"] as const;
 export type ConsumptionRange = (typeof CONSUMPTION_RANGES)[number];
 
 const RANGE_HOURS: Record<ConsumptionRange, number> = { "24h": 24, "7d": 24 * 7, "30d": 24 * 30 };
 
 /**
- * Row cap for the raw series read. The backend's ceiling is 10 000; asking
- * for less is the point, not timidity — a 30-day window at a 60s interval
- * holds ~43 000 readings for one measurand, far more than a chart a few
- * hundred pixels wide can draw. The read returns newest rows, so a long
- * window degrades to "the most recent 3 000 readings" — the panel says that
- * out loud rather than silently plotting a partial window as the whole one.
+ * Row cap for the raw read (the backend allows 10 000): a 30-day window at
+ * 60s holds ~43 000 readings, far more than a chart can draw. The read
+ * returns the newest rows, and the panel says when it was truncated.
  */
 export const MAX_CHART_SAMPLES = 3_000;
 
@@ -39,32 +32,18 @@ export type UseConsumptionReturn = {
   truncated: boolean;
   loading: boolean;
   /**
-   * Whether the last load failed — a flag, not a message; copy lives with
-   * the rendering component, keeping `useTranslations` out of this hook (`t`
-   * is a fresh identity every render, which in the `useCallback` deps below
-   * would rebuild `load` and spin the effect forever).
+   * Whether the last load failed. A flag, not a message: `t` in the
+   * `useCallback` deps would rebuild `load` every render.
    */
   failed: boolean;
   refetch: () => Promise<void>;
 };
 
 /**
- * Loads one charge point's metering history for a window.
- *
- * Two requests, not one: the summary is cheap and bounded by how many series
- * the station reports, covers the whole window, and tells the panel which
- * measurands exist — the selector is built from what the station actually
- * reported, never a hardcoded OCPP vocabulary. The raw read then narrows to
- * the one measurand being charted.
- *
- * `measurand` undefined (before the first summary lands) skips the raw read
- * entirely, instead of fetching every measurand and discarding most of it.
- *
- * `placeholderData: keepPreviousData` is what avoids flashing a skeleton on
- * every range/measurand change: TanStack Query keeps the previous window's
- * result on screen while the new one loads, swapping it in once ready — the
- * same "only the first load shows a skeleton" behaviour this hook used to
- * hand-roll with a `settled` ref.
+ * Loads one charge point's metering history for a window, in two requests:
+ * the summary (cheap, whole window, lists the reported measurands) then the
+ * raw read for the charted measurand, skipped while `measurand` is undefined.
+ * `keepPreviousData` keeps the previous window on screen while the next loads.
  */
 export const useConsumption = (
   chargePointId: string,
@@ -76,9 +55,7 @@ export const useConsumption = (
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.metering.consumptionByChargePoint(chargePointId, { range, measurand }),
     queryFn: async () => {
-      // Computed per call, not held in state: a window anchored to "now" at
-      // mount would drift stale on a panel left open, and the backend echoes
-      // back the window it actually reduced anyway.
+      // Per call, not in state: a window anchored at mount would go stale.
       const to = new Date();
       const from = new Date(to.getTime() - RANGE_HOURS[range] * 60 * 60 * 1000);
 
@@ -96,8 +73,7 @@ export const useConsumption = (
 
       return {
         consumption: summary,
-        // Oldest first: the backend answers newest-first (useful for a
-        // list), a chart's x-axis runs the other way.
+        // Oldest first for the chart; the backend answers newest first.
         samples: [...rows].sort(
           (a, b) => new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime(),
         ),

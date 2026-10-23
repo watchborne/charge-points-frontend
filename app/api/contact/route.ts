@@ -21,9 +21,8 @@ const buildBody = ({ company, name, email, phone, chargePoints, message }: Conta
     message,
   ].join("\n");
 
-// Public endpoint (the contact form is on a marketing page): not gated by
-// proxy.ts, so it rate-limits itself. Sends the visitor's message by email through Resend's REST API.
-// RESEND_API_KEY is server-side only — never give it a NEXT_PUBLIC_ prefix.
+// Public and handled here, not by the backend, so it rate-limits itself, then
+// emails the message through Resend. RESEND_API_KEY is server-side only.
 export async function POST(request: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {

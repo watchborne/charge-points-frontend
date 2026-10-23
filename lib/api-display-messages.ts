@@ -10,12 +10,8 @@ import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// The NotifyDisplayMessages history's response shape. The backend keeps the
-// `DisplayMessageReport` row itself server-local (charge-points-server, issue
-// #536), but each message in it is the shared OCPP 2.0.1 `MessageInfo`
-// (@watchborne/charge-points-types) returned as is, so it is derived from there
-// rather than re-declared: timestamps arrive as ISO strings and are parsed where
-// rendered (see `Wire`).
+// The NotifyDisplayMessages history: the report row is declared locally, but
+// each message is the shared OCPP 2.0.1 `MessageInfo`, seen through `Wire`.
 
 export type DisplayMessageContent = Wire<MessageContentV201>;
 
@@ -34,10 +30,8 @@ export type DisplayMessageReport = {
 };
 
 /**
- * One outstanding GetDisplayMessages request (charge-points-server, same
- * ADR 0014 shape as ReportRequest). Not part of @watchborne/charge-points-types
- * either — the POST endpoint below returns it inline; there is no GET route
- * for it on its own.
+ * One outstanding GetDisplayMessages request, returned inline by the POST
+ * below; there is no GET for it.
  */
 export type DisplayMessageRequest = {
   id: string;
@@ -53,10 +47,6 @@ export type DisplayMessageRequest = {
 
 export type GetDisplayMessagesStatus = GetDisplayMessagesStatusV201;
 
-/**
- * Same discriminated-result shape as `RequestDeviceReportOutcome`: the
- * caller needs the specific HTTP outcome, not just success/failure.
- */
 export type GetDisplayMessagesOutcome = CommandOutcome<{
   status: GetDisplayMessagesStatus;
   displayMessageRequest: DisplayMessageRequest;
@@ -75,12 +65,9 @@ export const displayMessageApis = {
     }, `DisplayMessageReport.list(${chargePointId})`);
   },
   /**
-   * Requests every display message currently set on a station (OCPP
-   * `GetDisplayMessages`, 2.0.1 only) — always unfiltered: id/priority/state
-   * filtering isn't exposed, this reads the full set every time, never a
-   * slice of it. Acknowledgment-only: the actual messages arrive later as
-   * one or more `NotifyDisplayMessages` frames, which `DisplayMessagesPanel`'s
-   * history picks up on its next fetch.
+   * Requests every display message on a station (`GetDisplayMessages`, 2.0.1),
+   * unfiltered. The station only acknowledges; the messages arrive as
+   * `NotifyDisplayMessages` frames picked up on the panel's next fetch.
    */
   requestAll: async function (
     chargePointId: ChargePoint["id"],

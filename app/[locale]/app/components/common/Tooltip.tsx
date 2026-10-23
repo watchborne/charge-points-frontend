@@ -14,20 +14,14 @@ type TooltipProps = {
   side?: TooltipPosition;
   className?: string;
   style?: CSSProperties;
-  /** Passed through so the anchor can be made keyboard-focusable — hover has
-   * no keyboard equivalent, focus is what reveals the bubble for a keyboard
-   * user. */
+  /** Makes the anchor focusable, so keyboard users can reveal the bubble. */
   tabIndex?: number;
   "aria-label"?: string;
 };
 
 /**
- * A styled anchor wrapping `children` with a hover/focus tooltip bubble,
- * built on the Radix `Tooltip` primitive from `@watchborne/electrons`
- * rather than a hand-rolled CSS `group-hover` bubble — Radix positions the
- * bubble in a portal via floating-ui, so it's never clipped by an ancestor's
- * `overflow-hidden`, and it manages open state itself instead of relying on
- * a CSS pseudo-class.
+ * An anchor with a hover/focus tooltip, on electrons' Radix `Tooltip`: the
+ * bubble is portalled, so no ancestor's `overflow-hidden` clips it.
  */
 export const Tooltip = ({
   children,

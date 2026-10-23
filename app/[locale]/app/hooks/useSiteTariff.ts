@@ -5,11 +5,7 @@ import { api } from "@/lib/api";
 import type { UpsertSiteTariffBody } from "@/lib/api-site-tariff";
 import { queryKeys } from "@/lib/queryKeys";
 
-/**
- * A site's currently configured flat tariff (charge-points-server issue
- * #580) — `useQuery`/`useMutation` over `api.SiteTariff`, mirroring
- * `useSiteVisits`' pattern.
- */
+/** A site's configured flat tariff. */
 export function useSiteTariff(siteId: Site["id"] | null) {
   const queryClient = useQueryClient();
 

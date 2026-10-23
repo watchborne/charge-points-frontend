@@ -2,9 +2,8 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
 /**
- * The closed set of audited actions (charge-points-server ADR 0026 §4).
- * Server-local, like `SecurityEvent`/`SiteVisitSchedule`: no client consumes
- * this as a domain entity, only through this response shape.
+ * The closed set of audited actions. Declared locally: no client consumes it
+ * as a domain entity.
  */
 export const AUDIT_ACTIONS = [
   // Outbound OCPP commands (both dialects)
@@ -84,7 +83,7 @@ export type AuditEntry = {
   actor: AuditActor;
   action: AuditAction;
   target: AuditTarget;
-  /** Redacted per action's allow-list (ADR 0026 §5) — never contains secrets. */
+  /** Redacted per action's allow-list — never contains secrets. */
   payload: Record<string, unknown>;
   outcome: AuditOutcome;
   outcomeDetail: string | null;

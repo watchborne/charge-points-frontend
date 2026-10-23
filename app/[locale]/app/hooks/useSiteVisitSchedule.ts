@@ -5,11 +5,8 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 
 /**
- * A site's planned next visit (charge-points-server issue #579, ADR 0016) —
- * `useQuery`/`useMutation` over `api.SiteVisits.getSchedule`/`scheduleNextVisit`/
- * `cancelNextVisit`, mirroring `useSiteVisits`'s pattern. Kept as its own hook
- * rather than folded into `useSiteVisits`: the schedule is a singleton plan,
- * not part of the visit history it reads from a different endpoint.
+ * A site's planned next visit. Separate from `useSiteVisits`: a single plan,
+ * read from its own endpoint.
  */
 export function useSiteVisitSchedule(siteId: Site["id"] | null) {
   const queryClient = useQueryClient();

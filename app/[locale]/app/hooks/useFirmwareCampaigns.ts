@@ -6,11 +6,7 @@ import { api } from "@/lib/api";
 import type { CreateFirmwareCampaignBody } from "@/lib/api-firmware-campaigns";
 import { queryKeys } from "@/lib/queryKeys";
 
-/**
- * Scheduled fleet-wide firmware campaigns (`GET`/`POST /api/firmware-campaigns`) —
- * `useQuery`/`useMutation` over `api.FirmwareCampaigns.list`/`create`/`cancel`,
- * mirroring `useSiteVisitSchedule`'s pattern.
- */
+/** Fleet-wide firmware campaigns: list, create, cancel. */
 export function useFirmwareCampaigns() {
   const t = useTranslations("");
   const queryClient = useQueryClient();

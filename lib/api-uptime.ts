@@ -3,20 +3,14 @@ import type { ChargePoint, Site } from "@watchborne/charge-points-types";
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
-// The uptime reads' response shapes. Not part of @watchborne/charge-points-types
-// on purpose, like ChargePointConsumption in api-metering.ts: the backend keeps
-// this server-local (charge-points-server ADR 0008's derived summary) since no
-// client consumes it as a domain entity — the dashboard codes against these
-// response contracts. Timestamps arrive as ISO strings and are parsed where
-// rendered, never widened to `Date` here.
+// The uptime reads' response shapes, declared locally (derived summaries).
+// Timestamps are ISO strings.
 
 export type UptimeQuery = { from?: Date; to?: Date };
 
 /**
- * A charge point's connection-state history (ADR 0008) reduced to time spent
- * in any status other than OFFLINE, over the window `from`..`to`. Left as two
- * durations rather than a single percentage, same reason `MeterSampleSummary`
- * leaves `min`/`max`/`avg` uninterpreted — the caller divides.
+ * Time spent in any status but OFFLINE over `from`..`to`, as two durations;
+ * the caller divides.
  */
 export type ChargePointUptime = {
   chargePointId: string;

@@ -18,19 +18,14 @@ import type {
 } from "@watchborne/charge-points-types";
 
 /**
- * What `POST /api/charge-points/:id/certificates/query` answers — the
- * backend's `certificates` list, unaltered, plus the outcome status. Kept as
- * its own local type, like `ChargePointLogUpload`, since it's the response
- * shape rather than a domain entity `@watchborne/charge-points-types` owns.
+ * `POST /api/charge-points/:id/certificates/query`'s answer: the station's
+ * certificates and the outcome status. A local response type.
  */
 export type ChargePointCertificates = {
   status: GetInstalledCertificateStatus;
   certificates: Array<{
     certificateHashData: CertificateHashData;
-    /**
-     * Absent for an OCPP 1.6 station: its `GetInstalledCertificateIds`
-     * response reports only the hash data, with no per-certificate type.
-     */
+    /** Absent on 1.6: it reports only the hash data. */
     certificateType?: GetCertificateIdUseV201;
   }>;
 };

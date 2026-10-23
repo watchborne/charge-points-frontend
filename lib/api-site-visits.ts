@@ -8,11 +8,6 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// The site-visit and next-visit responses: the shared `SiteVisit` /
-// `SiteVisitSchedule` entities (@watchborne/charge-points-types), as they look
-// once serialized to JSON — timestamps arrive as ISO strings and are parsed where
-// rendered (see `Wire`). charge-points-server ADR 0015 / ADR 0016.
-
 /** One on-site maintenance visit, as `GET /api/sites/:id/visits` returns it. */
 export type SiteVisit = Wire<SharedSiteVisit>;
 
@@ -30,11 +25,6 @@ export type RecordSiteVisitBody = {
   visitedAt: string;
   note?: string;
 };
-
-// The planned-next-visit response shape, as `GET`/`PUT /api/sites/:id/next-visit`
-// return it. Not part of @watchborne/charge-points-types either, same reasoning
-// as SiteVisit above (charge-points-server issue #579, ADR 0016) — it's a
-// server-local singleton-per-site plan, not appended to the shared Site shape.
 
 const buildQuery = ({ since, until, limit }: SiteVisitQuery = {}): string => {
   const params = new URLSearchParams();

@@ -36,19 +36,15 @@ export default function DashboardPage() {
     [chargePoints],
   );
 
-  // Derived, not fetched: this used to be its own GET /api/sites/health call,
-  // redoing the same sites -> charge points -> connectors read /api/sites had
-  // just made for the same caller (charge-points-server#503 P4). chargePoints
-  // is already kept live over the dashboard WebSocket by useChargePoints, so
-  // this now updates in real time too, which the polling-only fetch never did.
+  // Derived from chargePoints, which the WebSocket keeps live, so it updates
+  // in real time without its own request.
   const sitesHealth = useMemo(() => deriveSitesHealth(sites, chargePoints), [sites, chargePoints]);
 
   const isLoading = loading || loadingSites;
   const hasError = error || errorSites;
 
-  // The panels #393's layout preferences (order/visibility) apply to. Keyed
-  // by widget id rather than inlined below, so reordering/hiding one doesn't
-  // touch the always-shown error/loading/commissioning sections around them.
+  // The widgets the layout preferences (order/visibility) apply to, keyed by
+  // id; the error/loading/commissioning sections around them are always shown.
   const widgets: Record<DashboardWidgetId, ReactNode> = {
     siteHealth: <SiteHealthSection sites={sites} sitesHealth={sitesHealth} />,
     chargePointsBreakdown: <ChargePointsBreakdown chargePoints={chargePoints} />,
@@ -58,9 +54,7 @@ export default function DashboardPage() {
       ) : (
         <FleetOverviewPanel chargePoints={chargePoints} sites={sites} />
       ),
-    // null, not the onboarding panel, WHEN the fleet is empty — fleetOverview
-    // already shows onboarding once for an empty fleet; showing it twice
-    // would just be noise.
+    // Hidden for an empty fleet: fleetOverview already shows onboarding.
     fleetReliability: chargePoints.length === 0 ? null : <FleetReliabilityPanel />,
   };
 

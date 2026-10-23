@@ -16,20 +16,15 @@ type Props = {
   /** The charge point's connector ordinals — its `connectors[].connectorId`, not the connector rows themselves. */
   connectorIds: number[];
   /**
-   * Windows offered by the range picker. Defaults to all of
-   * `STATUS_HISTORY_RANGES`; pass a single-element array (e.g. `["day"]`) to
-   * lock the panel to that window and hide the picker — used by the charge
-   * point detail view's main tab, which only wants "today" at a glance.
+   * Windows offered by the range picker (all by default); a single one locks
+   * the panel to it and hides the picker.
    */
   ranges?: readonly StatusHistoryRange[];
 };
 
 /**
- * Owns the range/connector selection and the fetch behind it
- * (`useStatusHistory`), handing the reduced result to `StatusHistoryPanel` —
- * the data-owning half of that container/presentational split. Also owns the
- * loading/error templates, so `StatusHistoryPanel` only ever renders the
- * loaded timeline.
+ * Owns the range/connector selection, the fetch (`useStatusHistory`) and the
+ * loading/error states for `StatusHistoryPanel`.
  */
 export const StatusHistoryPanelContainer = ({
   chargePointId,
@@ -41,9 +36,8 @@ export const StatusHistoryPanelContainer = ({
   const [range, setRange] = useState<StatusHistoryRange>(ranges[0]);
   const [connectorId, setConnectorId] = useState<number>(connectorIds[0] ?? 1);
 
-  // Follows the charge point's own connectors: a selection that no longer
-  // exists (station swapped, or the initial default before connectorIds
-  // loaded) falls back to the first one rather than querying a stale id.
+  // A connector that no longer exists (or the default before connectorIds
+  // load) falls back to the first one.
   useEffect(() => {
     if (connectorIds.length > 0 && !connectorIds.includes(connectorId)) {
       setConnectorId(connectorIds[0]);

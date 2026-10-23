@@ -1,9 +1,7 @@
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
-// The auth envelope charge-points-server's /api/me/commissioning-token routes
-// return — not a domain entity, so it isn't part of
-// @watchborne/charge-points-types (same reasoning as lib/api-me.ts's `Me`).
+// The /api/me/commissioning-token envelope; not a domain entity.
 export type CommissioningTokenStatus = {
   // true only while the token is usable: an expired one reports false, with
   // its past expiresAt, and so does a spent one (useCount reached maxUses),
@@ -11,9 +9,8 @@ export type CommissioningTokenStatus = {
   hasToken: boolean;
   createdAt: string | null;
   expiresAt: string | null;
-  // Charge points commissioned with the current token (a use is a claim that
-  // succeeded) and the optional ceiling on them. Null when the caller has no
-  // token; absent from backends predating charge-points-server ADR 0029.
+  // Charge points commissioned with the current token, and the optional
+  // ceiling. Null without a token; absent from older backends.
   useCount?: number | null;
   maxUses?: number | null;
   // Last time a station presented the token, refusals included (hourly
@@ -37,9 +34,8 @@ export const commissioningTokenApis = {
     );
   },
 
-  // `maxUses` caps how many charge points the new token may commission
-  // (1 to 1000); omitted, the token is unlimited. An empty body keeps working
-  // against backends predating charge-points-server ADR 0029.
+  // `maxUses` caps the charge points the new token may commission (1 to
+  // 1000); omitted, it is unlimited.
   issueToken: async function (maxUses?: number | null): Promise<IssuedCommissioningToken> {
     return withErrorLogging(
       () =>

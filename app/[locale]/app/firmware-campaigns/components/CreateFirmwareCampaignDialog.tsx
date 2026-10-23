@@ -31,10 +31,7 @@ import type { FirmwareCampaignTargetMode } from "@/lib/api-firmware-campaigns";
 import { useChargePoints } from "../../hooks/useChargePoints";
 import { useSites } from "../../hooks/useSites";
 
-// A day is still "today or later" up to its own midnight — comparing against
-// the start of today (not `new Date()`) so picking today itself isn't
-// rejected as being in the past by the time the click is processed. Mirrors
-// ScheduleNextVisitDialog's own helper.
+// Compared with the start of today, so today itself is not rejected.
 const startOfToday = (): Date => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -44,13 +41,8 @@ const startOfToday = (): Date => {
 const TARGET_MODES: readonly FirmwareCampaignTargetMode[] = ["SITE", "LIST", "FLEET"];
 
 /**
- * The form's own zod schema, built from `t` so the conditional-field and
- * future-date checks it backstops the backend's `400` with (see
- * `api-firmware-campaigns.ts`'s `CreateFirmwareCampaignBody` JSDoc) show
- * translated messages — this dashboard has no existing precedent for a
- * translated zod schema (its couple of other inline schemas hardcode English
- * strings), but `CLAUDE.md`'s i18n rule applies to every user-facing string,
- * validation messages included.
+ * The form's zod schema, built from `t` so its messages are translated. It
+ * backstops the backend's 400 on conditional fields and future dates.
  */
 const buildCreateFirmwareCampaignSchema = (t: ReturnType<typeof useTranslations>) =>
   z
@@ -107,12 +99,9 @@ type CreateFirmwareCampaignDialogProps = {
 };
 
 /**
- * Creates/schedules a fleet-wide firmware campaign against
- * `POST /api/firmware-campaigns`. Mirrors `ScheduleNextVisitDialog`'s
- * contract: it only calls `onSubmit` and leaves closing the dialog to the
- * caller, so a backend rejection (an out-of-scope `targetSiteId`, mainly —
- * everything else is caught client-side first) can surface without losing
- * the form's contents.
+ * Creates or schedules a fleet-wide firmware campaign. Only calls `onSubmit`
+ * and leaves closing to the caller, so a backend rejection (mainly an
+ * out-of-scope `targetSiteId`) keeps the form's contents.
  */
 export const CreateFirmwareCampaignDialog = ({
   open,

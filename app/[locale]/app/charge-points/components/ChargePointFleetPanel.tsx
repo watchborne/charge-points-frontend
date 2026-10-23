@@ -44,10 +44,8 @@ export const ChargePointFleetPanel = ({
 }: ChargePointFleetPanelProps) => {
   const t = useTranslations("");
   const [groupBy, setGroupBy] = useState<GroupBy>("site");
-  // Bulk-selection (checkboxes, for the fleet action bar) is deliberately
-  // separate from `selected` (the single charge point the detail panel on
-  // the right shows) — an installer bulk-resetting five stations still needs
-  // to click into one of them to see its detail.
+  // Bulk selection (checkboxes) is separate from `selected`, the charge point
+  // shown in the detail panel.
   const [bulkSelectedIds, setBulkSelectedIds] = useState<Set<string>>(new Set());
   const { registerFlipItem } = useFlipReorder();
 

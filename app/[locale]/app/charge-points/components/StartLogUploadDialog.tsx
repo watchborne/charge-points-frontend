@@ -33,10 +33,8 @@ type SubmitState =
 const ALLOWED_PROTOCOLS = ["http:", "https:", "ftp:", "ftps:"];
 
 /**
- * Client-side check on the URL an installer types — deliberately the same
- * allowlist `UpdateFirmwareDialog` enforces for its own target URL.
- * Convenience, not the boundary: this field decides where the station sends
- * its log file, so the server stays authoritative.
+ * The same allowlist as `UpdateFirmwareDialog`; the server stays
+ * authoritative.
  */
 const isAcceptableLocation = (value: string): boolean => {
   try {
@@ -69,8 +67,7 @@ const toIsoOrUndefined = (value: string): string | undefined =>
 
 type StartLogUploadDialogProps = {
   chargePointId: ChargePoint["id"];
-  /** `SecurityLog` has no OCPP 1.6 equivalent — gates that option out (mirrors
-   * `UpdateFirmwareDialog`'s signed-firmware gate on `ocppVersion`). */
+  /** `SecurityLog` has no 1.6 equivalent. */
   ocppVersion: ChargePoint["ocppVersion"];
   /** Refuses upfront when the station already has an upload running. */
   uploadInProgress: boolean;
@@ -80,15 +77,9 @@ type StartLogUploadDialogProps = {
 };
 
 /**
- * Lets an installer request a remote log/diagnostics bundle (OCPP
- * `GetDiagnostics` for a 1.6 station, `GetLog` for 2.0.1 — the backend picks
- * the right one automatically).
- *
- * The station's answer isn't a plain success: a 2.0.1 station reports a
- * status, a 1.6 station only acknowledges the frame (its `GetDiagnostics.conf`
- * carries no accept/reject vocabulary at all) — so a `null` status is reported
- * as "requested" rather than "accepted", and the real outcome arrives through
- * the upload's own status.
+ * Requests a remote log bundle (`GetDiagnostics` on 1.6, `GetLog` on 2.0.1).
+ * A 1.6 station only acknowledges, so a `null` status reads "requested", not
+ * "accepted"; the outcome arrives through the upload's status.
  */
 export const StartLogUploadDialog = ({
   chargePointId,
@@ -106,9 +97,7 @@ export const StartLogUploadDialog = ({
   const [latestTimestamp, setLatestTimestamp] = useState("");
   const [state, setState] = useState<SubmitState>({ status: "idle" });
 
-  // 1.6 has no `logType` concept at all — a `GetDiagnostics` request always
-  // fetches the (only) diagnostics bundle, so offering "Security log" would
-  // promise something the station has nowhere to put.
+  // 1.6's GetDiagnostics has no log type: there is only one bundle.
   const supportsSecurityLog = ocppVersion === "2.0.1";
   const locationIsValid = remoteLocation.length > 0 && isAcceptableLocation(remoteLocation);
   const canSubmit = locationIsValid && state.status !== "loading";

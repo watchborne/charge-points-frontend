@@ -41,9 +41,8 @@ export function useChargePointActions({
 }: UseChargePointActionsProps): ChargePointActions {
   const queryClient = useQueryClient();
 
-  // Mutations rather than bare awaited calls: updateChargePoint throws on any
-  // non-2xx, and a fire-and-forget caller would turn that into an unhandled
-  // rejection with no feedback. `isError` lets the panel say the toggle failed.
+  // A mutation, so a non-2xx surfaces as `isError` instead of an unhandled
+  // rejection.
   const updateMutation = useMutation({
     mutationFn: (body: Parameters<typeof api.ChargePoints.updateChargePoint>[1]) =>
       api.ChargePoints.updateChargePoint(chargePointId, body),
@@ -53,8 +52,7 @@ export function useChargePointActions({
   });
   const { mutate: update, reset: resetUpdate } = updateMutation;
 
-  // Prefix match: invalidating queryKeys.audit.all() covers both this
-  // station's Activity tab and the platform-wide /app/activity page.
+  // Prefix match: covers this station's Activity tab and /app/activity.
   const invalidateAudit = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
   }, [queryClient]);
@@ -80,11 +78,8 @@ export function useChargePointActions({
     invalidateAudit();
   }, [currentChargePoint, update, queryClient, invalidateAudit]);
 
-  // reset/changeAvailability/unlockConnector are OCPP request/response
-  // commands: `api.ChargePoints` already catches every failure (including a
-  // thrown network error) and resolves with a discriminated outcome rather
-  // than rejecting, so the caller can show the specific reason (offline,
-  // rejected, timed out) rather than a generic error.
+  // These commands resolve with a discriminated outcome rather than
+  // rejecting, so the caller can show the specific reason.
   const reset = useCallback(
     async (type: ResetType) => {
       const outcome = await api.ChargePoints.resetChargePoint(chargePointId, type);

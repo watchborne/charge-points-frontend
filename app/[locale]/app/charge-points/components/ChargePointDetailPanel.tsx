@@ -60,8 +60,7 @@ export const DETAIL_TABS: readonly DetailTab[] = [
 export const isDetailTab = (value: string): value is DetailTab =>
   (DETAIL_TABS as readonly string[]).includes(value);
 
-// Remembers the tab a user last had open, across charge points and sessions,
-// so the panel can default there instead of always resetting to "main".
+// The last tab a user opened, used as the default on the next mount.
 const LAST_TAB_STORAGE_KEY = "cp-detail-last-tab";
 
 const readLastUsedTab = (): DetailTab | undefined => {
@@ -74,21 +73,13 @@ type ChargePointDetailPanelProps = {
   site: Site | undefined;
   onEditClicked: (cp: ChargePointWithConnectors) => void;
   onDeleteClicked: (cp: ChargePointWithConnectors) => void;
-  // Fired when this caller successfully releases their own access to this
-  // charge point (see ChargePointActionsSection's "access" group) — the
-  // charge point then drops out of this caller's own fleet, so the page
-  // should stop showing its detail panel.
+  // Fired when the caller releases their own access, so the page can close
+  // the panel.
   onReleased: (cp: ChargePointWithConnectors) => void;
-  // The tab to preselect on mount — set by the page from the `tab` query
-  // param when the charge point itself was also selected from the URL (see
-  // page.tsx's `highlightedId` effect). Only consulted at mount: a later
-  // change to this prop (e.g. the page re-deriving it from a stale search
-  // param) must not fight the user's own tab clicks.
+  // The tab to preselect, from the `tab` query param. Read at mount only, so
+  // a stale search param can't override the user's clicks.
   initialTab?: DetailTab;
-  // Fired only on an explicit user tab click, so the page can mirror it into
-  // the `tab` query param. Not fired by the automatic reset below — that
-  // reset happens because a *different* charge point was selected, which
-  // already goes through the page's own URL update (see updateDetailTarget).
+  // Fired only on a user tab click, so the page can mirror it into the URL.
   onTabChange?: (tab: DetailTab) => void;
 };
 
@@ -118,16 +109,10 @@ export const ChargePointDetailPanel = ({
     Record<string, UnlockConnectorState>
   >({});
 
-  // Drop any previous run's pending/result state when a different station is
-  // opened, so it never leaks across charge points. Only resets the tab when
-  // chargePoint.id actually changed from what this effect last saw — not
-  // merely "is this the first run" — so the initialTab above (deep-linked
-  // from the URL) survives React 18 Strict Mode's development double-invoke
-  // of a fresh mount's effects (a boolean "first run" flag flips permanently
-  // on the first of the two invocations, so the second would otherwise
-  // clobber the tab straight back to the default). Falls back to the user's
-  // own last-used tab rather than always "main", so switching stations keeps
-  // landing on whichever tab this user actually works from.
+  // Reset pending/result state when a different station opens. The tab resets
+  // only when chargePoint.id changed (not on a "first run" flag, which Strict
+  // Mode's double-invoke would flip), so a deep-linked initialTab survives.
+  // Falls back to the user's last-used tab.
   const previousChargePointId = useRef(chargePoint?.id);
   useEffect(() => {
     if (previousChargePointId.current !== chargePoint?.id) {
@@ -139,10 +124,7 @@ export const ChargePointDetailPanel = ({
     setUnlockConnectorState({});
   }, [chargePoint?.id]);
 
-  // Applies the same last-used-tab preference to the very first mount, but
-  // only when the tab wasn't already deep-linked from the URL (initialTab
-  // always wins). Runs once: initialTab is itself only ever consulted at
-  // mount (see its own doc comment above), so this mirrors that.
+  // On first mount, apply the last-used tab unless initialTab is set.
   useEffect(() => {
     if (initialTab) return;
     const stored = readLastUsedTab();

@@ -21,16 +21,9 @@ type CertificatesPanelProps = {
 };
 
 /**
- * The trust-anchor-certificate section of a charge point's detail panel:
- * what's installed (OCPP `GetInstalledCertificateIds`), and lets an
- * installer add or remove one — the `LogUploadPanel` equivalent for
- * `InstallCertificate`/`DeleteCertificate`/`GetInstalledCertificateIds`
- * (issue #535). Applies to both OCPP dialects, unlike the 2.0.1-only panels
- * around it in the security tab.
- *
- * Fetch-once and self-contained: like `LogUploadPanel`, there is no
- * dedicated WebSocket broadcast for this yet, so this does not subscribe to
- * the dashboard socket — `reload()` is a plain refetch after a write.
+ * A charge point's installed certificates (`GetInstalledCertificateIds`), with
+ * install and delete actions. Applies to both OCPP dialects. Fetch-once:
+ * `reload()` refetches after a write.
  */
 export const CertificatesPanel = ({
   chargePointId,
@@ -88,9 +81,8 @@ export const CertificatesPanel = ({
         <div className="divide-y rounded-md border">
           {certificates.map((certificate, index) => (
             <div
-              // A certificate has no stable id of its own; the hash fields together
-              // with the array position are as stable a key as this list can offer
-              // between refetches.
+              // A certificate has no id: the serial number plus position is the
+              // most stable key available.
               key={`${certificate.certificateHashData.serialNumber}-${index}`}
               className="flex items-center justify-between gap-2 px-3 py-2"
             >

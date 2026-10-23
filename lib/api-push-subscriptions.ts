@@ -1,12 +1,8 @@
 import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 
-// The Web Push subscription envelope charge-points-server's
-// /api/me/push-subscriptions routes accept/return. Not part of
-// @watchborne/charge-points-types, same reasoning as CommissioningToken/
-// SiteVisit/SecurityEvent/Me above: `PushSubscription` is kept server-local
-// (charge-points-server issues #587-590), so this response contract is the
-// shared surface a client codes against.
+// The /api/me/push-subscriptions contract; `PushSubscription` is
+// server-local.
 export type PushSubscriptionKeys = {
   p256dh: string;
   auth: string;
@@ -19,10 +15,8 @@ export type SubscribedPushSubscription = {
 
 export const pushSubscriptionApis = {
   /**
-   * Upserts this browser's Web Push subscription. Idempotent on `endpoint`
-   * server-side, so calling it again with the same subscription (e.g. after
-   * a `pushsubscriptionchange`) is safe. Also sends the browser's user agent,
-   * which a re-subscribe refreshes.
+   * Upserts this browser's subscription (idempotent on `endpoint`, so safe
+   * after a `pushsubscriptionchange`), with the browser's user agent.
    */
   subscribe: async function (
     endpoint: string,
@@ -33,9 +27,8 @@ export const pushSubscriptionApis = {
         httpClient.post<SubscribedPushSubscription>("/api/me/push-subscriptions", {
           endpoint,
           keys,
-          // The proxy hop would otherwise hand the backend the Next server's
-          // own User-Agent, so the browser's is sent in the body — the backend
-          // stores it to tell device type, OS and browser version apart.
+          // In the body: the proxy hop would send the Next server's
+          // User-Agent. Used to tell devices and browsers apart.
           userAgent: typeof navigator === "undefined" ? undefined : navigator.userAgent,
         }),
       "PushSubscriptions.subscribe",
@@ -43,10 +36,8 @@ export const pushSubscriptionApis = {
   },
 
   /**
-   * Removes this browser's Web Push subscription. Always resolves — the
-   * backend returns 204 unconditionally, scoped to the caller's own
-   * subscriptions, so an endpoint that was never registered (or already
-   * removed) is not an error.
+   * Removes this browser's subscription. Always resolves: the backend answers
+   * 204 even for an unknown endpoint.
    */
   unsubscribe: async function (endpoint: string): Promise<void> {
     return withErrorLogging(

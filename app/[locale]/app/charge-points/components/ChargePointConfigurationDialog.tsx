@@ -62,16 +62,10 @@ type ChargePointConfigurationDialogProps = {
 };
 
 /**
- * Reads and sets a charge point's OCPP configuration. Self-contained: fetches
- * on open, lists the reported keys, and offers a key/value form to change one —
- * re-reading afterwards so the table reflects the change. Lets an installer
- * inspect and retune a station remotely.
- *
- * Dialect-agnostic by construction: it talks flat keys to the backend's
- * `/settings` endpoint, which dispatches GetConfiguration/ChangeConfiguration to
- * an OCPP 1.6 station and GetVariables/SetVariables to a 2.0.1 one. So this
- * component never reads `chargePoint.ocppVersion` — the station's dialect is not
- * something the UI has to know or render.
+ * Reads and sets a charge point's configuration, re-reading after a change.
+ * Dialect-agnostic: the backend's `/settings` maps flat keys to
+ * GetConfiguration/ChangeConfiguration (1.6) or GetVariables/SetVariables
+ * (2.0.1).
  */
 export const ChargePointConfigurationDialog = ({
   chargePointId,
@@ -104,13 +98,11 @@ export const ChargePointConfigurationDialog = ({
     mutationFn: () => api.ChargePoints.setSetting(chargePointId, key.trim(), value),
     onSuccess: async (outcome) => {
       setSetOutcome(outcome);
-      // Re-read so the table reflects the applied change.
       if (outcome.ok) {
         await queryClient.invalidateQueries({
           queryKey: queryKeys.settings.chargePoint(chargePointId),
         });
-        // Prefix match: invalidates both this station's Activity tab and the
-        // platform-wide /app/activity page.
+        // Prefix match: covers this station's Activity tab and /app/activity.
         await queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
       }
     },

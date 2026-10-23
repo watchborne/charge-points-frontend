@@ -3,22 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
- * Local-dev-only shortcut around the real OTP-code email round-trip.
+ * Local-dev-only shortcut around the OTP email: returns the code
+ * (`properties.email_otp` from the admin API), which `DevLoginShortcut` passes
+ * to `VerifyOtpForm` for the normal client-side `verifyOtp`.
  *
- * Returns the code itself (`properties.email_otp` from the admin API)
- * instead of creating a session server-side: `DevLoginShortcut` feeds it
- * into `VerifyOtpForm`, which runs the same client-side
- * `supabase.auth.verifyOtp` call a real user's browser would after reading
- * the code from their inbox. Skips the real email, but exercises the actual
- * sign-in path — unlike this route's magic-link-era version, which had to
- * verify a `token_hash` server-side (a real magic link's PKCE exchange can
- * only be driven by the browser that requested it — ADR 0005, charge-points-server).
- *
- * Disabled outside development, whenever `SUPABASE_SERVICE_ROLE_KEY` isn't
- * set (never in a deployed environment), and unless `ENABLE_DEV_LOGIN=true`
- * is explicit. That second flag means a misconfigured non-prod deployment
- * with the service-role key set (e.g. preview/staging) still can't mint a
- * code for an arbitrary email — it can't activate by accident outside a dev machine.
+ * Disabled in production, without `SUPABASE_SERVICE_ROLE_KEY`, and unless
+ * `ENABLE_DEV_LOGIN=true`, so a non-prod deployment that has the service-role
+ * key still can't mint a code for an arbitrary email.
  */
 export async function GET(request: NextRequest) {
   if (

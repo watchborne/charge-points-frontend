@@ -25,31 +25,17 @@ type Props = {
   endedAt: Date | string | null;
   /** Every measurand the session's connector reported. */
   series: MeterSampleSummary[];
-  /** The raw samples behind all of them — unfiltered, since the measurand
-   * selector below switches which slice plots without needing new data. */
+  /** The raw samples, unfiltered: the selector switches the slice. */
   samples: MeterSample[];
 };
 
 /**
- * One charging session's meter readings: a tile per measurand the session's
- * connector reported (same delivered-vs-average distinction
- * `ChargePointConsumptionPanel` draws for the tab), a measurand selector
- * when there's more than one, and the selected measurand plotted with the
- * same `ConsumptionChart` the tab uses — scoped to that session's own
- * connector and timeframe (`endedAt ?? now` for a still-active session)
- * rather than the tab's rolling 24h/7d/30d windows.
+ * One session's meter readings: a tile per reported measurand, a selector when
+ * there are several, and the selected one plotted with `ConsumptionChart`,
+ * over the session's connector and timeframe (`endedAt ?? now`).
  *
- * Defaults the selector to the cumulative energy register when the station
- * reported one (the figure an installer actually wants for "how much did
- * this session deliver"), falling back to whichever measurand sorts first
- * otherwise — same precedence `ChargePointConsumptionPanelContainer` uses
- * for the tab.
- *
- * Purely presentational — `SessionConsumptionChartContainer` owns the fetch
- * and renders its own loading/error state in place of this component, so
- * `series`/`samples` here are always the loaded result; the marketing
- * site's product preview can render this directly with static fixture data
- * instead of duplicating the markup.
+ * Presentational: `SessionConsumptionChartContainer` owns the fetch and the
+ * loading/error states.
  */
 export const SessionConsumptionChart = ({
   connectorId,
@@ -73,10 +59,8 @@ export const SessionConsumptionChart = ({
   const measurandLabel = (measurand: string) =>
     t(`appPage.chargePoints.consumption.measurands.${measurand.replaceAll(".", "")}`) ?? measurand;
 
-  // The station decides which measurands exist, so selection follows the
-  // data — same precedence ChargePointConsumptionPanelContainer uses for
-  // the tab: default to the energy register, fall back to alphabetically
-  // first. Re-runs whenever a fresh load changes what's available.
+  // Default to the energy register, else the first measurand; re-run when a
+  // load changes what's available.
   useEffect(() => {
     if (measurands.length === 0) return;
     if (selectedMeasurand && measurands.includes(selectedMeasurand)) return;

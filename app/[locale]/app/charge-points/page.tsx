@@ -36,10 +36,7 @@ import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
 import { FleetChargePointsPanelSkeleton } from "./components/FleetChargePointsPanelSkeleton";
 
-// useSearchParams() requires a Suspense boundary for this page to be
-// statically rendered (see i18n/routing.ts for why static generation matters
-// here) — Next.js can't know the search params at build time, so it needs
-// somewhere to bail out to client-side rendering for just this part.
+// useSearchParams() needs a Suspense boundary for the page to stay static.
 export default function ChargePointsPage() {
   return (
     <Suspense
@@ -97,32 +94,26 @@ function ChargePointsPageContent() {
   const searchParams = useSearchParams();
   const highlightedId = searchParams.get("id") ?? undefined;
   const tabParam = searchParams.get("tab");
-  // Only meaningful together with `highlightedId`, below: preselects a tab in
-  // the detail panel when a charge point is deep-linked from the URL.
+  // Preselects a detail tab when a charge point is deep-linked.
   const highlightedTab = tabParam && isDetailTab(tabParam) ? tabParam : undefined;
   const didAutoSwitch = useRef(false);
 
   const [createOpen, setCreateOpen] = useState(false);
-  // Set right after a successful create (ADR 0010, charge-points-server):
-  // opens ChargePointConnectionUrlDialog with the ready-to-paste connection
-  // URL, the pre-provisioning flow's one remaining installer step.
+  // Set after a successful create: opens ChargePointConnectionUrlDialog.
   const [createdChargePoint, setCreatedChargePoint] = useState<CreatedChargePoint | null>(null);
   const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
   const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
   const [commissionTarget, setCommissionTarget] = useState<ChargePointWithConnectors | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
 
-  // Charge points that have never been through commissioning form the
-  // backlog. Computed from the full list (not the search-filtered one) so
-  // the queue is always complete regardless of the current search.
+  // The commissioning backlog, from the full list (not the search-filtered
+  // one).
   const unassignedChargePoints = useMemo(
     () => chargePoints.filter(isAwaitingCommissioning),
     [chargePoints],
   );
 
-  // Every OCPP version currently present in the fleet, offered as filter
-  // options — not the package's static "1.6" | "2.0.1" union, so a future
-  // version shows up here without a frontend change.
+  // The OCPP versions present in the fleet, not a static list.
   const ocppVersionOptions = useMemo(
     () => [...new Set(chargePoints.map((cp) => cp.ocppVersion))].sort(),
     [chargePoints],
@@ -173,7 +164,7 @@ function ChargePointsPageContent() {
   const handleCreate = async (values: ChargePointFormValues) => {
     const created = await createChargePointMutation.mutateAsync({
       name: values.name,
-      // Empty selection means "unassigned" — send null, not "".
+      // Empty selection means unassigned: send null, not "".
       siteId: values.siteId || null,
       isActive: values.isActive,
       meta: {
@@ -231,9 +222,7 @@ function ChargePointsPageContent() {
   const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
     setDetailTarget(cp);
     if (cp) {
-      // Selecting a (possibly different) charge point always drops any
-      // previous `tab` — the detail panel itself resets to "main" whenever
-      // its charge point changes (see ChargePointDetailPanel).
+      // Selecting a charge point drops `tab`: the panel resets to "main".
       router.replace(`/app/charge-points?id=${cp.id}`);
     } else {
       router.replace(`/app/charge-points`);

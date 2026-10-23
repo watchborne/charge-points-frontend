@@ -19,13 +19,9 @@ import { useDateFormat } from "@/lib/date-format";
 import { formatUnit } from "@/lib/format-unit";
 
 /**
- * The categorical slots, in fixed order, read from the CSS custom
- * properties in `app/globals.css` so light and dark each get their own
- * validated step without this component knowing which mode is active.
- *
- * Three, not more: overlaid lines can end up beside any other line, so the
- * palette must clear colour-blindness floors on every pair, and past three
- * hues no ordering does. `CHARTABLE_CONNECTORS` makes that cap explicit.
+ * The categorical slots, read from `app/globals.css` so each mode gets its own
+ * validated colour. Three at most: past three hues no ordering clears the
+ * colour-blindness floors on every pair (see `CHARTABLE_CONNECTORS`).
  */
 const SERIES_VARS = ["var(--series-1)", "var(--series-2)", "var(--series-3)"] as const;
 export const CHARTABLE_CONNECTORS = SERIES_VARS.length;
@@ -36,13 +32,9 @@ type ChartRow = { measuredAt: number } & Record<string, number | undefined>;
 const connectorKey = (connectorId: number) => `c${connectorId}`;
 
 /**
- * Pivots the flat sample list into one row per timestamp, one column per
- * connector.
- *
- * Connectors on one station sample on the same timer but not necessarily the
- * same instant, so a row can legitimately hold one connector's value and not
- * another's. Those gaps stay `undefined`, not 0 — `connectNulls` bridges the
- * line instead of drawing a drop to zero the meter never read.
+ * One row per timestamp, one column per connector. Connectors don't sample at
+ * the same instant, so gaps stay `undefined`, not 0: `connectNulls` bridges
+ * them instead of drawing a drop to zero.
  */
 const toChartRows = (samples: MeterSample[], connectorIds: number[]): ChartRow[] => {
   const rows = new Map<number, ChartRow>();
@@ -70,12 +62,9 @@ type Props = {
 };
 
 /**
- * One measurand's readings over time, one line per connector.
- *
- * Deliberately single-measurand: energy in Wh and power in W don't share a
- * scale, and a second y-axis to fit both would have an arbitrary alignment
- * — inventing a correlation the data doesn't contain. The panel's measurand
- * selector keeps this to one unit; the caption above the plot names it.
+ * One measurand's readings over time, one line per connector. Single
+ * measurand: Wh and W don't share a scale, and a second y-axis would invent a
+ * correlation.
  */
 export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spansDays }: Props) => {
   const t = useTranslations("");
@@ -102,8 +91,8 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
   const single = connectorIds.length === 1;
 
   return (
-    // The plot is an SVG a screen reader can't narrate, so the region
-    // carries the name (measurand + unit); the panel's table view carries the values.
+    // A screen reader can't narrate the SVG: the region carries the name, the
+    // table view the values.
     <div
       role="img"
       aria-label={t("appPage.chargePoints.consumption.chartLabel", {
@@ -140,8 +129,7 @@ export const ConsumptionChart = ({ samples, connectorIds, measurand, unit, spans
             width={64}
           />
           <Tooltip
-            // The crosshair finds the x: the reader aims at a moment, not a
-            // 2px line, and the readout lists every connector at that moment.
+            // The readout lists every connector at the hovered x.
             cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1 }}
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;

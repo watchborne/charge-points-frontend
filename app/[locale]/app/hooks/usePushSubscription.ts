@@ -5,16 +5,11 @@ import { api } from "@/lib/api";
 import { VAPID_PUBLIC_KEY } from "@/lib/constants";
 import { reportError } from "@/lib/report-error";
 
-// Same-origin static asset (public/sw.js) — Next.js serves public/ untouched,
-// so this is a plain root-relative path, not an import.
 const SERVICE_WORKER_URL = "/sw.js";
 
 /**
- * VAPID keys are distributed base64url-encoded; `PushManager.subscribe`'s
- * `applicationServerKey` wants a raw Uint8Array. Standard, well-known
- * ~10-line conversion — not worth a dependency. `public/sw.js` keeps its own
- * copy of this same helper: a service worker can't import a module from the
- * app bundle, so it can't share this one.
+ * base64url VAPID key to the `Uint8Array` `PushManager.subscribe` wants.
+ * `public/sw.js` has its own copy: a service worker can't import app modules.
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -35,13 +30,8 @@ async function getOrRegisterServiceWorker(): Promise<ServiceWorkerRegistration> 
     await navigator.serviceWorker.register(SERVICE_WORKER_URL);
   }
 
-  // `register()` resolves once registration begins, not once a worker is
-  // active — on a brand-new registration (e.g. the very first time a freshly
-  // installed PWA registers this worker, with nothing already active from an
-  // earlier visit) the worker can still be installing/waiting at that point.
-  // `pushManager.subscribe()` requires an active worker, so calling it right
-  // off `register()`'s result races activation and throws. `.ready` resolves
-  // only once this scope has an active worker, existing or brand new.
+  // `register()` resolves before a new worker is active, and
+  // `pushManager.subscribe()` needs an active one: `.ready` waits for it.
   return navigator.serviceWorker.ready;
 }
 
@@ -50,12 +40,9 @@ export type UsePushSubscriptionReturn = {
   permission: NotificationPermission | null;
   isSubscribed: boolean;
   /**
-   * Resolves to the `Notification.requestPermission()` outcome the attempt
-   * reached (`"granted"` / `"denied"` / `"default"`), or `null` when
-   * permission was never requested (misconfigured VAPID key — see the
-   * soft-fail below). `"denied"` is a normal, non-throwing outcome, not a
-   * failure: callers should branch on the resolved value to tell it apart
-   * from a rejected promise (a real error).
+   * Resolves to the permission outcome (`"granted"`/`"denied"`/`"default"`),
+   * or `null` when permission was never requested (VAPID key unset).
+   * `"denied"` is an outcome, not a rejection.
    */
   subscribe: () => Promise<NotificationPermission | null>;
   unsubscribe: () => Promise<void>;
@@ -64,22 +51,9 @@ export type UsePushSubscriptionReturn = {
 };
 
 /**
- * Web Push subscription plumbing (charge-points-frontend issue #400, first
- * PR of the Web Push notification-channel epic; backend half is
- * charge-points-server issues #587-590). Deliberately exposes nothing beyond
- * what #401's settings toggle needs — registering the service worker,
- * requesting permission, and subscribing/unsubscribing through
- * `api.PushSubscriptions` — plus (#401) `isSubscribed`, an on-mount check of
- * the browser's actual subscription state via
- * `navigator.serviceWorker.getRegistration()` +
- * `registration.pushManager.getSubscription()`, so the settings toggle
- * reflects reality on page load rather than only tracking in-session
- * mutation state.
- *
- * Built on `useMutation` rather than local `useState`/try-catch, mirroring
- * `useSiteVisits`'s `recordVisit` — both are one-shot actions against a
- * backend endpoint, not cached server state to `useQuery`, so there is
- * nothing here to list or invalidate.
+ * Web Push subscription: registers the service worker, requests permission
+ * and subscribes/unsubscribes through `api.PushSubscriptions`. `isSubscribed`
+ * is checked against the browser on mount, so the toggle reflects reality.
  */
 export function usePushSubscription(): UsePushSubscriptionReturn {
   const isSupported =
@@ -104,8 +78,7 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
     return () => {
       cancelled = true;
     };
-    // isSupported is derived from navigator/window, not a value that changes
-    // across renders, so it's deliberately left out of the dependency array.
+    // isSupported never changes across renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -116,10 +89,8 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
       }
 
       if (!VAPID_PUBLIC_KEY) {
-        // Soft-fail, matching lib/constants.ts's own precedent for a
-        // required-but-possibly-unset public env var read in the browser
-        // (see SUPABASE_URL there): log clearly and stop, rather than let
-        // pushManager.subscribe throw on an empty applicationServerKey.
+        // Soft-fail like lib/constants.ts's SUPABASE_URL: report and stop,
+        // rather than let subscribe throw on an empty key.
         reportError(
           new Error("NEXT_PUBLIC_VAPID_PUBLIC_KEY is not set — cannot subscribe."),
           "usePushSubscription.subscribe",
@@ -135,10 +106,7 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        // Cast needed regardless of the exact TypeScript/lib.dom.d.ts pairing:
-        // some combinations type a generic Uint8Array<ArrayBufferLike> as not
-        // structurally assignable to BufferSource, even though it always is
-        // one at runtime.
+        // Some lib.dom.d.ts versions don't see Uint8Array as a BufferSource.
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
       });
 
@@ -149,10 +117,8 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
 
       await api.PushSubscriptions.subscribe(endpoint, keys);
 
-      // public/sw.js can't read NEXT_PUBLIC_* env vars (it's an unbundled
-      // static asset) — hand it the key so a later `pushsubscriptionchange`
-      // can resubscribe with an equivalent one. See sw.js's own comment for
-      // why this postMessage handoff is the chosen approach.
+      // public/sw.js can't read env vars: hand it the key so a
+      // `pushsubscriptionchange` can resubscribe.
       registration.active?.postMessage({
         type: "SET_VAPID_PUBLIC_KEY",
         key: VAPID_PUBLIC_KEY,
@@ -173,11 +139,9 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
       const subscription = await registration?.pushManager.getSubscription();
       if (!subscription) return;
 
-      // Browser first: it is local, so it can't fail on the network or on an
-      // expired session (common in a long-lived PWA), and it is what the
-      // toggle reflects. The backend call is best-effort afterwards — if it
-      // fails, the push service answers 404/410 for the dead endpoint and the
-      // backend prunes it on the next send.
+      // Browser first: local, so it can't fail on the network or an expired
+      // session. The backend call is best-effort; a dead endpoint is pruned
+      // on the next send (404/410).
       const { endpoint } = subscription;
       await subscription.unsubscribe();
 
@@ -187,10 +151,7 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
         reportError(error, "usePushSubscription.unsubscribe");
       }
     },
-    // unsubscribe() always ends in "not subscribed" from the caller's point
-    // of view — whether there was nothing to unsubscribe from, or the
-    // browser-side subscription was just torn down — so this fires
-    // unconditionally rather than branching on the (void-returning) result.
+    // Always ends "not subscribed", whatever there was to tear down.
     onSuccess: () => setIsSubscribed(false),
   });
 

@@ -1,35 +1,21 @@
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * The refresh currently in flight, shared by every caller that asks while it
- * runs. Cleared once it settles: this deduplicates a *burst* of concurrent
- * requests, it does not cache the outcome — a later burst must be free to
- * refresh again, since the token it finds may have expired since.
+ * The refresh in flight, shared by concurrent callers and cleared once
+ * settled: it deduplicates a burst, it doesn't cache the outcome.
  */
 let inFlight: Promise<void> | null = null;
 
 /**
- * Refreshes the browser's Supabase session before an API request goes out, so
- * the cookie that request carries is one the server can use as-is.
+ * Refreshes the browser's Supabase session before an API request, so the
+ * cookie it carries is usable as-is. Otherwise parallel requests with an
+ * expired token each refresh it in their own edge invocation, and Supabase's
+ * refresh-token reuse detection makes them contend. The browser client
+ * serializes behind a lock: one refresh per burst. No-op on the server.
  *
- * Without this, a dashboard startup fires several `/api/*` calls in parallel
- * holding an expired access token, and each one is refreshed independently by
- * its own isolated Netlify Edge Function invocation. Supabase rotates refresh
- * tokens with a reuse-detection window, so concurrent refreshes of the *same*
- * token do not collapse into one — they contend, and the first dashboard load
- * cost 5–6 s (issue #349, root cause of charge-points-server#488). Doing it
- * here instead moves the refresh into the browser client, which serializes
- * behind a lock: one refresh, however many callers ask at once.
- *
- * A no-op on the server — there is no browser cookie store to refresh there,
- * and the browser client has no business being constructed.
- *
- * **Never rejects.** A failed refresh must not turn into a failed API call:
- * the request goes out with whatever session it has, and the backend decides,
- * answering 401 when the token is unusable (charge-points-server ADR 0002).
- * That is also why `createClient()` is constructed inside the promise chain —
- * it throws synchronously when the Supabase env vars are unset, and that must
- * be swallowed like any other refresh failure.
+ * **Never rejects:** the request goes out with whatever session it has and the
+ * backend answers 401 if unusable. `createClient()` is called inside the chain
+ * because it throws when the Supabase env vars are unset.
  */
 export function ensureFreshSession(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();

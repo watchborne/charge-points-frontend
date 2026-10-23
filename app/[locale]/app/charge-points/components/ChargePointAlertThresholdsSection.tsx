@@ -14,14 +14,9 @@ type ChargePointAlertThresholdsSectionProps = {
 };
 
 /**
- * A charge point's alert thresholds, on its "alerts" tab (charge-points-server
- * issue #577): what the alert sweep applies to this station today, where each
- * value comes from (its own override, its site's, or the default), and the way
- * to change or reset its own overrides. Self-contained: it owns its query, its
- * dialog and its mutations, like `ChargePointReliabilityTile`.
- *
- * Resetting removes only the station's own overrides; the values then come from
- * its site again.
+ * A charge point's alert thresholds on its "alerts" tab: the values the alert
+ * sweep applies, where each comes from (own override, site, default), and
+ * editing or resetting its own overrides (resetting falls back to the site's).
  */
 export const ChargePointAlertThresholdsSection = ({
   chargePointId,

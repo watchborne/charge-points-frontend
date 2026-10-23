@@ -6,12 +6,9 @@ import { useToastNotification } from "@/app/components/ToastNotification";
 const COPIED_RESET_MS = 2000;
 
 /**
- * Copy-to-clipboard with the failure modes handled: `navigator.clipboard.writeText`
- * rejects when the page is unfocused, in an insecure context or when permission
- * is denied, and that must be said out loud (a toast) rather than left as an
- * unhandled rejection — the commissioning token is shown only once. `copied`
- * flips back after a couple of seconds; the timer is cleared on re-copy, `reset`
- * and unmount, so it never fires `setCopied` on a gone component.
+ * Copy to clipboard with a toast when `writeText` rejects (unfocused page,
+ * insecure context, denied permission). `copied` resets after a couple of
+ * seconds; the timer is cleared on re-copy, `reset` and unmount.
  */
 export const useCopyToClipboard = () => {
   const t = useTranslations("");

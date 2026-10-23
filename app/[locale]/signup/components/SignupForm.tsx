@@ -22,14 +22,9 @@ export function SignupForm({ onFormSubmitted }: SignupFormProps) {
     setIsLoading(true);
     setError(false);
 
-    // Alpha access is gated: signing up does NOT create an auth user, it only
-    // records a request via the backend (`POST /api/access-requests`, a public
-    // route). Access is granted out-of-band by inviting the email from the
-    // Supabase dashboard — that invite is what creates the user and lets
-    // `/login`'s `shouldCreateUser: false` flow work. `locale` is captured so the
-    // follow-up can be written in the requester's language. The backend is
-    // idempotent on the email, so a repeat request succeeds without leaking who
-    // has already applied.
+    // Signing up only records an access request (public route); access is
+    // granted by an admin inviting the email in Supabase. The backend is
+    // idempotent on email, so a repeat doesn't reveal who already applied.
     try {
       await api.AccessRequests.requestAccess({ email, locale });
       onFormSubmitted(email);

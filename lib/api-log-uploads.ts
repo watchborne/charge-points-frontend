@@ -11,14 +11,9 @@ import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 
 /**
- * Same discriminated-result shape as `StartFirmwareUpdateOutcome`, plus the
- * same wrinkle: **`status` is `null` for an OCPP 1.6 station**.
- *
- * 1.6's `GetDiagnostics.conf` reports only an optional `fileName`, no
- * accept/reject vocabulary at all — the backend answers `202` rather than
- * `200` for exactly that reason, same as `startFirmwareUpdate`. A `null`
- * status therefore means "requested, outcome unknown until the station
- * reports", not "failed".
+ * `status` is `null` for an OCPP 1.6 station: `GetDiagnostics.conf` has no
+ * accept/reject, so the backend answers 202. It means "requested", not
+ * "failed".
  */
 export type StartLogUploadOutcome = CommandOutcome<{
   status: GetLogStatusV201 | null;
@@ -35,13 +30,8 @@ export type StartLogUploadBody = {
 
 export const logUploadApis = {
   /**
-   * The charge point's remote-log-retrieval picture: the upload in flight and
-   * the last finished one.
-   *
-   * A plain read, so it goes through `httpClient` like the other GETs — unlike
-   * the OCPP commands above, there is no per-outcome HTTP status to
-   * discriminate. The backend answers 200 even for a charge point outside the
-   * caller's scope (both fields `null`), so there is no 404 to handle either.
+   * The upload in flight and the last finished one. A plain read; out of
+   * scope answers 200 with both fields `null`.
    */
   getLogUpload: async function (chargePointId: ChargePoint["id"]): Promise<ChargePointLogUpload> {
     return withErrorLogging(
@@ -62,11 +52,8 @@ export const logUploadApis = {
     }, "ChargePoint.listLogUploads");
   },
   /**
-   * Starts a remote log upload (OCPP `GetDiagnostics`/`GetLog`). Like the other
-   * OCPP commands this reads the raw HTTP status rather than going through
-   * `httpClient`, because the caller needs the specific outcome — and here also
-   * needs to tell `200` (station answered) from `202` (1.6 station acknowledged
-   * and said nothing).
+   * Starts a remote log upload (`GetDiagnostics`/`GetLog`), reading the raw
+   * status to tell 200 (station answered) from 202 (1.6 acknowledgment).
    */
   startLogUpload: async function (
     chargePointId: ChargePoint["id"],

@@ -2,12 +2,8 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { buildUptimeQuery, type UptimeQuery } from "./api-uptime";
 import { httpClient } from "./http-client";
 
-// The response shape for GET /api/charge-points/reliability. Not part of
-// @watchborne/charge-points-types, same reasoning as ChargePointUptime/SiteUptime
-// in api-uptime.ts: the backend's ranking (charge-points-server issue #581) is
-// response-only, no domain entity backs it — the dashboard codes against this
-// response contract. Timestamps arrive as ISO strings and are parsed where
-// rendered, never widened to `Date` here.
+// GET /api/charge-points/reliability: a response-only ranking, declared
+// locally. Timestamps are ISO strings.
 
 export type FleetReliabilityEntry = {
   chargePointId: string;

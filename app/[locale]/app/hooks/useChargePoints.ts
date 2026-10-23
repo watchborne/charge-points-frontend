@@ -24,10 +24,8 @@ export function useChargePoints(): UseChargePointsReturn {
   const { lastMessage, status } = useWebSocketContext();
   const { pushWarningNotification } = useToastNotification();
   const hasConnectedRef = useRef(false);
-  // Read through refs (rather than as effect dependencies) below: `t` from
-  // `useTranslations` and `pushWarningNotification` are not guaranteed to be
-  // referentially stable across renders, and this effect must only re-run
-  // when a new WebSocket message actually arrives.
+  // Read through refs: `t` and `pushWarningNotification` aren't stable, and
+  // the effect must only re-run on a new WebSocket message.
   const tRef = useRef(t);
   tRef.current = t;
   const pushWarningNotificationRef = useRef(pushWarningNotification);
@@ -47,10 +45,8 @@ export function useChargePoints(): UseChargePointsReturn {
 
   useReportQueryError(error, "useChargePoints.load");
 
-  // Same shape as loadChargePoints below, but doesn't touch the query's
-  // loading/error state: used when resyncing after a WebSocket reconnection,
-  // where showing a loading spinner or an error banner would just be visual
-  // flicker over data that's already on screen.
+  // Like loadChargePoints, without touching loading/error state: used to
+  // resync after a reconnection, over data already on screen.
   const refetchSilently = useCallback(async () => {
     try {
       const freshData = await api.ChargePoints.getChargePoints();
@@ -104,11 +100,9 @@ export function useChargePoints(): UseChargePointsReturn {
     );
   }, [lastMessage, queryClient]);
 
-  // Le WebSocket ne rejoue pas les événements manqués pendant une coupure : on
-  // resynchronise via un refetch REST à chaque reconnexion (mais pas à la
-  // toute première connexion, déjà couverte par le fetch initial ci-dessus).
-  // Use refetchSilently instead of a tracked refetch to avoid showing the
-  // loading state, which causes visual flicker on dashboard reconnections.
+  // The WebSocket doesn't replay events missed while disconnected, so resync
+  // on every reconnection (not the first connection, covered by the initial
+  // fetch), silently to avoid flicker.
   useEffect(() => {
     if (status !== "CONNECTED") return;
     if (hasConnectedRef.current) {

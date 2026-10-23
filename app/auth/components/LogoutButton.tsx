@@ -19,11 +19,6 @@ export const LogoutButton = ({ className }: { className?: string }) => {
     const supabase = createClient();
     await supabase.auth.signOut();
 
-    // Full-page navigation, not a client-side router push: the marketing Navbar
-    // resolves the signed-in user once on mount, so a soft navigation would
-    // leave it showing the stale "Go to dashboard" link and keep this button
-    // stuck disabled. A hard reload remounts everything against the now-cleared
-    // session.
     router.push("/");
   };
 

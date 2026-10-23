@@ -115,8 +115,7 @@ class WebSocketManager {
 
     const token = await this.fetchToken();
 
-    // We may have been told to disconnect (e.g. all consumers unmounted) while
-    // the token request was in flight — bail out instead of opening a socket.
+    // Told to disconnect while the token request was in flight: bail out.
     if (!this.shouldAutoReconnect || this.refCount === 0) {
       this.connecting = false;
       return;
@@ -177,10 +176,8 @@ class WebSocketManager {
 
   private scheduleReconnect() {
     if (this.reconnectAttempt >= WebSocketManager.MAX_RECONNECT_ATTEMPTS) {
-      // Give up after too many consecutive failures instead of retrying
-      // forever, and surface a terminal error state so the UI can reflect
-      // it. A fresh subscriber (subscribe()) or a manual reconnect() call
-      // both reset reconnectAttempt and can bring the connection back.
+      // Give up after too many failures, with a terminal error state; a new
+      // subscribe() or reconnect() resets the count.
       this.shouldAutoReconnect = false;
       this.status = "ERROR";
       this.emit();
@@ -192,11 +189,8 @@ class WebSocketManager {
     this.reconnectTimeout = setTimeout(() => void this.connect(), delay);
   }
 
-  // Equal jitter: half the exponential backoff is guaranteed, the other half
-  // is randomized. Without jitter, every dashboard reconnects in lockstep
-  // after a shared server blip (thundering herd); the guaranteed half keeps
-  // a sane minimum wait instead of letting jitter alone allow near-instant
-  // retries.
+  // Equal jitter: half the backoff is guaranteed, half random, so dashboards
+  // don't reconnect in lockstep after a shared blip.
   private nextReconnectDelay() {
     const exponential = Math.min(
       WS_RECONNECT_BASE_DELAY_MS * WS_RECONNECT_BACKOFF_MULTIPLIER ** this.reconnectAttempt,

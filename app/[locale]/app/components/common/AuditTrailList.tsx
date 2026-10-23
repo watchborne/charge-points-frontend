@@ -16,17 +16,13 @@ type AuditTrailListProps = {
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
   emptyMessageKey: string;
-  // Resolves a row's target (charge point/site/customer) to a display name —
-  // only meaningful on the platform-wide page, which lists rows for more
-  // than one target; the per-charge-point tab omits it.
+  // Resolves a row's target to a name; only for /app/activity.
   getTargetLabel?: (entry: AuditEntry) => string | undefined;
 };
 
 /**
- * Renders a cursor-paginated audit trail: a "load more" control that is both
- * clickable and auto-triggers via IntersectionObserver once it scrolls into
- * view — real infinite scroll, with a keyboard/click fallback for anyone
- * (or any test) that can't rely on the observer firing.
+ * A cursor-paginated audit trail. "Load more" triggers on scroll
+ * (IntersectionObserver) and on click.
  */
 export const AuditTrailList = ({
   entries,

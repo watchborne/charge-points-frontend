@@ -20,10 +20,8 @@ const UPCOMING_PHASE = "upcoming";
 
 export default async function RoadmapPage({ params }: Props) {
   const { locale } = await params;
-  // Required in this page too, not just the layout — see app/[locale]/(marketing)/page.tsx.
   setRequestLocale(locale as Locale);
 
-  // getTranslations, not useTranslations: see app/[locale]/(marketing)/page.tsx.
   const t = await getTranslations("");
 
   // Phases are listed in delivery order, the upcoming one last.

@@ -51,21 +51,12 @@ type Props = {
 };
 
 /**
- * A charge point's consumption: the window reduced to headline figures, and
- * the readings behind them plotted over time.
+ * A charge point's consumption: headline figures for the window and the
+ * readings plotted over time, one measurand at a time (Wh and W don't share a
+ * scale). The selector lists only what the station reported.
  *
- * One measurand at a time, on purpose — Wh and W don't share a scale, and
- * drawing both needs a second y-axis whose alignment is arbitrary, inventing
- * a correlation the meter never reported. The selector is built from what
- * the station actually reported in the window (the summary read), never a
- * hardcoded OCPP vocabulary, so a station with only an energy register shows exactly one option.
- *
- * Purely presentational — `ChargePointConsumptionPanelContainer` owns the
- * range/measurand selection and the fetch behind it, and renders its own
- * loading/error state in place of this component, so the marketing site's
- * product preview can render this directly with static data instead of
- * duplicating the markup. `view` (chart vs. table) stays local: it never
- * affects what's fetched, only how the same data is displayed.
+ * Presentational: `ChargePointConsumptionPanelContainer` owns the selection,
+ * the fetch and the loading/error states. `view` (chart or table) stays local.
  */
 export const ChargePointConsumptionPanel = ({
   range,
@@ -101,9 +92,8 @@ export const ChargePointConsumptionPanel = ({
   const omittedConnectors = selectedSeries.length - chartedSeries.length;
   const unit = chartedSeries[0]?.unit;
 
-  // Raw readings for the selected measurand (all connectors, not just the
-  // charted ones), ISO timestamps and unformatted values so the file is
-  // machine-readable rather than a copy of the display.
+  // Raw readings for the selected measurand (all connectors), with ISO
+  // timestamps and unformatted values.
   const exportRows = () => [
     [
       t("appPage.chargePoints.consumption.table.measuredAt"),
