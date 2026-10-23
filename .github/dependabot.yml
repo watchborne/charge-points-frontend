@@ -28,13 +28,38 @@ updates:
         patterns:
           - "@watchborne/charge-points-types"
           - "@watchborne/electrons"
+      # Minor and patch bumps only. A major version is deliberately left out of
+      # every group, so Dependabot opens it as its own PR: a single major used to
+      # turn a whole group red (ESLint 10, Tailwind 4 and TypeScript 7 sank the
+      # six bumps of #560 together), and on its own the culprit is obvious.
       production-dependencies:
         dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
         exclude-patterns:
           - "@watchborne/charge-points-types"
           - "@watchborne/electrons"
       development-dependencies:
         dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Toolchain majors are a migration, not a routine bump: TypeScript and
+    # Vitest change the compiler and test runner the whole suite depends on
+    # (TypeScript 7 is not supported by typescript-eslint yet), and Tailwind 4
+    # also has to move in step with @watchborne/electrons' tailwind-preset.
+    # Dependabot does not open them; bump them by hand when the migration is
+    # planned. Minor and patch releases still flow through the groups above, and
+    # security advisories are never suppressed.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
 
     # Dependabot rebases every open PR whenever main moves, re-triggering the
     # whole suite on each one. Rebase on demand instead, by commenting
