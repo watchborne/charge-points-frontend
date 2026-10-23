@@ -1,8 +1,6 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Same mocking pattern as the other app/api/** route tests: only bare specifiers
-// are mocked (see app/api/charge-points/[id]/__tests__/route.test.ts).
 const { getSession, createServerClient } = vi.hoisted(() => {
   const getSession = vi.fn().mockResolvedValue({ data: { session: null } });
   return { getSession, createServerClient: vi.fn(() => ({ auth: { getSession } })) };

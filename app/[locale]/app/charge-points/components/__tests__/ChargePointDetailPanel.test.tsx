@@ -7,10 +7,7 @@ const { updateChargePoint } = vi.hoisted(() => ({
   updateChargePoint: vi.fn().mockResolvedValue({}),
 }));
 
-// The detail panel now nests ChargePointConsumptionPanel, StatusHistoryPanel,
-// AlertsPanel, SecurityEventsPanel and ChargePointReliabilityTile, which fetch
-// on mount and format numbers per locale. All are stubbed here so this file
-// stays about the detail panel: each nested panel has its own tests.
+// The nested panels fetch on mount and have their own tests: stubbed.
 vi.mock("../../../../../../lib/api", () => ({
   api: {
     Metering: {
@@ -64,27 +61,22 @@ vi.mock("next-intl", () => ({
   },
 }));
 
-// Stubbed out: it fetches its own firmware state and subscribes to the dashboard
-// WebSocket context, neither of which this suite is about. Its own behaviour is
-// covered by FirmwarePanel.test.tsx.
+// Stubbed: fetches its own state and has its own tests.
 vi.mock("../FirmwarePanel", () => ({
   FirmwarePanel: () => null,
 }));
 
-// Stubbed out for the same reason as FirmwarePanel above: it fetches its own
-// log-upload state. Its own behaviour is covered by LogUploadPanel.test.tsx.
+// Stubbed, as FirmwarePanel.
 vi.mock("../LogUploadPanel", () => ({
   LogUploadPanel: () => null,
 }));
 
-// Stubbed out for the same reason: it fetches its own charging-session
-// history. Its own behaviour is covered by ChargingSessionsPanelContainer.test.tsx.
+// Stubbed, as FirmwarePanel.
 vi.mock("../ChargingSessionsPanelContainer", () => ({
   ChargingSessionsPanelContainer: () => <div data-testid="charging-sessions-panel" />,
 }));
 
-// Stubbed out for the same reason: it fetches its own thresholds. Its own
-// behaviour is covered by ChargePointAlertThresholdsSection.test.tsx.
+// Stubbed, as FirmwarePanel.
 vi.mock("../ChargePointAlertThresholdsSection", () => ({
   ChargePointAlertThresholdsSection: ({ chargePointId }: { chargePointId: string }) => (
     <div data-testid="alert-thresholds-section">{chargePointId}</div>
@@ -111,16 +103,12 @@ afterEach(() => {
   updateChargePoint.mockClear();
 });
 
-// useChargePointActions reads/invalidates through useQueryClient, which
-// requires a provider in the tree.
+// useChargePointActions needs a QueryClientProvider.
 const renderWithQueryClient = (ui: ReactElement) =>
   render(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>);
 
-// React 18 Strict Mode double-invokes a fresh mount's effects in development
-// (mount -> effect -> cleanup -> effect again) — Testing Library's render()
-// doesn't opt into this by default, so a mount-time effect that isn't
-// idempotent across that double call can pass every other test here and
-// still break in a real `next dev` (or any dev-mode Strict Mode) run.
+// Strict Mode double-invokes mount effects in development, which render()
+// doesn't do by default.
 const renderStrictWithQueryClient = (ui: ReactElement) =>
   render(
     <StrictMode>
@@ -200,20 +188,15 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    // The AlertsPanel only mounts on the "Alerts" tab — Radix Tabs' default
-    // "automatic" activation switches on focus, not click — jsdom doesn't
-    // move focus as a side effect of a synthetic click the way a real
-    // browser does, so it's driven explicitly here (see StatusHistoryPanel's
-    // own tab-switching test for the same pattern).
+    // The Alerts tab activates on focus (Radix "automatic" mode), which jsdom
+    // doesn't move on click.
     const alertsTab = screen.getByRole("tab", { name: "appPage.chargePoints.detail.tabs.alerts" });
     fireEvent.mouseDown(alertsTab);
     alertsTab.focus();
     fireEvent.click(alertsTab);
 
-    // Two switches exist once the Alerts tab is active: isActive (header,
-    // shown on every tab) and AlertsPanel's real-time toggle — the latter
-    // only mounts once AlertsPanelContainer's fetch resolves, so target it
-    // by its own label rather than racing on ordinal position.
+    // The real-time toggle mounts only once the alerts fetch resolves: found
+    // by label, not position.
     const realtimeToggle = await screen.findByRole("switch", {
       name: "Toggle real-time alerts for CP-001",
     });
@@ -288,9 +271,7 @@ describe("ChargePointDetailPanel", () => {
       />,
     );
 
-    // Radix Tabs' default "automatic" activation switches on focus, not
-    // click — jsdom doesn't move focus as a side effect of a synthetic
-    // click the way a real browser does, so it's driven explicitly here.
+    // Radix tabs activate on focus, which jsdom doesn't move on click.
     const consumptionTab = screen.getByRole("tab", {
       name: "appPage.chargePoints.detail.tabs.consumption",
     });
@@ -361,11 +342,8 @@ describe("ChargePointDetailPanel", () => {
   });
 
   it("SHOULD keep the given initialTab WHEN mounted under React Strict Mode", () => {
-    // Regression test for a real bug (reported against PR #385): a plain
-    // "is this the first effect run" boolean flag looks right in isolation,
-    // but Strict Mode's development-only double-invoke of a fresh mount's
-    // effects flips it to false on the first of the two calls — so the
-    // second call saw "not the first run" and reset straight back to "main".
+    // A "first effect run" flag would be flipped by Strict Mode's double
+    // invoke, resetting the tab to "main".
     renderStrictWithQueryClient(
       <ChargePointDetailPanel
         chargePoint={CHARGE_POINT}
@@ -433,9 +411,7 @@ describe("ChargePointDetailPanel", () => {
       </QueryClientProvider>,
     );
 
-    // The panel resets itself to the Overview tab whenever the underlying
-    // charge point changes — the page already dropped the `tab` query param
-    // as part of that same selection, so this must not fire another URL update.
+    // The page already dropped `tab` with the selection: no second URL update.
     expect(
       screen
         .getByRole("tab", { name: "appPage.chargePoints.detail.tabs.main" })

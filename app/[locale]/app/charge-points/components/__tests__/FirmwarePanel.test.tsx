@@ -7,17 +7,11 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// `vi.hoisted` because vi.mock factories are hoisted above these declarations —
-// the repo's existing pattern (see TriggerMessageControl.test.tsx).
 const { getFirmware, useWebSocketContext } = vi.hoisted(() => ({
   getFirmware: vi.fn(),
   useWebSocketContext: vi.fn(),
 }));
 
-// Mocked via the relative module path, not the "@/lib/api" alias: this project's
-// Vitest config does not alias "@/" for the mock resolver, so an aliased target
-// silently fails to intercept and the real fetch runs. Repo convention — see
-// TriggerMessageControl.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getFirmware } },
 }));
@@ -238,8 +232,7 @@ describe("FirmwarePanel", () => {
 
     renderPanel();
 
-    // The backend refuses a second concurrent update; saying so upfront beats
-    // letting the installer fill a form that would be rejected.
+    // The backend refuses a second unfinished update.
     const trigger = screen.queryByRole("button", {
       name: "appPage.chargePoints.firmware.update.button",
     });

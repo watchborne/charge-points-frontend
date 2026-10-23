@@ -23,17 +23,11 @@ vi.mock("next-intl", () => ({
   },
 }));
 
-// `vi.hoisted` because vi.mock factories are hoisted above these declarations —
-// the repo's existing pattern (see FirmwarePanel.test.tsx).
 const { getAlerts, acknowledgeAlert } = vi.hoisted(() => ({
   getAlerts: vi.fn(),
   acknowledgeAlert: vi.fn(),
 }));
 
-// Mocked via the relative module path, not the "@/lib/api" alias: this project's
-// Vitest config does not alias "@/" for the mock resolver, so an aliased target
-// silently fails to intercept and the real fetch runs. Repo convention — see
-// FirmwarePanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { getAlerts, acknowledgeAlert } },
 }));
@@ -220,9 +214,7 @@ describe("AlertsPanelContainer", () => {
     expect(onToggleRealtimeAlerts).toHaveBeenCalledTimes(1);
   });
 
-  // Acknowledgment (charge-points-server issue #530). The action never
-  // resolves the alert — the button's "mark as resolved" wording is a
-  // deliberate product choice, the alert stays OPEN either way.
+  // Acknowledging never resolves the alert, whatever the button's wording.
   const acknowledgeButton = () =>
     screen.findByRole("button", { name: "appPage.chargePoints.alerts.acknowledge" });
 

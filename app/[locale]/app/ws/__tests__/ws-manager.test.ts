@@ -1,11 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// The WebSocketManager class is not exported, so it is exercised through the
-// public getWebSocketManager() factory. The module keeps a per-URL registry, so
-// vi.resetModules() (in beforeEach) hands each test a fresh registry. The global
-// WebSocket and fetch (used to mint the token) are stubbed, and timers are faked
-// so the 300ms disconnect grace period and the exponential reconnect backoff can
-// be advanced deterministically.
+// Exercised through getWebSocketManager(); vi.resetModules() gives each test a
+// fresh per-URL registry. WebSocket and fetch are stubbed and timers faked, so
+// the grace period and backoff can be advanced deterministically.
 
 class MockWebSocket {
   static readonly CONNECTING = 0;
@@ -212,9 +209,7 @@ describe("WebSocketManager token failure and backoff", () => {
     await settle();
     expect(mockFetch).toHaveBeenCalledTimes(1);
 
-    // First backoff's exponential base is 1000ms, so the jittered delay must
-    // land in [500, 1000). Anything before 500ms must not have retried yet;
-    // by 1000ms it must have.
+    // The first jittered delay lands in [500, 1000).
     await vi.advanceTimersByTimeAsync(499);
     expect(mockFetch).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(501);
@@ -231,8 +226,7 @@ describe("WebSocketManager token failure and backoff", () => {
     await settle();
     expect(mockFetch).toHaveBeenCalledTimes(1);
 
-    // 10 max attempts: advance past every backoff (each capped at 30s once
-    // exponential growth saturates) to exhaust them all.
+    // Exhaust all 10 attempts (each backoff capped at 30s).
     for (let i = 0; i < 10; i++) {
       await vi.advanceTimersByTimeAsync(30_000);
     }
@@ -253,8 +247,7 @@ describe("WebSocketManager token failure and backoff", () => {
     lastSocket().simulateServerClose();
     expect(manager.getState().status).toBe("DISCONNECTED");
 
-    // scheduleReconnect fires after the jittered ~750ms backoff and opens a
-    // fresh socket.
+    // The jittered ~750ms backoff opens a fresh socket.
     await vi.advanceTimersByTimeAsync(750);
     expect(MockWebSocket.instances).toHaveLength(2);
 

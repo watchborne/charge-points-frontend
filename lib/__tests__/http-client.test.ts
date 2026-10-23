@@ -2,11 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fetchWithFreshSession, httpClient } from "../http-client";
 
-// Every request refreshes the browser session first (issue #349). Mocked at
-// the external @supabase/ssr boundary (a bare specifier — reliably
-// intercepted), so the real ensureFreshSession runs and `getSession` stands in
-// for the refresh here; its deduplication is covered on its own in
-// lib/supabase/__tests__/ensure-session.test.ts.
+// Every request refreshes the session first. @supabase/ssr is mocked so the
+// real ensureFreshSession runs (its deduplication is tested on its own).
 const { createBrowserClient, getSession } = vi.hoisted(() => {
   const getSession = vi.fn();
   return {
@@ -21,10 +18,8 @@ const mockFetch = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal("fetch", mockFetch);
-  // Re-established every time: the afterEach below calls restoreAllMocks,
-  // which can strip the implementation and leave the factory returning
-  // undefined — the client would then throw on `.auth` and the refresh would
-  // be silently swallowed instead of observed.
+  // Re-established each time: restoreAllMocks can strip it, and the refresh
+  // would then fail silently.
   createBrowserClient.mockImplementation(() => ({ auth: { getSession } }));
   getSession.mockReset();
   getSession.mockResolvedValue({ data: { session: null } });
@@ -56,16 +51,13 @@ describe("session refresh", () => {
 
     await httpClient.get("/api/items");
 
-    // Ordering is the whole point: the request authenticates with the cookie
-    // the browser holds when it goes out, so a refresh after the fetch would
-    // be worthless.
+    // The request uses the cookie held when it goes out, so the refresh must
+    // come first.
     expect(order).toEqual(["refresh", "fetch"]);
   });
 
   it("SHOULD refresh the session on every verb", async () => {
-    // mockImplementation, not mockReturnValue: each call needs its own
-    // Response — a single one has its body read by the first request and
-    // throws "Body is unusable" on the second.
+    // One Response per call: a body can only be read once.
     mockFetch.mockImplementation(() => okResponse({}));
 
     await httpClient.get("/api/items");
@@ -229,8 +221,7 @@ describe("httpClient.delete", () => {
   });
 
   it("SHOULD resolve WHEN the response is a real 204 with no body, not throw on JSON parsing", async () => {
-    // What every DELETE this proxies actually returns (z.void() on the
-    // backend) — unlike okResponse(null) above, this has no body at all.
+    // What every proxied DELETE returns: no body at all.
     mockFetch.mockReturnValue(Promise.resolve(new Response(null, { status: 204 })));
 
     await expect(httpClient.delete("/api/items/1")).resolves.toBeUndefined();
@@ -243,8 +234,7 @@ describe("httpClient.delete", () => {
   });
 
   it("SHOULD send a JSON body WHEN one is given", async () => {
-    // A resource addressed by something other than a URL path segment (e.g.
-    // a push subscription's `endpoint`) needs the DELETE to carry it.
+    // A push subscription is identified by its `endpoint`, in the body.
     mockFetch.mockReturnValue(okResponse(null));
 
     await httpClient.delete("/api/items", { endpoint: "https://push.example/abc" });

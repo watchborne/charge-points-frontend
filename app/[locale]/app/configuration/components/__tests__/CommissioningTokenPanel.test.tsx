@@ -18,11 +18,8 @@ const makeChargePoint = (overrides: Partial<ChargePoint> = {}): ChargePoint => (
   ...overrides,
 });
 
-// A stable function reference, not a fresh closure per call: the panel's own
-// useEffect depends on `t` ([t]), the same way it would on the real
-// useTranslations hook's memoized return — a new reference every render
-// would re-fire that effect (re-fetching getStatus) on every state change
-// this component makes, clobbering state a test just set.
+// A stable reference, like the real `t`: the panel's effect depends on it,
+// and a fresh one per render would refetch and clobber test state.
 const translate = (key: string, params?: Record<string, unknown>) => {
   if (params && Object.keys(params).length > 0) {
     const paramList = Object.entries(params)
@@ -38,9 +35,6 @@ vi.mock("next-intl", () => ({
   useLocale: () => "fr",
 }));
 
-// A relative path is required here (not the usual "@/lib/api" alias): test
-// files are excluded from tsconfig.json, and vite-tsconfig-paths only
-// resolves "@/*" aliases for files it considers part of the project.
 import { api } from "../../../../../../lib/api";
 import { CommissioningTokenPanel } from "../CommissioningTokenPanel";
 
@@ -52,8 +46,7 @@ const getMe = vi.spyOn(api.Me, "getMe");
 let queryClient: QueryClient;
 
 beforeEach(() => {
-  // Default: no activity to show — individual tests override this to
-  // exercise the "recent commissioning activity" list (issue #420 / #278).
+  // Default: no activity; tests override it.
   getMe.mockResolvedValue({ userId: "user-1", chargePoints: [], commissioningAttempts: [] });
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 });
@@ -99,9 +92,7 @@ describe("CommissioningTokenPanel", () => {
     const generateButton = await screen.findByRole("button", {
       name: "appPage.configuration.commissioningToken.generateCta",
     });
-    // The button is present from the first render but stays disabled until
-    // the status query resolves (`hasToken: false` here never changes the
-    // button's name, so there is no text-based signal to wait on instead).
+    // Disabled until the status query resolves; no text change to wait on.
     await waitFor(() => expect(generateButton.hasAttribute("disabled")).toBe(false));
     fireEvent.click(generateButton);
 

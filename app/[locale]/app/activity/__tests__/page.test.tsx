@@ -1,11 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Inline `import(...)` type reference rather than a top-level `import type`:
-// import/order groups every ImportDeclaration in the file together
-// regardless of the vi.mock calls between them, and a plain `import type`
-// here — at a different "../" depth than the fixtures below — breaks that
-// grouping.
+// An inline `import(...)` type: a top-level `import type` at this depth breaks
+// import/order's grouping.
 type AuditEntry = import("../../../../../lib/api-audit").AuditEntry;
 
 vi.mock("next-intl", () => ({

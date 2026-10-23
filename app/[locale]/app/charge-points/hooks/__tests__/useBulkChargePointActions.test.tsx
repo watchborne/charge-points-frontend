@@ -3,11 +3,6 @@ import { act, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// Mocked via the relative module path, not the "@/lib/api" alias — see
-// useStatusHistory.test.ts's identical note: this project's Vitest config
-// does not alias "@/" for the mock resolver, so an aliased target here would
-// silently mock a different module than the one useBulkChargePointActions
-// imports.
 vi.mock("../../../../../../lib/api", () => ({
   api: {
     ChargePoints: {

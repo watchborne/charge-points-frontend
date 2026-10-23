@@ -3,10 +3,6 @@ import { act, renderHook } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mocked via the relative module path, not the "@/lib/api" alias: this
-// project's Vitest config does not alias "@/" for the mock resolver (see
-// FirmwarePanel.test.tsx's identical note), so an aliased target here would
-// silently mock a different module than the one useStatusHistory imports.
 vi.mock("../../../../../lib/api", () => ({
   api: {
     StatusHistory: {
@@ -23,15 +19,11 @@ import { HISTORY_FETCH_LIMIT, useStatusHistory } from "../useStatusHistory";
 // start (00:00:00.000) is visibly distinct from `now`.
 const NOW = new Date("2026-08-10T14:30:00.000Z");
 
-// Flushes the mocked API promises (pure microtasks) without advancing
-// wall-clock time — same pattern as ws-manager.test.ts's `settle`, needed
-// because vi.useFakeTimers() would otherwise make Testing Library's own
-// `waitFor` polling loop (setTimeout-based) hang forever.
+// Flushes microtasks without advancing time: with fake timers, waitFor's
+// setTimeout polling would hang.
 const settle = () => act(() => vi.advanceTimersByTimeAsync(0));
 
-// A fresh QueryClient per hook mount, matching useChargePoints.test.ts's
-// own wrapper: TanStack Query needs a QueryClientProvider in the tree, and a
-// new client per render avoids cache bleed between calls.
+// A fresh QueryClient per mount, so the cache doesn't bleed between tests.
 const wrapper = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   function Wrapper({ children }: { children: ReactNode }) {

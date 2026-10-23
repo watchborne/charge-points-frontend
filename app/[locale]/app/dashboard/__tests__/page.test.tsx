@@ -9,10 +9,6 @@ const { useChargePoints, useSites, useDashboardLayout } = vi.hoisted(() => ({
   useDashboardLayout: vi.fn(),
 }));
 
-// Relative targets throughout, not the "@/" alias: this project's Vitest
-// config does not alias "@/" for the mock resolver, so an aliased vi.mock
-// target silently fails to intercept (see TriggerMessageControl.test.tsx for
-// the same convention).
 vi.mock("../../hooks/useChargePoints", () => ({ useChargePoints }));
 vi.mock("../../hooks/useSites", () => ({ useSites }));
 vi.mock("../../hooks/useDashboardLayout", () => ({ useDashboardLayout }));
@@ -48,8 +44,6 @@ vi.mock("../../components/dashboard/SiteHealthSection", () => ({
   SiteHealthSection: () => <div data-testid="site-health-section" />,
 }));
 
-// Relative, not the "@/" alias: same resolver limitation as the mock targets
-// above, but for a real (non-type) import rather than a vi.mock target.
 import {
   DashboardWidgetPreference,
   defaultDashboardLayout,
@@ -58,10 +52,8 @@ import DashboardPage from "../page";
 
 afterEach(() => cleanup());
 
-// `awaitingCommissioning` drives the fields `isAwaitingCommissioning` (lib/commissioning.ts)
-// actually reads — no site and still named after the raw `ocppIdentity` — rather than
-// `commissionedAt`, which a commissioning-token self-claim now sets before a station has
-// either (charge-points-server's ClaimChargePointWithTokenCommandHandler).
+// `awaitingCommissioning` sets what `isAwaitingCommissioning` reads (no site,
+// named after the raw identity), not `commissionedAt`.
 const chargePoint = (
   id: string,
   { awaitingCommissioning = false }: { awaitingCommissioning?: boolean } = {},

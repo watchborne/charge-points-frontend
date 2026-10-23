@@ -3,8 +3,6 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// Mocked via the relative module path, not the "@/lib/api" alias (see
-// useFleetReliability.test.ts's identical note).
 vi.mock("../../../../../lib/api", () => ({
   api: {
     SiteAlertThresholds: {

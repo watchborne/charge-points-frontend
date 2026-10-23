@@ -1,10 +1,8 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// API_URL is read from NEXT_PUBLIC_API_URL at import time in lib/constants, so we
-// stub the env and re-import proxy-request (via resetModules) in each test to make
-// the backend base URL deterministic. API_SECRET_KEY is read at call time, so it
-// can be overridden per test without re-importing.
+// API_URL is read at import, so each test stubs the env and re-imports;
+// API_SECRET_KEY is read at call time.
 const BACKEND_URL = "https://backend.test";
 
 const { getSession, createServerClient } = vi.hoisted(() => {
@@ -12,9 +10,6 @@ const { getSession, createServerClient } = vi.hoisted(() => {
   return { getSession, createServerClient: vi.fn(() => ({ auth: { getSession } })) };
 });
 
-// Both mocked specifiers are external/bare (@supabase/ssr, next/headers), not path
-// aliases — those are reliably intercepted, unlike "@/..." aliased mocks (see
-// proxy/__tests__/proxy.test.ts for the same pattern).
 vi.mock("@supabase/ssr", () => ({ createServerClient }));
 vi.mock("next/headers", () => ({
   cookies: () => ({ getAll: () => [], set: vi.fn() }),

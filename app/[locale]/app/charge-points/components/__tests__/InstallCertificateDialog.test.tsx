@@ -1,9 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-// `vi.hoisted` + the *relative* module path (not the "@/lib/api" alias): this
-// project's Vitest config does not alias "@/" for the mock resolver, so an
-// aliased target silently fails to intercept and the real fetch runs.
 const { installCertificate } = vi.hoisted(() => ({ installCertificate: vi.fn() }));
 
 vi.mock("../../../../../../lib/api", () => ({

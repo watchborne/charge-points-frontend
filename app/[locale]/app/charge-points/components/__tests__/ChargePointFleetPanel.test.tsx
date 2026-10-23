@@ -8,9 +8,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// The detail panel is a large, independently-testable component with its own
-// electrons/date-fns dependencies — mocked here so this suite stays focused
-// on the fleet panel's own grouping/selection/tab behavior.
+// Stubbed: has its own tests.
 vi.mock("../ChargePointDetailPanel", () => ({
   ChargePointDetailPanel: ({
     chargePoint,
@@ -25,10 +23,7 @@ vi.mock("../ChargePointDetailPanel", () => ({
   ),
 }));
 
-// Same reasoning as ChargePointDetailPanel above — the bulk action bar is its
-// own independently-testable component (see useBulkChargePointActions.test.tsx
-// for its fan-out logic), mocked here so this suite stays focused on the
-// panel's own checkbox/selection wiring.
+// Stubbed: has its own tests (see useBulkChargePointActions.test.tsx).
 vi.mock("../FleetBulkActionBar", () => ({
   FleetBulkActionBar: ({
     chargePoints,

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock only the external @supabase/ssr (a bare specifier — reliably intercepted).
-// The real lib/supabase/middleware + root proxy run against it, so the guard
-// logic and cookie handling are exercised for real. `getUser` is controlled per test.
+// @supabase/ssr is mocked; the real lib/supabase/middleware and proxy run
+// against it. `getUser` is controlled per test.
 const { createServerClient, getUser } = vi.hoisted(() => {
   const getUser = vi.fn();
   return {
@@ -14,14 +13,9 @@ const { createServerClient, getUser } = vi.hoisted(() => {
 
 vi.mock("@supabase/ssr", () => ({ createServerClient }));
 
-// next-intl/middleware's ESM build imports "next/server" in a way Vitest's
-// Node-ESM resolver can't follow outside a real Next.js build (confirmed
-// working under `next build`/`next start`) — a test-tooling gap, not a
-// runtime bug. Mocked here so this file can focus on what's actually ours to
-// test: the auth-gating/redirect logic layered around next-intl's routing,
-// not next-intl's own URL-prefix algorithm (that's next-intl's job to test).
-// Defaults to a passthrough; the "locale routing" describe block below swaps
-// in a redirect for the one scenario that needs it.
+// next-intl/middleware's ESM build can't be resolved by Vitest outside a Next
+// build, so it is mocked as a passthrough: only our gating around it is
+// tested. The "locale routing" block swaps in a redirect.
 const { intlMiddlewareImpl } = vi.hoisted(() => ({
   intlMiddlewareImpl: { current: null as ((request: NextRequest) => NextResponse) | null },
 }));
@@ -57,11 +51,8 @@ afterEach(() => {
 });
 
 describe("proxy auth guard", () => {
-  // /api/* is no longer gated here (issue #349): getUser() cost ~400-530 ms
-  // per request to reach a verdict the backend reaches again anyway, since it
-  // verifies the same JWT and fails closed with 401 (charge-points-server ADR
-  // 0002). What these assert is that the proxy neither answers nor calls
-  // Supabase on the /api surface — the backend does both.
+  // /api/* isn't gated here: the backend verifies the token itself. The proxy
+  // neither answers nor calls Supabase on /api.
   it("SHOULD let /api/* through WHEN there is no session", async () => {
     setUser(null);
     const { proxy } = await import("../../proxy");
@@ -82,11 +73,9 @@ describe("proxy auth guard", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
-  // These three were reachable without a session before the gate was removed
-  // and must stay so: the access request is submitted by an unauthenticated
-  // visitor, check-login runs before a session can exist (charge-points-server
-  // ADR 0006), and verify-email is the confirmation link's destination
-  // (ADR 0007).
+  // Reachable without a session: the access request (submitted
+  // unauthenticated), check-login (before a session exists) and verify-email
+  // (the confirmation link).
   it.each([
     "/api/access-requests",
     "/api/access-requests/check-login",
@@ -150,11 +139,8 @@ describe("proxy auth guard", () => {
 });
 
 describe("proxy auth guard resilience", () => {
-  // @supabase/auth-js's getUser() rethrows anything that isn't an AuthError
-  // (e.g. a raw network failure reaching Supabase) instead of resolving with
-  // { user: null }. Left uncaught, that crashes the whole Netlify Edge
-  // Function invocation for the request. These fail-closed instead: treat a
-  // rejected getUser() the same as no session.
+  // getUser() rethrows non-auth errors (e.g. a network failure), which would
+  // crash the edge function. Fail closed: treat it as no session.
   beforeEach(() => {
     getUser.mockRejectedValue(new Error("fetch failed"));
   });
@@ -173,9 +159,8 @@ describe("proxy auth guard resilience", () => {
 
     const res = await proxy(request("/api/charge-points"));
 
-    // Unreachable Supabase Auth no longer breaks the API surface at all: the
-    // proxy does not consult it there, so a request still reaches the backend
-    // and gets a real answer instead of a blanket 401 (issue #349).
+    // The proxy doesn't consult Supabase on /api, so the request still reaches
+    // the backend.
     expect(res.status).not.toBe(401);
   });
 
@@ -197,8 +182,7 @@ describe(".fr host redirect", () => {
     const res = await proxy(requestFromHost("watch-borne.fr", "/pricing?ref=footer"));
 
     expect(res.status).toBe(308);
-    // No ?lang= forcing any more: an unprefixed path on .com already means fr,
-    // the default locale (see i18n/routing.ts).
+    // An unprefixed path on .com already means fr.
     expect(res.headers.get("location")).toBe("http://watch-borne.com/pricing?ref=footer");
   });
 
@@ -213,12 +197,9 @@ describe(".fr host redirect", () => {
 });
 
 describe("locale routing", () => {
-  // next-intl's own URL-prefix algorithm (as-needed, fr unprefixed / en
-  // prefixed) is next-intl's responsibility to test, not ours — see the
-  // vi.mock("next-intl/middleware", ...) comment above. What's ours to get
-  // right is: (1) a redirect from next-intl short-circuits immediately
-  // without running the Supabase auth gate, and (2) a non-redirect response
-  // proceeds through gating as normal, on both prefixed and unprefixed paths.
+  // next-intl's prefixing is its own to test. Ours: a next-intl redirect
+  // returns before the auth gate, and other responses go through gating, on
+  // prefixed and unprefixed paths.
 
   it("SHOULD return next-intl's redirect immediately WITHOUT running the auth gate", async () => {
     setUser(null);
@@ -229,8 +210,7 @@ describe("locale routing", () => {
 
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toBe("http://localhost:3001/pricing");
-    // /fr/pricing isn't an auth-gated path anyway, but the point stands for
-    // /app/* and /login too: a redirect is returned as-is, before gating.
+    // Holds for /app/* and /login too: a redirect returns before gating.
     expect(getUser).not.toHaveBeenCalled();
   });
 
@@ -246,13 +226,8 @@ describe("locale routing", () => {
 });
 
 describe("middleware matcher", () => {
-  // Regression guard for a real production bug: any public/ static asset NOT
-  // excluded here gets routed through next-intl's middleware like a page,
-  // which rewrites it and serves a 404 HTML page back instead of the actual
-  // file (wrong MIME type, so e.g. navigator.serviceWorker.register("/sw.js")
-  // fails outright — no error that reaches this proxy's own logic, since the
-  // static file never gets here to be gated or locale-routed in the first
-  // place).
+  // A public/ asset not excluded here would be rewritten by next-intl and
+  // served as a 404 page (e.g. /sw.js, rejected for its MIME type).
   it.each([
     "/sw.js",
     "/manifest.json",
@@ -289,8 +264,7 @@ describe("Supabase session lookup scoping", () => {
 
     await proxy(request("/pricing"));
 
-    // No Supabase client is constructed and no getUser round-trip happens for
-    // marketing routes — the whole point of the optimization.
+    // No Supabase client or getUser round trip for marketing routes.
     expect(createServerClient).not.toHaveBeenCalled();
     expect(getUser).not.toHaveBeenCalled();
   });
@@ -310,11 +284,8 @@ describe("Supabase session lookup scoping", () => {
 
     await proxy(request("/api/charge-points"));
 
-    // The ~400-530 ms round trip this change removes (issue #349). The
-    // backend verifies the same JWT and fails closed with 401 on its own
-    // (charge-points-server ADR 0002), so re-checking here bought nothing.
-    // Asserted directly because a regression would be invisible in behaviour
-    // and show up only as latency.
+    // The backend verifies the token itself; asserted directly since a
+    // regression would only show as latency.
     expect(createServerClient).not.toHaveBeenCalled();
     expect(getUser).not.toHaveBeenCalled();
   });

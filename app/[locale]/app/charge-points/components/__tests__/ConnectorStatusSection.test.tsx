@@ -62,9 +62,7 @@ describe("ConnectorStatusSection", () => {
   it("SHOULD carry the sampled values and relative time in a tooltip WHEN the connector reported one", async () => {
     renderSection([CONNECTOR]);
 
-    // The trigger itself only shows the icon — the reading lives in the
-    // tooltip, which Radix only mounts once open. Focus is the
-    // keyboard-equivalent trigger (no hover delay, unlike a pointer hover).
+    // The reading is in a tooltip, mounted once open; focus opens it.
     const trigger = screen.getByLabelText("appPage.chargePoints.detail.lastMeterValue");
     fireEvent.focus(trigger);
 

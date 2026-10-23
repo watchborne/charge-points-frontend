@@ -3,9 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import type { ChargingSession } from "@watchborne/charge-points-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// A fixed, locale-agnostic stand-in for the real Intl-backed formatter — what
-// matters here is that the cost column calls it, not the exact rendered
-// string, which is next-intl's own concern (see CommissioningTokenPanel.test.tsx).
+// A locale-agnostic stand-in: only the call matters, not the formatting.
 const formatter = {
   number: (value: number) => `formatted:${value}`,
 };
@@ -16,24 +14,16 @@ vi.mock("next-intl", () => ({
   useFormatter: () => formatter,
 }));
 
-// `vi.hoisted` because vi.mock factories are hoisted above these declarations —
-// the repo's existing pattern (see LogUploadPanel.test.tsx).
 const { listChargingSessions, getChargingSessionCost } = vi.hoisted(() => ({
   listChargingSessions: vi.fn(),
   getChargingSessionCost: vi.fn(),
 }));
 
-// Mocked via the relative module path, not the "@/lib/api" alias: this project's
-// Vitest config does not alias "@/" for the mock resolver, so an aliased target
-// silently fails to intercept and the real fetch runs. Repo convention — see
-// LogUploadPanel.test.tsx.
 vi.mock("../../../../../../lib/api", () => ({
   api: { ChargePoints: { listChargingSessions, getChargingSessionCost } },
 }));
 
-// Stubbed out: it fetches its own meter samples. Its own behaviour is
-// covered by SessionConsumptionChartContainer.test.tsx — this suite only
-// needs to know the panel renders it once expanded.
+// Stubbed: has its own tests; only rendering on expand matters here.
 vi.mock("../SessionConsumptionChartContainer", () => ({
   SessionConsumptionChartContainer: ({ connectorId }: { connectorId: number }) => (
     <div data-testid="session-consumption-chart" data-connector={connectorId} />

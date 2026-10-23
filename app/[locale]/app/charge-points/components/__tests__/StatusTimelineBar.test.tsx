@@ -79,15 +79,12 @@ describe("StatusTimelineBar", () => {
     const end = new Date("2026-08-10T02:30:00.000Z");
     const { container } = renderBar([{ status: "Charging", start: WINDOW_START, end }]);
 
-    // Radix's Tooltip only mounts its content once open — focus is the
-    // keyboard-equivalent trigger (no hover delay, unlike a pointer hover).
+    // Radix mounts the tooltip once open; focus opens it.
     const block = container.querySelector("[role='img'] > div") as HTMLElement;
     fireEvent.focus(block);
 
     const tooltip = await screen.findByRole("tooltip");
-    // Formatted with the runner's own local timezone (date-fns's default),
-    // matching how the component itself formats — not a hardcoded wall-clock
-    // string, which would only pass in UTC.
+    // In the runner's local time zone, as the component formats.
     expect(tooltip.textContent).toBe(
       `Charging · ${format(WINDOW_START, "dd/MM HH:mm")} → ${format(end, "dd/MM HH:mm")} (2h30m)`,
     );

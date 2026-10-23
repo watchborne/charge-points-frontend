@@ -3,9 +3,6 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// Mocked via the relative module path, not the "@/lib/api" alias — this
-// project's Vitest config does not alias "@/" for the mock resolver (see
-// useStatusHistory.test.ts's identical note).
 vi.mock("../../../../../lib/api", () => ({
   api: {
     FleetReliability: {

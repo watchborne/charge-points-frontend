@@ -1,10 +1,6 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Both mocked specifiers are external/bare (@supabase/ssr, next/headers), not path
-// aliases — those are reliably intercepted, unlike "@/..." aliased mocks (see
-// lib/__tests__/proxy-request.test.ts for the same pattern this route's test suite
-// follows throughout app/api/**).
 const { getSession, createServerClient } = vi.hoisted(() => {
   const getSession = vi.fn().mockResolvedValue({ data: { session: null } });
   return { getSession, createServerClient: vi.fn(() => ({ auth: { getSession } })) };

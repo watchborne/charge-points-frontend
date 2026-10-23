@@ -1,9 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Shallow-rendered: this file owns fetch orchestration only. VerifyOtpForm's
-// own behavior (verifyOtp, auto-submit on initialCode, ...) is covered by
-// VerifyOtpForm.test.tsx.
+// Shallow: VerifyOtpForm has its own tests.
 vi.mock("../VerifyOtpForm", () => ({
   VerifyOtpForm: ({ email, initialCode }: { email: string; initialCode: string }) => (
     <div data-testid="verify-otp-form">
