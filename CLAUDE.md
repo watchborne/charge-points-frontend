@@ -748,6 +748,24 @@ source maps so stack traces resolve to original TypeScript. See `.env.example`.
 - Import domain types from `@watchborne/charge-points-types` (re-exported via
   `types/`), never redefine `ChargePoint` / `Site` shapes locally.
 
+### Code comments
+
+Comments state what the code does not: a rule, an invariant, why a
+non-obvious choice holds. Keep them factual and true of the code as it is now.
+
+- **No history.** Don't narrate how the code got here ("now", "no longer",
+  "used to", "first PR"), past bugs or abandoned workarounds. That belongs in
+  the commit message and the PR.
+- **No ADR or issue references** (here or in `charge-points-server`) unless
+  the reader needs that document to understand the code. Restate the rule
+  instead.
+- **Document a shared rule once**, where it lives, and don't repeat it on every
+  file that follows it. For example, the `setRequestLocale` rule is in
+  `app/[locale]/(marketing)/page.tsx`, and the `CommandOutcome` rationale is in
+  `lib/command-outcome.ts`.
+- A test comment explains why the case matters, not what the assertion already
+  says.
+
 ### React
 
 - Prefer arrow function component, like:
@@ -762,6 +780,9 @@ export const MyComponent = () => {
 
 - Tests live in `__tests__/` folders (vitest + Testing Library) and are excluded
   from the tsconfig build.
+- `vi.mock` targets resolve the `@/*` alias (`vitest.config.ts` sets
+  `resolve.tsconfigPaths`), so alias and relative targets both intercept. Use
+  `vi.hoisted` for a mock a `vi.mock` factory references.
 - Prefer readable syntax with it SHOULD ... WHEN ..., like:
 
 ```typescript
