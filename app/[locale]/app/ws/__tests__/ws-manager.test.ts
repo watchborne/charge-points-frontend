@@ -305,7 +305,7 @@ describe("WebSocketManager sendMessage", () => {
   it("SHOULD send a string payload as-is WHEN the socket is open", async () => {
     const { manager } = await connected();
 
-    manager.sendMessage("ping");
+    expect(manager.sendMessage("ping")).toBe(true);
 
     expect(lastSocket().send).toHaveBeenCalledWith("ping");
   });
@@ -318,13 +318,12 @@ describe("WebSocketManager sendMessage", () => {
     expect(lastSocket().send).toHaveBeenCalledWith(JSON.stringify({ type: "PING" }));
   });
 
-  it("SHOULD warn and not send WHEN the socket is not open", async () => {
+  it("SHOULD return false and not send WHEN the socket is not open", async () => {
     const getWebSocketManager = await importManager();
     const manager = getWebSocketManager("ws://test/ws");
 
-    manager.sendMessage("ping");
+    expect(manager.sendMessage("ping")).toBe(false);
 
-    expect(console.warn).toHaveBeenCalled();
     expect(MockWebSocket.instances).toHaveLength(0);
   });
 });

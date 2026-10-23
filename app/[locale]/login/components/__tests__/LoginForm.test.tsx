@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -39,6 +40,7 @@ import { LoginForm } from "../LoginForm";
 const onFormSubmitted = vi.fn();
 
 beforeEach(() => {
+  vi.mocked(Sentry.captureException).mockClear();
   signInWithOtp.mockReset();
   onFormSubmitted.mockReset();
   checkLoginAccess.mockReset();
@@ -85,6 +87,10 @@ describe("LoginForm", () => {
       expect(screen.getByText("Couldn't send the code. Please try again.")).toBeTruthy(),
     );
     expect(onFormSubmitted).not.toHaveBeenCalled();
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      { message: "boom", code: "unexpected_failure" },
+      { tags: { context: "LoginForm.signInWithOtp" } },
+    );
   });
 
   it("SHOULD show the unknown-user message WHEN the email doesn't belong to an existing account", async () => {
@@ -107,6 +113,7 @@ describe("LoginForm", () => {
     );
     expect(screen.queryByText("Couldn't send the code. Please try again.")).toBeNull();
     expect(onFormSubmitted).not.toHaveBeenCalled();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   it("SHOULD show the pending message and NOT call signInWithOtp WHEN the access request is still pending", async () => {
@@ -160,6 +167,9 @@ describe("LoginForm", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send code" }));
 
     await waitFor(() => expect(onFormSubmitted).toHaveBeenCalledWith("user@example.com"));
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { context: "LoginForm.checkLoginAccess" },
+    });
   });
 
   it("SHOULD disable the submit button WHILE the request is in flight", async () => {

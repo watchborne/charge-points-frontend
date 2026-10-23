@@ -224,13 +224,12 @@ class WebSocketManager {
     this.reconnectTimeout = setTimeout(() => void this.connect(), delayMs);
   }
 
-  sendMessage(message: string | object) {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      const payload = typeof message === "string" ? message : JSON.stringify(message);
-      this.socket.send(payload);
-    } else {
-      console.warn("WebSocket not connected. Cannot send:", message);
-    }
+  /** Sends on an open socket; returns false, sending nothing, while it is not open. */
+  sendMessage(message: string | object): boolean {
+    if (this.socket?.readyState !== WebSocket.OPEN) return false;
+    const payload = typeof message === "string" ? message : JSON.stringify(message);
+    this.socket.send(payload);
+    return true;
   }
 }
 

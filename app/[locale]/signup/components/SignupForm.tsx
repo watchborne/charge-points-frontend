@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
+import { isReportableError, reportError } from "@/lib/report-error";
 
 interface SignupFormProps {
   onFormSubmitted: (email: string) => void;
@@ -30,7 +31,7 @@ export function SignupForm({ onFormSubmitted }: SignupFormProps) {
       onFormSubmitted(email);
     } catch (requestError) {
       // Surface our own translated copy rather than the raw transport error.
-      console.error("access request failed:", requestError);
+      if (isReportableError(requestError)) reportError(requestError, "SignupForm.requestAccess");
       setError(true);
     } finally {
       setIsLoading(false);
