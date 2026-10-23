@@ -1,13 +1,8 @@
 /**
- * What a shared-package type looks like once it has crossed the wire as JSON:
- * every `Date` is an ISO string.
- *
- * The entity schemas in `@watchborne/charge-points-types` coerce timestamps to
- * `Date` (`z.coerce.date()`), but the `lib/api-*.ts` clients hand the parsed JSON
- * to the UI as is — timestamps are converted where they are rendered (see
- * `useDateFormat`), never widened to `Date` here. `Wire<T>` keeps that contract
- * honest while still deriving the shape from the package, so the dashboard's
- * types can't drift from the backend's response schema.
+ * A shared-package type as it arrives in JSON: every `Date` is an ISO string.
+ * The package coerces timestamps to `Date`, but the API clients pass the JSON
+ * through and timestamps are converted where rendered; `Wire<T>` keeps the
+ * type honest while deriving it from the package.
  */
 export type Wire<T> = T extends Date
   ? string

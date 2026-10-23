@@ -12,12 +12,8 @@ import { queryKeys } from "@/lib/queryKeys";
 import type { ChargePointWithConnectors } from "@/types/charge-point";
 
 /**
- * UnlockConnector targets one physical connector, unlike Reset/
- * ChangeAvailability, which act on the station as a whole. There is no
- * fleet-wide connector number to fan a bulk unlock out to, so a station with
- * no connector at all (nothing installed yet, or a filtered-out read) can't
- * be targeted — `"noConnector"` distinguishes that from an OCPP-level failure
- * so the result list can say why, instead of reporting a generic error.
+ * UnlockConnector targets a connector, so a station without one can't be
+ * unlocked: `"noConnector"` tells that apart from an OCPP failure.
  */
 export type BulkUnlockConnectorOutcome =
   UnlockConnectorOutcome | { ok: false; reason: "noConnector" };
@@ -43,23 +39,17 @@ export interface BulkChargePointActions {
 }
 
 /**
- * Fans an OCPP command out to several charge points at once — one request per
- * station — and reports each station's own outcome rather than a single
- * pass/fail: an installer resetting ten stations needs to know which three
- * didn't take, not just that "something failed" (issue #273). Every
- * `api.ChargePoints.*` command already resolves with a discriminated outcome
- * instead of rejecting, so the whole batch runs concurrently via
- * `Promise.all` — one station's failure can't abort the others — and the
- * charge points list is invalidated once, after the batch settles, rather
- * than once per station.
+ * Sends one OCPP command to several charge points concurrently and reports
+ * each station's outcome. Commands resolve with an outcome rather than
+ * rejecting, so one failure can't abort the others; the list is invalidated
+ * once, after the batch.
  */
 export function useBulkChargePointActions(): BulkChargePointActions {
   const queryClient = useQueryClient();
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
-    // Prefix match: invalidates both the per-charge-point Activity tab and
-    // the platform-wide /app/activity page, whichever stations were hit.
+    // Prefix match: covers the per-charge-point Activity tab and /app/activity.
     queryClient.invalidateQueries({ queryKey: queryKeys.audit.all() });
   }, [queryClient]);
 
@@ -84,9 +74,7 @@ export function useBulkChargePointActions(): BulkChargePointActions {
         chargePoints.map(async (chargePoint) => ({
           chargePointId: chargePoint.id,
           chargePointName: chargePoint.name,
-          // connectorId 0 targets the whole charge point — same convention
-          // ChargePointActionsSection's single-station availability control
-          // uses (see its WHOLE_CHARGE_POINT_KEY in ChargePointDetailPanel).
+          // connectorId 0 targets the whole charge point.
           outcome: await api.ChargePoints.changeAvailability(chargePoint.id, 0, type),
         })),
       );
@@ -100,9 +88,8 @@ export function useBulkChargePointActions(): BulkChargePointActions {
     async (chargePoints: ChargePointWithConnectors[]) => {
       const results = await Promise.all(
         chargePoints.map(async (chargePoint) => {
-          // Targets each station's first connector — the only one on the
-          // common single-connector installation this bulk action is aimed
-          // at (see BulkUnlockConnectorOutcome above for the no-connector case).
+          // The first connector: bulk unlock targets single-connector
+          // installations.
           const connectorId = chargePoint.connectors[0]?.connectorId;
           const outcome: BulkUnlockConnectorOutcome =
             connectorId === undefined

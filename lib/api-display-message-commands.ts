@@ -9,21 +9,11 @@ import { withErrorLoggingAsync } from "./api-error-wrapper";
 import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession } from "./http-client";
 
-/**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: SetDisplayMessage is a request/response OCPP command whose caller
- * needs the specific outcome (accepted vs. one of the station-side rejection
- * reasons, or offline/not-2.0.1/timeout).
- */
 export type SetDisplayMessageOutcome = CommandOutcome<{ status: SetDisplayMessageStatusV201 }>;
 
 /**
- * What an installer fills in to push a display message. `id` is the
- * caller-assigned identifier a later `clearDisplayMessage` targets by — kept
- * here rather than inferred, since this client has no `GetDisplayMessages`
- * read yet (a separate backend fast-follow) to discover a station's own ids.
- * `format` is fixed to `UTF8`: the other OCPP 2.0.1 formats (`ASCII`/`HTML`/
- * `URI`) have no corresponding input in this minimal UI.
+ * A display message to push. `id` is caller-assigned, and is what
+ * `clearDisplayMessage` targets. `format` is fixed to `UTF8`.
  */
 export type SetDisplayMessageBody = {
   id: number;
@@ -31,12 +21,6 @@ export type SetDisplayMessageBody = {
   content: string;
 };
 
-/**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: ClearDisplayMessage is a request/response OCPP command whose caller
- * needs the specific outcome (cleared vs. unknown id, or offline/not-2.0.1/
- * timeout).
- */
 export type ClearDisplayMessageOutcome = CommandOutcome<{ status: ClearDisplayMessageStatusV201 }>;
 
 export const displayMessageCommandApis = {

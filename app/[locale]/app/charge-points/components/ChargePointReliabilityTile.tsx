@@ -14,30 +14,16 @@ type ChargePointReliabilityTileProps = {
 };
 
 /**
- * Formats `onlineMs`/`totalMs` into a percentage string. `null` for a
- * zero-length window — division by zero is not "0%", it's "no window was
- * actually reduced" (charge-points-server's own `UptimeSummary` leaves this
- * undivided for exactly this reason).
+ * `onlineMs`/`totalMs` as a percentage; `null` for a zero-length window.
  */
 const formatPercentage = (uptime: ChargePointUptime): string | null =>
   uptime.totalMs > 0 ? `${((uptime.onlineMs / uptime.totalMs) * 100).toFixed(1)}%` : null;
 
 /**
- * A charge point's reliability over the last 7 days — the % of the window it
- * spent in any status other than OFFLINE, reduced server-side from its
- * connection-state history (charge-points-server ADR 0008) rather than
- * shipped as raw transitions. Deliberately named "reliability", not
- * "availability" or "uptime": both words are already taken by other UI
- * elements on this page — `appPage.chargePoints.availability` is the
- * ChangeAvailability (Operative/Inoperative) command, and
- * `appPage.dashboard.uptime` is "how long since the last status change," a
- * different, instantaneous fact. This is a historical reliability rate, not
- * either of those.
- *
- * A single headline figure, not a chart: the backend endpoint reduces one
- * window to one summary, no daily breakdown exists (yet) to plot. Fetch-once
- * and self-contained, the same shape as `SecurityEventsPanel` — no dedicated
- * WebSocket broadcast for this exists either.
+ * A charge point's reliability over the last 7 days: the share of the window
+ * spent in any status but OFFLINE, reduced server-side. Named "reliability"
+ * because "availability" (ChangeAvailability) and "uptime" (time since the
+ * last status change) already mean other things on this page. Fetch-once.
  */
 export const ChargePointReliabilityTile = ({ chargePointId }: ChargePointReliabilityTileProps) => {
   const t = useTranslations("");

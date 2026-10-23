@@ -7,8 +7,7 @@ import { queryKeys } from "@/lib/queryKeys";
 
 /**
  * A site's alert-threshold overrides and the thresholds its charge points
- * inherit (charge-points-server issue #577) — `useQuery`/`useMutation` over
- * `api.SiteAlertThresholds`, mirroring `useSiteTariff`'s pattern.
+ * inherit.
  */
 export function useSiteAlertThresholds(siteId: Site["id"] | null) {
   const queryClient = useQueryClient();

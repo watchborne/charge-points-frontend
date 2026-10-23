@@ -22,18 +22,10 @@ import type { ChargePoint } from "@/types/charge-point";
 import { AlertStatusBadge } from "../../components/charge-points/AlertStatusBadge";
 
 /**
- * The fields this panel actually reads off `Alert` — narrow enough that
- * `AlertsPanelContainer`'s real fetch and a caller supplying plain literals
- * (the marketing site's product preview) both satisfy it without either one
- * fabricating the full domain shape from `@watchborne/charge-points-types`.
- * `openedAt`/`resolvedAt`/`lastNotifiedAt` accept `Date | string` since the
- * shared package's own timestamp type is irrelevant here — this panel only
- * ever wraps them in `new Date(...)`, which accepts both.
- *
- * `acknowledgedAt`/`acknowledgedBy` are optional rather than required for the
- * same reason: a caller with static fixtures and no acknowledgment to show
- * (the marketing preview) shouldn't have to spell out two nulls. Absent and
- * `null` both mean "nobody has taken this one on".
+ * The fields this panel reads off `Alert`, narrow enough for both
+ * `AlertsPanelContainer`'s fetch and the marketing preview's literals.
+ * Timestamps accept `Date | string` (only passed to `new Date`); absent and
+ * `null` acknowledgment fields both mean nobody has taken the alert on.
  */
 export type AlertListEntry = Pick<
   Alert,
@@ -52,61 +44,36 @@ type AlertsPanelProps = {
   realtimeAlertsEnabled: ChargePoint["realtimeAlertsEnabled"];
   onToggleRealtimeAlerts: () => void;
   alerts: AlertListEntry[];
-  /**
-   * Acknowledges one alert. Optional: a caller rendering a static, read-only
-   * list (the marketing preview) passes nothing and gets no action at all,
-   * rather than a button that would do nothing.
-   */
+  /** Acknowledges one alert. Omitted for a read-only list: no button. */
   onAcknowledge?: (alertId: AlertListEntry["id"]) => void;
   /** The alert whose acknowledgment is currently in flight, if any. */
   acknowledgingAlertId?: AlertListEntry["id"] | null;
-  /**
-   * Exports the alert history as CSV. Optional for the same reason as
-   * `onAcknowledge`: the marketing preview renders a static list with no
-   * backend to export from, so it gets no button.
-   */
+  /** Exports the history as CSV. Omitted for a read-only list: no button. */
   onExportCsv?: () => void;
   exporting?: boolean;
 };
 
 const TYPE_ICON: Record<AlertType, typeof WifiOff> = {
   OFFLINE: WifiOff,
-  // Mirrors ConnectorStatusIcon's Faulted icon — the same condition read the
-  // same way wherever it appears.
+  // Same icon as ConnectorStatusIcon's Faulted.
   CONNECTOR_FAULTED: Shield,
-  // Mirrors FirmwareTimeline's isStalled indicator.
+  // Same icon as FirmwareTimeline's stalled indicator.
   FIRMWARE_STALLED: AlertTriangle,
-  // Distinct from CONNECTOR_FAULTED's Shield — a connector stuck Unavailable
-  // hasn't faulted, it just never came back.
+  // Stuck Unavailable has not faulted, so not CONNECTOR_FAULTED's Shield.
   CONNECTOR_STUCK_UNAVAILABLE: Ban,
-  // One-shot, point-in-time (ADR 0013) — distinct from FIRMWARE_STALLED's
-  // AlertTriangle, which reads as still in-flight.
+  // One-shot, unlike FIRMWARE_STALLED's in-flight AlertTriangle.
   FIRMWARE_UPDATE_FAILED: XCircle,
-  // One-shot too (ADR 0013) — distinct from CONNECTOR_FAULTED's plain Shield,
-  // since this is the "something to actually worry about" security signal.
   SECURITY_EVENT: ShieldAlert,
 };
 
 /**
- * The alerting section of a charge point's detail panel: recent OFFLINE /
- * CONNECTOR_FAULTED / FIRMWARE_STALLED / CONNECTOR_STUCK_UNAVAILABLE /
- * FIRMWARE_UPDATE_FAILED / SECURITY_EVENT activity, and — the "✔️ sent, to whom, when" read the
- * feature exists for — whether each one actually notified
- * anyone, who, and when. An open alert also carries the acknowledge action
- * (charge-points-server issue #530) — a human taking it on, which silences
- * re-notification without resolving it — and, once taken, names who did.
- * Also hosts the opt-in switch for the real-time
- * channel itself (`ChargePoint.realtimeAlertsEnabled`) — the alerting
- * section is where an installer already is when deciding whether this
- * station warrants paging, so the toggle lives here rather than in the
- * panel's admin header alongside `isActive`.
+ * A charge point's alert history: each alert, whether it notified anyone, who
+ * and when, and for an open alert the acknowledge action (silences
+ * re-notification without resolving) and who took it. Also hosts the
+ * real-time alerts opt-in (`realtimeAlertsEnabled`).
  *
- * Purely presentational — `AlertsPanelContainer` owns the fetch and renders
- * its own loading/error state in place of this component, so `alerts` here
- * is always the loaded list; the marketing site's product preview can render
- * this directly with static data instead of duplicating the markup. The
- * toggle's own state (`realtimeAlertsEnabled`) is owned further up, same as
- * `FirmwarePanel` receiving `firmwareVersion`/`ocppVersion` as props already.
+ * Presentational: `AlertsPanelContainer` owns the fetch and the loading/error
+ * states, so the marketing preview can render it with static data.
  */
 export const AlertsPanel = ({
   chargePointName,
@@ -161,10 +128,8 @@ export const AlertsPanel = ({
             const TypeIcon = TYPE_ICON[alert.type];
             const recipientEmails = alert.notifiedRecipients.map((recipient) => recipient.email);
             const acknowledged = Boolean(alert.acknowledgedAt);
-            // Only an alert still OPEN can be taken on: the backend 409s on a
-            // RESOLVED one (a one-shot FIRMWARE_UPDATE_FAILED/SECURITY_EVENT
-            // is already resolved by the time it is rendered), and
-            // acknowledging twice would just re-stamp the same owner.
+            // Only an OPEN alert can be taken on: the backend answers 409 on a
+            // RESOLVED one.
             const acknowledgeable =
               alert.status === "OPEN" && !acknowledged && Boolean(onAcknowledge);
 
@@ -185,12 +150,9 @@ export const AlertsPanel = ({
                   <div className="flex items-center gap-2">
                     <AlertStatusBadge status={alert.status} />
                     {acknowledgeable && (
-                      // Deliberate copy: the label says "mark as resolved"
-                      // while the call only acknowledges — the alert stays
-                      // OPEN and resolution stays tied to the triggering
-                      // condition clearing (charge-points-server issue #530).
-                      // That wording is the repo owner's product decision;
-                      // don't "fix" it by renaming the action underneath.
+                      // Deliberate copy: the label says "mark as resolved" but
+                      // the call only acknowledges (the alert stays OPEN). This
+                      // is a product decision; don't rename the action.
                       <Button
                         variant="outline"
                         size="sm"

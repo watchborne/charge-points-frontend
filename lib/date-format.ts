@@ -18,14 +18,9 @@ const NUMERIC_DATE = { year: "numeric", month: "2-digit", day: "2-digit" } as co
 const HOUR_MINUTE = { hour: "2-digit", minute: "2-digit" } as const;
 
 /**
- * Locale-aware date helpers for the active next-intl locale. Components call
- * these instead of reaching for `Intl`, `date-fns` or next-intl's `useFormatter`,
- * so a date reads the same wherever it shows up and the underlying library stays
- * an implementation detail of this module.
- *
- * Output follows the *language* of the UI, not a fixed pattern: French renders
- * `08/10/2026 14:05`, English `10/08/2026, 02:05 PM` (the way next-intl itself
- * formats `en`). Everything is rendered in the browser's local time.
+ * Locale-aware date helpers: use them instead of `Intl`, `date-fns` or
+ * `useFormatter`. Output follows the UI language (`08/10/2026 14:05` in fr,
+ * `10/08/2026, 02:05 PM` in en), in the browser's local time.
  */
 export const useDateFormat = () => {
   const activeLocale = useLocale();
@@ -65,8 +60,5 @@ export const useDateFormat = () => {
   }, [intlLocale, dateFnsLocale]);
 };
 
-/**
- * The calendar widget (react-day-picker) takes a date-fns `Locale` object
- * directly; this is the only place that leaks the library, scoped to it.
- */
+/** react-day-picker takes a date-fns `Locale`: the only leak of the library. */
 export const useCalendarLocale = (): Locale => resolveLocale(useLocale());

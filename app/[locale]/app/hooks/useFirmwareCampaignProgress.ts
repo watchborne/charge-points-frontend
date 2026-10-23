@@ -4,10 +4,8 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 
 /**
- * A single campaign's detail + progress view (`GET /api/firmware-campaigns/:id`) —
- * mirrors `useSiteVisitSchedule`'s single-resource query half. Used by
- * `FirmwareCampaignDetailModal`, which only needs this once a campaign row is
- * clicked.
+ * One campaign's detail and progress (`GET /api/firmware-campaigns/:id`), for
+ * `FirmwareCampaignDetailModal`.
  */
 export function useFirmwareCampaignProgress(id: string | null) {
   const { data, isLoading, isError } = useQuery({

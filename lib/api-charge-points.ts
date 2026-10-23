@@ -22,80 +22,42 @@ import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 
 type CreateChargePointBody = Pick<ChargePoint, "siteId" | "meta" | "isActive"> & {
-  /**
-   * Optional since ADR 0010 (charge-points-server): a cosmetic label with no
-   * uniqueness constraint. Left out, the backend generates a readable one —
-   * an installer with no name in mind is never forced to invent one.
-   */
+  /** Optional: left out, the backend generates a readable name. */
   name?: ChargePoint["name"];
-  /** Optional here unlike isActive: defaults to false server-side (opt-in),
-   * and there is no creation-time UI for it — an installer sets it later via
-   * the detail panel's toggle (a PATCH). */
+  /** Defaults to false server-side; set later from the detail panel. */
   realtimeAlertsEnabled?: ChargePoint["realtimeAlertsEnabled"];
 };
 
 type PatchChargePointBody = Partial<CreateChargePointBody>;
 
 /**
- * Reset is a request/response OCPP command, not a plain resource write: the
- * caller needs the specific outcome (accepted vs. offline/rejected/timeout) to
- * give precise feedback. `httpClient` collapses every non-2xx into one generic
- * error, so this method reads the raw HTTP status itself and returns a
- * discriminated result rather than throwing. `httpStatus` is 0 for a network
- * failure that never reached the proxy.
+ * An OCPP command's outcome: the caller needs the specific result (accepted
+ * vs. offline/rejected/timeout), so the raw HTTP status is read instead of
+ * throwing. `httpStatus` is 0 for a network failure.
  */
 export type ResetChargePointOutcome = CommandOutcome<{ status: ResetStatus }>;
 
-/**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: ChangeAvailability is a request/response OCPP command whose caller
- * needs the specific outcome (accepted/scheduled vs. offline/rejected/timeout).
- */
 export type ChangeAvailabilityOutcome = CommandOutcome<{ status: ChangeAvailabilityStatus }>;
 
-/**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: UnlockConnector is a request/response OCPP command whose caller
- * needs the specific outcome (unlocked vs. offline/unlock-failed/not-supported/timeout).
- */
 export type UnlockConnectorOutcome = CommandOutcome<{ status: UnlockConnectorStatus }>;
 
-/**
- * Reading a station's settings is a request/response OCPP read: on success it
- * returns the station's reported configuration rather than a status. Same
- * raw-status discriminated shape as the other commands for precise
- * offline/timeout feedback.
- */
+/** A station settings read: the reported configuration on success. */
 export type GetSettingsOutcome = CommandOutcome<{
   configurationKey?: ConfigurationKey[];
   unknownKey?: string[];
 }>;
 
 /**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: writing a setting is a request/response OCPP command whose caller
- * needs the specific outcome (accepted/reboot-required vs. offline/rejected/
- * not-supported/timeout). `status` keeps OCPP 1.6's vocabulary whatever dialect
- * the station speaks — the backend normalizes 2.0.1's per-target statuses onto
- * it (see its `ocpp-supported-actions.md` §15).
+ * `status` uses OCPP 1.6's vocabulary whatever the dialect: the backend maps
+ * 2.0.1's statuses onto it.
  */
 export type SetSettingOutcome = CommandOutcome<{ status: ChangeConfigurationStatus }>;
 
-/**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: TriggerMessage is a request/response OCPP command whose caller needs
- * the specific outcome (accepted vs. offline/rejected/not-implemented/timeout).
- */
 export type TriggerMessageOutcome = CommandOutcome<{ status: TriggerMessageStatus }>;
 
 /**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: releasing a charge point (charge-points-server ADR 0028) can fail
- * with a specific, user-meaningful outcome — the charge point is out of the
- * caller's scope, or already released from a different tab — that the caller
- * needs to distinguish from a generic failure. Success carries no payload:
- * the backend answers 204, and the charge point simply drops out of this
- * caller's `getChargePoints()` list from then on.
+ * Fails with a specific outcome when the charge point is out of scope or
+ * already released. Success (204) has no payload.
  */
 export type ReleaseChargePointOutcome = CommandOutcome;
 
@@ -140,12 +102,10 @@ export const chargePointApis = {
     );
   },
   /**
-   * Drops the caller's own membership on a charge point (charge-points-server
-   * ADR 0028, issue #424) — the corrective path for a station claimed by the
-   * wrong installer. Other members, if any, keep their access; when the
-   * caller was the last one the charge point returns to unclaimed and is
-   * detached from its site. A charge point outside the caller's scope, or
-   * already released, is a 404 either way.
+   * Drops the caller's own membership, e.g. on a station claimed by the
+   * wrong installer. Other members keep theirs; the last one leaving returns
+   * the station to unclaimed and detaches it from its site. Out of scope or
+   * already released is a 404.
    */
   releaseChargePoint: async function (
     chargePointId: ChargePoint["id"],
@@ -229,14 +189,8 @@ export const chargePointApis = {
     }, "ChargePoint.unlockConnector");
   },
   /**
-   * Reads the station's settings as a flat key/value list.
-   *
-   * Hits the **dialect-neutral** `/settings` endpoint rather than the raw
-   * `/configuration` one: `GetConfiguration` (OCPP 1.6) and `GetVariables`
-   * (2.0.1) are different actions over incompatible request shapes, and which
-   * applies is a property of the station. The backend owns that decision, so a
-   * 2.0.1 station is readable here without the client branching on
-   * `chargePoint.ocppVersion`.
+   * Reads the station's settings as flat keys, through the dialect-neutral
+   * `/settings` endpoint: the backend picks GetConfiguration or GetVariables.
    */
   getSettings: async function (
     chargePointId: ChargePoint["id"],
@@ -260,7 +214,7 @@ export const chargePointApis = {
       return { ok: false, httpStatus: response.status };
     }, "ChargePoint.getSettings");
   },
-  /** Writes one setting by flat key — the write half of `getSettings` above. */
+  /** Writes one setting by flat key. */
   setSetting: async function (
     chargePointId: ChargePoint["id"],
     key: string,

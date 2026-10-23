@@ -21,13 +21,9 @@ type FirmwareCampaignsListProps = {
 };
 
 /**
- * `targetChargePointIds.length` is already known from the list response for
- * `"LIST"` campaigns; `"SITE"`/`"FLEET"` don't carry a count of their own
- * (the backend only resolves the actual target set at dispatch time), so this
- * derives one client-side from charge points already fetched by
- * `useChargePoints` — avoiding an extra request per row for a number the
- * detail modal's `targetCount` (from `GET /api/firmware-campaigns/:id`)
- * already gives precisely once a campaign is opened.
+ * The target count: known for `"LIST"` campaigns; for `"SITE"`/`"FLEET"`
+ * (resolved only at dispatch) derived from the already-fetched charge points,
+ * to avoid a request per row.
  */
 const targetCount = (
   campaign: FirmwareCampaign,

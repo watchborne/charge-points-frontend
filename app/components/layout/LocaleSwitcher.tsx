@@ -21,10 +21,7 @@ export function LocaleSwitcher() {
   function handleChange(nextLocale: string) {
     if (!isLocale(nextLocale)) return;
 
-    // usePathname()/router here are the locale-aware versions from
-    // i18n/navigation.ts: `pathname` already has any locale prefix
-    // stripped, and passing `locale` re-navigates to the same page under
-    // the new locale's URL (prefixed or not — see i18n/routing.ts).
+    // Locale-aware pathname/router (i18n/navigation.ts): same page, new locale.
     router.replace(pathname, { locale: nextLocale });
   }
 

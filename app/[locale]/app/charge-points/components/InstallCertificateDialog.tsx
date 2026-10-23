@@ -37,19 +37,15 @@ type SubmitState =
   | { status: "done"; outcome: InstallCertificateOutcome };
 
 /**
- * `V2GRootCertificate`/`MORootCertificate` are OCPP 2.0.1-only trust anchors
- * (the V2G/e-mobility-provider PKI 1.6's Security Whitepaper extension has
- * no notion of) — installing one on a 1.6 station is rejected server-side
- * with a 409. Gating them here is convenience, mirroring
- * `StartLogUploadDialog`'s `supportsSecurityLog` gate.
+ * 2.0.1-only trust anchors: a 1.6 station gets a 409 server-side, so they are
+ * hidden here for convenience.
  */
 const V201_ONLY_TYPES: readonly InstallCertificateUseV201[] = [
   "V2GRootCertificate",
   "MORootCertificate",
 ];
 
-/** Advisory only, like `StartLogUploadDialog`'s `isAcceptableLocation` — the
- * server stays authoritative on whether this is actually a valid certificate. */
+/** Advisory only: the server decides what is a valid certificate. */
 const looksLikePemCertificate = (value: string): boolean =>
   value.includes("-----BEGIN CERTIFICATE-----");
 
@@ -62,12 +58,9 @@ type InstallCertificateDialogProps = {
 };
 
 /**
- * Lets an installer push a trust-anchor certificate to a station (OCPP
- * `InstallCertificate`), modeled closely on `StartLogUploadDialog`: plain
- * `useState` fields, a feather-light client-side check, and the station's
- * own verdict (accepted/rejected/failed) surfaced inline rather than
- * silently treated as a plain success — the backend answers 200 regardless
- * of which of the three the station reports.
+ * Installs a trust-anchor certificate (`InstallCertificate`). The backend
+ * answers 200 whatever the station reports, so its verdict
+ * (accepted/rejected/failed) is shown inline.
  */
 export const InstallCertificateDialog = ({
   chargePointId,

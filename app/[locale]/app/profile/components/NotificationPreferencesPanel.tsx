@@ -17,36 +17,25 @@ import { api } from "@/lib/api";
 import type { EmailLocale, NotificationPreferences } from "@/lib/api-notification-preferences";
 import { queryKeys } from "@/lib/queryKeys";
 
-// The digest hour is a Europe/Paris wall-clock hour (charge-points-server
-// DIGEST_TIME_ZONE), stored and shown as is: no conversion to the browser's
-// time zone, so what the user picks is when it arrives, whatever their device
-// reports and across the summer/winter time change.
+// The digest hour is a Europe/Paris hour, shown and stored as is, so it holds
+// whatever the device's time zone and across DST changes.
 const DIGEST_HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 const formatDigestHour = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
 
-// Each language is named in itself, whatever the dashboard's own locale: that
-// is how a user who landed on the wrong one can still find theirs.
+// Each language is named in itself, so a user on the wrong locale finds theirs.
 const EMAIL_LOCALES: { value: EmailLocale; label: string }[] = [
   { value: "fr", label: "Français" },
   { value: "en", label: "English" },
 ];
 
 /**
- * Lets a user opt in/out of the daily alert digest, per channel (email
- * and/or push — charge-points-server ADR 0023), pick their own send hour
- * (a Europe/Paris hour), overriding charge-points-server's global default hour (ADR 0018
- * there), and choose the language of every email the backend sends them
- * (ADR 0022 there). Every field defaults to the backend's own resolved
- * default — this panel never invents a client-side fallback for a user who
- * has not set anything yet.
+ * The daily alert digest per channel (email, push), its send hour, and the
+ * language of the emails the backend sends. Every field shows the backend's
+ * resolved value; no client-side fallback.
  *
- * `isPushSubscribed` comes from the browser-level push subscription
- * (`usePushSubscription`, owned by `ProfilePage`): turning on the digest's
- * push channel is meaningless without a live subscription to send it to, so
- * that toggle stays disabled until one exists, rather than silently accepting
- * a preference this browser can never receive. The browser-level control
- * itself is passed as `children` and rendered first, in this same card, so
- * the page has a single "Notifications" section.
+ * The push toggle stays disabled without a live browser subscription
+ * (`isPushSubscribed`). The browser-level control is passed as `children` and
+ * rendered first, in the same card.
  */
 export const NotificationPreferencesPanel = ({
   isPushSubscribed,

@@ -23,15 +23,12 @@ type DeviceVariableReportsPanelProps = {
   disabled?: boolean;
 };
 
-/** How many recent frames the panel fetches — a glance at the latest
- * inventory, not a full audit log, the same cap `SecurityEventsPanel`/
- * `DeviceEventsPanel` use. */
+/** Recent frames only. */
 const VISIBLE_REPORT_COUNT = 5;
 
 type FlatEntry = DeviceVariableReportEntry & { reportId: string; generatedAt: string };
 
-/** Flattens each report's `entries[]` into one row per component/variable
- * pair, since a frame can bundle an entire inventory in one report. */
+/** One row per component/variable pair: a frame can bundle a whole inventory. */
 const flattenReports = (reports: DeviceVariableReport[]): FlatEntry[] =>
   reports.flatMap((report) =>
     report.entries.map((entry) => ({
@@ -52,12 +49,8 @@ const attributesLabel = (entry: DeviceVariableReportEntry): string =>
     .join(" · ");
 
 /**
- * A charge point's `NotifyReport` history (charge-points-server ADR 0011):
- * variable-inventory reports a 2.0.1 station sends. Every frame is recorded
- * regardless of whether it correlates to a `GetBaseReport`/`GetReport` this
- * supervisor sent — `RequestDeviceReportDialog` triggers one, but a station
- * may still report unsolicited (ADR 0014). Fetch-once and self-contained,
- * the same shape as `DeviceEventsPanel`.
+ * A charge point's `NotifyReport` history (2.0.1): every frame, whether or not
+ * it answers a `GetBaseReport`/`GetReport` this supervisor sent. Fetch-once.
  */
 export const DeviceVariableReportsPanel = ({
   chargePointId,

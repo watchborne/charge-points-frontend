@@ -47,17 +47,13 @@ const metaSchema = z
   })
   .optional();
 
-// A charge point may be left unassigned (no site) — an empty string, mapped
-// to `null` by the page before it hits the API.
+// Unassigned is an empty string, mapped to `null` by the page.
 const siteIdSchema = z.string();
 const isActiveSchema = z.boolean();
 
 /**
- * `name` is optional on create (ADR 0010, charge-points-server): it is a
- * cosmetic label with no uniqueness constraint, so an installer with no name
- * in mind isn't forced to invent one — the backend generates a readable one
- * instead. Renaming an existing charge point is still a deliberate act, so
- * `edit` keeps the field required.
+ * `name` is optional on create (the backend generates one) but required on
+ * edit.
  */
 const createChargePointSchema = z.object({
   name: z.string().optional(),
@@ -66,9 +62,7 @@ const createChargePointSchema = z.object({
   meta: metaSchema,
 });
 
-// A factory rather than a constant: the "required" message has to be the
-// caller's already-translated string, since zod messages are not run through
-// next-intl.
+// A factory: zod messages aren't translated, so the caller passes one.
 const makeEditChargePointSchema = (nameRequiredMessage: string) =>
   z.object({
     name: z.string().min(1, nameRequiredMessage),
@@ -77,10 +71,7 @@ const makeEditChargePointSchema = (nameRequiredMessage: string) =>
     meta: metaSchema,
   });
 
-// The wider of the two shapes (name optional): both `onSubmit` consumers
-// (create and edit) already forward `values.name` into an optional field —
-// `handleEdit`'s patch is `Partial<CreateChargePointBody>` — and edit mode's
-// own resolver is what actually enforces non-empty before submission.
+// The wider shape (name optional); the edit resolver enforces non-empty.
 export type ChargePointFormValues = z.infer<typeof createChargePointSchema>;
 
 export const ChargePointFormDialog = ({

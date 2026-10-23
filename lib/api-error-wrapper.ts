@@ -1,7 +1,4 @@
-/**
- * Wraps async API operations with consistent error logging and handling.
- * Reduces duplicated try/catch and console.error patterns across API files.
- */
+/** Runs an async API call with consistent error logging. */
 export async function withErrorLogging<T>(
   operation: () => Promise<T>,
   context: string,
@@ -14,10 +11,7 @@ export async function withErrorLogging<T>(
   }
 }
 
-/**
- * Variant for fetch-based operations that return discriminated results
- * (ok: true/false) rather than throwing on non-2xx responses.
- */
+/** The same, for calls returning a discriminated `{ ok }` result. */
 export async function withErrorLoggingAsync<T extends { ok: boolean; httpStatus?: number }>(
   operation: () => Promise<T>,
   context: string,

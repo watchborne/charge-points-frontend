@@ -16,14 +16,12 @@ type DeviceEventsPanelProps = {
   chargePointId: ChargePoint["id"];
 };
 
-/** How many recent frames the panel fetches — a glance at recent activity,
- * not a full audit log, the same cap `SecurityEventsPanel`/`AlertsPanel` use. */
+/** Recent frames only. */
 const VISIBLE_REPORT_COUNT = 5;
 
 type FlatEntry = DeviceEventEntry & { reportId: string; generatedAt: string };
 
-/** Flattens each report's `events[]` into one row per entry, since a frame
- * can bundle several unrelated component/variable reports together. */
+/** One row per `events[]` entry: a frame can bundle unrelated reports. */
 const flattenReports = (reports: DeviceEventReport[]): FlatEntry[] =>
   reports.flatMap((report) =>
     report.events.map((event) => ({
@@ -37,12 +35,9 @@ const componentLabel = (entry: DeviceEventEntry): string =>
   entry.variable.name ? `${entry.component.name} · ${entry.variable.name}` : entry.component.name;
 
 /**
- * A charge point's `NotifyEvent` history (charge-points-server ADR 0011):
- * fault/variable-change reports a 2.0.1 station sends on its own initiative,
- * store-only — never projected onto `Connector.status` (no reliable
- * Component/Variable mapping exists, per the ADR). Fetch-once and
- * self-contained, the same shape as `SecurityEventsPanel`: there is no
- * dedicated WebSocket broadcast for these yet.
+ * A charge point's `NotifyEvent` history: fault and variable-change reports a
+ * 2.0.1 station sends on its own, stored but never projected onto
+ * `Connector.status`. Fetch-once.
  */
 export const DeviceEventsPanel = ({ chargePointId }: DeviceEventsPanelProps) => {
   const t = useTranslations("");

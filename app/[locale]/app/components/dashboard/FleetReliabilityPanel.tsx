@@ -26,15 +26,9 @@ const TREND_ICON = {
 } as const;
 
 /**
- * The fleet-wide reliability ranking (charge-points-server issue #581):
- * every visible charge point, worst-first, by its current 30-day uptime
- * ratio against the immediately preceding 30 days — "which station needs
- * attention" made visible without opening each one individually.
- *
- * The backend already does the ranking and the batching (one composite
- * query, no N+1); this panel only derives display buckets/trend arrows
- * (`lib/fleet-reliability.ts`) and renders the table the backend's order
- * already gives it — it never re-sorts.
+ * Every visible charge point, worst first, by its 30-day uptime against the
+ * previous 30 days. The backend ranks; this only derives buckets and trend
+ * arrows (`lib/fleet-reliability.ts`) and never re-sorts.
  */
 export const FleetReliabilityPanel = () => {
   const t = useTranslations("");

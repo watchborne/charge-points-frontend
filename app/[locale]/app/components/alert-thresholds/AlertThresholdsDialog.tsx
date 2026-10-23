@@ -46,13 +46,9 @@ type AlertThresholdsDialogProps = {
 };
 
 /**
- * Edits one level's alert-threshold overrides (charge-points-server issue #577).
- * Used for a site and for a charge point alike: the caller supplies the wording
- * and the level's stored overrides, this owns the form.
- *
- * Thresholds are typed in whole minutes. An empty field means "inherit", sent as
- * `null` so it clears an override that was set; a number sets it. Every field is
- * sent, so what the form shows is exactly what ends up stored.
+ * Edits one level's (site or charge point) alert-threshold overrides, in whole
+ * minutes. An empty field inherits and is sent as `null`; every field is sent,
+ * so the form shows exactly what is stored.
  */
 export const AlertThresholdsDialog = ({
   open,

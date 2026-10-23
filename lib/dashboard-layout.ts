@@ -1,10 +1,5 @@
-// Client-side preference store for the dashboard's widget layout (#393):
-// which of the dashboard's panels a user sees and in what order. Persisted
-// to localStorage rather than a backend preferences blob, since this is
-// purely a presentation-layer preference scoped to this device/browser —
-// a true per-user, cross-device store would share the backend mechanism
-// the per-user notification-preferences feature uses (charge-points-server),
-// which is out of scope here.
+// The dashboard's widget visibility and order, stored in localStorage: a
+// per-browser presentation preference.
 
 import { safeLocalStorage } from "./safe-local-storage";
 
@@ -16,10 +11,7 @@ export type DashboardWidgetPreference = {
   visible: boolean;
 };
 
-// Order here doubles as the default layout — unchanged from the dashboard's
-// previous fixed arrangement, plus fleetReliability appended at the end (a
-// widget shipped after a user's preferences were saved is appended the same
-// way by `sanitize` below, so this is also where a fresh layout puts it).
+// Also the default order; a widget added later is appended by `sanitize`.
 export const DASHBOARD_WIDGET_IDS: DashboardWidgetId[] = [
   "siteHealth",
   "chargePointsBreakdown",
@@ -35,10 +27,8 @@ const isDashboardWidgetId = (value: unknown): value is DashboardWidgetId =>
 export const defaultDashboardLayout = (): DashboardWidgetPreference[] =>
   DASHBOARD_WIDGET_IDS.map((id) => ({ id, visible: true }));
 
-// Reconciles stored preferences against the widgets this build actually
-// knows about: drops ids it no longer recognizes (a removed widget), and
-// appends any id it doesn't find (a widget shipped after these preferences
-// were saved) as visible, rather than losing it silently.
+// Drops unknown ids (removed widgets) and appends missing ones (new widgets)
+// as visible.
 const sanitize = (stored: unknown): DashboardWidgetPreference[] => {
   const known = Array.isArray(stored)
     ? stored.filter(

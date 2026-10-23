@@ -13,13 +13,8 @@ import type {
 } from "@watchborne/charge-points-types";
 
 /**
- * `commissionedAt` (`Membership.commissionedAt` on the backend) is
- * server-local queue/audit state, not part of the shared
- * `@watchborne/charge-points-types` `ChargePoint` shape — added here rather
- * than in the package, the same way `charge-points-server` extends its
- * response schemas locally (issue charge-points-frontend#279 /
- * charge-points-server#423). `null` while a charge point is still sitting in
- * the commissioning queue.
+ * Adds the server-local `commissionedAt` (`Membership.commissionedAt`) to the
+ * shared shape; `null` while in the commissioning queue.
  */
 export type ChargePointWithConnectors = PackageChargePointWithConnectors & {
   commissionedAt: string | null;
@@ -30,11 +25,8 @@ export type ChargePointWithSite = PackageChargePointWithSite & {
 };
 
 /**
- * `POST /api/charge-points`'s response shape only (ADR 0010, charge-points-server):
- * the created charge point plus the ready-to-paste OCPP connection URL to
- * configure on the physical device. Not part of the persisted `ChargePoint`
- * shape — every later read rebuilds it from `ocppIdentity` instead, so it is
- * never returned again after creation.
+ * `POST /api/charge-points`'s response: the created charge point plus its OCPP
+ * connection URL, which later reads don't return.
  */
 export type CreatedChargePoint = ChargePointWithConnectors & {
   connectionUrl: string;

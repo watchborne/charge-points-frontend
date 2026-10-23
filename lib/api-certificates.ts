@@ -23,24 +23,15 @@ export type InstallCertificateBody = {
 };
 
 /**
- * Same discriminated-result shape as `ResetChargePointOutcome`, for the same
- * reason: InstallCertificate is a request/response OCPP command whose caller
- * needs the specific outcome (accepted/rejected/failed vs. offline/
- * unsupported-type-or-too-long/timeout). Unlike the reset/availability
- * commands, `ok: true` covers all three station verdicts — the station
- * always answers with a status, never an empty acknowledgment.
+ * `ok: true` covers all three station verdicts (accepted/rejected/failed);
+ * failures are offline, unsupported type or too long, timeout.
  */
 export type InstallCertificateOutcome = CommandOutcome<{
   status: InstallCertificateStatus;
   statusInfo?: string;
 }>;
 
-/**
- * Same discriminated-result shape as `InstallCertificateOutcome`, for the
- * same reason: DeleteCertificate is a request/response OCPP command whose
- * caller needs the specific outcome (accepted/failed/not-found vs. offline/
- * timeout).
- */
+/** The station's verdict: accepted, failed or not found. */
 export type DeleteCertificateOutcome = CommandOutcome<{
   status: DeleteCertificateStatus;
   statusInfo?: string;
@@ -48,10 +39,8 @@ export type DeleteCertificateOutcome = CommandOutcome<{
 
 export const certificateApis = {
   /**
-   * The charge point's installed OCPP trust-anchor certificates (OCPP
-   * `GetInstalledCertificateIds`). A plain read — like `getFirmware`, this
-   * goes through `httpClient`, since a failure just needs to surface as a
-   * thrown error for `useQuery` to catch, with no per-code UX to branch on.
+   * The installed trust-anchor certificates (`GetInstalledCertificateIds`).
+   * A plain read through `httpClient`: a failure only needs to throw.
    */
   listCertificates: async function (
     chargePointId: ChargePoint["id"],
@@ -93,9 +82,8 @@ export const certificateApis = {
     }, "ChargePoint.installCertificate");
   },
   /**
-   * Deletes an installed certificate (OCPP `DeleteCertificate`), identified
-   * by its hash data rather than an id. `httpClient.delete` has no body
-   * parameter, so this uses raw `fetch` like the other write commands above.
+   * Deletes a certificate by its hash data (`DeleteCertificate`). Raw `fetch`:
+   * `httpClient.delete` takes no body.
    */
   deleteCertificate: async function (
     chargePointId: ChargePoint["id"],

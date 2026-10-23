@@ -29,9 +29,8 @@ const DEMO_CONNECTOR_IDS = [1, 2];
 const DEMO_STATUS_HISTORY_RANGES = ["day"] as const;
 
 /**
- * Builds the `StatusHistoryPanel` fixture as fractions of "today so far"
- * rather than fixed clock times, so the timeline always lands inside the
- * "day" window this preview locks to, whatever time of day this loads.
+ * The `StatusHistoryPanel` fixture as fractions of "today so far", so the
+ * timeline always lands inside the preview's "day" window.
  */
 const buildStatusHistoryFixture = () => {
   const start = new Date();
@@ -160,11 +159,8 @@ const HOUR_MS = 60 * MIN_MS;
 const DAY_MS = 24 * HOUR_MS;
 
 /**
- * How far apart the idle baseline readings sit, per range — coarser over a
- * longer window, the same shape a real backend thinning a long raw read
- * would have (see `useConsumption`'s `MAX_CHART_SAMPLES` comment). Sessions
- * are always densified separately (`SESSION_STEP_MS` below), so this only
- * controls how the idle-between-sessions baseline is spaced.
+ * Spacing of the idle baseline readings per range, coarser over longer
+ * windows. Sessions are densified separately (`SESSION_STEP_MS`).
  */
 const RANGE_IDLE_STEP_MS: Record<DemoConsumptionRange, number> = {
   "24h": 15 * MIN_MS,
@@ -172,16 +168,13 @@ const RANGE_IDLE_STEP_MS: Record<DemoConsumptionRange, number> = {
   "30d": 8 * HOUR_MS,
 };
 
-/** Resolution inside an active session, regardless of range — a session
- * lasts under two hours, so it stays visible (ramp/plateau/taper) on every
- * range's chart instead of being aliased away by a coarser idle step. */
+/** Resolution inside a session, on every range, so its ramp/plateau/taper
+ * stays visible. */
 const SESSION_STEP_MS = 5 * MIN_MS;
 
 /**
- * Deterministic PRNG (mulberry32). The fixture has to render identically on
- * the server and after hydration — same reasoning as everything else in
- * this file being anchored to elapsed fractions rather than wall-clock
- * reads taken twice — so it can't use `Math.random()`.
+ * Deterministic PRNG (mulberry32): the fixture must render identically on the
+ * server and after hydration, so it can't use `Math.random()`.
  */
 const mulberry32 = (seed: number) => {
   let state = seed;
@@ -197,9 +190,8 @@ const mulberry32 = (seed: number) => {
 type ConnectorProfile = {
   plateauPowerW: number;
   voltageV: number;
-  /** The register reading "now" — every window's samples are computed
-   * backward from this fixed point, so it never depends on which range is
-   * selected (switching ranges doesn't rewind the meter). */
+  /** The register reading "now"; every window is computed backward from it, so
+   * switching ranges doesn't rewind the meter. */
   lifetimeEnergyWh: number;
 };
 
@@ -218,15 +210,14 @@ type DemoSession = {
   endSoc: number;
 };
 
-/** A calendar day always seeds the same way, whatever range is generating
- * around it — the 24h and 30d views agree on "today"'s sessions. */
+/** A calendar day seeds the same way whatever the range, so the 24h and 30d
+ * views agree on today's sessions. */
 const daySeed = (dayStartMs: number, connectorId: number) =>
   Math.floor(dayStartMs / DAY_MS) * 4 + connectorId;
 
 /**
- * A charging-session schedule for one connector: weekday mornings and
- * afternoons for connector 1 (a busy AC charger), an occasional evening
- * session for connector 2 — never every day, never at the same minute twice.
+ * One connector's sessions: weekday mornings and afternoons for connector 1,
+ * an occasional evening for connector 2, never at the same minute twice.
  */
 const buildSessions = (connectorId: number, windowStart: number, now: number): DemoSession[] => {
   const profile = CONNECTOR_PROFILES[connectorId];
@@ -271,8 +262,7 @@ const buildSessions = (connectorId: number, windowStart: number, now: number): D
   return sessions;
 };
 
-/** Power at an instant within a session: ramps up, holds a plateau, tapers
- * off as the vehicle approaches full — never a flat step function. */
+/** Power during a session: ramp up, plateau, taper. */
 const sessionPowerAt = (session: DemoSession, t: number): number => {
   const duration = session.endAt - session.startAt;
   if (duration <= 0) return 0;
@@ -320,10 +310,8 @@ const buildConnectorSeries = ({
   const profile = CONNECTOR_PROFILES[connectorId];
   const sessions = buildSessions(connectorId, windowStart, now);
 
-  // The idle baseline grid, plus every session densified to 5-minute steps
-  // so ramp/plateau/taper stay visible regardless of the range's idle
-  // resolution — a coarse 30d grid could otherwise step clean over a
-  // 45-minute session and miss it entirely.
+  // The idle grid plus every session at 5-minute steps, so a coarse 30d grid
+  // cannot step over a session.
   const times = new Set<number>();
   for (let t = windowStart; t <= now; t += idleStepMs) times.add(t);
   times.add(now);
@@ -374,9 +362,7 @@ const buildConnectorSeries = ({
       soc.push(makeSample(MEASURAND_SOC, "%", t, Number(sessionSocAt(session, t).toFixed(1))));
     }
 
-    // Rectangular integration between consecutive timestamps — accurate
-    // enough since every session is already densified to 5-minute steps
-    // above, so no interval spans a ramp/taper unnoticed.
+    // Rectangular integration; sessions are already at 5-minute steps.
     cumulativeWh += powerW * ((t - previousT) / HOUR_MS);
     previousT = t;
     runningWh.push(cumulativeWh);
@@ -412,9 +398,8 @@ const buildConsumptionFixture = (
   const summaries: ChargePointConsumption["series"] = [];
 
   for (const connectorId of DEMO_CONNECTOR_IDS) {
-    // Seeded per connector+range, not per render, so the shape is stable
-    // across re-renders (a re-render from unrelated state shouldn't reshuffle
-    // the chart) while still varying between connectors and ranges.
+    // Seeded per connector and range, not per render, so the shape is stable
+    // across re-renders.
     const rng = mulberry32(connectorId * 7_919 + RANGE_HOURS[range]);
     const series = buildConnectorSeries({ connectorId, windowStart, now, idleStepMs, rng });
 
@@ -476,14 +461,10 @@ const buildSessionsFixture = (): ChargingSessionListEntry[] => {
 };
 
 /**
- * A charging session's own meter readings, fed to the presentational
- * `SessionConsumptionChart` — the marketing preview's counterpart to
- * `SessionConsumptionChartContainer`'s real fetch, scoped to a real,
- * synthetic session rather than one that doesn't exist on the backend.
- * Power ramps up, holds a plateau, then tapers off toward the session's
- * end (or "now", for the still-active demo session) rather than a flat
- * step function; Energy is that Power curve's own integral, so it only
- * ever counts up, same as the real register would.
+ * A session's meter readings for the presentational `SessionConsumptionChart`
+ * (the preview's counterpart to `SessionConsumptionChartContainer`'s fetch).
+ * Power ramps, plateaus and tapers toward the end (or "now" while active);
+ * Energy is its integral, so it only counts up.
  */
 const buildSessionConsumptionFixture = (
   connectorId: number,
@@ -599,41 +580,31 @@ const buildAlertsFixture = (): AlertListEntry[] => {
 };
 
 /**
- * The homepage/features tab switcher showing what a charge point's real
- * detail panel looks like. Renders the actual presentational dashboard
- * components (`StatusHistoryPanel`, `ChargePointConsumptionPanel`,
- * `ChargingSessionsPanel`, `AlertsPanel`) rather than a lookalike, fed static
- * fixture data as props — those panels are container/presentational-split,
- * so this is exactly the role their real `*Container` counterparts play on
- * the dashboard, just with fixtures standing in for a fetch. The marketing
- * site is public and statically rendered, so nothing here calls the backend.
+ * The homepage/features tab switcher: the real presentational panels
+ * (`StatusHistoryPanel`, `ChargePointConsumptionPanel`, `ChargingSessionsPanel`,
+ * `AlertsPanel`) fed static fixtures in place of their `*Container` fetches.
+ * The marketing site is static, so nothing here calls the backend.
  */
 export const ChargePointPreviewTabs = () => {
   const t = useTranslations("");
   const [tab, setTab] = useState<PreviewTab>("main");
   const [realtimeAlertsEnabled, setRealtimeAlertsEnabled] = useState(true);
 
-  // Consumption view/measurand selection, mirroring what
-  // ChargePointConsumptionPanelContainer owns for the real dashboard.
+  // Mirrors ChargePointConsumptionPanelContainer's state.
   const [consumptionRange, setConsumptionRange] = useState<DemoConsumptionRange>("24h");
   const [measurand, setMeasurand] = useState<string>(MEASURAND_ENERGY);
 
-  // Status-history range/connector selection, mirroring what
-  // StatusHistoryPanelContainer owns for the real dashboard.
+  // Mirrors StatusHistoryPanelContainer's state.
   const [connectorId, setConnectorId] = useState(DEMO_CONNECTOR_IDS[0]);
 
   const statusHistory = useMemo(() => buildStatusHistoryFixture(), []);
-  // Regenerated per range, the same way ChargePointConsumptionPanelContainer
-  // re-fetches on a range change — a 30-day view needs a 30-day history, not
-  // the 24h fixture stretched to fit.
+  // Regenerated per range, as the real container re-fetches.
   const { consumption, samples: consumptionSamples } = useMemo(
     () => buildConsumptionFixture(consumptionRange),
     [consumptionRange],
   );
-  // Real stations only ever hand `ChargePointConsumptionPanel` samples for
-  // the one measurand currently selected (`useConsumption`'s raw read is
-  // itself scoped to `measurand`) — filter here too, or switching measurand
-  // in this preview would plot every series' values as one connector line.
+  // The real panel only receives the selected measurand's samples, so filter
+  // here too.
   const consumptionChartSamples = useMemo(
     () => consumptionSamples.filter((sample) => sample.measurand === measurand),
     [consumptionSamples, measurand],

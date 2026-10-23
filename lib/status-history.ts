@@ -1,13 +1,7 @@
 /**
- * Turns a flat list of status-transition events (ADR 0008's
- * `ConnectionStateEvent`/`ConnectorStatusEvent` in `lib/api-status-history.ts`)
- * into the contiguous timeline a progress bar or a duration table actually
- * needs: what was true, and for how long, across a fixed window.
- *
- * The backend only ever records a *transition* — nothing is written while a
- * status simply continues — so a window's start rarely coincides with one.
- * Reconstructing "what was true at `windowStart`" needs the most recent event
- * at or before it, not just the ones that landed strictly inside the window.
+ * Turns status-transition events into the contiguous timeline a bar or a
+ * duration table needs. Only transitions are recorded, so the status at
+ * `windowStart` comes from the last event at or before it.
  */
 
 type HistoryEvent<S> = { status: S; occurredAt: string };
@@ -25,18 +19,10 @@ export type StatusDuration<S> = {
 };
 
 /**
- * Builds the segment list covering exactly `[windowStart, windowEnd)`.
- *
- * `events` needs no particular order coming in (the backend returns newest
- * first) — sorted here defensively rather than trusted. An event exactly at
- * `windowStart` seeds the first segment rather than opening a second one; an
- * event exactly at `windowEnd` belongs to what comes after the window and is
- * excluded, so the last segment never gets a zero-length twin.
- *
- * A window with no event at or before `windowStart` opens with one `null`
- * segment up to the first real one — a charge point that started reporting
- * partway through the window genuinely has nothing earlier to show, and
- * guessing would be worse than saying so.
+ * The segments covering exactly `[windowStart, windowEnd)`. `events` may come
+ * in any order. An event at `windowStart` seeds the first segment; one at
+ * `windowEnd` is excluded. Without an event at or before `windowStart`, the
+ * window opens with a `null` (unknown) segment rather than a guess.
  */
 export const computeSegments = <S>(
   events: HistoryEvent<S>[],
@@ -50,8 +36,7 @@ export const computeSegments = <S>(
     (a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime(),
   );
 
-  // The event active at windowStart is the *last* one at or before it, not
-  // every one before it — only its status carries into the window.
+  // Only the last event at or before windowStart carries into the window.
   const seed = [...sorted]
     .reverse()
     .find((event) => new Date(event.occurredAt).getTime() <= startMs);
@@ -78,8 +63,7 @@ export const computeSegments = <S>(
     const next = timeline[index + 1];
     const end = next ? new Date(next.occurredAt) : windowEnd;
 
-    // A same-instant replay (or two events at an identical timestamp) would
-    // otherwise open a zero-length segment — skip it rather than render one.
+    // Skip zero-length segments (same-instant events).
     if (end.getTime() <= start.getTime()) return;
 
     segments.push({ status: event.status, start, end });
@@ -89,11 +73,8 @@ export const computeSegments = <S>(
 };
 
 /**
- * "2h30m"-style, not run through `next-intl`: a numeric duration abbreviated
- * this way reads the same in French and English, so translating it would add
- * complexity (pluralization, unit words) for no legibility gain. Omits hours
- * entirely under 1h, and always shows minutes (even "0m") so "3h0m" and "3h"
- * aren't two different-looking durations for the same three hours.
+ * "2h30m", untranslated: it reads the same in French and English. Hours are
+ * omitted under 1h; minutes always show, so 3 hours is always "3h0m".
  */
 export const formatDurationShort = (ms: number): string => {
   const totalMinutes = Math.round(ms / 60_000);
@@ -104,9 +85,8 @@ export const formatDurationShort = (ms: number): string => {
 };
 
 /**
- * Reduces segments to total time per status, largest first — the dominant
- * status leads a summary the way it should. `null` (unknown) segments are
- * excluded: there is nothing to attribute that time to.
+ * Total time per status, largest first; `null` (unknown) segments are
+ * excluded.
  */
 export const computeDurations = <S extends string>(
   segments: StatusSegment<S>[],

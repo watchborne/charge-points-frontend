@@ -7,13 +7,9 @@ import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
 
 /**
- * Same discriminated-result shape as `ResetChargePointOutcome`, plus one wrinkle
- * the other commands don't have: **`status` is `null` for an OCPP 1.6 station**.
- *
- * 1.6's `UpdateFirmware.conf` is an empty payload, so the station acknowledges
- * the frame without saying whether it will comply — the backend answers `202`
- * rather than `200` for exactly that reason. A `null` status therefore means
- * "requested, outcome unknown until the station reports", not "failed".
+ * `status` is `null` for an OCPP 1.6 station: its `UpdateFirmware.conf` is
+ * empty, so the backend answers 202 and the outcome is unknown until the
+ * station reports. It means "requested", not "failed".
  */
 export type StartFirmwareUpdateOutcome = CommandOutcome<{
   status: UpdateFirmwareStatusV201 | null;
@@ -33,13 +29,8 @@ export type StartFirmwareUpdateBody = {
 
 export const firmwareUpdateApis = {
   /**
-   * The charge point's firmware picture: the update in flight and the last
-   * finished one.
-   *
-   * A plain read, so it goes through `httpClient` like the other GETs — unlike
-   * the OCPP commands above, there is no per-outcome HTTP status to
-   * discriminate. The backend answers 200 even for a charge point outside the
-   * caller's scope (both fields `null`), so there is no 404 to handle either.
+   * The update in flight and the last finished one. A plain read; out of
+   * scope answers 200 with both fields `null`.
    */
   getFirmware: async function (chargePointId: ChargePoint["id"]): Promise<ChargePointFirmware> {
     return withErrorLogging(
@@ -60,10 +51,8 @@ export const firmwareUpdateApis = {
     }, "ChargePoint.listFirmwareUpdates");
   },
   /**
-   * Starts a firmware update. Like the other OCPP commands this reads the raw HTTP
-   * status rather than going through `httpClient`, because the caller needs the
-   * specific outcome — and here also needs to tell `200` (station answered) from
-   * `202` (1.6 station acknowledged and said nothing).
+   * Starts a firmware update, reading the raw status to tell 200 (station
+   * answered) from 202 (1.6 acknowledgment).
    */
   startFirmwareUpdate: async function (
     chargePointId: ChargePoint["id"],

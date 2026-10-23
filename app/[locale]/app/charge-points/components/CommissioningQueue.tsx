@@ -13,10 +13,8 @@ type CommissioningQueueProps = {
 };
 
 /**
- * Surfaces charge points that have connected (auto-discovered) but are not yet
- * attached to a site, so an installer sees the commissioning backlog up front
- * instead of hunting for them in the "unknown site" group. Renders nothing when
- * the queue is empty.
+ * Discovered charge points not yet attached to a site: the commissioning
+ * backlog. Renders nothing when empty.
  */
 export const CommissioningQueue = ({ chargePoints, onCommission }: CommissioningQueueProps) => {
   const t = useTranslations("");

@@ -9,15 +9,10 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// The metering reads' response shapes: the shared `MeterSample`,
-// `MeterSampleSummary` and `ChargePointConsumption` (@watchborne/charge-points-types),
-// as they look once serialized to JSON — timestamps arrive as ISO strings and are
-// parsed where rendered (see `Wire`). charge-points-server ADR 0004.
-//
-// `min`/`max`/`avg` of a summary are reported without interpretation, deliberately:
-// on a cumulative register `max - min` is the energy delivered over the window,
-// while on an instantaneous measurand `avg`/`max` are the useful figures. Deciding
-// which applies is the caller's job — see `isCumulativeRegister`.
+// The shared metering types, seen through `Wire`. Summary `min`/`max`/`avg`
+// are uninterpreted: `max - min` is the energy delivered on a cumulative
+// register, `avg`/`max` are the useful figures otherwise (see
+// `isCumulativeRegister`).
 
 /** One stored measurement, as `GET /api/charge-points/:id/meter-samples` returns it. */
 export type MeterSample = Wire<SharedMeterSample>;

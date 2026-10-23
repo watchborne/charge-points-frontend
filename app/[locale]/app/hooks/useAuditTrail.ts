@@ -9,12 +9,9 @@ type UseAuditTrailParams =
   | { chargePointId?: undefined; filters?: ListAuditEntriesFilters };
 
 /**
- * Cursor-paginated audit trail, scoped to one charge point when `chargePointId`
- * is given, or the caller's whole platform-wide trail otherwise — the first
- * `useInfiniteQuery` in this codebase (no fixed-window precedent fits a trail
- * that keeps growing indefinitely). `fetchNextPage` walks the cursor forward;
- * `entries` is every page fetched so far, flattened newest-first (the
- * backend's own order).
+ * Cursor-paginated audit trail for one charge point, or the caller's whole
+ * trail without `chargePointId`. `entries` is every fetched page, newest
+ * first.
  */
 export function useAuditTrail({ chargePointId, filters }: UseAuditTrailParams) {
   const query = useInfiniteQuery({

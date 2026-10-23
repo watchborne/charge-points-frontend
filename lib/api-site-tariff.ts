@@ -8,11 +8,7 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// A site's currently configured flat tariff: the shared `SiteTariff` entity
-// (@watchborne/charge-points-types), as it looks once serialized to JSON —
-// timestamps arrive as ISO strings (see `Wire`). Not historized: this is always
-// the rate in effect right now, never the one that applied to a specific past
-// session (charge-points-server issue #580).
+// A site's flat tariff. Not historized: always the rate in effect now.
 
 export type SiteTariff = Wire<SharedSiteTariff>;
 

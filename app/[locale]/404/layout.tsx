@@ -15,12 +15,8 @@ import { Navbar } from "../(marketing)/layout/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// Unlike the other root layouts, no `runtime = "edge"` here: this route has
-// no dynamic dependency at all (no auth, no locale-cookie-dependent data),
-// so it's fully static — Next.js doesn't allow combining `generateStaticParams`
-// with an edge runtime declaration on this route, and static beats edge
-// anyway (a static page is served straight from the CDN, no function
-// invocation at all).
+// No `runtime = "edge"`: Next.js rejects it with generateStaticParams, and
+// this route is fully static.
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

@@ -6,10 +6,8 @@ import type { UpdateChargePointAlertThresholdsBody } from "@/lib/api-charge-poin
 import { queryKeys } from "@/lib/queryKeys";
 
 /**
- * A charge point's own alert-threshold overrides and the thresholds actually
- * applied to it — own override, else its site's, else the default (charge-points-
- * server issue #577). `useQuery`/`useMutation` over `api.ChargePointAlertThresholds`,
- * mirroring `useSiteAlertThresholds`.
+ * A charge point's own alert-threshold overrides and the thresholds applied
+ * to it (own override, else its site's, else the default).
  */
 export function useChargePointAlertThresholds(chargePointId: ChargePoint["id"] | null) {
   const queryClient = useQueryClient();

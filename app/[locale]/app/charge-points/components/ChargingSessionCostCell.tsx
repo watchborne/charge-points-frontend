@@ -9,10 +9,8 @@ import type { ChargePoint } from "@/types/charge-point";
 
 import { CostCell, type ChargingSessionListEntry } from "./ChargingSessionsPanel";
 
-/** An ended session's estimated cost only moves when the site's tariff does,
- * so a cached answer is good for a while: flipping between tabs or charge
- * points must not re-ask for every row each time (the `/api/*` rate limit is
- * shared with the rest of the dashboard). */
+/** An ended session's cost only changes with the tariff; caching it spares the
+ * shared `/api/*` rate limit. */
 const COST_STALE_TIME_MS = 5 * 60 * 1000;
 
 type ChargingSessionCostCellProps = {
@@ -21,11 +19,9 @@ type ChargingSessionCostCellProps = {
 };
 
 /**
- * One row's estimated cost (charge-points-server issue #580), fetched on its
- * own so a slow or failing lookup only affects that row, and cached so the
- * request is made once per session rather than on every mount. An `ACTIVE`
- * session is never asked about: the answer is always `SESSION_STILL_ACTIVE`.
- * A failed lookup says so, instead of reading like "no cost".
+ * One row's estimated cost, fetched and cached per row so a failure only
+ * affects that row. Never asked for an `ACTIVE` session; a failed lookup says
+ * so rather than reading as "no cost".
  */
 export const ChargingSessionCostCell = ({
   chargePointId,

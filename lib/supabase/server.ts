@@ -4,13 +4,9 @@ import { cookies } from "next/headers";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/constants";
 
 /**
- * Supabase client for use in Route Handlers and Server Components. It reads the
- * session from the incoming request cookies via `next/headers`.
- *
- * `setAll` is a no-op when called from a Server Component, where the cookie
- * store is read-only — the middleware (`lib/supabase/middleware.ts`) is
- * responsible for refreshing the session cookie on each request, so swallowing
- * that error here is safe.
+ * Supabase client for Route Handlers and Server Components. `setAll` is a
+ * no-op in a Server Component (read-only cookies); `proxy.ts` refreshes the
+ * session instead.
  */
 export async function createClient() {
   const cookieStore = await cookies();

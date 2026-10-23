@@ -29,10 +29,8 @@ export default function ProfilePage() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  // Read once on mount, not derived at render time: both checks touch
-  // navigator/window, which don't exist during SSR, and neither ever changes
-  // for the life of this tab (a user can't leave standalone mode without
-  // relaunching the page from the home-screen icon or from Safari).
+  // Read on mount: navigator/window don't exist during SSR, and neither
+  // changes for the life of the tab.
   const [isIosNotStandalone, setIsIosNotStandalone] = useState(false);
 
   useEffect(() => {
@@ -104,13 +102,9 @@ export default function ProfilePage() {
 
       <NotificationPreferencesPanel isPushSubscribed={isPushSubscribed}>
         {isIosNotStandalone ? (
-          // iOS Safari never delivers Web Push to a plain browser tab, only
-          // to the app once added to the home screen — and there is no API
-          // to trigger that installation, only to detect it (see
-          // lib/pwa-install.ts). The toggle stays hidden rather than shown
-          // disabled: nothing in-app can act on a tap here, so surfacing the
-          // one thing that actually unlocks it is more useful than a dead
-          // control.
+          // iOS only delivers Web Push to the home-screen app, and that
+          // install can't be triggered from the page: the toggle is hidden and
+          // this explains how to unlock it.
           <Callout description={t("appPage.profile.push.iosInstallRequired")} variant="info" />
         ) : isPushSupported ? (
           <div className="flex items-center justify-between gap-4">

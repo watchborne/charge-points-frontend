@@ -5,11 +5,8 @@ const JSON_HEADERS = {
 };
 
 /**
- * Thrown by `makeRequest` for a non-2xx response. `status` and `body` (the
- * response's parsed JSON, when it had any) are exposed so a caller that needs
- * to branch on more than "it failed" — e.g. a backend error `code` — doesn't
- * need its own fetch/parsing logic; most callers still just let it propagate
- * as a generic failure, unchanged from before this existed.
+ * Thrown for a non-2xx response, with its `status` and parsed `body`, for
+ * callers that branch on a backend error `code`.
  */
 export class HttpError extends Error {
   readonly status: number;
@@ -24,15 +21,9 @@ export class HttpError extends Error {
 }
 
 /**
- * `fetch` preceded by `ensureFreshSession()`. Before the fetch, not after: the
- * request authenticates with the session cookie the browser holds at the
- * moment it goes out. Refreshing here means one refresh per burst, serialized
- * by the browser client, instead of one per parallel request in its own
- * isolated edge invocation — see ensureFreshSession.
- *
- * `makeRequest` builds on it; the API methods that must read the raw HTTP
- * status themselves (the OCPP command outcomes) call it directly so they don't
- * lose the refresh guard by skipping `httpClient`.
+ * `fetch` after `ensureFreshSession()`, so a burst of requests refreshes the
+ * session once rather than once per request. The OCPP command methods, which
+ * read the raw status, call it directly.
  */
 export const fetchWithFreshSession = async (
   url: string,
@@ -51,15 +42,12 @@ const makeRequest = async <T>(
   const response = await fetchWithFreshSession(url, options);
 
   if (!response.ok) {
-    // Best-effort: an empty or non-JSON error body must not stop the failure
-    // itself from surfacing.
+    // Best-effort: an empty or non-JSON error body must not hide the failure.
     const body = await response.json().catch(() => null);
     throw new HttpError(response.status, body);
   }
 
-  // A 204 (e.g. every DELETE this proxies) has no body by definition —
-  // `.json()` on an empty body throws `SyntaxError: Unexpected end of JSON
-  // input`, which would surface a successful delete as a thrown error.
+  // A 204 has no body: `.json()` would throw on it.
   if (response.status === 204) {
     return undefined as T;
   }
@@ -84,9 +72,8 @@ export type DownloadedFile = {
 const FILENAME_PATTERN = /filename="([^"]+)"/;
 
 /**
- * A GET for an endpoint that answers with a file. Same session refresh and same
- * `HttpError` on a non-2xx as every other call — the proxy keeps a backend
- * error's JSON body, so a failed download is read like a failed API call.
+ * A GET for a file, with the same session refresh and `HttpError` (the proxy
+ * keeps a backend error's JSON body).
  */
 const getFile = (url: string): Promise<DownloadedFile> => {
   return makeRequest<DownloadedFile>(url, { method: "GET" }, async (response) => ({
@@ -119,12 +106,8 @@ const put = <T>(url: string, body: unknown): Promise<T> => {
   });
 };
 
-// `body` is optional: most DELETEs this app makes are bare (the resource is
-// addressed entirely by its URL), but a caller-scoped resource with no id of
-// its own in the URL — a push subscription is identified by its `endpoint`,
-// not a path segment — needs one to say *which* one to remove. No existing
-// call site in this app needed a DELETE body before push subscriptions, so
-// this is the only sibling to check when adding another one.
+// `body` is optional: a push subscription is identified by its `endpoint`,
+// not by the URL.
 const del = (url: string, body?: unknown): Promise<void> => {
   return makeRequest<void>(url, {
     method: "DELETE",

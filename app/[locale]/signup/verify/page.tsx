@@ -26,8 +26,7 @@ function VerifyEmailStatus() {
         );
       })
       .catch(() => setStatus("invalid"));
-    // Only re-run if the token itself changes — verifyEmail is idempotent
-    // server-side, but there is no reason to re-issue the call otherwise.
+    // Re-run only when the token changes.
   }, [token]);
 
   if (status === "verifying") {

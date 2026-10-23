@@ -12,9 +12,7 @@ import type { ChargePoint } from "@/types/charge-point";
 import { ChargingSessionCostCell } from "./ChargingSessionCostCell";
 import { ChargingSessionsPanel } from "./ChargingSessionsPanel";
 
-/** A glance at recent activity, not a full audit log — same role
- * `VISIBLE_HISTORY_COUNT` plays for `LogUploadPanel`, scaled up: a session
- * opens on every plug-in, far more often than a log upload. */
+/** Recent sessions only; one opens on every plug-in. */
 const VISIBLE_HISTORY_COUNT = 20;
 
 type ChargingSessionsPanelContainerProps = {
@@ -22,12 +20,8 @@ type ChargingSessionsPanelContainerProps = {
 };
 
 /**
- * Fetches one charge point's charging-session history and hands it to
- * `ChargingSessionsPanel` — the data-owning half of that
- * container/presentational split. Also owns the loading/error templates, so
- * `ChargingSessionsPanel` only ever renders the loaded list. Self-contained
- * and fetch-once, like `AlertsPanelContainer`/`SecurityEventsPanel`/
- * `LogUploadPanel`: there is no dedicated WebSocket broadcast for this yet.
+ * Fetches one charge point's sessions for `ChargingSessionsPanel` and owns the
+ * loading/error states. Fetch-once: no WebSocket broadcast for sessions.
  */
 export const ChargingSessionsPanelContainer = ({
   chargePointId,

@@ -1,41 +1,15 @@
 "use strict";
 
 /**
- * Service worker for Web Push notifications (charge-points-frontend issue
- * #400 — plumbing only; the settings toggle that registers this worker and
- * calls subscribe()/unsubscribe() ships in #401, via
- * app/[locale]/app/hooks/usePushSubscription.ts).
+ * Service worker for Web Push, registered by
+ * app/[locale]/app/hooks/usePushSubscription.ts.
  *
- * Plain, unbundled JS on purpose: Next.js serves everything under `public/`
- * as-is (no webpack/Turbopack pass), so this file cannot `import` anything,
- * use TypeScript, or read `process.env` — it also runs in its own worker
- * global scope, not the page's, so `self`/`clients`/`registration` replace
- * `window`/`document`.
- *
- * VAPID PUBLIC KEY — how it gets in here:
- * `pushsubscriptionchange` below needs the same VAPID public key the page's
- * original `pushManager.subscribe()` call used, to re-subscribe with an
- * equivalent key when the browser silently renews a subscription (rotated
- * keys or an approaching expiry). A service worker has no `process.env`, and
- * this file is a static asset the build never templates — so the key can't
- * just be inlined at build time the way a bundled module could read
- * `NEXT_PUBLIC_VAPID_PUBLIC_KEY`. Rather than add a bundler step for this one
- * file, or a dedicated "give me the public key" endpoint, the simplest
- * correct fix is: the page already has the key (it's `NEXT_PUBLIC_`, so it's
- * in the browser bundle already) and hands it to this worker via
- * `postMessage` right after registering it; this worker just remembers it in
- * the module-scope variable below.
- *
- * Caveat, deliberately accepted for this first plumbing PR: the browser can
- * stop and restart a service worker at any time, including with no tab of
- * this app open, which clears module-scope state. If `pushsubscriptionchange`
- * fires after such a restart, there is no cached key to resubscribe with —
- * see the early return below, which skips rather than throws. The
- * subscription then goes stale until the app is next opened (which
- * re-registers, permission already granted, and re-sends the key). Fixing
- * that fully would mean persisting the key in IndexedDB from inside the
- * worker; not worth the added complexity for what `pushsubscriptionchange`
- * itself already documents as a rare event.
+ * Plain JS served as-is from `public/`: no imports, no TypeScript, no
+ * `process.env`. The VAPID public key `pushsubscriptionchange` needs is
+ * therefore sent by the page via `postMessage` after registration and kept in
+ * a module-scope variable. A worker restart clears it; a later
+ * `pushsubscriptionchange` then skips, and the subscription is refreshed the
+ * next time the app is opened.
  */
 let cachedVapidPublicKey = null;
 
@@ -46,12 +20,8 @@ self.addEventListener("message", (event) => {
 });
 
 /**
- * VAPID keys are distributed base64url-encoded; `applicationServerKey` wants
- * a raw Uint8Array. Standard, well-known ~10-line conversion — not worth a
- * dependency. Kept duplicated (not imported) in
- * app/[locale]/app/hooks/usePushSubscription.ts, which needs the same
- * conversion on the page side: a service worker can't import a module from
- * the app bundle.
+ * base64url VAPID key to a `Uint8Array`. Duplicated in usePushSubscription.ts:
+ * a service worker can't import app modules.
  */
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -71,21 +41,16 @@ self.addEventListener("push", (event) => {
     (async () => {
       let payload = {};
       try {
-        // Exactly the shape charge-points-server's PushPayload sends.
+        // The shape the backend's PushPayload sends.
         payload = event.data ? event.data.json() : {};
       } catch {
-        // Not JSON (or no data at all) — fall back to a generic notification
-        // below rather than dropping the push silently.
+        // Not JSON, or no data: fall back to a generic notification.
       }
 
       const title = payload.title || "watchborne";
       const options = {
         body: payload.body || "",
-        // /favicon.svg is the only app-wide icon asset public/ ships today;
-        // reused here rather than adding a dedicated PNG for this first PR.
-        // No suitable badge asset exists (a badge wants a small monochrome
-        // PNG), so it's omitted rather than pointed at something that would
-        // render wrong.
+        // No badge: a badge needs a small monochrome PNG, which public/ lacks.
         icon: "/favicon.svg",
         data: { url: payload.url || "/" },
       };
@@ -118,8 +83,7 @@ self.addEventListener("pushsubscriptionchange", (event) => {
   event.waitUntil(
     (async () => {
       if (!cachedVapidPublicKey) {
-        // See the module-scope caveat above — nothing safe to resubscribe
-        // with. Best-effort: skip, don't throw.
+        // No cached key (worker restarted): skip, don't throw.
         return;
       }
 
@@ -130,13 +94,8 @@ self.addEventListener("pushsubscriptionchange", (event) => {
         });
         const { endpoint, keys } = subscription.toJSON();
 
-        // Same-origin fetch: the Next.js route handler
-        // (app/api/me/push-subscriptions/route.ts) resolves the caller's
-        // Supabase session itself server-side via createClient() (see
-        // lib/proxy-request.ts) and attaches the bearer token to the backend
-        // call from there — it isn't this fetch's job to carry an
-        // Authorization header, only the browser's own session cookie, which
-        // a same-origin fetch sends by default.
+        // Same-origin: the session cookie goes along, and the API route
+        // forwards the bearer token to the backend.
         await fetch("/api/me/push-subscriptions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -37,13 +37,9 @@ import { useDateFormat } from "@/lib/date-format";
 import { queryKeys } from "@/lib/queryKeys";
 import { colorDotClass } from "@/lib/status";
 
-// green: the attempt is what an installer wants to see (a fresh claim, or
-// an already-owned station recommissioned with a new token). red: refused
-// because the station already belongs to someone else — the one outcome
-// worth flagging as wrong, not just routine. orange: a stale/unknown token
-// was presented — never actually returned by GET /api/me (it can't be
-// attributed to any caller, see charge-points-server issue #420), kept here
-// only so the mapping stays total over the shared outcome union.
+// green: a successful claim or recommission. red: refused, the station
+// belongs to someone else. orange: a stale/unknown token, which GET /api/me
+// never returns (it can't be attributed); kept so the mapping is total.
 const OUTCOME_COLOR: Record<CommissioningOutcome, ColorName> = {
   CLAIMED: "green",
   ALREADY_CLAIMED_BY_SELF: "green",
@@ -52,16 +48,11 @@ const OUTCOME_COLOR: Record<CommissioningOutcome, ColorName> = {
 };
 
 /**
- * Lets an installer generate their personal commissioning token: appended as
- * `?token=...` to a charge point's OCPP connection URL, it lets the server
- * auto-grant the installer membership on any unclaimed charge point that
- * connects with it (see charge-points-server's ADR 0002 and the claim step
- * wired into the OCPP connection handler). The plaintext token is only ever
- * shown once, right after it's (re)generated.
- *
- * Revoking (as opposed to regenerating) stops working for a *new* one to
- * claim, but never affects a charge point already claimed with it — a safe
- * end-of-job action, not a destructive one.
+ * Lets an installer generate their commissioning token: appended as
+ * `?token=...` to a charge point's OCPP URL, it grants the installer
+ * membership on any unclaimed charge point that connects with it. The
+ * plaintext is shown once, right after generation. Revoking only stops new
+ * claims; claimed charge points are unaffected.
  */
 export const CommissioningTokenPanel = () => {
   const t = useTranslations("");
@@ -88,9 +79,8 @@ export const CommissioningTokenPanel = () => {
   const useCount = status?.useCount ?? null;
   const maxUses = status?.maxUses ?? null;
   const lastUsedAt = status?.lastUsedAt ?? null;
-  // The server reports an expired or a spent token as hasToken: false while
-  // keeping its figures. A token that ran out of uses is told apart from an
-  // expired one by its counter; both differ from "never issued" (no expiresAt).
+  // An expired or spent token reports hasToken: false with its figures; the
+  // counter tells a spent one apart, and "never issued" has no expiresAt.
   const spent = !hasToken && maxUses !== null && useCount !== null && useCount >= maxUses;
   const expired = !hasToken && !spent && expiresAt !== null;
 
@@ -101,9 +91,8 @@ export const CommissioningTokenPanel = () => {
     parsedMaxUses !== null &&
     (!Number.isInteger(parsedMaxUses) || parsedMaxUses < 1 || parsedMaxUses > MAX_USES_LIMIT);
 
-  // Recent commissioning activity (issue #420 / #278): best-effort — a
-  // failure here must never block the token panel itself, so its error is
-  // never surfaced and it just leaves the list empty.
+  // Recent commissioning activity, best-effort: a failure leaves the list
+  // empty and never blocks the panel.
   const { data: me } = useQuery({
     queryKey: queryKeys.me.all(),
     queryFn: () => api.Me.getMe(),
@@ -163,10 +152,8 @@ export const CommissioningTokenPanel = () => {
     await copy(revealedToken);
   };
 
-  // A placeholder, not a real station id: showing something concrete-looking
-  // (e.g. "CP-001") invites pasting it verbatim, which — with discovery mode
-  // on — adopts a charge point literally named that, and with a valid token
-  // claims it for the caller.
+  // A placeholder, not a station id: a concrete-looking one ("CP-001") would
+  // get pasted verbatim and adopted (and claimed) under that name.
   const stationIdPlaceholder = t("appPage.configuration.commissioningToken.exampleUrlPlaceholder");
 
   const steps = [

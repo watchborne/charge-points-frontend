@@ -1,7 +1,7 @@
 /**
- * A site tariff travels as `pricePerKwhCents`, cents per kWh to 1/100 of a cent
- * (21.42 = 0,2142 EUR/kWh, charge-points-server ADR 0035); the dashboard shows
- * and edits it in the currency unit, up to 4 decimals.
+ * A tariff travels as `pricePerKwhCents`, to 1/100 of a cent (21.42 =
+ * 0.2142 EUR/kWh); the dashboard shows and edits the currency unit, up to 4
+ * decimals.
  */
 export const TARIFF_PRICE_DECIMALS = 4;
 

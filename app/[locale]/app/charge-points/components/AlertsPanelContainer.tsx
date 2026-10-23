@@ -12,9 +12,7 @@ import type { ChargePoint } from "@/types/charge-point";
 
 import { AlertsPanel } from "./AlertsPanel";
 
-/** How many recent alerts (open or resolved) the panel shows — a glance at
- * recent activity, not a full audit log (`api.ChargePoints.getAlerts`
- * supports a much longer history if a fuller browser is ever built). */
+/** How many recent alerts the panel shows. */
 const VISIBLE_ALERT_COUNT = 5;
 
 /** How far back the CSV export reaches — the panel only shows the latest few. */
@@ -33,17 +31,9 @@ type AlertsPanelContainerProps = {
 };
 
 /**
- * Fetches one charge point's alert history and hands it to `AlertsPanel` —
- * the data-owning half of that container/presentational split. Also owns the
- * loading/error templates, so `AlertsPanel` only ever renders the loaded
- * list. Self-contained and fetch-once, like
- * `ChargePointConsumptionPanelContainer`: unlike `FirmwarePanel` there is no
- * dedicated WebSocket broadcast for alert changes yet, so this does not
- * subscribe to the dashboard socket.
- *
- * Also owns the one write this panel has — acknowledging an alert — as a
- * mutation that invalidates the list it just changed, the same shape
- * `useChargePoints`' own mutations use.
+ * Fetches one charge point's alert history for `AlertsPanel`, and owns the
+ * loading/error states and the acknowledge mutation. Fetch-once: there is no
+ * WebSocket broadcast for alert changes.
  */
 export const AlertsPanelContainer = ({
   chargePointId,
@@ -70,9 +60,8 @@ export const AlertsPanelContainer = ({
     variables: acknowledgingAlertId,
   } = useMutation({
     mutationFn: (alertId: string) => api.ChargePoints.acknowledgeAlert(chargePointId, alertId),
-    // Invalidate rather than write the returned alert into the cache by hand:
-    // the list is capped and ordered server-side, so refetching is the one
-    // read that cannot drift from what the backend would answer next.
+    // Refetch rather than patch the cache: the list is capped and ordered
+    // server-side.
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.alerts.chargePoint(chargePointId) }),
   });
@@ -82,8 +71,7 @@ export const AlertsPanelContainer = ({
     isPending: exporting,
     isError: exportFailed,
   } = useMutation({
-    // Fetched on click rather than from the list above: that one is capped at
-    // `VISIBLE_ALERT_COUNT`, which would make for a pointless export.
+    // Fetched on click: the displayed list is capped at `VISIBLE_ALERT_COUNT`.
     mutationFn: () => api.ChargePoints.getAlerts(chargePointId, EXPORT_ALERT_COUNT),
     onSuccess: (history) =>
       downloadCsv(`alerts-${chargePointName}-${csvFilenameDate()}.csv`, [

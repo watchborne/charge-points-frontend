@@ -5,9 +5,7 @@ import { defaultLocale, localizedPath, locales, type Locale } from "@/i18n/local
 import { routing } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/middleware";
 
-// The .fr domain is retired in favor of .com; visitors are redirected there
-// permanently. No `?lang=` needed — an unprefixed path on .com already means
-// fr, the default locale.
+// The retired .fr domain redirects permanently to .com (unprefixed = fr).
 const FR_HOST = "watch-borne.fr";
 const FR_REDIRECT_HOST = "watch-borne.com";
 
@@ -22,23 +20,19 @@ function redirectFrHostToCom(request: NextRequest) {
 
 const handleI18nRouting = createIntlMiddleware(routing);
 
-// /api/* and /auth/* live outside the `[locale]` segment (see i18n/routing.ts)
-// — next-intl's routing has nothing to do there.
+// /api/* and /auth/* are outside the `[locale]` segment.
 function isLocaleRoutedPath(pathname: string) {
   return !pathname.startsWith("/api") && !pathname.startsWith("/auth");
 }
 
-// A redirect from next-intl only normalizes the URL (missing/extra locale
-// prefix), no page content served — safe to return immediately without
-// checking auth. The browser refetches with the corrected URL, and auth
-// gating applies on that follow-up request.
+// A next-intl redirect only normalizes the URL: return it before the auth
+// check, which applies to the follow-up request.
 function isRedirect(response: NextResponse) {
   return response.headers.has("location");
 }
 
-// Splits a locale-routed pathname into the active locale and the unprefixed
-// path, e.g. "/en/app/dashboard" -> { locale: "en", rest: "/app/dashboard" };
-// "/app/dashboard" -> { locale: "fr", ... } (fr stays unprefixed as default).
+// "/en/app/dashboard" -> { locale: "en", rest: "/app/dashboard" }; an
+// unprefixed path is fr.
 function stripLocalePrefix(pathname: string): { locale: Locale; rest: string } {
   for (const locale of locales) {
     if (locale === defaultLocale) continue;
@@ -50,13 +44,9 @@ function stripLocalePrefix(pathname: string): { locale: Locale; rest: string } {
   return { locale: defaultLocale, rest: pathname };
 }
 
-// supabase-js's getUser() swallows expected auth errors (expired session,
-// missing token, ...) but rethrows anything else — in particular a raw
-// network failure talking to Supabase's API (see @supabase/auth-js's
-// GoTrueClient#_getUser). Left uncaught here, that exception crashes the
-// whole Netlify Edge Function for the request ("edge function invocation
-// failed"), taking down /login, /signup or /app with it. Fail closed
-// instead: treat it as no session, same as an expired/missing one.
+// getUser() rethrows non-auth errors such as a network failure, which would
+// crash the edge function and take down /login, /signup or /app. Fail closed:
+// treat it as no session.
 async function getSessionUser(supabase: ReturnType<typeof createClient>["supabase"]) {
   try {
     const {
@@ -70,39 +60,22 @@ async function getSessionUser(supabase: ReturnType<typeof createClient>["supabas
 }
 
 /**
- * Global proxy (Next's renamed `middleware.ts` file convention as of Next 16
- * — https://nextjs.org/docs/messages/middleware-to-proxy; `lib/supabase/middleware.ts`
- * is unrelated to that rename): redirects the retired `.fr` host, resolves
- * the URL's locale prefix via next-intl, and gates the authenticated
- * surface — refreshing the Supabase session as it does so.
+ * Global proxy (Next 16's name for middleware): redirects the retired `.fr`
+ * host, resolves the locale prefix via next-intl, and gates the authenticated
+ * pages while refreshing the Supabase session.
  *
- * The Supabase session lookup (`getUser()`, a network round-trip) only runs
- * for the authenticated *page* surface (`/app`, `/login`, `/signup`); public
- * marketing pages skip it entirely, and so does `/api/*` — see below.
+ * The session lookup (`getUser()`, a network round trip) runs only for
+ * `/app`, `/login` and `/signup`. `/api/*` is not gated here: the backend
+ * verifies the forwarded token and answers 401 itself, so a second check would
+ * only add ~400–530 ms per request.
  *
- * `/api/*` is deliberately **not** gated here. `getUser()` revalidates the
- * token against Supabase Auth on every call, which measured at ~400–530 ms
- * per request, to reach a verdict the backend reaches again immediately
- * afterwards: it verifies the same JWT, resolves the caller's `AccessScope`
- * from it and fails closed with 401 when there is none (charge-points-server
- * ADR 0002). One authority, not two — the backend is the one that owns the
- * data, so it is the one that decides. `lib/proxy-request.ts` forwards
- * whatever session the request carries; an unauthenticated call reaches the
- * backend without an `Authorization` header and comes back 401 (issue #349).
- * The page gates below are untouched, so an unauthenticated visitor still
- * cannot reach the dashboard UI in the first place.
+ * - `/api/*` and `/auth/*` (no locale prefix) skip next-intl and pass through.
+ * - Everything else goes through `handleI18nRouting`; its redirects return
+ *   immediately, then `/app/*`, `/login` and `/signup` are gated, redirect
+ *   targets re-prefixed via `localizedPath`.
  *
- * - `watch-borne.fr` redirects (308) to `watch-borne.com` first — see `redirectFrHostToCom`.
- * - `/api/*`/`/auth/*` sit outside `[locale]` (no prefix): they skip
- *   next-intl's routing and pass through untouched (`/auth/*` handles its own
- *   redirects — see app/auth/callback/route.ts).
- * - Everything else goes through `handleI18nRouting` first; a redirect from
- *   that (URL normalization) returns immediately (`isRedirect`). Otherwise
- *   `/app/*`, `/login`, `/signup` are gated as before, redirect targets
- *   re-prefixed via `localizedPath`.
- *
- * Any response returned in place of `supabaseResponse` must carry the
- * refreshed session cookies, or a token rotated during `getUser()` is lost.
+ * Any response returned instead of `supabaseResponse` must carry its refreshed
+ * cookies, or a token rotated during `getUser()` is lost.
  */
 export async function proxy(request: NextRequest) {
   const frRedirectUrl = redirectFrHostToCom(request);
@@ -146,13 +119,8 @@ export async function proxy(request: NextRequest) {
   return withSessionCookies(intlResponse);
 }
 
-// Excludes anything under public/ with a file extension (sw.js, manifest.json,
-// icon-*.png, favicon.svg, ...) in addition to _next's own internals: without
-// this, next-intl's routing middleware rewrites these requests as if they
-// were locale-prefixed pages, so the browser gets a 404 HTML page back
-// instead of the actual static asset — e.g. navigator.serviceWorker.register
-// failing because /sw.js resolves to that 404 page rather than the real
-// script (its MIME type isn't a JS one, so the browser rejects it outright).
+// Excludes static files from public/ (sw.js, manifest.json, icons…):
+// next-intl would otherwise rewrite them as locale pages and serve a 404 page.
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

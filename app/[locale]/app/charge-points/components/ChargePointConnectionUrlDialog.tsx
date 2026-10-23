@@ -22,14 +22,9 @@ type ChargePointConnectionUrlDialogProps = {
 };
 
 /**
- * Shown right after a charge point is pre-provisioned (ADR 0010,
- * charge-points-server): the installer's only remaining step is to paste this
- * URL into the physical device's own OCPP configuration screen — the OCPP
- * identity embedded in it is generated server-side and never typed by hand,
- * which is the point of this flow (no free-text identifier to invent or
- * duplicate). Shown once, like `CommissioningTokenPanel`'s revealed token —
- * every later read rebuilds the same charge point without this URL, since it
- * is derived rather than stored.
+ * Shown once after pre-provisioning: the installer pastes this URL, with its
+ * server-generated OCPP identity, into the device. The URL is derived, not
+ * stored, so later reads don't carry it.
  */
 export const ChargePointConnectionUrlDialog = ({
   open,

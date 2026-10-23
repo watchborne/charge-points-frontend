@@ -13,8 +13,7 @@ import { useRouter } from "@/i18n/navigation";
 import { SiteHealthBadge } from "./SiteHealthBadge";
 import { SiteWithHealth } from "./SiteHealthSection";
 
-/** Every visible site, one row each: status badge plus the
- * online/warning/offline breakdown behind it. */
+/** One row per visible site: badge and online/warning/offline counts. */
 export const SiteHealthList = ({ sitesWithHealth }: { sitesWithHealth: SiteWithHealth[] }) => {
   const t = useTranslations("");
   const router = useRouter();

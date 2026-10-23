@@ -14,11 +14,8 @@ type Props = {
 };
 
 /**
- * Owns the range/measurand selection and the fetch behind it
- * (`useConsumption`), handing the reduced result to
- * `ChargePointConsumptionPanel` — the data-owning half of that
- * container/presentational split. Also owns the loading/error templates, so
- * `ChargePointConsumptionPanel` only ever renders the loaded data.
+ * Owns the range/measurand selection, the fetch (`useConsumption`) and the
+ * loading/error states for `ChargePointConsumptionPanel`.
  */
 export const ChargePointConsumptionPanelContainer = ({ chargePointId }: Props) => {
   const t = useTranslations("");
@@ -29,10 +26,8 @@ export const ChargePointConsumptionPanelContainer = ({ chargePointId }: Props) =
   const { consumption, samples, measurands, measurandLabels, truncated, loading, failed } =
     useConsumption(chargePointId, range, measurand);
 
-  // The station decides which measurands exist, so selection follows the
-  // data: default to the energy register ("consumption" to an installer),
-  // fall back to alphabetically first. Re-runs on window change since a
-  // shorter window can drop a measurand entirely.
+  // Default to the energy register, else the first measurand; re-run on window
+  // change, since a shorter window can drop a measurand.
   useEffect(() => {
     if (measurands.length === 0) return;
     if (measurand && measurands.includes(measurand)) return;

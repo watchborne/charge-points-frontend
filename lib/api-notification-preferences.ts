@@ -9,17 +9,10 @@ import { httpClient } from "./http-client";
 
 export type { NotificationPreferences };
 
-// The effective preference charge-points-server's
-// /api/me/notification-preferences route returns, and the partial update it
-// accepts — both shared through @watchborne/charge-points-types. `digestHour` is
-// always a resolved 0-23 value: the backend already substitutes its own global
-// default when the caller has never set one, so this client never needs to know
-// about that fallback. `locale` is resolved the same way (the language of the
-// emails the backend sends this user — charge-points-server ADR 0022): never null
-// in a response, while an update may send `locale: null` to revert to the default.
-// `digestEmailEnabled`/`digestPushEnabled` are independent per-channel toggles
-// (charge-points-server ADR 0023) — either, both or neither can be on at once;
-// `digestHour` applies to whichever channel(s) are enabled.
+// The effective preferences and their partial update (shared types).
+// `digestHour` and `locale` are always resolved by the backend; an update may
+// send `locale: null` to revert to the default. The email and push digest
+// toggles are independent; `digestHour` applies to both.
 export type EmailLocale = NotificationLocale;
 
 export type NotificationPreferencesUpdate = UpdateNotificationPreferences;

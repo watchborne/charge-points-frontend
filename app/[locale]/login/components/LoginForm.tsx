@@ -23,10 +23,9 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     setIsLoading(true);
     setError(null);
 
-    // Gate on access_requests.status (ADR 0006) before signInWithOtp below:
-    // an approved email has its Supabase user ensured as a side effect of
-    // this call, so it's never in the "otp_disabled" state signInWithOtp
-    // would report; pending/never-applied/rejected is turned back here with copy that says why.
+    // Gate on the access request before signInWithOtp: an approved email has
+    // its Supabase user ensured by this call; pending, unknown or rejected
+    // emails are turned back here with an explanation.
     const access = await api.AccessRequests.checkLoginAccess(email).catch(() => null);
     if (access && !access.allowed) {
       setIsLoading(false);
@@ -35,16 +34,13 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     }
 
     const supabase = createClient();
-    // shouldCreateUser: false is defense in depth — the gate above actually
-    // decides who reaches this call. No emailRedirectTo: the "Magic Link"
-    // template now renders {{ .Token }}, a 6-digit code typed into
-    // VerifyOtpForm — no link to redirect from anymore (ADR 0005).
+    // shouldCreateUser: false is defense in depth: the gate above decides. No
+    // emailRedirectTo: the email carries a code, not a link.
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: false,
-        // Read by the email template as {{ .Data.locale }} to send the email
-        // in the user's current language.
+        // Used by the email template ({{ .Data.locale }}).
         data: { locale },
       },
     });
@@ -52,8 +48,7 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     setIsLoading(false);
 
     if (signInError) {
-      // Supabase error messages aren't localized; log for diagnostics, show
-      // our own translated copy instead of the raw message.
+      // Supabase messages aren't localized: log the raw one, show ours.
       console.error("signInWithOtp failed:", signInError.message);
       setError(signInError.code === "otp_disabled" ? "unknown-user" : "generic");
       return;

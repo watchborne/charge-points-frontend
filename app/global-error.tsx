@@ -4,14 +4,9 @@ import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
 /**
- * Last-resort error boundary: catches rendering errors that escape every other
- * boundary (including the root layouts) and reports them to Sentry, which
- * `onRequestError` (server) and the browser integrations do not cover for React
- * render errors.
- *
- * It replaces the root layout while shown, so it renders its own <html>/<body>
- * and cannot use next-intl, Tailwind or the shared components — hence the
- * inline styles and the fixed fr/en copy.
+ * Last-resort boundary for render errors that escape every other one, reported
+ * to Sentry. It replaces the root layout, so it renders its own <html>/<body>
+ * without next-intl, Tailwind or shared components: inline styles, fixed copy.
  */
 const GlobalError = ({
   error,

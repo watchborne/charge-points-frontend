@@ -24,11 +24,7 @@ type Props<S extends string> = {
 };
 
 /**
- * The 30-day tier's read: a total-time-per-status summary above a
- * chronological breakdown, newest first (matching `ChargePointConsumptionPanel`'s
- * table view — the latest entry is the interesting one). Where
- * `StatusTimelineBar` answers "what does today look like", this answers "how
- * much of the last month was each status, and when".
+ * The 30-day view: total time per status above a breakdown, newest first.
  */
 export const StatusHistoryTable = <S extends string>({
   segments,

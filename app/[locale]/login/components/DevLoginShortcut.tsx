@@ -6,14 +6,10 @@ import { useState } from "react";
 import { VerifyOtpForm } from "./VerifyOtpForm";
 
 /**
- * Only rendered by `LoginPage` when `NODE_ENV !== "production"` (see
- * `app/login/page.tsx`). Fetches a real OTP code for the given email from
- * `/auth/dev-login` — itself gated the same way plus behind
- * `ENABLE_DEV_LOGIN=true` and `SUPABASE_SERVICE_ROLE_KEY`; this component is
- * a convenience shortcut, not the security boundary — then hands it to
- * `VerifyOtpForm` as `initialCode`, which auto-submits it. That runs the
- * exact same client-side `verifyOtp` call a real user's browser would,
- * instead of bypassing it.
+ * Rendered by `LoginPage` outside production. Fetches a real OTP code from
+ * `/auth/dev-login` (which enforces the actual gating) and passes it to
+ * `VerifyOtpForm` as `initialCode`, which submits it through the normal
+ * `verifyOtp` call.
  */
 export function DevLoginShortcut() {
   const [email, setEmail] = useState("");

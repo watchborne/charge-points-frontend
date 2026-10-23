@@ -14,15 +14,9 @@ import { fetchWithFreshSession, httpClient } from "./http-client";
 export { GET_BASE_REPORT_TYPES_V201 };
 export type { GetBaseReportBaseV201 };
 
-// The NotifyReport history's response shape. The backend keeps the
-// `DeviceVariableReport` row server-local (charge-points-server ADR 0011), so the
-// frame itself is declared here; timestamps arrive as ISO strings and are parsed
-// where rendered, never widened to `Date` here.
-//
-// The variable identifier (`VariableV201`) and the attribute type
-// (`AttributeTypeV201`) are the shared package's. The component is not: the API
-// flattens OCPP's nested `evse: { id, connectorId }` into `evseId` /
-// `connectorId`, so it deliberately differs from `ComponentV201` and stays local.
+// The NotifyReport history, declared locally (server-local entity);
+// timestamps are ISO strings. `VariableV201` and `AttributeTypeV201` are
+// shared; the component flattens `evse`, so it isn't `ComponentV201`.
 
 /** OCPP 2.0.1's generic device-model identifiers — vendor-defined, open vocabulary. */
 export type DeviceVariableComponent = {
@@ -63,10 +57,8 @@ export type DeviceVariableReport = {
 };
 
 /**
- * One outstanding GetBaseReport/GetReport request (charge-points-server ADR
- * 0014). Not part of @watchborne/charge-points-types either, same reasoning
- * as `DeviceVariableReport` above — the two POST endpoints below return it
- * inline; there is no GET route for it, so it's never read back on its own.
+ * One outstanding GetBaseReport/GetReport request, returned inline by the two
+ * POSTs below; there is no GET for it.
  */
 export type ReportRequest = {
   id: string;
@@ -82,12 +74,7 @@ export type ReportRequest = {
   updatedAt: string;
 };
 
-/**
- * Same discriminated-result shape as `StartLogUploadOutcome`
- * (`api-charge-points.ts`): the caller needs the specific HTTP outcome, not
- * just success/failure, so this reads the raw response rather than going
- * through `httpClient`.
- */
+/** The specific HTTP outcome, read from the raw response. */
 export type RequestDeviceReportOutcome = CommandOutcome<{
   status: GenericDeviceModelStatusV201;
   reportRequest: ReportRequest | null;
@@ -106,10 +93,9 @@ export const deviceVariableReportApis = {
     }, `DeviceVariableReport.list(${chargePointId})`);
   },
   /**
-   * Requests a station-defined flavor of its device-model inventory (OCPP
-   * `GetBaseReport`, 2.0.1 only). Acknowledgment-only: the actual inventory
-   * arrives later as one or more `NotifyReport` frames, which
-   * `DeviceVariableReportsPanel`'s history picks up on its next fetch.
+   * Requests a station-defined inventory flavor (`GetBaseReport`, 2.0.1).
+   * The station only acknowledges; the inventory arrives as `NotifyReport`
+   * frames picked up on the panel's next fetch.
    */
   requestBaseReport: async function (
     chargePointId: ChargePoint["id"],
@@ -140,10 +126,8 @@ export const deviceVariableReportApis = {
     }
   },
   /**
-   * Requests a station's full device-model inventory (OCPP `GetReport`,
-   * 2.0.1 only), unfiltered — component/variable filtering isn't exposed yet
-   * (charge-points-server ADR 0014 decision 6). Same acknowledgment-only
-   * shape as `requestBaseReport` above.
+   * Requests the full, unfiltered inventory (`GetReport`, 2.0.1); same
+   * acknowledgment-only shape.
    */
   requestReport: async function (
     chargePointId: ChargePoint["id"],

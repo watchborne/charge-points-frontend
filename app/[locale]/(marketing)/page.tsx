@@ -13,13 +13,11 @@ type Props = {
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
-  // Required in this page too, not just the layout — each server component
-  // segment needs its own opt-in for next-intl to treat it as
-  // static-render-eligible (see i18n/routing.ts).
+  // Required in every page, not just the layout: next-intl's static rendering
+  // is opted into per segment.
   setRequestLocale(locale as Locale);
 
-  // getTranslations, not useTranslations: this is an async component (needed
-  // to await params above), and useTranslations can't be called there.
+  // getTranslations: useTranslations can't be called in an async component.
   const t = await getTranslations("");
 
   const features = [

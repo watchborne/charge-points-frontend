@@ -27,21 +27,15 @@ type ReleaseState =
 type ChargePointReleaseControlProps = {
   chargePointId: ChargePoint["id"];
   chargePointName: string;
-  // Fired only on a successful release: the charge point then drops out of
-  // this caller's own fleet, so whoever is showing its detail panel needs to
-  // know to stop — a failed attempt (already released elsewhere, out of
-  // scope) changes nothing and leaves the panel as is.
+  // Fired only on success: the charge point leaves the caller's fleet.
   onReleased: () => void;
 };
 
 /**
- * Lets the current member give up their own access to a charge point
- * (charge-points-server ADR 0028, issue #424) — the self-service fix for a
- * station claimed with the wrong installer's commissioning token. Other
- * members, if any, keep theirs; when this was the last membership the
- * station returns to the commissioning queue. Irreversible from here (the
- * next claimer is whoever next presents a valid token to it), so this always
- * goes through a confirmation step first.
+ * Lets a member give up their own access to a charge point, e.g. one claimed
+ * with the wrong installer's token. Other members keep theirs; the last one
+ * leaving returns the station to the commissioning queue. Confirmed first,
+ * since it can't be undone from here.
  */
 export const ChargePointReleaseControl = ({
   chargePointId,

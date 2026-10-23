@@ -5,11 +5,7 @@ import { api } from "@/lib/api";
 import type { RecordSiteVisitBody } from "@/lib/api-site-visits";
 import { queryKeys } from "@/lib/queryKeys";
 
-/**
- * A site's visit history (charge-points-server issue #531, ADR 0015) —
- * `useQuery`/`useMutation` over `api.SiteVisits`, mirroring `useSites`'
- * pattern rather than a hand-rolled `useState`/`useEffect` fetch.
- */
+/** A site's visit history. */
 export function useSiteVisits(siteId: Site["id"] | null) {
   const queryClient = useQueryClient();
 
@@ -22,9 +18,7 @@ export function useSiteVisits(siteId: Site["id"] | null) {
   const recordVisitMutation = useMutation({
     mutationFn: (body: RecordSiteVisitBody) => api.SiteVisits.record(siteId!, body),
     onSuccess: () => {
-      // The recorded visit changes both this site's history and its
-      // derived `lastVisitedAt` snapshot (charge-points-server ADR 0015 §6),
-      // so both caches need invalidating.
+      // A visit also changes the site's derived `lastVisitedAt`.
       void queryClient.invalidateQueries({ queryKey: queryKeys.siteVisits.site(siteId ?? "") });
       void queryClient.invalidateQueries({ queryKey: queryKeys.sites.all() });
     },

@@ -12,9 +12,8 @@ type AlertThresholdsSummaryProps = {
 };
 
 /**
- * The thresholds in force, one per line, each with the level it comes from
- * (own override, site override or default). The backend resolves them
- * (charge-points-server issue #577); this only displays what it answered.
+ * The thresholds in force, each with the level it comes from (own override,
+ * site or default), as resolved by the backend.
  */
 export const AlertThresholdsSummary = ({ effective }: AlertThresholdsSummaryProps) => {
   const t = useTranslations("");

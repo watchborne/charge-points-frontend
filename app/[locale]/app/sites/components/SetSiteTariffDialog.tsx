@@ -24,10 +24,8 @@ const siteTariffFormSchema = z.object({
   pricePerKwh: z.coerce.number().min(0),
 });
 
-// `pricePerKwh` coerces its input (a form field's string) to a number, so the
-// schema's input and output shapes differ — `useForm` needs both generics
-// (see below) for react-hook-form to hand `onSubmit` the coerced output
-// rather than the raw input.
+// `pricePerKwh` is coerced from a string, so input and output types differ:
+// `useForm` needs both for `onSubmit` to get the coerced value.
 type SiteTariffFormInput = z.input<typeof siteTariffFormSchema>;
 export type SiteTariffFormValues = z.output<typeof siteTariffFormSchema>;
 
@@ -40,11 +38,9 @@ type SetSiteTariffDialogProps = {
 };
 
 /**
- * Configures a site's flat tariff against `PUT /api/sites/:id/tariff`
- * (charge-points-server issue #580) — not historized, so this always
- * replaces the rate used for cost estimates from now on. `pricePerKwh` is
- * entered in the tariff's own currency unit (e.g. euros), converted to
- * cents (to 1/100 of a cent, 4 decimals of the unit) by the caller before hitting the API.
+ * Sets a site's flat tariff (`PUT /api/sites/:id/tariff`). Not historized: it
+ * replaces the rate for future estimates. `pricePerKwh` is in the currency
+ * unit; the caller converts it to cents (4 decimals of the unit).
  */
 export const SetSiteTariffDialog = ({
   open,

@@ -12,11 +12,8 @@ export type UseFleetReliabilityReturn = {
 };
 
 /**
- * Fetches the fleet-wide reliability ranking (charge-points-server issue
- * #581) once for the whole dashboard. Unlike `useConsumption`, there is no
- * range to pick: the backend already reduces to one worst-first ranking over
- * its own fixed rolling window, so this hook is a plain, parameterless
- * `useQuery` wrapper.
+ * The fleet-wide reliability ranking, fetched once for the dashboard. The
+ * backend ranks over a fixed window, so there is no parameter.
  */
 export const useFleetReliability = (): UseFleetReliabilityReturn => {
   const { data, isLoading, isError } = useQuery({

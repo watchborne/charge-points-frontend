@@ -27,9 +27,8 @@ type SubmitState =
 const ALLOWED_PROTOCOLS = ["http:", "https:", "ftp:", "ftps:"];
 
 /**
- * Client-side check on the URL an installer types — deliberately the same
- * allowlist the backend enforces. Convenience, not the boundary: this field
- * decides what hardware downloads and executes, so the server stays authoritative.
+ * The backend's allowlist, checked client-side for convenience; the server
+ * stays authoritative.
  */
 const isAcceptableLocation = (value: string): boolean => {
   try {
@@ -75,12 +74,9 @@ type UpdateFirmwareDialogProps = {
 };
 
 /**
- * Lets an installer start a firmware update (OCPP `UpdateFirmware`).
- *
- * The station's answer isn't a plain success: a 2.0.1 station reports a
- * status, a 1.6 station only acknowledges the frame (empty payload) — so a
- * `null` status is reported as "requested" rather than "accepted", and the
- * real outcome arrives through the timeline.
+ * Starts a firmware update (`UpdateFirmware`). A 1.6 station only
+ * acknowledges, so a `null` status reads "requested", not "accepted"; the
+ * outcome arrives through the timeline.
  */
 export const UpdateFirmwareDialog = ({
   chargePointId,
@@ -127,8 +123,7 @@ export const UpdateFirmwareDialog = ({
 
     const outcome = await api.ChargePoints.startFirmwareUpdate(chargePointId, {
       location,
-      // The input is local time; send an unambiguous instant rather than a
-      // bare local string.
+      // Local input, sent as an unambiguous instant.
       retrieveDateTime: new Date(retrieveDateTime).toISOString(),
       retries: optionalInt(retries),
       retryInterval: optionalInt(retryInterval),

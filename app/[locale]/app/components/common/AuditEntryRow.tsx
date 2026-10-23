@@ -14,10 +14,8 @@ import { auditActorLabel } from "@/lib/audit-labels";
 
 type AuditEntryRowProps = {
   entry: AuditEntry;
-  // Rendered next to the actor — a resolved charge point/site name on the
-  // platform-wide /app/activity page, where one row can target any of them.
-  // Omitted on the per-charge-point tab, where the target is always the
-  // charge point already open.
+  // The target's name, shown on /app/activity; omitted on the per-charge-point
+  // tab.
   targetLabel?: string;
 };
 

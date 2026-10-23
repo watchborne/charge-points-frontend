@@ -4,17 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/constants";
 
 /**
- * Builds a Supabase client bound to the middleware's request/response pair,
- * so the auth session cookie refreshes on every request.
- *
- * Returns:
- * - `supabase` — call `auth.getUser()` for the authenticated user.
- * - `supabaseResponse` — a `NextResponse` carrying refreshed session
- *   cookies. Callers must return this (or copy its cookies onto their own
- *   redirect/rewrite response) so the refreshed session reaches the browser.
- *
- * The canonical `@supabase/ssr` middleware pattern; route-guarding logic
- * lives in the root `middleware.ts`, not here.
+ * A Supabase client bound to the proxy's request/response pair, refreshing the
+ * session cookie on every request. Callers must return `supabaseResponse` (or
+ * copy its cookies onto their own response) so the refreshed session reaches
+ * the browser. Route guarding is in `proxy.ts`.
  */
 export function createClient(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

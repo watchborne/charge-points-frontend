@@ -1,12 +1,7 @@
 /**
- * A minimal fixed-window, in-memory rate limiter for the few public routes
- * this app handles itself (`/api/contact`) rather than proxying to the
- * backend's own limiter (`charge-points-server`'s `@fastify/rate-limit`).
- *
- * State lives in the module, so it is per server instance: on a serverless
- * deployment each warm instance keeps its own counters. That still stops a
- * scripted loop hammering one instance, which is what it is for; it is not a
- * global quota.
+ * A fixed-window, in-memory rate limiter for public routes this app handles
+ * itself (`/api/contact`). Per server instance, so it stops a scripted loop,
+ * not a global flood.
  */
 
 type Bucket = { count: number; resetAt: number };
@@ -29,8 +24,7 @@ export const createRateLimiter = ({ max, windowMs }: RateLimitOptions) => {
 
   return {
     check: (key: string, now: number = Date.now()): RateLimitResult => {
-      // Expired buckets would otherwise accumulate one entry per distinct
-      // client for the life of the instance.
+      // Otherwise expired buckets accumulate, one per client.
       sweep(now);
 
       const bucket = buckets.get(key);

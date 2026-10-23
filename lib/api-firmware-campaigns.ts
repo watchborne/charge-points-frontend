@@ -9,10 +9,7 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// `FirmwareCampaign`'s response shape: the shared entity and its progress view
-// (@watchborne/charge-points-types), as they look once serialized to JSON —
-// timestamps arrive as ISO strings and are parsed where rendered (see `Wire`).
-// charge-points-server ADR 0017.
+// The shared `FirmwareCampaign` entity and progress view, seen through `Wire`.
 
 export type { FirmwareCampaignStatus, FirmwareCampaignTargetMode };
 
@@ -23,12 +20,9 @@ export type FirmwareCampaign = Wire<SharedFirmwareCampaign>;
 export type FirmwareCampaignProgress = Wire<SharedFirmwareCampaignProgress>;
 
 /**
- * `targetSiteId` is required (and only meaningful) when
- * `targetMode === "SITE"`; `targetChargePointIds` is required (and only
- * meaningful) when `targetMode === "LIST"`; neither is needed for `"FLEET"`.
- * `scheduledAt`, when given, must be strictly in the future (enforced
- * server-side too, like `SiteVisitSchedule.nextVisitAt`); omitting it
- * dispatches the campaign as soon as possible.
+ * `targetSiteId` is required only for `"SITE"`, `targetChargePointIds` only
+ * for `"LIST"`. `scheduledAt` must be in the future (checked server-side too);
+ * omitted, the campaign dispatches as soon as possible.
  */
 export type CreateFirmwareCampaignBody = {
   name: string;
@@ -58,8 +52,7 @@ export const firmwareCampaignApis = {
       "FirmwareCampaigns.create",
     );
   },
-  /** `null` for an unknown/out-of-scope id — same non-disclosure pattern as
-   * `SiteVisits.getSchedule`, rather than a 404 the caller has to branch on. */
+  /** `null` for an unknown or out-of-scope id. */
   getProgress: async function (id: string): Promise<FirmwareCampaignProgress | null> {
     return withErrorLogging(
       () => httpClient.get<FirmwareCampaignProgress | null>(`/api/firmware-campaigns/${id}`),

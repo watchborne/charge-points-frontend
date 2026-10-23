@@ -23,12 +23,9 @@ import type { ChargePoint } from "@/types/charge-point";
 import { SessionConsumptionChartContainer } from "./SessionConsumptionChartContainer";
 
 /**
- * The fields this panel actually reads off `ChargingSession` — narrow enough
- * that `ChargingSessionsPanelContainer`'s real fetch and a caller supplying
- * plain literals (the marketing site's product preview) both satisfy it
- * without either one fabricating the full shared-package shape.
- * `startedAt`/`endedAt` accept `Date | string` since this panel only ever
- * wraps them in `new Date(...)`, which accepts both.
+ * The fields this panel reads off `ChargingSession`, narrow enough for both the
+ * container's fetch and the marketing preview's literals. Timestamps accept
+ * `Date | string` (only passed to `new Date`).
  */
 export type ChargingSessionListEntry = Pick<
   ChargingSession,
@@ -37,11 +34,9 @@ export type ChargingSessionListEntry = Pick<
   startedAt: Date | string;
   endedAt: Date | string | null;
   /**
-   * The session's estimated cost, for callers that already hold it (the
-   * marketing site's product preview). The dashboard instead supplies
-   * `renderCost`, which fetches each row's cost lazily. `undefined` means
-   * "no estimate to show" — distinct from a resolved envelope whose own
-   * `amountCents` is null (charge-points-server issue #580).
+   * The estimated cost, for callers that already hold it (the marketing
+   * preview); the dashboard uses `renderCost`. `undefined` means no estimate,
+   * unlike an envelope whose `amountCents` is null.
    */
   cost?: ChargingSessionCost;
 };
@@ -50,34 +45,26 @@ type ChargingSessionsPanelProps = {
   chargePointId: ChargePoint["id"];
   sessions: ChargingSessionListEntry[];
   /**
-   * Overrides how an expanded row's consumption chart renders — the real
-   * dashboard leaves this unset (`SessionConsumptionChartContainer` fetches
-   * against `chargePointId`), while the marketing site's product preview
-   * supplies its own fixture-fed `SessionConsumptionChart` instead of
-   * fetching against a charge point that doesn't exist.
+   * Overrides the expanded row's chart: the marketing preview passes a
+   * fixture-fed chart instead of `SessionConsumptionChartContainer`.
    */
   renderSessionDetail?: (session: ChargingSessionListEntry) => ReactNode;
   /**
-   * Overrides the cost cell's content. The dashboard supplies a cell that
-   * fetches that one session's cost on its own (`ChargingSessionCostCell`),
-   * so loading and failure are per row; unset, the cell renders
-   * `session.cost` as is.
+   * Overrides the cost cell: the dashboard fetches per row
+   * (`ChargingSessionCostCell`); unset, `session.cost` is rendered.
    */
   renderCost?: (session: ChargingSessionListEntry) => ReactNode;
 };
 
-/** Wh when the wire actually carried both bounds — 1.6-only (ADR 0012 in
- * charge-points-server); a 2.0.1 session has neither, and this is never
- * guessed from anything else. */
+/** Wh when the wire carried both bounds (1.6 only); never guessed. */
 const energyDelivered = (session: ChargingSessionListEntry): number | null =>
   session.meterStart !== undefined && session.meterStop !== undefined
     ? session.meterStop - session.meterStart
     : null;
 
 /**
- * Only `NO_TARIFF_CONFIGURED` gets its own label — it's the one reason an
- * installer can act on (go set a tariff); `SESSION_STILL_ACTIVE` and
- * `NO_ENERGY_DATA` read the same as "nothing to show yet" as a bare dash.
+ * Only `NO_TARIFF_CONFIGURED` gets a label, being actionable; the other
+ * reasons render a dash.
  */
 export const CostCell = ({
   cost,
@@ -102,19 +89,12 @@ export const CostCell = ({
 };
 
 /**
- * The charging-session history section of a charge point's detail panel:
- * one row per `StartTransaction`/`StopTransaction` pair (OCPP 1.6) or
- * `Started`/.../`Ended` `TransactionEvent` sequence (OCPP 2.0.1), across
- * every connector — the `charge-points-server` ADR 0012 REST read
- * (`GET /api/charge-points/:id/charging-sessions`) surfaced directly.
+ * A charge point's charging sessions across every connector: one row per
+ * `StartTransaction`/`StopTransaction` pair (1.6) or `TransactionEvent`
+ * sequence (2.0.1).
  *
- * Purely presentational — `ChargingSessionsPanelContainer` owns the fetch
- * and renders its own loading/error state in place of this component, so
- * `sessions` here is always the loaded list; the marketing site's product
- * preview can render this directly with static data instead of duplicating
- * the markup. `chargePointId` is only used to scope the expandable
- * per-session `SessionConsumptionChartContainer` fetch — it plays no part
- * in the table itself.
+ * Presentational: `ChargingSessionsPanelContainer` owns the fetch and the
+ * loading/error states. `chargePointId` only scopes the per-session chart.
  */
 export const ChargingSessionsPanel = ({
   chargePointId,
@@ -126,8 +106,7 @@ export const ChargingSessionsPanel = ({
   const { formatDateTime } = useDateFormat();
   const intlFormat = useFormatter();
 
-  // Which sessions have their consumption chart expanded — several can be
-  // open at once, each fetching independently.
+  // Expanded sessions; several can be open, each fetching on its own.
   const [expandedSessionIds, setExpandedSessionIds] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (sessionId: string) => {
@@ -143,10 +122,7 @@ export const ChargingSessionsPanel = ({
   };
 
   return (
-    // No padding of its own — StatusHistoryPanel/ChargePointConsumptionPanel/
-    // AlertsPanel (this tab's siblings) don't pad themselves either, relying
-    // on the detail panel's tab body for that; this one used to, doubling up
-    // with the marketing preview's own padded wrapper around it.
+    // No padding: the tab body provides it, as for the sibling panels.
     <div className="flex flex-col gap-3">
       <span className="text-sm text-muted-foreground">
         {t("appPage.chargePoints.chargingSessions.title")}

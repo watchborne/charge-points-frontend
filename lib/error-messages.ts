@@ -1,7 +1,4 @@
-/**
- * Centralized HTTP status to error message key mapping.
- * Use this instead of repeating status-to-message logic across components.
- */
+/** HTTP status to error message key. */
 
 const DEFAULT_ERROR_KEY = "errors.unknown";
 
@@ -17,18 +14,12 @@ const HTTP_STATUS_TO_ERROR_KEY: Record<number, string> = {
   504: "errors.timeout",
 };
 
-/**
- * Get generic error message key for HTTP status.
- * Useful as a fallback when specific error handling is not needed.
- */
+/** Generic message key for an HTTP status. */
 export function getHttpErrorMessageKey(httpStatus: number): string {
   return HTTP_STATUS_TO_ERROR_KEY[httpStatus] || DEFAULT_ERROR_KEY;
 }
 
-/**
- * Domain-specific error message key mappers.
- * Each domain (reset, availability, unlock) can have custom handling for specific statuses.
- */
+/** Per-command message keys, for statuses with a specific meaning. */
 
 export function getResetErrorMessageKey(httpStatus: number): string {
   const resetSpecificMessages: Record<number, string> = {
@@ -65,10 +56,8 @@ export function getUnlockConnectorErrorMessageKey(httpStatus: number): string {
   );
 }
 
-/** `POST /api/firmware-campaigns` (400: bad targetMode input/past scheduledAt/
- * negative staggerMs/empty resolved target set — the zod schema in
- * `CreateFirmwareCampaignDialog` catches almost all of these first; 404: an
- * unknown/out-of-scope `targetSiteId`). */
+/** `POST /api/firmware-campaigns` (400: invalid input, mostly caught by the
+ * form; 404: unknown or out-of-scope `targetSiteId`). */
 export function getFirmwareCampaignCreateErrorMessageKey(httpStatus: number): string {
   const createSpecificMessages: Record<number, string> = {
     400: "appPage.firmwareCampaigns.errors.invalidRequest",
@@ -88,11 +77,8 @@ export function getFirmwareCampaignCancelErrorMessageKey(httpStatus: number): st
 }
 
 /** `POST /api/charge-points/:id/certificates` (404: unknown charge point;
- * 409: station offline, OR the requested `certificateType` isn't supported
- * by this station's dialect / the certificate is too long for 2.0.1's
- * 5500-char bound — the backend distinguishes those by message text only,
- * so both collapse to one message here, same as this codebase's other
- * write-command 409s). */
+ * 409: offline, unsupported type for the dialect, or too long; the backend
+ * tells these apart only by message text). */
 export function getCertificateInstallErrorMessageKey(httpStatus: number): string {
   const installSpecificMessages: Record<number, string> = {
     404: "appPage.chargePoints.certificates.install.result.notFound",
@@ -106,9 +92,8 @@ export function getCertificateInstallErrorMessageKey(httpStatus: number): string
   );
 }
 
-/** `POST /api/charge-points/:id/release` (404: unknown/out-of-scope charge
- * point, or already released — e.g. from a second tab — charge-points-server
- * ADR 0028 treats both the same way). */
+/** `POST /api/charge-points/:id/release` (404: unknown, out of scope or
+ * already released). */
 export function getReleaseErrorMessageKey(httpStatus: number): string {
   const releaseSpecificMessages: Record<number, string> = {
     404: "appPage.chargePoints.release.result.notFound",

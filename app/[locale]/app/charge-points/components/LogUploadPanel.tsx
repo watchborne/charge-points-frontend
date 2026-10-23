@@ -21,24 +21,13 @@ type LogUploadPanelProps = {
   disabled?: boolean;
 };
 
-/** How many recent uploads the history list shows — a glance at recent
- * activity, not a full audit log, the same cap `AlertsPanel`/
- * `SecurityEventsPanel` use for their own histories. */
+/** Recent uploads only. */
 const VISIBLE_HISTORY_COUNT = 5;
 
 /**
- * The remote-log-retrieval section of a charge point's detail panel: which
- * upload is running, what its last finished one did, and a short history —
- * the `FirmwarePanel` equivalent for OCPP `GetDiagnostics`/`GetLog` (issue
- * #415).
- *
- * Unlike `FirmwarePanel`, a log upload has no phase timeline to derive
- * (`LogUpload` carries a flat status, not `FirmwareUpdate`'s
- * download/signature/install/reboot steps) — its progress is just "what
- * status did the station last report", shown directly. There is also no
- * dedicated WebSocket broadcast for this yet, so — like `AlertsPanel` and
- * `SecurityEventsPanel` — this is self-contained and fetch-once rather than
- * subscribing to the dashboard socket.
+ * A charge point's remote log retrieval (`GetDiagnostics`/`GetLog`): the
+ * running upload, the last finished one and a short history. A log upload has
+ * a flat status, not a phase timeline. Fetch-once.
  */
 export const LogUploadPanel = ({
   chargePointId,
@@ -89,9 +78,8 @@ export const LogUploadPanel = ({
           disabled={disabled}
           chargePointId={chargePointId}
           ocppVersion={ocppVersion}
-          // The backend refuses a second concurrent upload (at most one
-          // unfinished per charge point); disabling the trigger says so
-          // before the installer fills a form that would be rejected.
+          // The backend refuses a second unfinished upload, so the trigger is
+          // disabled upfront.
           uploadInProgress={(logUpload?.active ?? null) !== null}
           onStarted={reload}
         />

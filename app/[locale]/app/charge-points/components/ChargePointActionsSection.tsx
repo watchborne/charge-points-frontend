@@ -36,30 +36,18 @@ type ChargePointActionsSectionProps = {
   onReset: (type: ResetType) => Promise<void>;
   wholeChargePointAvailability: AvailabilityState;
   onChangeAvailability: (type: AvailabilityType) => Promise<void>;
-  // Fired when this caller successfully gives up their own access to the
-  // charge point (see ChargePointReleaseControl) — lets the page deselect it,
-  // since it then drops out of this caller's own fleet.
+  // Fired when the caller releases their own access, so the page can deselect
+  // the charge point.
   onReleased: () => void;
 };
 
 /**
- * The whole-charge-point action controls — reset, configuration, availability
- * and trigger-message — split out of `ChargePointDetailPanel`'s "main" tab
- * into their own dedicated tab so that overview page reads as status, and
- * this one as controls. Per-connector controls (availability/unlock) stay in
- * `ConnectorStatusSection` on the main tab: they're about a specific
- * connector, not the station as a whole.
- *
- * Grouped into labeled sections rather than one undifferentiated pile of
- * buttons: "controls" (reset, configuration, availability — the station's
- * operative state), "messaging" (trigger-message), and, for 2.0.1 stations,
- * "displayMessages" (`DisplayMessageControl`'s set/clear controls alongside
- * `DisplayMessagesPanel`'s `NotifyDisplayMessages` history — moved here from
- * the security tab so the write and read sides of display messages sit
- * together), and "access" (`ChargePointReleaseControl` — giving up the
- * caller's own membership, charge-points-server ADR 0028). Each group's own
- * outcome banner renders directly under it instead of at the bottom of the
- * whole tab, so feedback stays next to the button that produced it.
+ * The "Actions" tab: whole-charge-point controls, grouped as "controls"
+ * (reset, configuration, availability), "messaging" (trigger message),
+ * "displayMessages" (2.0.1: set/clear plus the `NotifyDisplayMessages`
+ * history) and "access" (releasing the caller's membership). Per-connector
+ * controls stay in `ConnectorStatusSection`. Each group shows its outcome
+ * banner directly under it.
  */
 export const ChargePointActionsSection = ({
   chargePointId,

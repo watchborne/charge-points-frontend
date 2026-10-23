@@ -11,19 +11,9 @@ import type { ChargePointWithConnectors } from "@/types/charge-point";
 const UNAVAILABLE_CONNECTOR_STATUSES = new Set<ConnectorStatus>(["Faulted", "Unavailable"]);
 
 /**
- * Client-side port of `charge-points-server`'s `computeSiteHealth`
- * (`src/application/shared/compute-site-health.ts`) — kept in exact lockstep
- * with it: same buckets, same thresholds. See that file for the full
- * rationale; duplicated here rather than shared across repos because the two
- * projects don't share application code, only the wire types.
- *
- * `charge-points-server#503` (P4, item 2): the dashboard used to fetch this
- * from a second endpoint, `GET /api/sites/health`, redoing the same
- * sites -> charge points -> connectors read `GET /api/sites` had just made
- * for the same caller moments earlier. Deriving it here from `chargePoints`
- * — already fetched for the dashboard's other panels, and kept live over the
- * dashboard WebSocket by `useChargePoints` — removes that network round trip
- * entirely rather than just reordering it.
+ * Client-side port of the backend's `computeSiteHealth`, kept in lockstep
+ * (same buckets and thresholds); the repos share wire types, not code.
+ * Derived from `chargePoints`, which the WebSocket keeps live.
  */
 export const deriveSiteHealth = (
   siteId: string,
@@ -75,9 +65,8 @@ const deriveStatus = (
 };
 
 /**
- * Health for every given site, each derived from its own charge points only
- * — a site with none of its own is `HEALTHY` with every count at 0, matching
- * `computeSiteHealth`'s own empty-site case.
+ * Health for every site from its own charge points; a site without any is
+ * `HEALTHY` with zero counts.
  */
 export const deriveSitesHealth = (
   sites: Site[],

@@ -30,11 +30,8 @@ type LogSiteVisitDialogProps = {
   isSubmitting?: boolean;
 };
 
-/**
- * Logs a visit against `POST /api/sites/:id/visits` (charge-points-server
- * issue #531) — the only way to change a site's visit history now that
- * `SiteFormDialog` no longer accepts `lastVisitedAt` directly (ADR 0015).
- */
+/** Records a visit (`POST /api/sites/:id/visits`): the only way to change a
+ * site's visit history. */
 export const LogSiteVisitDialog = ({
   open,
   onOpenChange,

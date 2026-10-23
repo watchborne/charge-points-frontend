@@ -14,10 +14,8 @@ type SiteAlertThresholdsSectionProps = {
 };
 
 /**
- * A site's alert thresholds on its detail page (charge-points-server issue #577):
- * what its charge points are judged by today, where each value comes from, and the
- * way to change or reset it. Self-contained, like the tariff's data flow: it owns
- * its query, its dialog and its mutations.
+ * A site's alert thresholds on its detail page: the values its charge points
+ * are judged by, where each comes from, and editing or resetting them.
  */
 export const SiteAlertThresholdsSection = ({
   siteId,

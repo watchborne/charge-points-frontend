@@ -11,19 +11,14 @@ const NULL_BODY_STATUSES = new Set([101, 204, 205, 304]);
 type BackendCall = { response: Response } | { failure: NextResponse };
 
 /**
- * The part of the proxy every flavour shares: builds the backend request from
- * the incoming one (query string, `x-api-key`, the caller's bearer token) and
- * sends it. What differs between flavours is only what is done with the
- * response, so an unreachable backend is turned into the same 502 here for all.
+ * Builds and sends the backend request (query string, `x-api-key`, the
+ * caller's bearer token). An unreachable backend becomes a 502.
  */
 async function callBackend(request: NextRequest, backendPath: string): Promise<BackendCall> {
   const backendUrl = new URL(`${API_URL}${backendPath}`);
 
-  // `append`, not `set`: a repeated parameter must survive the hop. The metering
-  // reads take `?measurand=Voltage&measurand=SoC` to ask for two series at once,
-  // and `set` would keep only the last one — a filter silently narrowing on its
-  // way to the backend. Appending is equivalent for single-valued params because
-  // `backendUrl` starts with no query of its own (it is API_URL + a fixed path).
+  // `append`, not `set`: a repeated parameter (`?measurand=A&measurand=B`)
+  // must survive the hop.
   request.nextUrl.searchParams.forEach((value, key) => {
     backendUrl.searchParams.append(key, value);
   });
@@ -37,11 +32,8 @@ async function callBackend(request: NextRequest, backendPath: string): Promise<B
     headers["x-api-key"] = apiKey;
   }
 
-  // Forwards the signed-in caller's Supabase access token so the backend can
-  // resolve their per-user AccessScope (ADR 0002 in charge-points-server —
-  // multi-tenant access control). middleware.ts already guarantees a session
-  // exists for every /api/* request; the optional chaining just avoids a
-  // crash on the theoretical race of a token expiring between the two.
+  // Forwards the caller's Supabase access token, if any, so the backend can
+  // resolve their AccessScope; without one, it answers 401 where required.
   const supabase = await createClient();
   const {
     data: { session },
@@ -82,10 +74,8 @@ export async function proxyToBackend(
 
   const requestContentType = request.headers.get("Content-Type") ?? "application/json";
 
-  // A null-body status (204 from every DELETE this proxies) must be built with
-  // no body at all: `new Response("", { status: 204 })` throws a TypeError, so
-  // forwarding the backend's empty text would turn a successful delete into a
-  // 500 from the proxy.
+  // A null-body status must have no body: `new Response("", { status: 204 })`
+  // throws.
   const body = NULL_BODY_STATUSES.has(call.response.status) ? null : await call.response.text();
 
   if (options?.raw) {
@@ -104,13 +94,9 @@ export async function proxyToBackend(
 }
 
 /**
- * `proxyToBackend` for an endpoint that answers with a file (a generated PDF)
- * rather than JSON: the body is streamed through untouched — reading it with
- * `.text()` would corrupt binary — and the headers a download needs
- * (`Content-Type`, `Content-Disposition`) come from the backend, which owns the
- * file's type and name. Never cacheable: a generated file is a snapshot of
- * private data. A backend error (404, 401) keeps its own JSON content type, so
- * the client reads it like any other failed call.
+ * `proxyToBackend` for a file: the body is streamed untouched (`.text()`
+ * would corrupt binary), with the backend's `Content-Type` and
+ * `Content-Disposition`. Never cached. A backend error keeps its JSON.
  */
 export async function proxyFileToBackend(
   request: NextRequest,

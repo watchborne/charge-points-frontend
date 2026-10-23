@@ -61,19 +61,10 @@ type RequestDeviceReportDialogProps = {
 };
 
 /**
- * Lets an installer ask a station for its device-model inventory — OCPP
- * `GetBaseReport` (a chosen flavor) or `GetReport` (everything, unfiltered —
- * component/variable filtering isn't exposed yet, charge-points-server ADR
- * 0014 decision 6). 2.0.1-only: this dialog only ever renders inside
- * `DeviceVariableReportsPanel`, itself gated on `ocppVersion === "2.0.1"` by
- * `ChargePointDetailPanel`.
- *
- * The station's reply is only an acknowledgment — `Accepted`/`Rejected`/
- * `NotSupported`/`EmptyResultSet` — never the report itself. The actual
- * inventory arrives later, out of band, as one or more `NotifyReport`
- * frames; `onRequested` re-fetches the panel's history so a report that
- * already landed shows up, though a slow station may need another look
- * later.
+ * Asks a 2.0.1 station for its device-model inventory: `GetBaseReport` (a
+ * chosen flavor) or an unfiltered `GetReport`. The reply is only an
+ * acknowledgment; the inventory arrives later as `NotifyReport` frames, and
+ * `onRequested` refetches the panel's history.
  */
 export const RequestDeviceReportDialog = ({
   chargePointId,

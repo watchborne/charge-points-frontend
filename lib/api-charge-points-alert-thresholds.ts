@@ -9,20 +9,14 @@ import { withErrorLogging } from "./api-error-wrapper";
 import { httpClient } from "./http-client";
 import type { Wire } from "./wire";
 
-// A charge point's own overrides of the time-based alert thresholds: the shared
-// `ChargePointAlertThresholds` entity (@watchborne/charge-points-types), as it
-// looks once serialized to JSON — timestamps arrive as ISO strings (see `Wire`).
-// A `null` threshold means "inherit from the charge point's site, then the global
-// default" (charge-points-server issue #577, ADR 0031).
+// A charge point's own threshold overrides; `null` inherits from its site,
+// then the global default.
 
 export type ChargePointAlertThresholds = Wire<SharedChargePointAlertThresholds>;
 
 /**
- * `GET /api/charge-points/:id/alert-thresholds`'s envelope: `thresholds` is null
- * when the charge point has no overrides of its own, and `effective` is what the
- * alert sweep really applies to it (own override, else its site's, else the
- * default) with the level of each value — resolved by the backend, never guessed
- * here.
+ * `thresholds` is null without overrides; `effective` is what the alert sweep
+ * applies (own override, else site, else default) and where each comes from.
  */
 export type GetChargePointAlertThresholdsResult = Wire<SharedGetChargePointAlertThresholdsResult>;
 

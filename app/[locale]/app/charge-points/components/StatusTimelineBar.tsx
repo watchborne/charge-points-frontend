@@ -20,14 +20,9 @@ type Props<S extends string> = {
 };
 
 /**
- * A window rendered as a single horizontal strip, one flex-sized block per
- * `StatusSegment` — width proportional to how long that status held, colour
- * from the shared tone maps in `lib/status.ts` so this reads consistently
- * with every other status indicator in the app.
- *
- * Generic over the status type so one component serves both connection
- * state (`lib/status.ts`'s `connectionStatusColor`) and connector status
- * (`connectorStatusColor`) — `StatusHistoryPanel` supplies which.
+ * A window as one horizontal strip, one block per `StatusSegment`, sized by
+ * duration and coloured from `lib/status.ts`. Generic over the status type,
+ * so it serves both connection and connector status.
  */
 export const StatusTimelineBar = <S extends string>({
   segments,
@@ -41,9 +36,7 @@ export const StatusTimelineBar = <S extends string>({
   const { formatShortDateTime } = useDateFormat();
   const totalMs = windowEnd.getTime() - windowStart.getTime();
 
-  // Unique statuses in the order they first appear — a reader scanning the
-  // bar left to right meets each colour's meaning in the order they see it,
-  // rather than a legend order unrelated to what's actually shown.
+  // Legend in order of first appearance, as a reader scans the bar.
   const legendStatuses = segments.reduce<S[]>((statuses, segment) => {
     if (segment.status !== null && !statuses.includes(segment.status))
       statuses.push(segment.status);
@@ -55,13 +48,10 @@ export const StatusTimelineBar = <S extends string>({
       <div role="img" aria-label={ariaLabel} className="flex h-6 w-full rounded-md border">
         {segments.map((segment) => {
           const durationMs = segment.end.getTime() - segment.start.getTime();
-          // A window with zero span (shouldn't happen — windowEnd is always
-          // after windowStart) falls back to filling the bar rather than
-          // dividing by zero.
+          // A zero-span window fills the bar rather than divide by zero.
           const widthPercent = totalMs > 0 ? (durationMs / totalMs) * 100 : 100;
           const text = segment.status === null ? unknownLabel : label(segment.status);
-          // The one place the exact bounds are reachable without a legend
-          // entry for every segment individually.
+          // The only place a segment's exact bounds are shown.
           const tooltipText = `${text} · ${formatShortDateTime(segment.start)} → ${formatShortDateTime(
             segment.end,
           )} (${formatDurationShort(durationMs)})`;
