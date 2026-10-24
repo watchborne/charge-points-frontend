@@ -10,6 +10,7 @@ import {
 import { withErrorLogging } from "./api-error-wrapper";
 import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
+import { reportError } from "./report-error";
 
 export { GET_BASE_REPORT_TYPES_V201 };
 export type { GetBaseReportBaseV201 };
@@ -121,7 +122,7 @@ export const deviceVariableReportApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to request a base report on charge point ${chargePointId}`, error);
+      reportError(error, "DeviceVariableReports.requestBaseReport");
       return { ok: false, httpStatus: 0 };
     }
   },
@@ -149,7 +150,7 @@ export const deviceVariableReportApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to request a report on charge point ${chargePointId}`, error);
+      reportError(error, "DeviceVariableReports.requestReport");
       return { ok: false, httpStatus: 0 };
     }
   },
