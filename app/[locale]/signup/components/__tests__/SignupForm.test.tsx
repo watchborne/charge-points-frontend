@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -20,6 +21,7 @@ vi.mock("next-intl", () => ({
   },
 }));
 
+import { HttpError } from "../../../../../lib/http-error";
 import { SignupForm } from "../SignupForm";
 
 const onFormSubmitted = vi.fn();
@@ -32,6 +34,7 @@ const submit = () => {
 };
 
 beforeEach(() => {
+  vi.mocked(Sentry.captureException).mockClear();
   requestAccess.mockReset();
   onFormSubmitted.mockReset();
 });
@@ -61,6 +64,22 @@ describe("SignupForm", () => {
       expect(screen.getByText("Couldn't submit your request. Please try again.")).toBeTruthy(),
     );
     expect(onFormSubmitted).not.toHaveBeenCalled();
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { context: "SignupForm.requestAccess" },
+    });
+  });
+
+  // A rate-limited or rejected request is an answer the form already shows.
+  it("SHOULD NOT report to Sentry WHEN the backend answers 4xx", async () => {
+    requestAccess.mockRejectedValue(new HttpError(429, { code: "RATE_LIMITED" }));
+    render(<SignupForm onFormSubmitted={onFormSubmitted} />);
+
+    submit();
+
+    await waitFor(() =>
+      expect(screen.getByText("Couldn't submit your request. Please try again.")).toBeTruthy(),
+    );
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   it("SHOULD disable the submit button WHILE the request is in flight", async () => {

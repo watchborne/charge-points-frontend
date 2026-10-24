@@ -6,7 +6,7 @@ export interface UseWebSocketReturn {
   socket: WebSocket | null;
   status: WebSocketStatus;
   lastMessage: MessageEvent | null;
-  sendMessage: (message: string | object) => void;
+  sendMessage: (message: string | object) => boolean;
   reconnect: () => void;
 }
 

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
+import { reportError } from "@/lib/report-error";
 import { createClient } from "@/lib/supabase/client";
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -52,10 +53,14 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     });
 
     if (verifyError) {
-      // Supabase messages aren't localized: log the raw one, show ours.
-      console.error("verifyOtp failed:", verifyError.message);
       setIsVerifying(false);
-      setError(verifyError.code === "otp_expired" ? "invalid" : "generic");
+      // otp_expired covers a wrong or stale code, an answer; anything else is a failure.
+      if (verifyError.code === "otp_expired") {
+        setError("invalid");
+      } else {
+        reportError(verifyError, "VerifyOtpForm.verifyOtp");
+        setError("generic");
+      }
       return;
     }
 
@@ -88,12 +93,12 @@ export function VerifyOtpForm({ email, onBack, initialCode }: VerifyOtpFormProps
     setIsResending(false);
 
     if (resendError) {
-      console.error("resend signInWithOtp failed:", resendError.message);
-      setError(
-        resendError.code === "over_email_send_rate_limit"
-          ? "over_email_send_rate_limit"
-          : "generic",
-      );
+      if (resendError.code === "over_email_send_rate_limit") {
+        setError("over_email_send_rate_limit");
+      } else {
+        reportError(resendError, "VerifyOtpForm.resend");
+        setError("generic");
+      }
       return;
     }
 
