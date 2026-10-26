@@ -1958,6 +1958,11 @@
         "title": "Prochainement",
         "description": "Les prochaines étapes, sans date engagée.",
         "items": {
+          "guidedDiagnosis": "Diagnostic guidé : de « borne hors ligne » à la cause probable et à l'action à mener",
+          "electricalAnomalies": "Détection d'anomalies électriques à partir des mesures (puissance plafonnée, phase manquante, tension hors plage)",
+          "monthlyReport": "Rapport mensuel pour votre client final : disponibilité, recommandations, envoi automatique et lien de partage",
+          "stationAuth": "Authentification des bornes sur le port OCPP (profils de sécurité 1 et 2)",
+          "hardwareInventory": "Parc matériel : inventaire, garanties, contrats de maintenance et rappels d'échéance",
           "alertCustomization": "Personnalisation des canaux et des destinataires des alertes",
           "historyExport": "Export d'historique des événements OCPP et des sessions de charge",
           "rbac": "Gestion des accès par équipe, par rôle et par site",
