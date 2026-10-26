@@ -233,6 +233,10 @@
             "layout": {
               "title": "Tableau de bord personnalisable",
               "description": "Choisissez les widgets à afficher et leur ordre."
+            },
+            "activity": {
+              "title": "Journal d'activité",
+              "description": "Toutes les actions effectuées sur le parc — qui a fait quoi, quand, et ce que la borne a répondu — par borne ou à l'échelle de la plateforme, filtrables et exportables en CSV."
             }
           }
         },
@@ -250,6 +254,10 @@
             "url": {
               "title": "URL de connexion OCPP",
               "description": "Retrouvez en un clic l'adresse à renseigner dans la configuration de la borne."
+            },
+            "quota": {
+              "title": "Suivi et plafond du jeton",
+              "description": "Voyez combien de bornes ont été mises en service avec votre jeton et quand il a servi pour la dernière fois, et plafonnez son nombre d'utilisations."
             }
           }
         },
@@ -279,6 +287,10 @@
             "logs": {
               "title": "Journaux et diagnostics à distance",
               "description": "Récupérez les journaux d'une borne sans vous déplacer."
+            },
+            "thresholds": {
+              "title": "Seuils d'alerte personnalisables",
+              "description": "Réglez par site, puis par borne, les délais avant alerte (déconnexion, connecteur indisponible, mise à jour bloquée). Une borne hérite de son site, puis des valeurs par défaut."
             }
           }
         },
@@ -304,6 +316,10 @@
             "status": {
               "title": "Historique des statuts",
               "description": "La chronologie des connexions et de l'état des connecteurs de chaque borne."
+            },
+            "export": {
+              "title": "Export CSV",
+              "description": "Exportez la consommation, l'historique des statuts et celui des alertes pour les exploiter dans vos propres outils."
             }
           }
         },
@@ -1928,12 +1944,22 @@
           "pwa": "Application installable sur mobile"
         }
       },
+      "control": {
+        "title": "Maîtrise et traçabilité",
+        "description": "Adapter la supervision à vos pratiques et garder la trace de chaque action.",
+        "items": {
+          "alertThresholds": "Seuils d'alerte personnalisables par site et par borne",
+          "activity": "Journal d'activité : qui a fait quoi, par borne et sur l'ensemble du parc",
+          "csvExport": "Export CSV de la consommation, des statuts et des alertes",
+          "tokenQuota": "Jeton de commissioning : dernière utilisation et nombre maximum de bornes"
+        }
+      },
       "upcoming": {
         "title": "Prochainement",
         "description": "Les prochaines étapes, sans date engagée.",
         "items": {
-          "alertCustomization": "Personnalisation des alertes (seuils, canaux, destinataires)",
-          "historyExport": "Export d'historique des événements OCPP, des alertes et des métriques",
+          "alertCustomization": "Personnalisation des canaux et des destinataires des alertes",
+          "historyExport": "Export d'historique des événements OCPP et des sessions de charge",
           "rbac": "Gestion des accès par équipe, par rôle et par site",
           "integrations": "Intégrations avec vos outils métier"
         }

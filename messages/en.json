@@ -233,6 +233,10 @@
             "layout": {
               "title": "Customizable dashboard",
               "description": "Choose which widgets to show and in what order."
+            },
+            "activity": {
+              "title": "Activity log",
+              "description": "Every action taken on your fleet — who did what, when, and how the charge point answered — per charge point or platform-wide, filterable and exportable as CSV."
             }
           }
         },
@@ -250,6 +254,10 @@
             "url": {
               "title": "OCPP connection URL",
               "description": "Find the address to enter in the charge point's configuration in one click."
+            },
+            "quota": {
+              "title": "Token tracking and cap",
+              "description": "See how many charge points were commissioned with your token and when it was last used, and cap how many times it can be used."
             }
           }
         },
@@ -279,6 +287,10 @@
             "logs": {
               "title": "Remote logs and diagnostics",
               "description": "Retrieve a charge point's logs without going on site."
+            },
+            "thresholds": {
+              "title": "Customizable alert thresholds",
+              "description": "Set the delay before an alert (disconnection, unavailable connector, stalled update) per site, then per charge point. A charge point inherits from its site, then from the defaults."
             }
           }
         },
@@ -304,6 +316,10 @@
             "status": {
               "title": "Status history",
               "description": "The timeline of each charge point's connections and connector states."
+            },
+            "export": {
+              "title": "CSV export",
+              "description": "Export consumption, status history and alert history to use in your own tools."
             }
           }
         },
@@ -1928,12 +1944,22 @@
           "pwa": "Installable mobile app"
         }
       },
+      "control": {
+        "title": "Control and traceability",
+        "description": "Adapt monitoring to the way you work and keep a record of every action.",
+        "items": {
+          "alertThresholds": "Alert thresholds you can customize per site and per charge point",
+          "activity": "Activity log: who did what, per charge point and across the whole fleet",
+          "csvExport": "CSV export of consumption, statuses and alerts",
+          "tokenQuota": "Commissioning token: last use and maximum number of charge points"
+        }
+      },
       "upcoming": {
         "title": "Coming soon",
         "description": "The next steps, with no committed dates.",
         "items": {
-          "alertCustomization": "Alert customization (thresholds, channels, recipients)",
-          "historyExport": "Export of OCPP event, alert and metric history",
+          "alertCustomization": "Alert channel and recipient customization",
+          "historyExport": "Export of OCPP event and charging session history",
           "rbac": "Team-, role- and site-level access management",
           "integrations": "Integrations with your business tools"
         }
