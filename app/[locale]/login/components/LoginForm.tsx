@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
+import { isReportableError, reportError } from "@/lib/report-error";
 import { createClient } from "@/lib/supabase/client";
 
 interface LoginFormProps {
@@ -26,7 +27,12 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     // Gate on the access request before signInWithOtp: an approved email has
     // its Supabase user ensured by this call; pending, unknown or rejected
     // emails are turned back here with an explanation.
-    const access = await api.AccessRequests.checkLoginAccess(email).catch(() => null);
+    // A failed check does not block sign-in: shouldCreateUser: false below still
+    // admits invited users only.
+    const access = await api.AccessRequests.checkLoginAccess(email).catch((checkError) => {
+      if (isReportableError(checkError)) reportError(checkError, "LoginForm.checkLoginAccess");
+      return null;
+    });
     if (access && !access.allowed) {
       setIsLoading(false);
       setError(access.code === "ACCESS_PENDING" ? "pending" : "unknown-user");
@@ -48,9 +54,13 @@ export function LoginForm({ onFormSubmitted }: LoginFormProps) {
     setIsLoading(false);
 
     if (signInError) {
-      // Supabase messages aren't localized: log the raw one, show ours.
-      console.error("signInWithOtp failed:", signInError.message);
-      setError(signInError.code === "otp_disabled" ? "unknown-user" : "generic");
+      // otp_disabled is an unknown email, an answer; anything else is a failure.
+      if (signInError.code === "otp_disabled") {
+        setError("unknown-user");
+      } else {
+        reportError(signInError, "LoginForm.signInWithOtp");
+        setError("generic");
+      }
       return;
     }
 

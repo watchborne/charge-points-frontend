@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -25,6 +26,7 @@ const requestOf = (body: unknown, ip = "203.0.113.1") =>
 describe("POST /api/contact", () => {
   beforeEach(() => {
     contactRateLimiter.reset();
+    vi.mocked(Sentry.captureException).mockClear();
     vi.stubGlobal("fetch", mockFetch);
     vi.stubEnv("RESEND_API_KEY", "re_test");
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -72,6 +74,9 @@ describe("POST /api/contact", () => {
 
     expect(response.status).toBe(500);
     expect(mockFetch).not.toHaveBeenCalled();
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { context: "contact.config" },
+    });
   });
 
   it("SHOULD answer 502 WHEN the email provider rejects the request", async () => {
@@ -80,6 +85,9 @@ describe("POST /api/contact", () => {
     const response = await POST(requestOf(validBody));
 
     expect(response.status).toBe(502);
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { context: "contact.send" },
+    });
   });
 
   it("SHOULD answer 429 with Retry-After AND NOT email WHEN a client exceeds the limit", async () => {

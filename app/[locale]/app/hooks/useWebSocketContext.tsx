@@ -27,7 +27,7 @@ export interface WebSocketDataContextType {
   messages: WebSocketMessage[];
   lastMessage: WebSocketMessage | null;
   status: WebSocketStatus;
-  sendMessage: (message: string | object) => void;
+  sendMessage: (message: string | object) => boolean;
   reconnect: () => void;
   clearMessages: () => void;
 }

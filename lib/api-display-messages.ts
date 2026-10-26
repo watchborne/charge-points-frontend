@@ -8,6 +8,7 @@ import type {
 import { withErrorLogging } from "./api-error-wrapper";
 import type { CommandOutcome } from "./command-outcome";
 import { fetchWithFreshSession, httpClient } from "./http-client";
+import { reportError } from "./report-error";
 import type { Wire } from "./wire";
 
 // The NotifyDisplayMessages history: the report row is declared locally, but
@@ -92,7 +93,7 @@ export const displayMessageApis = {
 
       return { ok: false, httpStatus: response.status };
     } catch (error) {
-      console.error(`Failed to request display messages on charge point ${chargePointId}`, error);
+      reportError(error, "DisplayMessages.requestAll");
       return { ok: false, httpStatus: 0 };
     }
   },

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -56,6 +57,7 @@ const typeCode = (value: string) =>
   fireEvent.change(screen.getByLabelText("loginPage.otp.codeLabel"), { target: { value } });
 
 beforeEach(() => {
+  vi.mocked(Sentry.captureException).mockClear();
   signInWithOtp.mockReset();
   verifyOtp.mockReset();
   onBack.mockReset();
@@ -113,6 +115,7 @@ describe("VerifyOtpForm", () => {
 
     await waitFor(() => expect(screen.getByText("loginPage.otp.error.invalid")).toBeTruthy());
     expect(push).not.toHaveBeenCalled();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   it("SHOULD show the generic error WHEN verifyOtp fails for another reason", async () => {
@@ -124,6 +127,10 @@ describe("VerifyOtpForm", () => {
 
     await waitFor(() => expect(screen.getByText("loginPage.otp.error.generic")).toBeTruthy());
     expect(push).not.toHaveBeenCalled();
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      { message: "boom", code: "unexpected_failure" },
+      { tags: { context: "VerifyOtpForm.verifyOtp" } },
+    );
   });
 
   it("SHOULD disable the submit button WHILE verification is in flight", async () => {
@@ -180,5 +187,6 @@ describe("VerifyOtpForm", () => {
     fireEvent.click(screen.getByText("loginPage.otp.resend"));
 
     await waitFor(() => expect(screen.getByText("loginPage.otp.error.generic")).toBeTruthy());
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });

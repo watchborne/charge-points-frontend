@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { contactMessageSchema, type ContactMessage } from "@/lib/contact-message";
 import { contactRateLimiter } from "@/lib/contact-rate-limit";
 import { getClientIp } from "@/lib/rate-limit";
+import { reportError } from "@/lib/report-error";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const DEFAULT_RECIPIENT = "adrien.miquel.pro@gmail.com";
@@ -26,7 +27,7 @@ const buildBody = ({ company, name, email, phone, chargePoints, message }: Conta
 export async function POST(request: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error("contact: RESEND_API_KEY is not set");
+    reportError(new Error("RESEND_API_KEY is not set"), "contact.config");
     return NextResponse.json({ code: "NOT_CONFIGURED" }, { status: 500 });
   }
 
@@ -58,7 +59,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (!response.ok) {
-    console.error("contact: email provider error", response.status, await response.text());
+    reportError(
+      new Error(`Resend answered ${response.status}: ${await response.text()}`),
+      "contact.send",
+    );
     return NextResponse.json({ code: "SEND_FAILED" }, { status: 502 });
   }
 
