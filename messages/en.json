@@ -1958,6 +1958,11 @@
         "title": "Coming soon",
         "description": "The next steps, with no committed dates.",
         "items": {
+          "guidedDiagnosis": "Guided diagnosis: from \"charge point offline\" to the probable cause and the next action",
+          "electricalAnomalies": "Electrical anomaly detection from meter readings (capped power, missing phase, out-of-range voltage)",
+          "monthlyReport": "Monthly report for your end customer: availability, recommendations, automatic sending and a share link",
+          "stationAuth": "Charge point authentication on the OCPP port (security profiles 1 and 2)",
+          "hardwareInventory": "Hardware fleet: inventory, warranties, maintenance contracts and expiry reminders",
           "alertCustomization": "Alert channel and recipient customization",
           "historyExport": "Export of OCPP event and charging session history",
           "rbac": "Team-, role- and site-level access management",
