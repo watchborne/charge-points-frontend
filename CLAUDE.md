@@ -96,7 +96,7 @@ app/
                            #   tab alongside SecurityEventsPanel). ChargePointDetailPanel is
                            #   the tabbed container these render into (tabs: main/actions/
                            #   consumption/sessions/alerts/
-                           #   security), and persists the last-viewed tab per browser
+                           #   security/activity), and persists the last-viewed tab per browser
                            #   (localStorage key cp-detail-last-tab) as the default on the
                            #   next mount or charge-point switch. It is itself decomposed
                            #   into ChargePointHeaderSection,
@@ -167,6 +167,11 @@ app/
                           #   lib/dashboard-layout.ts + hooks/useDashboardLayout.ts);
                           #   charge-points/: ChargePointsBreakdown,
                           #   AlertStatusBadge, FirmwareTimeline, StatusBadge)
+      activity/            # platform-wide audit trail page (/app/activity, linked from the
+                           #   Header), built on AuditTrailList/AuditEntryRow (components/common/)
+                           #   and hooks/useAuditTrail.ts. The per-charge-point Activity tab
+                           #   (charge-points/components/ActivityPanel.tsx) shows the same trail
+                           #   for one station. AuditOutcomeBadge lives in charge-points/components/
       404/                 # dashboard-scoped not-found page
       hooks/              # useChargePoints, useSites, useWebSocket, useWebSocketContext,
                           #   useConsumption, useStatusHistory, useFlipReorder, useSiteVisits,
@@ -422,6 +427,12 @@ here — a request without a session simply reaches the backend with no token.
 - `lib/proxy-request.ts` **appends** query parameters rather than setting them, so
   a repeated one survives the hop (`?measurand=A&measurand=B` is how the metering
   reads ask for two series). Keep it that way.
+- `lib/api-audit.ts` reads the audit trail: `GET /api/audit` (the platform-wide list behind
+  `/app/activity`, with its `/api/audit.csv` export) and `GET /api/charge-points/:id/audit`
+  (the per-station Activity tab). Each has its own proxy route under `app/api/`. Its entry
+  and filter vocabularies (`AUDIT_ACTIONS`, `AUDIT_OUTCOMES`) are the server's, mirrored
+  client-side. `lib/audit-labels.ts` renders an entry's actor (a user's email, or the
+  translated name of a system source) as a label.
 - `lib/api-security-events.ts` (`api.SecurityEvents.list`) reads
   `GET /api/charge-points/:id/security-events` for `SecurityEventsPanel` — the
   station's OCPP `SecurityEventNotification` history. Its response type is the
