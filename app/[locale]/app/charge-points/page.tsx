@@ -1,6 +1,5 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Callout, Skeleton } from "@watchborne/electrons";
 import {
   Select,
@@ -10,31 +9,22 @@ import {
   SelectValue,
 } from "@watchborne/electrons";
 import { Plus, Search } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense } from "react";
 
-import { useRouter } from "@/i18n/navigation";
-import { api } from "@/lib/api";
-import { isAwaitingCommissioning } from "@/lib/commissioning";
-import { queryKeys } from "@/lib/queryKeys";
 import { CONNECTION_STATUSES } from "@/lib/status";
-import {
-  ChargePointConnectionStatus,
-  ChargePointWithConnectors,
-  CreatedChargePoint,
-} from "@/types/charge-point";
+import { ChargePointConnectionStatus, ChargePointWithConnectors } from "@/types/charge-point";
 
-import { ChargePointConnectionUrlDialog } from "./components/ChargePointConnectionUrlDialog";
-import { ChargePointDeletionDialog } from "./components/ChargePointDeletionDialog";
-import { DetailTab, isDetailTab } from "./components/ChargePointDetailPanel";
+import { ChargePointDialogs } from "./components/ChargePointDialogs";
 import { ChargePointFleetPanel } from "./components/ChargePointFleetPanel";
-import { ChargePointFormDialog, ChargePointFormValues } from "./components/ChargePointFormDialog";
-import { CommissioningDialog } from "./components/CommissioningDialog";
 import { CommissioningQueue } from "./components/CommissioningQueue";
+import { FleetChargePointsPanelSkeleton } from "./components/FleetChargePointsPanelSkeleton";
+import { useChargePointDeepLink } from "./hooks/useChargePointDeepLink";
+import { useChargePointDialogs } from "./hooks/useChargePointDialogs";
+import { useChargePointFilters } from "./hooks/useChargePointFilters";
+import { useChargePointMutations } from "./hooks/useChargePointMutations";
 import { useChargePoints } from "../hooks/useChargePoints";
 import { useSites } from "../hooks/useSites";
-import { FleetChargePointsPanelSkeleton } from "./components/FleetChargePointsPanelSkeleton";
 
 // useSearchParams() needs a Suspense boundary for the page to stay static.
 export default function ChargePointsPage() {
@@ -63,175 +53,18 @@ function ChargePointsPageContent() {
     loading: loadingChargePoints,
     error: errorChargePoints,
   } = useChargePoints();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ChargePointConnectionStatus | "all">("all");
-  const [ocppVersionFilter, setOcppVersionFilter] = useState<string>("all");
-  const queryClient = useQueryClient();
 
-  const invalidateChargePoints = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.chargePoints.all() });
-
-  const createChargePointMutation = useMutation({
-    mutationFn: api.ChargePoints.createChargePoint,
-    onSuccess: invalidateChargePoints,
+  const filters = useChargePointFilters(chargePoints);
+  const { selected, select, changeTab, initialTab } = useChargePointDeepLink({
+    chargePoints,
+    loading: loadingChargePoints || loadingSites,
   });
-  const updateChargePointMutation = useMutation({
-    mutationFn: ({
-      id,
-      patch,
-    }: {
-      id: string;
-      patch: Parameters<typeof api.ChargePoints.updateChargePoint>[1];
-    }) => api.ChargePoints.updateChargePoint(id, patch),
-    onSuccess: invalidateChargePoints,
-  });
-  const deleteChargePointMutation = useMutation({
-    mutationFn: api.ChargePoints.deleteChargePoint,
-    onSuccess: invalidateChargePoints,
-  });
+  const mutations = useChargePointMutations();
+  const dialogs = useChargePointDialogs();
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const highlightedId = searchParams.get("id") ?? undefined;
-  const tabParam = searchParams.get("tab");
-  // Preselects a detail tab when a charge point is deep-linked.
-  const highlightedTab = tabParam && isDetailTab(tabParam) ? tabParam : undefined;
-  const didAutoSwitch = useRef(false);
-
-  const [createOpen, setCreateOpen] = useState(false);
-  // Set after a successful create: opens ChargePointConnectionUrlDialog.
-  const [createdChargePoint, setCreatedChargePoint] = useState<CreatedChargePoint | null>(null);
-  const [detailTarget, setDetailTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [editTarget, setEditTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [commissionTarget, setCommissionTarget] = useState<ChargePointWithConnectors | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<ChargePointWithConnectors | null>(null);
-
-  // The commissioning backlog, from the full list (not the search-filtered
-  // one).
-  const unassignedChargePoints = useMemo(
-    () => chargePoints.filter(isAwaitingCommissioning),
-    [chargePoints],
-  );
-
-  // The OCPP versions present in the fleet, not a static list.
-  const ocppVersionOptions = useMemo(
-    () => [...new Set(chargePoints.map((cp) => cp.ocppVersion))].sort(),
-    [chargePoints],
-  );
-
-  const filteredChargePoints = useMemo(() => {
-    let result = chargePoints;
-
-    if (statusFilter !== "all") {
-      result = result.filter((cp) => cp.connection.status === statusFilter);
-    }
-
-    if (ocppVersionFilter !== "all") {
-      result = result.filter((cp) => cp.ocppVersion === ocppVersionFilter);
-    }
-
-    if (search.length > 2) {
-      const query = search.toLowerCase();
-      result = result.filter(
-        (cp) =>
-          cp.name.toLowerCase().includes(query) ||
-          cp.meta?.vendor?.toLowerCase().includes(query) ||
-          cp.meta?.model?.toLowerCase().includes(query) ||
-          cp.meta?.serialNumber?.toLowerCase().includes(query),
-      );
-    }
-
-    return result;
-  }, [chargePoints, search, statusFilter, ocppVersionFilter]);
-
-  useEffect(() => {
-    if (detailTarget) {
-      const updated = chargePoints.find((cp) => cp.id === detailTarget.id);
-      if (updated) setDetailTarget(updated);
-    }
-  }, [chargePoints, detailTarget]);
-
-  useEffect(() => {
-    if (highlightedId && !loadingChargePoints && !loadingSites && !didAutoSwitch.current) {
-      const target = chargePoints.find((cp) => cp.id === highlightedId);
-      if (target) {
-        didAutoSwitch.current = true;
-        setDetailTarget(target);
-      }
-    }
-  }, [highlightedId, chargePoints, loadingChargePoints, loadingSites]);
-
-  const handleCreate = async (values: ChargePointFormValues) => {
-    const created = await createChargePointMutation.mutateAsync({
-      name: values.name,
-      // Empty selection means unassigned: send null, not "".
-      siteId: values.siteId || null,
-      isActive: values.isActive,
-      meta: {
-        vendor: values.meta?.vendor ?? "",
-        model: values.meta?.model ?? "",
-        serialNumber: values.meta?.serialNumber ?? "",
-        firmwareVersion: values.meta?.firmwareVersion ?? "",
-      },
-    });
-    setCreatedChargePoint(created);
-  };
-
-  const handleEdit = async (values: ChargePointFormValues) => {
-    if (!editTarget) return;
-    await updateChargePointMutation.mutateAsync({
-      id: editTarget.id,
-      patch: {
-        name: values.name,
-        // Empty selection detaches the charge point from its site.
-        siteId: values.siteId || null,
-        meta: {
-          vendor: values.meta?.vendor ?? "",
-          model: values.meta?.model ?? "",
-          serialNumber: values.meta?.serialNumber ?? "",
-          firmwareVersion: values.meta?.firmwareVersion ?? "",
-        },
-      },
-    });
-    setEditTarget(null);
-  };
-
-  const handleCommission = async (values: { name: string; siteId: string | null }) => {
-    if (!commissionTarget) return;
-    await updateChargePointMutation.mutateAsync({
-      id: commissionTarget.id,
-      patch: {
-        name: values.name,
-        siteId: values.siteId,
-      },
-    });
-    setCommissionTarget(null);
-  };
-
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-
-    await deleteChargePointMutation.mutateAsync(deleteTarget.id);
-
-    if (detailTarget?.id === deleteTarget.id) {
-      updateDetailTarget(null);
-    }
-    setDeleteTarget(null);
-  };
-
-  const updateDetailTarget = (cp: ChargePointWithConnectors | null) => {
-    setDetailTarget(cp);
-    if (cp) {
-      // Selecting a charge point drops `tab`: the panel resets to "main".
-      router.replace(`/app/charge-points?id=${cp.id}`);
-    } else {
-      router.replace(`/app/charge-points`);
-    }
-  };
-
-  const handleTabChange = (tab: DetailTab) => {
-    if (!detailTarget) return;
-    router.replace(`/app/charge-points?id=${detailTarget.id}&tab=${tab}`);
+  // A released or deleted charge point must not stay open in the detail panel.
+  const deselectIfSelected = (cp: ChargePointWithConnectors) => {
+    if (selected?.id === cp.id) select(null);
   };
 
   return (
@@ -257,16 +90,16 @@ function ChargePointsPageContent() {
         <>
           <div className="flex flex-col gap-4 content-stretch">
             <div className="flex flex-wrap items-center gap-3">
-              <Button onClick={() => setCreateOpen(true)}>
+              <Button onClick={() => dialogs.openCreate()}>
                 <Plus className="h-4 w-4 mr-2" />
                 {t("appPage.chargePoints.page.buttons.addChargePoint")}
               </Button>
 
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 <Select
-                  value={statusFilter}
+                  value={filters.statusFilter}
                   onValueChange={(value) =>
-                    setStatusFilter(value as ChargePointConnectionStatus | "all")
+                    filters.setStatusFilter(value as ChargePointConnectionStatus | "all")
                   }
                 >
                   <SelectTrigger
@@ -287,7 +120,10 @@ function ChargePointsPageContent() {
                   </SelectContent>
                 </Select>
 
-                <Select value={ocppVersionFilter} onValueChange={setOcppVersionFilter}>
+                <Select
+                  value={filters.ocppVersionFilter}
+                  onValueChange={filters.setOcppVersionFilter}
+                >
                   <SelectTrigger
                     className="h-9 min-w-[150px] w-max text-sm"
                     aria-label={t("appPage.chargePoints.page.filters.ocppVersion")}
@@ -298,7 +134,7 @@ function ChargePointsPageContent() {
                     <SelectItem value="all">
                       {t("appPage.chargePoints.page.filters.allVersions")}
                     </SelectItem>
-                    {ocppVersionOptions.map((version) => (
+                    {filters.ocppVersionOptions.map((version) => (
                       <SelectItem key={version} value={version}>
                         OCPP {version}
                       </SelectItem>
@@ -310,8 +146,8 @@ function ChargePointsPageContent() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder={t("appPage.chargePoints.page.buttons.search")}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    value={filters.search}
+                    onChange={(e) => filters.setSearch(e.target.value)}
                     className="pl-9"
                   />
                 </div>
@@ -319,72 +155,29 @@ function ChargePointsPageContent() {
             </div>
 
             <CommissioningQueue
-              chargePoints={unassignedChargePoints}
-              onCommission={(cp) => setCommissionTarget(cp)}
+              chargePoints={filters.awaitingCommissioning}
+              onCommission={dialogs.openCommission}
             />
 
             <ChargePointFleetPanel
               sites={sites}
-              chargePoints={filteredChargePoints}
-              selected={detailTarget}
-              onSelect={updateDetailTarget}
-              onEditClicked={(cp) => setEditTarget(cp)}
-              onDeleteClicked={(cp) => setDeleteTarget(cp)}
-              onReleased={(cp) => {
-                if (detailTarget?.id === cp.id) updateDetailTarget(null);
-              }}
-              initialTab={detailTarget?.id === highlightedId ? highlightedTab : undefined}
-              onTabChange={handleTabChange}
+              chargePoints={filters.filteredChargePoints}
+              selected={selected}
+              onSelect={select}
+              onEditClicked={dialogs.openEdit}
+              onDeleteClicked={dialogs.openDelete}
+              onReleased={deselectIfSelected}
+              initialTab={initialTab}
+              onTabChange={changeTab}
             />
           </div>
 
-          <CommissioningDialog
-            open={!!commissionTarget}
-            onOpenChange={(open) => !open && setCommissionTarget(null)}
-            chargePoint={commissionTarget}
+          <ChargePointDialogs
+            dialogs={dialogs}
+            mutations={mutations}
             sites={sites}
-            onCommission={handleCommission}
-          />
-
-          <ChargePointFormDialog
-            open={createOpen}
-            onOpenChange={setCreateOpen}
-            onSubmit={handleCreate}
-            mode="create"
-            sites={sites}
-            defaultSiteId={detailTarget?.siteId}
-          />
-          <ChargePointConnectionUrlDialog
-            open={!!createdChargePoint}
-            onOpenChange={(open) => !open && setCreatedChargePoint(null)}
-            chargePoint={createdChargePoint}
-          />
-          <ChargePointFormDialog
-            open={!!editTarget}
-            onOpenChange={(open) => !open && setEditTarget(null)}
-            initialValues={
-              editTarget
-                ? {
-                    name: editTarget.name,
-                    siteId: editTarget.siteId ?? "",
-                    meta: {
-                      vendor: editTarget.meta?.vendor ?? "",
-                      model: editTarget.meta?.model ?? "",
-                      serialNumber: editTarget.meta?.serialNumber ?? "",
-                      firmwareVersion: editTarget.meta?.firmwareVersion ?? "",
-                    },
-                  }
-                : undefined
-            }
-            onSubmit={handleEdit}
-            mode="edit"
-            sites={sites}
-          />
-          <ChargePointDeletionDialog
-            open={!!deleteTarget}
-            onOpenChange={(open) => !open && setDeleteTarget(null)}
-            deleteTarget={deleteTarget}
-            onDeleteClicked={handleDelete}
+            defaultSiteId={selected?.siteId}
+            onDeleted={deselectIfSelected}
           />
         </>
       )}
