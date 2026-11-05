@@ -101,9 +101,17 @@ app/
                            #   next mount or charge-point switch. It is itself decomposed
                            #   into ChargePointHeaderSection,
                            #   ChargePointMetadataSection, and ConnectorStatusSection. The
-                           #   page itself wraps its useSearchParams() usage in Suspense —
-                           #   required for static rendering, and also drives status/OCPP
-                           #   connector filters off the search params.
+                           #   page itself is layout only, over four hooks: useChargePointFilters
+                           #   (search / status / OCPP-version filters, the version options and
+                           #   the commissioning backlog, derived from the full list),
+                           #   useChargePointMutations (create/edit/commission/remove + query
+                           #   invalidation), useChargePointDeepLink (the selected charge point
+                           #   and its `?id=…&tab=…` URL sync, selecting a deep-linked station
+                           #   once; the selection is independent of the filters) and
+                           #   useChargePointDialogs (a reducer for which dialog is open),
+                           #   rendered by ChargePointDialogs. The page wraps its
+                           #   useSearchParams() usage (inside useChargePointDeepLink) in
+                           #   Suspense — required for static rendering.
                            #   hooks/useChargePointActions.ts centralizes the action
                            #   handlers ChargePointDetailPanel and ChargePointFleetPanel share.
                            #   A deactivated charge point (`isActive: false`) accepts no
