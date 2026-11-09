@@ -61,6 +61,23 @@ describe("POST /api/contact", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
+  it.each(["Jane", "12 bornes", "-3", "1.5"])(
+    "SHOULD answer 400 and send nothing WHEN the charge point count is %j",
+    async (chargePoints) => {
+      const response = await POST(requestOf({ ...validBody, chargePoints }));
+
+      expect(response.status).toBe(400);
+      expect(mockFetch).not.toHaveBeenCalled();
+    },
+  );
+
+  it("SHOULD accept the submission WHEN the charge point count is left empty", async () => {
+    const response = await POST(requestOf({ ...validBody, chargePoints: "" }));
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(mockFetch.mock.calls[0][1].body).text).toContain("Nombre de bornes : -");
+  });
+
   it("SHOULD answer 400 WHEN the body is not JSON", async () => {
     const response = await POST(requestOf("not json"));
 

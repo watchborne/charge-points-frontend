@@ -7,7 +7,15 @@ export const contactMessageSchema = z.object({
   name: z.string().trim().min(1).max(200),
   email: z.string().trim().email().max(320),
   phone: z.string().trim().max(50).optional().default(""),
-  chargePoints: z.string().trim().max(50).optional().default(""),
+  // A count, not free text: a browser autofilling the wrong field (a first
+  // name, say) must be rejected rather than reach the inbox mislabeled.
+  chargePoints: z
+    .string()
+    .trim()
+    .regex(/^\d{1,6}$/)
+    .or(z.literal(""))
+    .optional()
+    .default(""),
   message: z.string().trim().min(1).max(5000),
 });
 
