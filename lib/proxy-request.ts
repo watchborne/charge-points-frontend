@@ -64,6 +64,12 @@ async function callBackend(request: NextRequest, backendPath: string): Promise<B
   }
 }
 
+/**
+ * Forwards the backend's answer: status, body and the backend's own
+ * `Content-Type` (JSON when it sends none), so a non-JSON answer such as a
+ * gateway's plain-text or HTML error page keeps its real type. `raw` also
+ * forwards `Content-Disposition`, for a download the browser names itself.
+ */
 export async function proxyToBackend(
   request: NextRequest,
   backendPath: string,
@@ -72,25 +78,21 @@ export async function proxyToBackend(
   const call = await callBackend(request, backendPath);
   if ("failure" in call) return call.failure;
 
-  const requestContentType = request.headers.get("Content-Type") ?? "application/json";
+  const { response } = call;
 
   // A null-body status must have no body: `new Response("", { status: 204 })`
   // throws.
-  const body = NULL_BODY_STATUSES.has(call.response.status) ? null : await call.response.text();
+  const body = NULL_BODY_STATUSES.has(response.status) ? null : await response.text();
 
+  const headers: Record<string, string> = {
+    "Content-Type": response.headers.get("content-type") ?? "application/json",
+  };
   if (options?.raw) {
-    const headers: Record<string, string> = {};
-    const contentType = call.response.headers.get("content-type");
-    if (contentType) headers["Content-Type"] = contentType;
-    const contentDisposition = call.response.headers.get("content-disposition");
+    const contentDisposition = response.headers.get("content-disposition");
     if (contentDisposition) headers["Content-Disposition"] = contentDisposition;
-    return new NextResponse(body, { status: call.response.status, headers });
   }
 
-  return new NextResponse(body, {
-    status: call.response.status,
-    headers: { "Content-Type": requestContentType },
-  });
+  return new NextResponse(body, { status: response.status, headers });
 }
 
 /**
