@@ -19,6 +19,7 @@ export const ContactForm = () => {
   const [status, setStatus] = useState<Status>("idle");
 
   const bind = (field: keyof FormState) => ({
+    name: field,
     value: form[field],
     disabled: status === "sending",
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -68,7 +69,16 @@ export const ContactForm = () => {
         {...bind("phone")}
       />
 
-      <Input placeholder={t("contactPage.form.chargePoints")} {...bind("chargePoints")} />
+      <Input
+        type="number"
+        inputMode="numeric"
+        min={1}
+        max={999999}
+        step={1}
+        placeholder={t("contactPage.form.chargePoints")}
+        autoComplete="off"
+        {...bind("chargePoints")}
+      />
 
       <Textarea
         placeholder={t("contactPage.form.message")}
