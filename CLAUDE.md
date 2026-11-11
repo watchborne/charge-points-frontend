@@ -426,7 +426,13 @@ here — a request without a session simply reaches the backend with no token.
   is handled by this app itself: it validates with `lib/contact-message.ts` (zod)
   and emails the message to `CONTACT_EMAIL_TO` (default
   adrien.miquel.pro@gmail.com) through Resend's REST API, using the server-side-only
-  `RESEND_API_KEY` and `CONTACT_EMAIL_FROM`. Being public and handled here (not by the
+  `RESEND_API_KEY` and `CONTACT_EMAIL_FROM`. Once that is delivered it also emails the
+  sender an automatic acknowledgement (`lib/contact-acknowledgement.ts`, copy under
+  `contactPage.acknowledgement` in `messages/*.json`), in the language of the page the form
+  was sent from (the optional `locale` field `ContactForm` sends, default fr), with
+  `CONTACT_EMAIL_REPLY_TO` as its optional Reply-To. It echoes only the sender's name, never
+  their free text, and a failed acknowledgement is reported to Sentry
+  (`contact.acknowledge`) without failing the request. Being public and handled here (not by the
   backend's limiter), it rate-limits itself per client address
   (`lib/rate-limit.ts` + `lib/contact-rate-limit.ts`, in-memory per instance;
   `CONTACT_RATE_LIMIT_MAX` / `CONTACT_RATE_LIMIT_WINDOW_MS`, default 5 / 60s, answers 429).

@@ -52,6 +52,7 @@ SENTRY_AUTH_TOKEN=<optional, CI/build only, secret — source map upload>
 RESEND_API_KEY=<optional, server-side only — sends the marketing contact form>
 CONTACT_EMAIL_FROM=<optional, sender of the contact form email>
 CONTACT_EMAIL_TO=<optional, recipient of the contact form email>
+CONTACT_EMAIL_REPLY_TO=<optional, Reply-To of the acknowledgement emailed to the sender>
 CONTACT_RATE_LIMIT_MAX=<optional, contact form submissions per client address per window, defaults to 5>
 CONTACT_RATE_LIMIT_WINDOW_MS=<optional, contact form rate-limit window in ms, defaults to 60000>
 ```
