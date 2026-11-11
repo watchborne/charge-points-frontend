@@ -58,10 +58,41 @@ describe("POST /api/contact", () => {
     expect(JSON.parse(init.body as string)).toEqual(validBody);
   });
 
+  it("SHOULD answer 400 AND NOT reach the backend WHEN the email is invalid", async () => {
+    const response = await POST(requestOf({ ...validBody, email: "nope" }));
+
+    expect(response.status).toBe(400);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it.each(["Jane", "12 bornes", "-3", "1.5"])(
+    "SHOULD answer 400 AND NOT reach the backend WHEN the charge point count is %j",
+    async (chargePoints) => {
+      const response = await POST(requestOf({ ...validBody, chargePoints }));
+
+      expect(response.status).toBe(400);
+      expect(mockFetch).not.toHaveBeenCalled();
+    },
+  );
+
+  it("SHOULD relay the submission WHEN the charge point count is left empty", async () => {
+    const response = await POST(requestOf({ ...validBody, chargePoints: "" }));
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(mockFetch.mock.calls[0][1].body).chargePoints).toBe("");
+  });
+
+  it("SHOULD answer 400 WHEN the body is not JSON", async () => {
+    const response = await POST(requestOf("not json"));
+
+    expect(response.status).toBe(400);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
   it("SHOULD hand the backend's refusal back to the visitor WHEN the backend rejects the message", async () => {
     mockFetch.mockResolvedValue(new Response('{"message":"bad"}', { status: 400 }));
 
-    const response = await POST(requestOf({ ...validBody, email: "nope" }));
+    const response = await POST(requestOf(validBody));
 
     expect(response.status).toBe(400);
   });
