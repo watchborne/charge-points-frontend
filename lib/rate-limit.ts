@@ -1,6 +1,6 @@
 /**
- * A fixed-window, in-memory rate limiter for public routes this app handles
- * itself (`/api/contact`). Per server instance, so it stops a scripted loop,
+ * A fixed-window, in-memory rate limiter for a public route this app guards
+ * itself before relaying it (`/api/contact`). Per server instance, so it stops a scripted loop,
  * not a global flood.
  */
 

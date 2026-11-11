@@ -368,13 +368,6 @@
       "success": "Thank you! Your message has been sent, we'll reply within one business day.",
       "error": "Couldn't send your message. Please try again."
     },
-    "acknowledgement": {
-      "subject": "We have received your message",
-      "greeting": "Hello {name},",
-      "body": "Thank you for contacting Watchborne: we have received your message and will reply within one business day.",
-      "noReply": "This is an automatic acknowledgement, there is no need to reply unless you have something to add.",
-      "signature": "The Watchborne team"
-    },
     "contact": {
       "email": {
         "title": "Email",

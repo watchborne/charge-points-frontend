@@ -2,8 +2,8 @@ import { z } from "zod";
 
 import { defaultLocale, locales } from "@/i18n/locale";
 
-// Shared by the contact form (client) and the /api/contact route (server), so
-// both sides agree on what a valid submission is.
+// What the contact form submits to /api/contact, which the backend validates
+// with the same limits.
 export const contactMessageSchema = z.object({
   company: z.string().trim().max(200).optional().default(""),
   name: z.string().trim().min(1).max(200),
