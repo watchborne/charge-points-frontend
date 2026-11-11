@@ -21,7 +21,9 @@ vi.mock("@sentry/nextjs", () => ({ captureException }));
 const mockFetch = vi.fn();
 
 function backendResponse(body: string, status = 200) {
-  return Promise.resolve(new Response(body, { status }));
+  return Promise.resolve(
+    new Response(body, { status, headers: { "content-type": "application/json" } }),
+  );
 }
 
 async function importProxy() {
@@ -185,10 +187,46 @@ describe("proxyToBackend", () => {
     expect(await res.text()).toBe("");
   });
 
-  it("SHOULD set Content-Type application/json on the proxied response", async () => {
+  it("SHOULD answer application/json WHEN the backend sends no Content-Type", async () => {
+    mockFetch.mockReturnValue(Promise.resolve(new Response(null, { status: 204 })));
+    const proxyToBackend = await importProxy();
+
+    const res = await proxyToBackend(requestOf("/api/sites/site-1"), "/api/sites/site-1");
+
+    expect(res.headers.get("content-type")).toBe("application/json");
+  });
+
+  it("SHOULD keep the backend's Content-Type WHEN it answers something other than JSON", async () => {
+    // A gateway's HTML error page must not be relabelled as JSON, or the client
+    // fails to parse it and loses the real status.
+    mockFetch.mockReturnValue(
+      Promise.resolve(
+        new Response("<html>Bad Gateway</html>", {
+          status: 502,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      ),
+    );
     const proxyToBackend = await importProxy();
 
     const res = await proxyToBackend(requestOf("/api/charge-points"), "/api/charge-points");
+
+    expect(res.status).toBe(502);
+    expect(res.headers.get("content-type")).toBe("text/html; charset=utf-8");
+    expect(await res.text()).toBe("<html>Bad Gateway</html>");
+  });
+
+  it("SHOULD NOT take the response Content-Type from the request", async () => {
+    const proxyToBackend = await importProxy();
+
+    const res = await proxyToBackend(
+      requestOf("/api/charge-points/cp-1", {
+        method: "PATCH",
+        headers: { "Content-Type": "text/plain" },
+        body: "{}",
+      }),
+      "/api/charge-points/cp-1",
+    );
 
     expect(res.headers.get("content-type")).toBe("application/json");
   });

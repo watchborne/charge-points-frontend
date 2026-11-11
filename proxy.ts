@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextResponse, type NextRequest } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 
@@ -46,7 +47,8 @@ function stripLocalePrefix(pathname: string): { locale: Locale; rest: string } {
 
 // getUser() rethrows non-auth errors such as a network failure, which would
 // crash the edge function and take down /login, /signup or /app. Fail closed:
-// treat it as no session.
+// treat it as no session, and report it: during an outage every /app request
+// redirects to /login, and nothing else would raise it.
 async function getSessionUser(supabase: ReturnType<typeof createClient>["supabase"]) {
   try {
     const {
@@ -54,7 +56,7 @@ async function getSessionUser(supabase: ReturnType<typeof createClient>["supabas
     } = await supabase.auth.getUser();
     return user;
   } catch (error) {
-    console.error("proxy: supabase.auth.getUser() failed", error);
+    Sentry.captureException(error, { tags: { area: "proxy-auth" } });
     return null;
   }
 }
