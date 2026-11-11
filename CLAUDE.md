@@ -422,18 +422,14 @@ here — a request without a session simply reaches the backend with no token.
   track per-station outcome), charge-points-server ADR 0017.
   `FirmwareCampaign` is the shared package's entity, seen through `Wire<>` (below).
 - `lib/api-contact.ts` (`api.Contact.send`) posts the marketing contact form
-  (`ContactForm`) to `app/api/contact/route.ts`, which — unlike the proxies above —
-  is handled by this app itself: it validates with `lib/contact-message.ts` (zod)
-  and emails the message to `CONTACT_EMAIL_TO` (default
-  adrien.miquel.pro@gmail.com) through Resend's REST API, using the server-side-only
-  `RESEND_API_KEY` and `CONTACT_EMAIL_FROM`. Once that is delivered it also emails the
-  sender an automatic acknowledgement (`lib/contact-acknowledgement.ts`, copy under
-  `contactPage.acknowledgement` in `messages/*.json`), in the language of the page the form
-  was sent from (the optional `locale` field `ContactForm` sends, default fr), with
-  `CONTACT_EMAIL_REPLY_TO` as its optional Reply-To. It echoes only the sender's name, never
-  their free text, and a failed acknowledgement is reported to Sentry
-  (`contact.acknowledge`) without failing the request. Being public and handled here (not by the
-  backend's limiter), it rate-limits itself per client address
+  (`ContactForm`) to `app/api/contact/route.ts`, a public proxy to the backend's
+  `POST /api/contact` like `/api/access-requests`. The backend validates the
+  message, emails it to the team and sends the sender an automatic acknowledgement
+  in the language of the page the form was sent from (the `locale` field
+  `ContactForm` sends, `lib/contact-message.ts`), through Resend with the
+  `@watchborne/charge-points-email-templates` renderers — this app holds no email
+  credentials. The backend's rate limit is one bucket for every proxied visitor, so
+  the route rate-limits per client address in front of it
   (`lib/rate-limit.ts` + `lib/contact-rate-limit.ts`, in-memory per instance;
   `CONTACT_RATE_LIMIT_MAX` / `CONTACT_RATE_LIMIT_WINDOW_MS`, default 5 / 60s, answers 429).
 - `lib/constants.ts` — `API_URL` / `WS_URL` from `NEXT_PUBLIC_*` env, with
@@ -743,7 +739,6 @@ NEXT_PUBLIC_WS_URL=ws://localhost:3000/ws         # dashboard WebSocket
 NEXT_PUBLIC_OCPP_SERVER_URL=ws://localhost:9000/ocpp  # public OCPP endpoint (Configuration page)
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=                     # optional; Web Push VAPID public key (same as server's)
 API_SECRET_KEY=<shared secret>                    # SERVER-SIDE ONLY (x-api-key)
-RESEND_API_KEY=                                   # SERVER-SIDE ONLY, contact form email (optional CONTACT_EMAIL_FROM / CONTACT_EMAIL_TO)
 NEXT_PUBLIC_SUPABASE_URL=<project url>            # Supabase Auth (public)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>          # Supabase Auth (public)
 ENABLE_DEV_LOGIN=                                 # optional, LOCAL DEV ONLY (dev-login shortcut opt-in)
