@@ -1,3 +1,4 @@
+import { captureException } from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -41,6 +42,7 @@ beforeEach(() => {
   vi.resetModules();
   createServerClient.mockClear();
   getUser.mockReset();
+  vi.mocked(captureException).mockClear();
   intlMiddlewareImpl.current = null;
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test-anon-key");
@@ -152,6 +154,27 @@ describe("proxy auth guard resilience", () => {
 
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toBe("http://localhost:3001/login");
+  });
+
+  it("SHOULD report the failure to Sentry WHEN supabase.auth.getUser() throws", async () => {
+    // Failing closed turns an auth outage into redirects to /login; without a
+    // report the incident is only found through users.
+    const error = new Error("fetch failed");
+    getUser.mockRejectedValue(error);
+    const { proxy } = await import("../../proxy");
+
+    await proxy(request("/app/dashboard"));
+
+    expect(captureException).toHaveBeenCalledWith(error, { tags: { area: "proxy-auth" } });
+  });
+
+  it("SHOULD NOT report anything WHEN supabase.auth.getUser() succeeds", async () => {
+    setUser({ id: "user-1" });
+    const { proxy } = await import("../../proxy");
+
+    await proxy(request("/app/dashboard"));
+
+    expect(captureException).not.toHaveBeenCalled();
   });
 
   it("SHOULD let /api/* through WHEN supabase.auth.getUser() throws", async () => {
