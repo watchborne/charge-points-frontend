@@ -54,6 +54,58 @@ describe("POST /api/contact", () => {
     expect(sent.text).toContain("Acme");
   });
 
+  it("SHOULD acknowledge the sender in French WHEN no locale is given", async () => {
+    await POST(requestOf(validBody));
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    const ack = JSON.parse(mockFetch.mock.calls[1][1].body);
+    expect(ack.to).toEqual(["jane@example.com"]);
+    expect(ack.subject).toBe("Nous avons bien reçu votre message");
+    expect(ack.text).toContain("Bonjour Jane Doe,");
+    expect(ack).not.toHaveProperty("reply_to");
+  });
+
+  it("SHOULD acknowledge in the sender's language AND NOT echo their message WHEN locale is en", async () => {
+    vi.stubEnv("CONTACT_EMAIL_REPLY_TO", "contact@example.com");
+
+    await POST(requestOf({ ...validBody, locale: "en" }));
+
+    const ack = JSON.parse(mockFetch.mock.calls[1][1].body);
+    expect(ack.subject).toBe("We have received your message");
+    expect(ack.text).toContain("Hello Jane Doe,");
+    expect(ack.text).not.toContain("Hello there");
+    expect(ack.reply_to).toBe("contact@example.com");
+  });
+
+  it("SHOULD answer 200 AND report the failure WHEN only the acknowledgement is rejected", async () => {
+    mockFetch
+      .mockResolvedValueOnce(new Response("{}", { status: 200 }))
+      .mockResolvedValueOnce(new Response("{}", { status: 422 }));
+
+    const response = await POST(requestOf(validBody));
+
+    expect(response.status).toBe(200);
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { context: "contact.acknowledge" },
+    });
+  });
+
+  it("SHOULD answer 200 WHEN sending the acknowledgement throws", async () => {
+    mockFetch
+      .mockResolvedValueOnce(new Response("{}", { status: 200 }))
+      .mockRejectedValueOnce(new Error("network"));
+
+    const response = await POST(requestOf(validBody));
+
+    expect(response.status).toBe(200);
+  });
+
+  it("SHOULD answer 400 WHEN the locale is unsupported", async () => {
+    const response = await POST(requestOf({ ...validBody, locale: "de" }));
+
+    expect(response.status).toBe(400);
+  });
+
   it("SHOULD answer 400 and send nothing WHEN the email is invalid", async () => {
     const response = await POST(requestOf({ ...validBody, email: "nope" }));
 
@@ -85,6 +137,7 @@ describe("POST /api/contact", () => {
     const response = await POST(requestOf(validBody));
 
     expect(response.status).toBe(502);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
       tags: { context: "contact.send" },
     });

@@ -368,6 +368,13 @@
       "success": "Merci ! Votre message a bien été envoyé, nous vous répondrons sous un jour ouvrable.",
       "error": "Impossible d'envoyer votre message. Veuillez réessayer."
     },
+    "acknowledgement": {
+      "subject": "Nous avons bien reçu votre message",
+      "greeting": "Bonjour {name},",
+      "body": "Merci d'avoir contacté Watchborne : nous avons bien reçu votre message et nous vous répondrons sous un jour ouvrable.",
+      "noReply": "Il s'agit d'un accusé de réception automatique, inutile d'y répondre si vous n'avez rien à ajouter.",
+      "signature": "L'équipe Watchborne"
+    },
     "contact": {
       "email": {
         "title": "Email",

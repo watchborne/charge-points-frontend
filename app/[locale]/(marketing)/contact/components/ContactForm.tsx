@@ -2,9 +2,10 @@
 
 import { Button, Callout, Input } from "@watchborne/electrons";
 import { Textarea } from "@watchborne/electrons";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { defaultLocale, isLocale } from "@/i18n/locale";
 import { api } from "@/lib/api";
 import { reportError } from "@/lib/report-error";
 
@@ -15,6 +16,8 @@ type Status = "idle" | "sending" | "sent" | "error";
 
 export const ContactForm = () => {
   const t = useTranslations("");
+  const currentLocale = useLocale();
+  const locale = isLocale(currentLocale) ? currentLocale : defaultLocale;
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [status, setStatus] = useState<Status>("idle");
 
@@ -29,7 +32,7 @@ export const ContactForm = () => {
     e.preventDefault();
     setStatus("sending");
     try {
-      await api.Contact.send(form);
+      await api.Contact.send({ ...form, locale });
       setForm(EMPTY_FORM);
       setStatus("sent");
     } catch (error) {
