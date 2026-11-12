@@ -1,6 +1,15 @@
-import * as Sentry from "@sentry/nextjs";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { getSession, createServerClient } = vi.hoisted(() => {
+  const getSession = vi.fn().mockResolvedValue({ data: { session: null } });
+  return { getSession, createServerClient: vi.fn(() => ({ auth: { getSession } })) };
+});
+
+vi.mock("@supabase/ssr", () => ({ createServerClient }));
+vi.mock("next/headers", () => ({
+  cookies: () => ({ getAll: () => [], set: vi.fn() }),
+}));
 
 import { contactRateLimiter } from "../../../../lib/contact-rate-limit";
 import { POST } from "../route";
@@ -14,6 +23,7 @@ const validBody = {
   phone: "0102030405",
   chargePoints: "12",
   message: "Hello there",
+  locale: "en",
 };
 
 const requestOf = (body: unknown, ip = "203.0.113.1") =>
@@ -26,35 +36,29 @@ const requestOf = (body: unknown, ip = "203.0.113.1") =>
 describe("POST /api/contact", () => {
   beforeEach(() => {
     contactRateLimiter.reset();
-    vi.mocked(Sentry.captureException).mockClear();
     vi.stubGlobal("fetch", mockFetch);
-    vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    mockFetch.mockResolvedValue(new Response("{}", { status: 200 }));
+    getSession.mockReset().mockResolvedValue({ data: { session: null } });
+    // A fresh Response per call: a body can only be read once.
+    mockFetch
+      .mockReset()
+      .mockImplementation(async () => new Response('{"ok":true}', { status: 200 }));
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    vi.unstubAllEnvs();
-    vi.restoreAllMocks();
-    mockFetch.mockReset();
   });
 
-  it("SHOULD email the submitted content to the default recipient WHEN the input is valid", async () => {
+  it("SHOULD relay the submitted message to the backend /api/contact WHEN under the limit", async () => {
     const response = await POST(requestOf(validBody));
 
     expect(response.status).toBe(200);
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe("https://api.resend.com/emails");
-    expect(init.headers.Authorization).toBe("Bearer re_test");
-    const sent = JSON.parse(init.body);
-    expect(sent.to).toEqual(["adrien.miquel.pro@gmail.com"]);
-    expect(sent.reply_to).toBe("jane@example.com");
-    expect(sent.text).toContain("Hello there");
-    expect(sent.text).toContain("Acme");
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("http://localhost:3000/api/contact");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual(validBody);
   });
 
-  it("SHOULD answer 400 and send nothing WHEN the email is invalid", async () => {
+  it("SHOULD answer 400 AND NOT reach the backend WHEN the email is invalid", async () => {
     const response = await POST(requestOf({ ...validBody, email: "nope" }));
 
     expect(response.status).toBe(400);
@@ -62,7 +66,7 @@ describe("POST /api/contact", () => {
   });
 
   it.each(["Jane", "12 bornes", "-3", "1.5"])(
-    "SHOULD answer 400 and send nothing WHEN the charge point count is %j",
+    "SHOULD answer 400 AND NOT reach the backend WHEN the charge point count is %j",
     async (chargePoints) => {
       const response = await POST(requestOf({ ...validBody, chargePoints }));
 
@@ -71,43 +75,37 @@ describe("POST /api/contact", () => {
     },
   );
 
-  it("SHOULD accept the submission WHEN the charge point count is left empty", async () => {
+  it("SHOULD relay the submission WHEN the charge point count is left empty", async () => {
     const response = await POST(requestOf({ ...validBody, chargePoints: "" }));
 
     expect(response.status).toBe(200);
-    expect(JSON.parse(mockFetch.mock.calls[0][1].body).text).toContain("Nombre de bornes : -");
+    expect(JSON.parse(mockFetch.mock.calls[0][1].body).chargePoints).toBe("");
   });
 
   it("SHOULD answer 400 WHEN the body is not JSON", async () => {
     const response = await POST(requestOf("not json"));
 
     expect(response.status).toBe(400);
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("SHOULD answer 500 WHEN RESEND_API_KEY is not set", async () => {
-    vi.stubEnv("RESEND_API_KEY", "");
+  it("SHOULD hand the backend's refusal back to the visitor WHEN the backend rejects the message", async () => {
+    mockFetch.mockResolvedValue(new Response('{"message":"bad"}', { status: 400 }));
 
     const response = await POST(requestOf(validBody));
 
-    expect(response.status).toBe(500);
-    expect(mockFetch).not.toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
-      tags: { context: "contact.config" },
-    });
+    expect(response.status).toBe(400);
   });
 
-  it("SHOULD answer 502 WHEN the email provider rejects the request", async () => {
-    mockFetch.mockResolvedValue(new Response("{}", { status: 422 }));
+  it("SHOULD answer 502 WHEN the backend is unreachable", async () => {
+    mockFetch.mockRejectedValue(new Error("connection refused"));
 
     const response = await POST(requestOf(validBody));
 
     expect(response.status).toBe(502);
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
-      tags: { context: "contact.send" },
-    });
   });
 
-  it("SHOULD answer 429 with Retry-After AND NOT email WHEN a client exceeds the limit", async () => {
+  it("SHOULD answer 429 with Retry-After AND NOT reach the backend WHEN a client exceeds the limit", async () => {
     for (let i = 0; i < 5; i++) {
       expect((await POST(requestOf(validBody))).status).toBe(200);
     }

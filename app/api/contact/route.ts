@@ -1,36 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { contactMessageSchema, type ContactMessage } from "@/lib/contact-message";
+import { contactMessageSchema } from "@/lib/contact-message";
 import { contactRateLimiter } from "@/lib/contact-rate-limit";
+import { proxyToBackend } from "@/lib/proxy-request";
 import { getClientIp } from "@/lib/rate-limit";
-import { reportError } from "@/lib/report-error";
 
-const RESEND_API_URL = "https://api.resend.com/emails";
-const DEFAULT_RECIPIENT = "adrien.miquel.pro@gmail.com";
-// Resend's shared test sender; set CONTACT_EMAIL_FROM to an address on a
-// verified domain in any real environment.
-const DEFAULT_SENDER = "Watchborne <onboarding@resend.dev>";
-
-const buildBody = ({ company, name, email, phone, chargePoints, message }: ContactMessage) =>
-  [
-    `Nom : ${name}`,
-    `Email : ${email}`,
-    `Entreprise : ${company || "-"}`,
-    `Téléphone : ${phone || "-"}`,
-    `Nombre de bornes : ${chargePoints || "-"}`,
-    "",
-    message,
-  ].join("\n");
-
-// Public and handled here, not by the backend, so it rate-limits itself, then
-// emails the message through Resend. RESEND_API_KEY is server-side only.
+// Public: submitted from /contact without a session. A malformed submission is
+// refused here; the backend validates it again, emails it to the team and
+// acknowledges the sender. The backend's own limit is one bucket for every
+// proxied visitor, so this per-client limit stands in front of it: one scripted
+// client must not use up the budget of the others.
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    reportError(new Error("RESEND_API_KEY is not set"), "contact.config");
-    return NextResponse.json({ code: "NOT_CONFIGURED" }, { status: 500 });
-  }
-
   const limit = contactRateLimiter.check(getClientIp(request.headers));
   if (!limit.allowed) {
     return NextResponse.json(
@@ -39,32 +19,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const payload = await request.json().catch(() => null);
-  const parsed = contactMessageSchema.safeParse(payload);
-  if (!parsed.success) {
+  // Read from a clone: the relay forwards the original body untouched.
+  const payload = await request
+    .clone()
+    .json()
+    .catch(() => null);
+  if (!contactMessageSchema.safeParse(payload).success) {
     return NextResponse.json({ code: "INVALID_INPUT" }, { status: 400 });
   }
 
-  const contact = parsed.data;
-  const response = await fetch(RESEND_API_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.CONTACT_EMAIL_FROM || DEFAULT_SENDER,
-      to: [process.env.CONTACT_EMAIL_TO || DEFAULT_RECIPIENT],
-      reply_to: contact.email,
-      subject: `Nouveau message de contact — ${contact.name}`,
-      text: buildBody(contact),
-    }),
-  });
-
-  if (!response.ok) {
-    reportError(
-      new Error(`Resend answered ${response.status}: ${await response.text()}`),
-      "contact.send",
-    );
-    return NextResponse.json({ code: "SEND_FAILED" }, { status: 502 });
-  }
-
-  return NextResponse.json({ ok: true });
+  return proxyToBackend(request, "/api/contact");
 }
