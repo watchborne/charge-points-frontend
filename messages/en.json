@@ -365,7 +365,7 @@
       "chargePoints": "Number of charge points",
       "message": "Tell us about your infrastructure...",
       "submit": "Send Message",
-      "success": "Thank you! Your message has been sent, we'll reply within one business day.",
+      "success": "Thank you! Your message has been sent, we'll reply within 2 business days.",
       "error": "Couldn't send your message. Please try again."
     },
     "contact": {
@@ -379,7 +379,7 @@
       },
       "support": {
         "title": "Support",
-        "description": "Response within one business day."
+        "description": "Response within two business days."
       }
     }
   },
