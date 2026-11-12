@@ -365,7 +365,7 @@
       "chargePoints": "Nombre de bornes de recharge",
       "message": "Parlez-nous de votre infrastructure...",
       "submit": "Envoyer le message",
-      "success": "Merci ! Votre message a bien été envoyé, nous vous répondrons sous un jour ouvrable.",
+      "success": "Merci ! Votre message a bien été envoyé, nous vous répondrons sous 48h.",
       "error": "Impossible d'envoyer votre message. Veuillez réessayer."
     },
     "contact": {
@@ -379,7 +379,7 @@
       },
       "support": {
         "title": "Support",
-        "description": "Réponse sous un jour ouvrable."
+        "description": "Réponse sous 48h."
       }
     }
   },
