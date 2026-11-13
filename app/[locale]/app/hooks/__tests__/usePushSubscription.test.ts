@@ -317,6 +317,57 @@ describe("isSubscribed (on-mount check)", () => {
     expect(result.current.isSubscribed).toBe(false);
   });
 
+  // An unhandled rejection here would reach the global handler untagged, and
+  // the profile toggle would silently offer to subscribe a browser that may
+  // already be subscribed.
+  it.each([
+    [
+      "getRegistration",
+      () => mockGetRegistration.mockRejectedValue(new Error("SecurityError")),
+      "SecurityError",
+    ],
+    [
+      "getSubscription",
+      () => {
+        const registration = fakeRegistration();
+        registration.pushManager.getSubscription.mockRejectedValue(new Error("push unavailable"));
+        mockGetRegistration.mockResolvedValue(registration);
+      },
+      "push unavailable",
+    ],
+  ])(
+    "SHOULD report the error and stay unsubscribed WHEN %s rejects on mount",
+    async (_lookup, arrange, message) => {
+      arrange();
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+      const { result } = renderUsePushSubscription();
+
+      await waitFor(() =>
+        expect(errorSpy).toHaveBeenCalledWith(
+          "[usePushSubscription.init]",
+          expect.objectContaining({ message }),
+        ),
+      );
+      expect(result.current.isSubscribed).toBe(false);
+    },
+  );
+
+  it("SHOULD NOT report a failed check WHEN the hook unmounted before it settled", async () => {
+    const pending = deferred<ServiceWorkerRegistration | undefined>();
+    mockGetRegistration.mockReturnValue(pending.promise);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { unmount } = renderUsePushSubscription();
+    unmount();
+    pending.reject(new Error("late failure"));
+    await act(async () => {
+      await pending.promise.catch(() => undefined);
+    });
+
+    expect(errorSpy).not.toHaveBeenCalled();
+  });
+
   it("SHOULD stay false and skip the check entirely WHEN the browser does not support push", () => {
     delete (navigator as unknown as { serviceWorker?: unknown }).serviceWorker;
 
@@ -331,10 +382,12 @@ describe("isSubscribed (on-mount check)", () => {
 // resolve on the next microtask, faster than waitFor polls.
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((res) => {
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
     resolve = res;
+    reject = rej;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 describe("isPending", () => {
