@@ -70,9 +70,15 @@ export function usePushSubscription(): UsePushSubscriptionReturn {
     let cancelled = false;
 
     (async () => {
-      const registration = await navigator.serviceWorker.getRegistration(SERVICE_WORKER_URL);
-      const subscription = await registration?.pushManager.getSubscription();
-      if (!cancelled) setIsSubscribed(Boolean(subscription));
+      try {
+        const registration = await navigator.serviceWorker.getRegistration(SERVICE_WORKER_URL);
+        const subscription = await registration?.pushManager.getSubscription();
+        if (!cancelled) setIsSubscribed(Boolean(subscription));
+      } catch (error) {
+        // Both lookups can reject (blocked storage, partial Push API, in-app
+        // browsers). `isSubscribed` then stays false.
+        if (!cancelled) reportError(error, "usePushSubscription.init");
+      }
     })();
 
     return () => {
