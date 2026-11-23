@@ -749,6 +749,8 @@ NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=            # optional, 0-1 (default 1), S
 SENTRY_ORG=                                       # optional, CI/build only (source map upload)
 SENTRY_PROJECT=                                   # optional, CI/build only (source map upload)
 SENTRY_AUTH_TOKEN=                                # optional, CI/build only, secret (source map upload)
+CONTACT_RATE_LIMIT_MAX=                           # optional, contact form submissions per client address per window (default 5)
+CONTACT_RATE_LIMIT_WINDOW_MS=                     # optional, contact form rate-limit window in ms (default 60000)
 ```
 
 `NEXT_PUBLIC_*` values are exposed to the browser; anything secret (like
